@@ -1,1 +1,2 @@
-- DOMAIN-SUFFIX,dlercloud.com,test
+Rule:
+- DOMAIN-SUFFIX,dlercloud.com,DIRECT
