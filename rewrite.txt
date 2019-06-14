@@ -2,19 +2,9 @@ hostname = *.360buyimg.com, *.cnbetacdn.com, *.doubanio.com, *.iydsj.com, *.psta
 
 ^https?://www\.zhihu\.com/question/ url request-header (\r\n)User-Agent:.+(\r\n) request-header $1User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36$2
 
+# TikTok
 (?<=(carrier|account|sys)_region=)CN url 307 HK
 (.*video_id=\w{32})(.*watermark=)(.*) url 302 $1
-(.*vide\.f).(\d{2}\.mp4)(.*) url 302 $1$2
-(?<=&?watermark=)1(?=.*) url 302 0
-(?<=aweme\/v1\/)playwm url 302 play
-^https:\/\/twitter\.com\/ url 307 tweetbot://
-(?<=aweme\/v1\/)playwm url 302 play
-(?<=&app_version=)([0-9]).([0-9]).([0-9])(?=.*) url 307 2.4.1
-(?<=&?version_code=)([0-9]).([0-9]).([0-9]) url 307 2.4.1
-(?<=&app_version=)4.4.0(?=.*) url 307 2.4.1
-(?<=&?version_code=)4.4.0 url 307 2.4.1
-(?<=&carrier_region=)CN(?=.*) url 307 JP
-(?<=&sys_region=)CN(?=.*) url 307 JP
 ^https?://(www.)?g.cn url 302 https://www.google.com
 ^https?://(www.)?google.cn url 302 https://www.google.com
 ^https?://(www.)?google.cn/search url 302 https://www.google.com/search
@@ -73,8 +63,6 @@ hostname = *.360buyimg.com, *.cnbetacdn.com, *.doubanio.com, *.iydsj.com, *.psta
 ^https?:\/\/(www.)?yuanchengxiezuo\.com\/ url 302 https://www.teamviewer.com/zhcn/
 ^https?:\/\/(www.)?zbrushcn\.com\/ url 302 http://pixologic.com/
 
-# TikTok
-(?<=(carrier|account|sys)_region=)CN url 307 JP
 
 # Advertising Block
 # 0~9
