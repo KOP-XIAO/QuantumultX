@@ -1,0 +1,64 @@
+{
+  "list": [
+    {
+      "enable": true,
+      "url": "https://gist.githubusercontent.com/Fndroid/58106962a852aa5c45bd1803b34b8651/raw/aa4649d63190a909a22e1c44fc23bfda382809dc/LAN.list",
+      "note": "LAN",
+      "policy": "DIRECT"
+    },
+    {
+      "enable": true,
+      "url": "https://raw.githubusercontent.com/ConnersHua/Profiles/master/Surge/Ruleset/Apple.list",
+      "note": "苹果",
+      "policy": "Apple"
+    },
+    {
+      "enable": true,
+      "url": "https://gist.githubusercontent.com/Fndroid/58106962a852aa5c45bd1803b34b8651/raw/97d927bf19d7b61a7da0c8b305728f958f22b0eb/SYSTEM.list",
+      "note": "SYSTEM",
+      "policy": "DIRECT"
+    },
+    {
+      "enable": true,
+      "url": "https://raw.githubusercontent.com/ConnersHua/Profiles/master/Surge/Ruleset/Advertising.list",
+      "note": "黑名单",
+      "policy": "REJECT"
+    },
+    {
+      "enable": true,
+      "url": "https://raw.githubusercontent.com/ConnersHua/Profiles/master/Surge/Ruleset/Hijacking.list",
+      "note": "运营商劫持",
+      "policy": "REJECT"
+    },
+    {
+      "enable": true,
+      "url": "https://raw.githubusercontent.com/ConnersHua/Profiles/master/Surge/Ruleset/Global.list",
+      "note": "代理",
+      "policy": "PROXY"
+    },
+     {
+      "enable": true,
+      "url": "https://raw.githubusercontent.com/ConnersHua/Profiles/master/Surge/Ruleset/Telegram.list",
+      "note": "Telegram",
+      "policy": "PROXY"
+    },
+    {
+      "enable": true,
+      "url": "https://raw.githubusercontent.com/ConnersHua/Profiles/master/Surge/Ruleset/ForeignMedia.list",
+      "note": "国外媒体",
+      "policy": "PROXY"
+    },
+    {
+      "enable": true,
+      "url": "https://raw.githubusercontent.com/ConnersHua/Profiles/master/Surge/Ruleset/China.list",
+      "note": "国内",
+      "policy": "DIRECT"
+    },
+    {
+      "enable": true,
+      "url": "https://raw.githubusercontent.com/ConnersHua/Profiles/master/Surge/Ruleset/DomesticMedia.list",
+      "note": "国内媒体",
+      "policy": "DIRECT"
+    }
+  ]
+}
