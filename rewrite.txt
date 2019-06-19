@@ -5,6 +5,11 @@ hostname = *.360buyimg.com, *.cnbetacdn.com, *.doubanio.com, *.iydsj.com, *.psta
 # TikTok
 (?<=(carrier|account|sys)_region=)CN url 307 HK
 (.*video_id=\w{32})(.*watermark=)(.*) url 302 $1
+#tweetbot
+^https:\/\/twitter\.com\/ url 307 tweetbot:// 
+#github master branch
+^https://github.com/(Dreamacro|yichengchen|lhie1|ccg2018|SukkaW)/(clash|clashX|Rules|ClashA|Koolshare-Clash)$ url 302 https://github.com/$1/$2/tree/master
+#google
 ^https?://(www.)?g.cn url 302 https://www.google.com
 ^https?://(www.)?google.cn url 302 https://www.google.com
 ^https?://(www.)?google.cn/search url 302 https://www.google.com/search
