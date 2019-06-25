@@ -1,3 +1,4 @@
+$notify(TikTok, 已匹配)
 let result = $response.body;
 function replaceAll(str, find, replace) {
   return str.replace(new RegExp(find, 'g'), replace);
@@ -32,7 +33,6 @@ if(result.indexOf('aweme_list') != -1){
 }
 
 body = JSON.stringify(body);
-$notify(TikTok, 已匹配)
 $done({body});
 
 /**********************************************************
