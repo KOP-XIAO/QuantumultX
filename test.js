@@ -6,6 +6,7 @@ var body = $response.body;
 var obj = JSON.parse(body);
 
 $notify("HAHA", "Sucess");
+$notification.post("HAHA", "Sucess");
 obj['result'] = 0;
 body = JSON.stringify(obj);
 
