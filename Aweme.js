@@ -33,7 +33,7 @@ if(result.indexOf('aweme_list') != -1){
 }
 
 body = JSON.stringify(body);
-$done({body});
+$done(body);
 
 /**********************************************************
 From Surge Version: https://raw.githubusercontent.com/Choler/Surge/master/Script/Aweme.js
