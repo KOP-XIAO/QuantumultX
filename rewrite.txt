@@ -3,8 +3,9 @@ hostname = *.360buyimg.com, *.cnbetacdn.com, *.doubanio.com, *.iydsj.com, *.psta
 ^https?://www\.zhihu\.com/question/ url request-header (\r\n)User-Agent:.+(\r\n) request-header $1User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36$2
 
 # TikTok
-(?<=(carrier|account|sys)_region=)CN url 307 HK
-(.*video_id=\w{32})(.*watermark=)(.*) url 302 $1
+;(?<=(carrier|account|sys)_region=)CN url 307 HK
+;(.*video_id=\w{32})(.*watermark=)(.*) url 302 $1
+;^https:\/\/[\s\S]*\/v1\/(aweme\/)?(feed|post)\/ url script-response-body https://raw.githubusercontent.com/Choler/Surge/master/Script/Aweme.js
 #tweetbot
 ^https:\/\/twitter\.com\/ url 307 tweetbot:// 
 #github master branch
