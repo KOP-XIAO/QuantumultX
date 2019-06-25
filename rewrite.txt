@@ -6,6 +6,9 @@ hostname = *.360buyimg.com, *.cnbetacdn.com, *.doubanio.com, *.iydsj.com, *.psta
 ;(?<=(carrier|account|sys)_region=)CN url 307 HK
 ;(.*video_id=\w{32})(.*watermark=)(.*) url 302 $1
 ^https:\/\/[\s\S]*\/v1\/(aweme\/)?(feed|post)\/ url script-response-body https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Aweme.js
+
+^https://www\.tianqiapi\.com/ url script-response-body https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/weather.js
+
 #tweetbot
 ^https:\/\/twitter\.com\/ url 307 tweetbot:// 
 #github master branch
