@@ -22,9 +22,9 @@ https?://www\.zhihu\.com/question/ url request-header (\r\n)User-Agent:.+(\r\n) 
 # TikTok
 ;(?<=(carrier|account|sys)_region=)CN url 307 HK
 ;(.*video_id=\w{32})(.*watermark=)(.*) url 302 $1
-^https:\/\/[\s\S]*\/v1\/(aweme\/)?(feed|post)\/ url script-response-body https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Aweme.js
+^https:\/\/[\s\S]*\/v1\/(aweme\/)?(feed|post)\/ url script-response-body https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/Aweme.js
 
-^https://www\.tianqiapi\.com/ url script-response-body https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/weather.js
+^https://www\.tianqiapi\.com/ url script-response-body https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/weather.js
 #weibo
 ^https?:\/\/(api|mapi)\.weibo\.(cn|com)\/2(\/groups\/timeline|\/statuses\/unread|\/statuses\/extend|\/comments\/build_comments|\/photo\/recommend_list|\/stories\/video_stream|\/statuses\/positives\/get|\/stories\/home_list|\/profile\/statuses|\/statuses\/friends\/timeline|\/service\/picfeed) url script-response-body https://raw.githubusercontent.com/yichahucha/surge/master/wb_ad.js
 ^https?:\/\/(sdk|wb)app\.uve\.weibo\.com(\/interface\/sdk\/sdkad.php|\/wbapplua\/wbpullad.lua) url script-response-body https://raw.githubusercontent.com/yichahucha/surge/master/wb_launch.js
