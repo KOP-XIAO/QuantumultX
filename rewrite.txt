@@ -6,6 +6,9 @@ https?://www\.zhihu\.com/question/ url request-header (\r\n)User-Agent:.+(\r\n) 
 #aimeiju vip
 ^https?://mjappaz.yefu365.com/index.php/app/ios/ url script-response-body https://meetagit.github.io/MeetaRules/Surge/Scripting/aimeiju.js
 
+# wechat 朋友圈
+^https?:\/\/mp\.weixin\.qq\.com\/mp\/getappmsgad url script-response-body https://Choler.github.io/Surge/Script/WeChat.js
+
 #YYeTs
 ^http://ctrl.playcvn.com/app/(init|ads) url script-response-body https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/YYeTs.js
 
