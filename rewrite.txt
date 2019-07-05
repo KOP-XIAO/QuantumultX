@@ -28,10 +28,13 @@ https?://www\.zhihu\.com/question/ url request-header (\r\n)User-Agent:.+(\r\n) 
 #weibo
 ^https?:\/\/(api|mapi)\.weibo\.(cn|com)\/2(\/groups\/timeline|\/statuses\/unread|\/statuses\/extend|\/comments\/build_comments|\/photo\/recommend_list|\/stories\/video_stream|\/statuses\/positives\/get|\/stories\/home_list|\/profile\/statuses|\/statuses\/friends\/timeline|\/service\/picfeed) url script-response-body https://raw.githubusercontent.com/yichahucha/surge/master/wb_ad.js
 ^https?:\/\/(sdk|wb)app\.uve\.weibo\.com(\/interface\/sdk\/sdkad.php|\/wbapplua\/wbpullad.lua) url script-response-body https://raw.githubusercontent.com/yichahucha/surge/master/wb_launch.js
-#tweetbot
-^https:\/\/twitter\.com\/ url 307 tweetbot:// 
+
+#twitter to tweetbot
+^https:\/\/twitter\.com\/ url 302 tweetbot://
+
 #github master branch
 ^https://github.com/(Dreamacro|yichengchen|lhie1|ccg2018|SukkaW)/(clash|clashX|Rules|ClashA|Koolshare-Clash)$ url 302 https://github.com/$1/$2/tree/master
+
 #google
 ^https?://(www.)?g.cn url 302 https://www.google.com
 ^https?://(www.)?google.cn url 302 https://www.google.com
@@ -509,3 +512,9 @@ https?://www\.zhihu\.com/question/ url request-header (\r\n)User-Agent:.+(\r\n) 
 ^https?:\/\/api\.zhuishushenqi\.com\/notification\/shelfMessage url reject
 ^https?:\/\/api\.zhuishushenqi\.com\/user\/bookshelf-updated url reject
 ^https?:\/\/itunes\.apple\.com\/lookup\?id=575826903 url reject
+
+# 招行 app
+^https:\/\/m\.creditcard\.ecitic\.com\/citiccard\/mbk\/.+.\/appStartAdv url reject
+
+# 微信
+^https:\/\/mp\.weixin\.qq\.com\/mp\/getappmsgad\?f= url reject
