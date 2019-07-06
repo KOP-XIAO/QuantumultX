@@ -11,7 +11,7 @@ if ($request.url.indexOf('vide.f7') > 0) {
 
 /**********************************************************
 #### 原作者：https://Choler.github.io/Surge/Script/Amark.js 
-^https:\/\/[\s\S]*/aweme\/v1\/play\/\?video url script-response-body https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Amark.js
+^https:\/\/[\s\S]*\/aweme\/v1\/play\/\?video url script-response-body https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Amark.js
 [MITM]
 hostname = api.amemv.com, api*.musical.ly, api*.tiktokv.com
 **********************************************************/
