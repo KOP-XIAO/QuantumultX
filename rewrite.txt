@@ -524,7 +524,6 @@ https?://www\.zhihu\.com/question/ url request-header (\r\n)User-Agent:.+(\r\n) 
 ^https?:\/\/api\.zhuishushenqi\.com\/notification\/shelfMessage url reject
 ^https?:\/\/api\.zhuishushenqi\.com\/user\/bookshelf-updated url reject
 ^https?:\/\/itunes\.apple\.com\/lookup\?id=575826903 url reject
-<<<<<<< HEAD
 
 # 招行 app
 ^https:\/\/m\.creditcard\.ecitic\.com\/citiccard\/mbk\/.+.\/appStartAdv url reject
