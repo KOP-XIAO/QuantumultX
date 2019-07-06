@@ -531,5 +531,3 @@ https?://www\.zhihu\.com/question/ url request-header (\r\n)User-Agent:.+(\r\n) 
 
 # 微信
 ^https:\/\/mp\.weixin\.qq\.com\/mp\/getappmsgad\?f= url reject
-=======
->>>>>>> 588cf1e8428e092eb0818e1a2440ed0661084b37
