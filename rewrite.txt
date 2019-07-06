@@ -39,10 +39,9 @@ https?://www\.zhihu\.com/question/ url request-header (\r\n)User-Agent:.+(\r\n) 
 #twitter to tweetbot
 ^https:\/\/twitter\.com\/ url 302 tweetbot://
 
-=======
 #tweetbot
 ^https:\/\/twitter\.com\/ url 307 tweetbot:// 
->>>>>>> 588cf1e8428e092eb0818e1a2440ed0661084b37
+
 #github master branch
 ^https://github.com/(Dreamacro|yichengchen|lhie1|ccg2018|SukkaW)/(clash|clashX|Rules|ClashA|Koolshare-Clash)$ url 302 https://github.com/$1/$2/tree/master
 
