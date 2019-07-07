@@ -13,14 +13,14 @@ function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
 }
 
-const foods = ['🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒', '🍑', '🥭', '🍅', '🥑']
-const emojis= ['🐧','🐬','🦉','🍄','⛳️','🚴','🤑','👽','🤖','🎃', '👺', '👁', '🐶', '🐼','🐌', '👥']
+const foods = ['🍺','🍩','🍭','🦴','🥮','🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒', '🍑', '🥭', '🍅', '🥑']
+const emojis= ['🆘','🈲','⚠️','🔞','📵','🚦','🏖','🖥','📺','🐧','🐬','🦉','🍄','⛳️','🚴','🤑','👽','🤖','🎃', '👺', '👁', '🐶', '🐼','🐌', '👥']
 
 var body = $response.body;
 var obj = JSON.parse(body);
-var title = emojis[getRandomInt(emojis.length)]+' ' +obj['country'] + ' ' + foods[getRandomInt(foods.length)];
+var title = emojis[getRandomInt(emojis.length)]+' ' +obj['country'] + '-' +obj['city']+' '+ foods[getRandomInt(foods.length)]+'\n'+obj['isp'];
 var subtitle = obj['city'] + ' ' + obj['isp'];
 var ip = obj['query'];
-var description = obj['country'] + '\n' + obj['city'] + '\n' + obj['isp'] + '\n' + obj['ipType']+ '\n' + ip;
+var description = obj['country'] + '-' + obj['city'] + '\n' + obj['isp'] + '\n' + obj['ipType']+ '\n' + ip;
 
 $done({title, subtitle, ip, description});
