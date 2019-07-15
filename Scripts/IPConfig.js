@@ -22,6 +22,6 @@ var title = flags.get(obj['country_iso']) + ' '+ obj['country']
     // flags[obj['countrycode']] +obj['country']+ foods[getRandomInt(foods.length)];
 var subtitle =''+ '('+obj['asn_org']+')'+'';
 var ip = obj['query'];
-var description = obj['country'] + '-' + obj['city'] + '\n' + obj['asn'] + '\n' + obj['asn_org']+ '\n' + ip;
+var description = obj['country'] + '-' + obj['city'] + '\n' + obj['asn'] + '\n' + obj['asn_org']+ '\n' + obj['ip'];
 
 $done({title, subtitle, ip, description});
