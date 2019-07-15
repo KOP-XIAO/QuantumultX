@@ -12,6 +12,10 @@ https?://www\.zhihu\.com/question/ url request-header (\r\n)User-Agent:.+(\r\n) 
 #YYeTs
 ^http://ctrl.playcvn.com/app/(init|ads) url script-response-body https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/YYeTs.js
 
+#RRtv
+^https:\/\/api\.rr\.tv\/.*(profile|Medal) url script-response-body script-path=https://Choler.github.io/Surge/Script/RRtv.js
+^http-response ^https:\/\/api\.rr\.tv\/.*(channel|Choice|Feed) url script-response-body https://Choler.github.io/Surge/Script/RRtv-ad.js ,requires-body=true
+
 # Zhihu No Ads
 ;^https://api.zhihu.com/topstory/follow url script-response-body https://raw.githubusercontent.com/onewayticket255/Surge-Script/master/surge%20zhihu%20feed.js
 ;^https://api.zhihu.com/topstory/recommend url script-response-body https://raw.githubusercontent.com/onewayticket255/Surge-Script/master/surge%20zhihu%20recommend.js
