@@ -24,5 +24,5 @@ var title = flags.get(obj['country_code']) + ' '+ obj['country_name'];
 var subtitle =''+ValidCheck(obj['city'])+'-'+'('+obj['asn_org']+')'+'';
 var ip = obj['ip'];
 var description = obj['country_name'] + '-' +ValidCheck(obj['city']) + '\n' + obj['asn'] + '\n' + obj['asn_org']+ '\n' + obj['ip'];
-
+$notify("test","test",body);
 $done({title, subtitle, ip, description});
