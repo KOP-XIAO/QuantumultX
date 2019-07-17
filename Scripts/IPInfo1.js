@@ -21,7 +21,8 @@ var flags = new Map([[ "AC" , "🇦🇨" ] , [ "AF" , "🇦🇫" ] , [ "AI" , "�
 var body = $response.body;
 var bd=body.split('\n')[1];
 var obj = JSON.parse(bd);
-$notify("test","test",obj['location']);
+$notify("test","test",obj);
+$notify("test1","test",obj['location']);
 var title = flags.get(obj['country_code']) + ' '+ obj['country_name'];
 var subtitle =''+ValidCheck(obj['city'])+'-'+'('+ValidCheck(obj['continent_name'])+')'+'';
 var ip = obj['ip'];
