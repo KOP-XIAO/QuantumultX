@@ -22,7 +22,7 @@ var body = $response.body;
 var bd=body.split('\n')[1];
 var obj = JSON.parse(bd);
 //$notify("TEST","test",bd);
-var title =obj.latitude;
+var title =obj["latitude"];
 //flags.get(obj['country_code']) + ' '+ obj['country_name'];
 var subtitle =''+ValidCheck(obj['city'])+'-'+'('+ValidCheck(obj['continent_name'])+')'+'';
 var ip = obj['ip'];
