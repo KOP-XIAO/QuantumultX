@@ -21,10 +21,8 @@ var flags = new Map([[ "AC" , "🇦🇨" ] , [ "AF" , "🇦🇫" ] , [ "AI" , "�
 var body = $response.body;
 var bd=body.split('\n')[1];
 var obj = JSON.parse(bd);
-$notify("test","test",bd);
-$notify("test1","test",obj['country_code']);
-var title = (obj['location'])['captial']+(obj['location'])['geoname_id']
-//flags.get(obj['country_code']) + ' '+ obj['country_name'];
+//$notify("TEST","test",bd);
+var title =flags.get(obj['country_code']) + ' '+ obj['country_name'];
 var subtitle =''+ValidCheck(obj['city'])+'-'+'('+ValidCheck(obj['continent_name'])+')'+'';
 var ip = obj['ip'];
 var description = obj['country_name'] + '-' +ValidCheck(obj['city']) + '\n' + obj['type'] + '\n' + obj['ip'];
