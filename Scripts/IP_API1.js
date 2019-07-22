@@ -24,6 +24,7 @@ var obj = JSON.parse(body);
 //$notify("TEST","test",bd);
 var title =flags.get(obj['countryCode']) + ' '+ obj['country'];
 var subtitle =''+ValidCheck(obj['city'])+'-'+'('+ ValidCheck(obj['isp'])+')'+'';
-var ip = obj['ip'];
+$notify("TEST",title,subtitle);
+var ip = obj['query'];
 var description = obj['org'] + '-' +ValidCheck(obj['regionName'])+ '\n' + obj['query'] + '\n' + obj['timezone'];
 $done({title, subtitle, ip, description});
