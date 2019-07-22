@@ -26,5 +26,5 @@ var title =flags.get(obj['countryCode']) + ' '+ obj['country'];
 var subtitle =''+ValidCheck(obj['city'])+'-'+'('+ ValidCheck(obj['org'])+')'+'';
 //$notify("TEST",title,subtitle);
 var ip = obj['query'];
-var description = obj['isp'] + '-' +ValidCheck(obj['regionName'])+ '\n' + obj['query'] + '\n' + obj['timezone'];
+var description = '服务商:'obj['isp'] + '\n'+'地区:' +ValidCheck(obj['regionName'])+ '\n' + 'IP:'+ obj['query'] + '\n' +'时区:'+ obj['timezone'];
 $done({title, subtitle, ip, description});
