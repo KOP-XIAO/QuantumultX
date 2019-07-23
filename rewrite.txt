@@ -13,8 +13,8 @@ https?://www\.zhihu\.com/question/ url request-header (\r\n)User-Agent:.+(\r\n) 
 ^http://ctrl.playcvn.com/app/(init|ads) url script-response-body https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/YYeTs.js
 
 #RRtv
-^https:\/\/api\.rr\.tv\/.*(profile|Medal) url script-response-body https://Choler.github.io/Surge/Script/RRtv.js
-^https:\/\/api\.rr\.tv\/.*(channel|Choice|Feed) url script-response-body https://Choler.github.io/Surge/Script/RRtv-ad.js
+;^https:\/\/api\.rr\.tv\/.*(profile|Medal) url script-response-body https://Choler.github.io/Surge/Script/RRtv.js
+;^https:\/\/api\.rr\.tv\/.*(channel|Choice|Feed) url script-response-body https://Choler.github.io/Surge/Script/RRtv-ad.js
 
 # Zhihu No Ads
 ;^https://api.zhihu.com/topstory/follow url script-response-body https://raw.githubusercontent.com/onewayticket255/Surge-Script/master/surge%20zhihu%20feed.js
@@ -30,8 +30,8 @@ https?://www\.zhihu\.com/question/ url request-header (\r\n)User-Agent:.+(\r\n) 
 
 
 # TikTok
-;(?<=(carrier|account|sys)_region=)CN url 307 HK
-;(.*video_id=\w{32})(.*watermark=)(.*) url 302 $1
+(?<=(carrier|account|sys)_region=)CN url 307 HK
+(.*video_id=\w{32})(.*watermark=)(.*) url 302 $1
 ^https:\/\/[\s\S]*\/v1\/(aweme\/)?(feed|post)\/ url script-response-body https://Choler.github.io/Surge/Script/Aweme.js
 ^https:\/\/[\s\S]*\/aweme\/v1\/play\/\?video url script-response-body https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Amark.js
 
