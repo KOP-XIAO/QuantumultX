@@ -8,6 +8,8 @@ https?://www\.zhihu\.com/question/ url request-header (\r\n)User-Agent:.+(\r\n) 
 
 # wechat 朋友圈
 ^https?:\/\/mp\.weixin\.qq\.com\/mp\/getappmsgad url script-response-body https://Choler.github.io/Surge/Script/WeChat.js
+# wereader 微信读书
+^https?:\/\/i.weread.qq.com\/pay url script-response-body https://raw.githubusercontent.com/yxiaocai/quanx/master/js/iweread.js
 
 #YYeTs
 ^http://ctrl.playcvn.com/app/(init|ads) url script-response-body https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/YYeTs.js
