@@ -1,0 +1,11 @@
+#From 🐩️哥 (https://raw.githubusercontent.com/Neurogram-R/Surge/master/module/Q-Search.sgmodule)
+#- Safari 内输入 命令 + 空格 + 关键词 快速指定搜索引擎搜索
+#注：先进入设置更改 Safari 默认搜索为 DuckDuckGO
+
+hostname = duckduckgo.com
+
+^https:\/\/duckduckgo.com\/\?q=bd\+([^&]+).+ url 302 https://www.baidu.com/s?wd=$1
+^https:\/\/duckduckgo.com\/\?q=gh\+([^&]+).+ url 302 https://github.com/search?q=$1
+^https:\/\/duckduckgo.com\/\?q=gm\+([^&]+).+ url 302 https://www.google.com/search?&tbm=isch&q=$1
+^https:\/\/duckduckgo.com\/\?q=yd\+([^&]+).+ url 302 http://dict.youdao.com/search?q=$1
+^https:\/\/duckduckgo.com\/\?q=([^&]+).+ url 302 https://www.google.com/search?q=$1
