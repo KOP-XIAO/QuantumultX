@@ -6,9 +6,9 @@ hostname = duckduckgo.com
 
 
 ^https:\/\/duckduckgo.com\/\?q=db\+([^&]+).+ url 302 https://m.douban.com/search/?query=$1
-^https:\/\/duckduckgo.com\/\?q=ddg\+([^&]+).+ url 302 http://duckduckgo.com/?t=iphone&q=$1
+^https:\/\/duckduckgo.com\/\?q=ddg\+([^&]+).+ url 302 https://duckduckgo.com/?t=iphone&q=$1
 ^https:\/\/duckduckgo.com\/\?q=bd\+([^&]+).+ url 302 https://www.baidu.com/s?wd=$1
 ^https:\/\/duckduckgo.com\/\?q=gh\+([^&]+).+ url 302 https://github.com/search?q=$1
 ^https:\/\/duckduckgo.com\/\?q=gm\+([^&]+).+ url 302 https://www.google.com/search?&tbm=isch&q=$1
-^https:\/\/duckduckgo.com\/\?q=yd\+([^&]+).+ url 302 http://dict.youdao.com/search?q=$1
+^https:\/\/duckduckgo.com\/\?q=yd\+([^&]+).+ url 302 https://dict.youdao.com/search?q=$1
 ^https:\/\/duckduckgo.com\/\?q=([^&]+).+ url 302 https://www.google.com/search?q=$1
