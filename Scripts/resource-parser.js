@@ -63,11 +63,11 @@ function filter(Servers,Pin,Pout){
 			const include = (item) => name.indexOf(item) != -1;
 			const exclude = (item) => name.indexOf(item) != -1;
 			if(Pin){
-				if(Pin.some(include)){
+				if(Pin.some(include)&&Pout){
 					if(!Pout.some(exclude)){
 					NList.push(Servers[i])
 					}
-				}
+				} else if(Pin.some(include)&&!Pout) {NList.push(Servers[i])}
 			} else{
 				if(!Pout.some(exclude)){
 				NList.push(Servers[i])
