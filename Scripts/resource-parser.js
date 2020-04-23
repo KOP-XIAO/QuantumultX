@@ -1,14 +1,14 @@
 /**
  * @supported Quantumult X (v1.0.8-build253)
- * Shawn @XIAO_KOP
+ * Author: Shawn @XIAO_KOP
  * 功能： 将不同格式订阅转换成 Quantumult X，并支持简单的过滤.
  * 目前仅支持 V2RayN 格式的订阅，以及 quanx 格式写法的节点引用；
  * 过滤参数为 in,out, 分别为保留与排除，多个参数间用+号连接，建议将所有参数 url-encode
  * 示范，
 0⃣️ 在quantumult X 配置文件中[general] 部分，加入 resource_parser_url=https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/resource-parser.js
 1⃣️ 原始订阅连接为: https://raw.githubusercontent.com/crossutility/Quantumult-X/master/server-complete.txt , 
-2⃣️ 想要保留的参数为 in=tls+ss, 想要过滤的参数为 out=http+2
-3⃣️ 则填入 quanx 的总链接为 https://dove.589669.xyz/all2quanx?&sub=https://jiang.netlify.com/#in=tls+ss&out=http+2
+2⃣️ 想要保留的参数为 in=tls+ss, 想要过滤的参数为 out=http+2, 请注意下面订阅链接后一定要加 ”#“ 符号
+3⃣️ 则填入 quanx 的总链接为  https://raw.githubusercontent.com/crossutility/Quantumult-X/master/server-complete.txt#in=tls+ss&out=http+2
 4⃣️ 填入上述链接并打开的资源解析器开关
  */
 
@@ -102,7 +102,7 @@ if(flag==1){
 		$notify("开始转换并过滤节点","具体参数如下","👍️保留参数："+Pin0+"\n👎️排除参数："+Pout0);
 		total=filter(total,Pin0,Pout0)
 	} else {
-		$notify("未开启过滤节点","如需过滤节点，请使用 in/out 参数","具体参考此示范: ");
+		$notify("未开启过滤节点","如需过滤节点请使用in/out参数，具体操作参考此示范:","https://t.me/QuanXNews/110");
 	}
 	console.log(total)
 	$done({content : total.join("\n")});	
