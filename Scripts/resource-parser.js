@@ -1,9 +1,9 @@
 /**
  * @supported Quantumult X (v1.0.8-build253)
- * Author: Shawn @XIAO_KOP
+ * Author: Shawn(@XIAO_KOP) ,有问题请反馈:@Shawn_KOP_bot
  * 功能： 将不同格式订阅转换成 Quantumult X，并支持简单的过滤.
- * 目前仅支持 V2RayN 格式的订阅，以及 quanx 格式写法的节点引用；
- * 过滤参数为 in,out, 分别为保留与排除，多个参数间用+号连接，建议将所有参数 url-encode
+ * 目前仅支持 V2RayN/SSR/Quanx 格式写法的节点引用；
+ * 过滤参数为 in,out, 分别为保留与排除，多个参数间用+号连接，支持直接使用中文
  * 示范，
 0⃣️ 在quantumult X 配置文件中[general] 部分，加入 resource_parser_url=https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/resource-parser.js
 1⃣️ 原始订阅连接为: https://raw.githubusercontent.com/crossutility/Quantumult-X/master/server-complete.txt , 
@@ -12,6 +12,40 @@
 4⃣️ 填入上述链接并打开的资源解析器开关
  */
 
+var content0=$resource.content;
+var para=decodeURIComponent($resource.link);
+var type0=Type_Check(content0);
+
+if(type0=="Vmess"){
+	total=V2QX(content0);
+	flag=1;
+}else if(type0=="QuanX"){
+	total=content0.split("\n");
+	flag=1;
+}else if(type0=="SSR"){
+	total=SSR2QX(content0);
+	flag=1;
+}else{
+	$notify("👻该解析器暂未支持您的订阅格式");
+	falg=0;
+	$done({content : content0});
+}
+	
+if(flag==1){
+	$notify("🤖您订阅类型为:"+type0,"☠️您的订阅连接为: 其中#后面的为自定义传入参数",para);
+	var Pin0=para.indexOf("in=")!=-1? para.split("#")[1].split("in=")[1].split("&")[0].split("+"):null;
+	var Pout0=para.indexOf("out=")!=-1? para.split("#")[1].split("out=")[1].split("&")[0].split("+"):null;
+	if(Pin0||Pout0){
+		$notify("开始转换并过滤节点","具体参数如下","👍️保留参数："+Pin0+"\n👎️排除参数："+Pout0);
+		total=filter(total,Pin0,Pout0)
+	} else {
+		$notify("未开启过滤节点","如需过滤节点请使用in/out参数，具体操作参考此示范:","https://t.me/QuanXNews/110");
+	}
+	console.log(total)
+	$done({content : total.join("\n")});	
+}
+
+
 //判断订阅类型
 function Type_Check(subs){
 	var type=""
@@ -19,6 +53,8 @@ function Type_Check(subs){
 		type="Vmess"
 	} else if (subs.indexOf("tag")!=-1){
 		type="QuanX"
+	} else if (subs.indexOf("c3NyOi8v")!= -1){
+		type="SSR"
 	}
 	return type
 }
@@ -78,36 +114,6 @@ function filter(Servers,Pin,Pout){
 	return NList
 }
 
-var content0=$resource.content;
-var para=decodeURIComponent($resource.link);
-var type0=Type_Check(content0);
-
-if(type0=="Vmess"){
-	total=V2QX(content0);
-	flag=1;
-}else if(type0=="QuanX"){
-	total=content0.split("\n");
-	flag=1;
-} else{
-	$notify("👻该解析器暂未支持您的订阅格式");
-	falg=0;
-	$done({content : content0});
-}
-	
-if(flag==1){
-	$notify("🤖您订阅类型为:"+type0,"☠️您的订阅连接为: 其中#后面的为自定义传入参数",para);
-	var Pin0=para.indexOf("in=")!=-1? para.split("#")[1].split("in=")[1].split("&")[0].split("+"):null;
-	var Pout0=para.indexOf("out=")!=-1? para.split("#")[1].split("out=")[1].split("&")[0].split("+"):null;
-	if(Pin0||Pout0){
-		$notify("开始转换并过滤节点","具体参数如下","👍️保留参数："+Pin0+"\n👎️排除参数："+Pout0);
-		total=filter(total,Pin0,Pout0)
-	} else {
-		$notify("未开启过滤节点","如需过滤节点请使用in/out参数，具体操作参考此示范:","https://t.me/QuanXNews/110");
-	}
-	console.log(total)
-	$done({content : total.join("\n")});	
-}
-
 // Vmess obfs 参数
 function Pobfs(jsonl){
 	var obfsi=[]
@@ -129,6 +135,37 @@ function Pobfs(jsonl){
 		obfsi.push(obfs0+host0)
 		return obfsi.join(", ")
 	}
+}
+
+//SSR 转换 quanx 格式
+function SSR2QX(subs){
+	const $base64 = new Base64()
+	var list0=$base64.decode(subs).split("\n");
+	var QXList=[];
+	for(i in list0){
+		if(list0[i].indexOf("ssr://")!=-1){
+			var nssr=[]
+			var cnt=$base64.decode(list0[i].split("ssr://")[1].replace("-","+").replace("_","/"))
+			console.log(cnt)
+			type="shadowsocks=";
+			ip=cnt.split(":")[0]+":"+cnt.split(":")[1];
+			pwd="password="+cnt.split("/?")[0].split(":")[5];
+			mtd="method="+cnt.split(":")[3];
+			obfs="obfs="+cnt.split(":")[4]+", ";
+			ssrp="ssr-protocol="+cnt.split(":")[2];
+			if(cnt.indexOf("obfsparam=")!=-1){
+				obfshost=cnt.split("obfsparam=")[1].split("&")[0]!=""? "obfs-host="+$base64.decode(cnt.split("obfsparam=")[1].split("&")[0].replace("-","+").replace("_","/")).split(",")[0].split("\u0000")[0]+", ":""
+			}
+			if(cnt.indexOf("protoparam=")!=-1){
+				oparam=cnt.split("protoparam=")[1].split("&")[0]!=""? "ssr-protocol-param="+$base64.decode(cnt.split("protoparam=")[1].split("&")[0].replace("-","+").replace("_","/")).split(",")[0].split("\u0000")[0]+", ":""
+			}
+			tag="tag="+($base64.decode(cnt.split("remarks=")[1].split("&")[0].replace("-","+").replace("_","/"))).split("\u0000")[0]
+			nssr.push(type+ip,pwd,mtd,obfs+obfshost+oparam+ssrp,tag)
+			QX=nssr.join(", ")
+			QXList.push(QX);
+		}
+	} 
+	return QXList;
 }
 
 //来自 yichahucha 大佬的 Base64 编码/解码: https://github.com/yichahucha/surge/tree/master
