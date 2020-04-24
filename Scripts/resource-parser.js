@@ -1,9 +1,9 @@
 /**
  * @supported Quantumult X (v1.0.8-build253)
- * Author: Shawn(@XIAO_KOP) ,有问题请反馈:@Shawn_KOP_bot
+ * Author: Shawn (@XIAO_KOP) , 有问题请反馈:@Shawn_KOP_bot
  * 功能： 将不同格式订阅转换成 Quantumult X，并支持简单的过滤.
  * 目前仅支持 V2RayN/SSR/Quanx 格式写法的节点引用；
- * 过滤参数为 in,out, 分别为保留与排除，多个参数间用+号连接，支持直接使用中文
+ * 过滤参数为 in,out, 分别为保留与排除，多个参数间用+号连接，建议将所有参数 url-encode
  * 示范，
 0⃣️ 在quantumult X 配置文件中[general] 部分，加入 resource_parser_url=https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/resource-parser.js
 1⃣️ 原始订阅连接为: https://raw.githubusercontent.com/crossutility/Quantumult-X/master/server-complete.txt , 
@@ -145,7 +145,7 @@ function SSR2QX(subs){
 	for(i in list0){
 		if(list0[i].indexOf("ssr://")!=-1){
 			var nssr=[]
-			var cnt=$base64.decode(list0[i].split("ssr://")[1].replace("-","+").replace("_","/"))
+			var cnt=$base64.decode(list0[i].split("ssr://")[1].replace(/-/g,"+").replace(/_/g,"/"))
 			console.log(cnt)
 			type="shadowsocks=";
 			ip=cnt.split(":")[0]+":"+cnt.split(":")[1];
@@ -154,12 +154,12 @@ function SSR2QX(subs){
 			obfs="obfs="+cnt.split(":")[4]+", ";
 			ssrp="ssr-protocol="+cnt.split(":")[2];
 			if(cnt.indexOf("obfsparam=")!=-1){
-				obfshost=cnt.split("obfsparam=")[1].split("&")[0]!=""? "obfs-host="+$base64.decode(cnt.split("obfsparam=")[1].split("&")[0].replace("-","+").replace("_","/")).split(",")[0].split("\u0000")[0]+", ":""
+				obfshost=cnt.split("obfsparam=")[1].split("&")[0]!=""? "obfs-host="+$base64.decode(cnt.split("obfsparam=")[1].split("&")[0].replace(/-/g,"+").replace(/_/g,"/")).split(",")[0].split("\u0000")[0]+", ":""
 			}
 			if(cnt.indexOf("protoparam=")!=-1){
-				oparam=cnt.split("protoparam=")[1].split("&")[0]!=""? "ssr-protocol-param="+$base64.decode(cnt.split("protoparam=")[1].split("&")[0].replace("-","+").replace("_","/")).split(",")[0].split("\u0000")[0]+", ":""
+				oparam=cnt.split("protoparam=")[1].split("&")[0]!=""? "ssr-protocol-param="+$base64.decode(cnt.split("protoparam=")[1].split("&")[0].replace(/-/g,"+").replace(/_/g,"/")).split(",")[0].split("\u0000")[0]+", ":""
 			}
-			tag="tag="+($base64.decode(cnt.split("remarks=")[1].split("&")[0].replace("-","+").replace("_","/"))).split("\u0000")[0]
+			tag="tag="+($base64.decode(cnt.split("remarks=")[1].split("&")[0].replace(/-/g,"+").replace(/_/g,"/"))).split("\u0000")[0]
 			nssr.push(type+ip,pwd,mtd,obfs+obfshost+oparam+ssrp,tag)
 			QX=nssr.join(", ")
 			QXList.push(QX);
