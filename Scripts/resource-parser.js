@@ -1,9 +1,8 @@
 /**
- * @supported Quantumult X (v1.0.8-build253)
- * Author: Shawn (@XIAO_KOP) , 有问题请反馈:@Shawn_KOP_bot
+ * 本资源解析器作者: Shawn (@XIAO_KOP) , 有问题请反馈:@Shawn_KOP_bot
  * 功能： 将不同格式订阅转换成 Quantumult X，并支持简单的过滤.
- * 目前仅支持 V2RayN/SSR/Quanx 格式写法的节点引用；
- * 过滤参数为 in,out, 分别为保留与排除，多个参数间用+号连接，建议将所有参数 url-encode
+ * 目前支持 V2RayN/SSR/Trojan/Quanx 格式写法的节点引用；
+ * 过滤参数为 in,out, 分别为保留与排除，多个参数间用+号连接, 可直接使用中文(如 in=香港+台湾)
  * 示范，
 0⃣️ 在quantumult X 配置文件中[general] 部分，加入 resource_parser_url=https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/resource-parser.js
 1⃣️ 原始订阅连接为: https://raw.githubusercontent.com/crossutility/Quantumult-X/master/server-complete.txt , 
@@ -25,23 +24,26 @@ if(type0=="Vmess"){
 }else if(type0=="SSR"){
 	total=SSR2QX(content0);
 	flag=1;
+}else if(type0=="Trojan"){
+	total=TJ2QX(content0);
+	flag=1;
 }else{
 	$notify("👻该解析器暂未支持您的订阅格式");
-	falg=0;
+	flag=0;
 	$done({content : content0});
 }
 	
 if(flag==1){
-	$notify("🤖您订阅类型为:"+type0,"☠️您的订阅连接为: 其中#后面的为自定义传入参数",para);
+	$notify("🤖 您订阅类型为:"+type0,"☠️ 您的订阅连接为: 其中#后面的为自定义传入参数","👉"+ para);
 	var Pin0=para.indexOf("in=")!=-1? para.split("#")[1].split("in=")[1].split("&")[0].split("+"):null;
 	var Pout0=para.indexOf("out=")!=-1? para.split("#")[1].split("out=")[1].split("&")[0].split("+"):null;
 	if(Pin0||Pout0){
-		$notify("开始转换并过滤节点","具体参数如下","👍️保留参数："+Pin0+"\n👎️排除参数："+Pout0);
+		$notify("👥 开始转换并过滤节点","🐶 具体参数如下","👍️ 保留的关键字："+Pin0+"\n👎️ 排除的关键字："+Pout0);
 		total=filter(total,Pin0,Pout0)
 	} else {
-		$notify("未开启过滤节点","如需过滤节点请使用in/out参数，具体操作参考此示范:","https://t.me/QuanXNews/110");
+		$notify("🐷 未开启过滤节点","🐼️ 如需过滤节点请使用in/out参数，具体操作参考此示范:","👉 https://t.me/QuanXNews/110");
 	}
-	console.log(total)
+	//console.log(total)
 	$done({content : total.join("\n")});	
 }
 
@@ -55,6 +57,8 @@ function Type_Check(subs){
 		type="QuanX"
 	} else if (subs.indexOf("c3NyOi8v")!= -1){
 		type="SSR"
+	} else if (subs.indexOf("dHJvamFu")!= -1){
+		type="Trojan"
 	}
 	return type
 }
@@ -160,6 +164,7 @@ function SSR2QX(subs){
 				oparam=cnt.split("protoparam=")[1].split("&")[0]!=""? "ssr-protocol-param="+$base64.decode(cnt.split("protoparam=")[1].split("&")[0].replace(/-/g,"+").replace(/_/g,"/")).split(",")[0].split("\u0000")[0]+", ":""
 			}
 			tag="tag="+($base64.decode(cnt.split("remarks=")[1].split("&")[0].replace(/-/g,"+").replace(/_/g,"/"))).split("\u0000")[0]
+			console.log($base64.decode(cnt.split("remarks=")[1].split("&")[0].replace(/-/g,"+").replace(/_/g,"/")))
 			nssr.push(type+ip,pwd,mtd,obfs+obfshost+oparam+ssrp,tag)
 			QX=nssr.join(", ")
 			QXList.push(QX);
@@ -167,6 +172,30 @@ function SSR2QX(subs){
 	} 
 	return QXList;
 }
+
+//Trojan 类型转换成 QX
+function TJ2QX(subs){
+	const $base64 = new Base64()
+	var list0=$base64.decode(subs).split("\n");
+	var QXList=[];
+	for(i in list0){
+		if(list0[i].indexOf("trojan://")!=-1){
+			var ntrojan=[]
+			var cnt=list0[i].split("trojan://")[1]
+			type="trojan=";
+			ip=cnt.split("@")[1].split("?")[0];
+			pwd="password="+cnt.split("@")[0];
+			obfs="over-tls=true";
+			pcert= cnt.indexOf("allowInsecure=0")!= -1? "tls-verification=true":"tls-verification=false";	
+			tag="tag="+decodeURIComponent(cnt.split("#")[1])
+			ntrojan.push(type+ip,pwd,obfs,pcert,tag)
+			QX=ntrojan.join(", ");
+			QXList.push(QX);
+		}
+	}
+    return QXList;
+}
+
 
 //来自 yichahucha 大佬的 Base64 编码/解码: https://github.com/yichahucha/surge/tree/master
 function Base64() {
