@@ -1,4 +1,5 @@
 /**
+ * 2020-04-24：14:42 #tag
  * 本资源解析器作者: Shawn (@XIAO_KOP) , 有问题请反馈:@Shawn_KOP_bot
  * 功能： 将不同格式订阅转换成 Quantumult X，并支持简单的过滤.
  * 目前支持 V2RayN/SSR/Trojan/Quanx 格式写法的节点引用；
@@ -153,7 +154,7 @@ function SSR2QX(subs){
 			console.log(cnt)
 			type="shadowsocks=";
 			ip=cnt.split(":")[0]+":"+cnt.split(":")[1];
-			pwd="password="+cnt.split("/?")[0].split(":")[5];
+			pwd="password="+$base64.decode(cnt.split("/?")[0].split(":")[5].replace(/-/g,"+").replace(/_/g,"/")).split("\u0000")[0];
 			mtd="method="+cnt.split(":")[3];
 			obfs="obfs="+cnt.split(":")[4]+", ";
 			ssrp="ssr-protocol="+cnt.split(":")[2];
