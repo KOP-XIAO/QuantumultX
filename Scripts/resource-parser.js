@@ -12,12 +12,12 @@
 1⃣️ 过滤参数为 in,out, 分别为保留与排除，多个参数间用+号连接, 可直接使用中文(如 in=香港+台湾)
 2⃣️ emoji 参数为 emoji=1,2 或-1，为添加或删除节点名中的emoji旗帜（国行设备请用 emoji=2）
 3⃣️ udp=1，tfo=1 参数开启 udp-relay 及fast-open
-4⃣️ info=0，用于关闭转换解析器的提示通知
+4⃣️ info=0，用于关闭本资源解析器的提示通知
 
  */
 
 /**
- * 使用，
+ * 使用方法，
 0⃣️ 在quantumult X 配置文件中[general] 部分，加入 resource_parser_url=https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/resource-parser.js
 1⃣️ 原始订阅连接为: https://raw.githubusercontent.com/crossutility/Quantumult-X/master/server-complete.txt , 
 2⃣️ 想要保留的参数为 in=tls+ss, 想要过滤的参数为 out=http+2, 请注意下面订阅链接后一定要加 ”#“ 符号
