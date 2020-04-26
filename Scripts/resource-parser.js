@@ -1,23 +1,29 @@
 /** 
 
-#Quantumult X 节点资源解析器
+#QuantumultX 资源解析器(2020-04-26: 13:15)
 
-本资源解析器作者: Shawn (@XIAO_KOP) , 有问题请反馈:@Shawn_KOP_bot
+本资源解析器作者: Shawn(@XIAO_KOP), 有问题请反馈:@Shawn_KOP_bot
 
-#tag 2020-04-26: 09:00
+功能：将不同格式订阅转换成 QuantumultX，并提供一下参数
+     (目前支持 V2RayN/SSR/Trojan/Quanx 订阅)
 
-功能：将不同格式订阅转换成 Quantumult X，并支持简单的节点过滤/emoji添加删除，udp/tfo 的开启.
-- 目前支持 V2RayN/SSR/Trojan/Quanx 格式写法的节点引用；
+0️⃣ 请在订阅链接后加入"#"符号后加入下列参数，如 
+       "#in=香港+台湾&emoji=1&tfo=1"
 
-1⃣️ 过滤参数为 in,out, 分别为保留与排除，多个参数间用+号连接, 可直接使用中文(如 in=香港+台湾)
+1⃣️ 筛选参数 in、out, 分别为保留与排除，多个参数间用+号连接, 可直接使用中文(如"in=香港+台湾&out=BGP")
+
 2⃣️ emoji 参数为 emoji=1,2 或-1，为添加或删除节点名中的emoji旗帜（国行设备请用 emoji=2）
+
 3⃣️ udp=1，tfo=1 参数开启 udp-relay 及fast-open
-4⃣️ info=0，用于关闭本资源解析器的提示通知
+
+4⃣️ rename 重命名,rename=旧名@新名, 以及 "前缀@", "@后缀",用"+"连接，如 "rename=香港@HK+[SS]@+@[1X]
+
+5⃣️ info=1，用于打开转换解析器的提示通知(默认关闭)
 
  */
 
 /**
- * 使用方法，
+ * 使用，
 0⃣️ 在quantumult X 配置文件中[general] 部分，加入 resource_parser_url=https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/resource-parser.js
 1⃣️ 原始订阅连接为: https://raw.githubusercontent.com/crossutility/Quantumult-X/master/server-complete.txt , 
 2⃣️ 想要保留的参数为 in=tls+ss, 想要过滤的参数为 out=http+2, 请注意下面订阅链接后一定要加 ”#“ 符号
@@ -34,6 +40,7 @@ var Pemoji=para.indexOf("emoji=")!=-1? para.split("#")[1].split("emoji=")[1].spl
 var Pudp0=para.indexOf("udp=")!=-1? para.split("#")[1].split("udp=")[1].split("&")[0].split("+"):0;
 var Ptfo0=para.indexOf("tfo=")!=-1? para.split("#")[1].split("tfo=")[1].split("&")[0].split("+"):0;
 var Pinfo=para.indexOf("info=")!=-1? para.split("#")[1].split("info=")[1].split("&")[0].split("+"):0;
+var Prname=para.indexOf("rename=")!=-1? para.split("#")[1].split("rename=")[1].split("&")[0].split("+"):null;
 
 if(type0=="Vmess"){
 	total=V2QX(content0,Pudp0,Ptfo0);
@@ -61,6 +68,12 @@ if(flag==1){
 		} else {
 			if(Pinfo!=0){
 		$notify("🐷 开始转换节点，类型："+type0,"🐼️ 如需筛选节点请使用in/out及其他参数，可参考此示范:","👉 https://t.me/QuanXNews/110");}
+	}
+	if(Prname){
+		if(Prname!=0){ 
+		$notify("🏳️‍🌈 开始节点重命名","格式为 \"旧名字@新名字\"","你当前所用的参数为"+Prname);}
+		var Prn=Prname;
+		total=total.map(Rename);
 	}
 	if(Pemoji){
 		if(Pinfo!=0){
@@ -223,6 +236,26 @@ function TJ2QX(subs,Pudp,Ptfo){
 	return QXList;
 }
 
+//节点重命名
+function Rename(str){
+	var server=str;
+	if(server.indexOf("tag=")!=-1){
+		hd=server.split("tag=")[0]
+		name=server.split("tag=")[1]
+		for(i=0;i<Prn.length;i++){
+			nname=Prn[i].split("@")[1];
+			oname=Prn[i].split("@")[0];
+			if(oname&&nname){
+				name=name.replace(new RegExp(oname,"gm"),nname)
+				}else if(oname){
+					name=oname+name
+				}else if(nname){
+					name=name+nname
+				}else(name=name)	
+			nserver=hd+"tag="+name
+		}
+	} return nserver
+}
 
 //删除 emoji 
 function emoji_del(str) {
