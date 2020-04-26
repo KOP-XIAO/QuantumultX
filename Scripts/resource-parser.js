@@ -32,9 +32,7 @@ var Pout0=para.indexOf("out=")!=-1? para.split("#")[1].split("out=")[1].split("&
 var Pemoji=para.indexOf("emoji=")!=-1? para.split("#")[1].split("emoji=")[1].split("&")[0].split("+"):null;
 var Pudp0=para.indexOf("udp=")!=-1? para.split("#")[1].split("udp=")[1].split("&")[0].split("+"):0;
 var Ptfo0=para.indexOf("tfo=")!=-1? para.split("#")[1].split("tfo=")[1].split("&")[0].split("+"):0;
-
-qx=["trojan=13.235.70.75:8443, password=8cacb13816.wns.windows.com, over-tls=true, tls-verification=false, tag=印度 AWS",
-"trojan=47.105.52.185:458, password=8cacb13816.wns.windows.com, over-tls=true, tls-verification=false, tag=😀上海 BGP"]
+var Pinfo=para.indexOf("info=")!=-1? para.split("#")[1].split("info=")[1].split("&")[0].split("+"):0;
 
 if(type0=="Vmess"){
 	total=V2QX(content0,Pudp0,Ptfo0);
@@ -56,13 +54,16 @@ if(type0=="Vmess"){
 	
 if(flag==1){
 	if(Pin0||Pout0){
-		$notify("👥 开始转换节点，类型："+type0,"🐶 您已添加节点筛选参数，如下","👍️ 保留的关键字："+Pin0+"\n👎️ 排除的关键字："+Pout0);
+		if(Pinfo!=0){
+		$notify("👥 开始转换节点，类型："+type0,"🐶 您已添加节点筛选参数，如下","👍️ 保留的关键字："+Pin0+"\n👎️ 排除的关键字："+Pout0);}
 		total=filter(total,Pin0,Pout0)
 		} else {
-		$notify("🐷 开始转换节点，类型："+type0,"🐼️ 如需筛选节点请使用in/out及其他参数，可参考此示范:","👉 https://t.me/QuanXNews/110");
+			if(Pinfo!=0){
+		$notify("🐷 开始转换节点，类型："+type0,"🐼️ 如需筛选节点请使用in/out及其他参数，可参考此示范:","👉 https://t.me/QuanXNews/110");}
 	}
 	if(Pemoji){
-		$notify("🏳️‍🌈 开始更改旗帜 emoji","清除emoji请用参数 -1, 国行设备添加emoji请使用参数 2","你当前所用的参数为 emoji="+Pemoji);
+		if(Pinfo!=0){
+		$notify("🏳️‍🌈 开始更改旗帜 emoji","清除emoji请用参数 -1, 国行设备添加emoji请使用参数 2","你当前所用的参数为 emoji="+Pemoji)};
 		total=emoji_handle(total,Pemoji);
 	}
 	$done({content : total.join("\n")});	
