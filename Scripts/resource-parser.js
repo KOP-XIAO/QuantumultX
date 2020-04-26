@@ -1,6 +1,6 @@
 /** 
 
-#QuantumultX 资源解析器(2020-04-26: 13:15)
+#QuantumultX 资源解析器(2020-04-26: 14:15)
 
 本资源解析器作者: Shawn(@XIAO_KOP), 有问题请反馈:@Shawn_KOP_bot
 
@@ -185,8 +185,8 @@ function SSR2QX(subs,Pudp,Ptfo){
 	for(var i=0;i<list0.length; i++){
 		if(list0[i].indexOf("ssr://")!=-1){
 			var nssr=[]
-			var cnt=$base64.decode(list0[i].split("ssr://")[1].replace(/-/g,"+").replace(/_/g,"/"))
-			console.log(cnt)
+			var cnt=$base64.decode(list0[i].split("ssr://")[1].replace(/-/g,"+").replace(/_/g,"/")).split("\u0000")[0]
+			if(cnt.split(":").length<=6) { //排除难搞的 ipv6 节点
 			type="shadowsocks=";
 			ip=cnt.split(":")[0]+":"+cnt.split(":")[1];
 			pwd="password="+$base64.decode(cnt.split("/?")[0].split(":")[5].replace(/-/g,"+").replace(/_/g,"/")).split("\u0000")[0];
@@ -206,6 +206,7 @@ function SSR2QX(subs,Pudp,Ptfo){
 			nssr.push(type+ip,pwd,mtd,obfs+obfshost+oparam+ssrp,pudp,ptfo,tag)
 			QX=nssr.join(", ")
 			QXList.push(QX);
+		}
 		}
 	} 
 	return QXList;
