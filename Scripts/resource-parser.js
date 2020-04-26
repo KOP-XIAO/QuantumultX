@@ -4,8 +4,8 @@
 
 本资源解析器作者: Shawn(@XIAO_KOP), 有问题请反馈:@Shawn_KOP_bot
 
-功能：将不同格式订阅转换成 QuantumultX，并提供一下参数
-     (目前支持 V2RayN/SSR/SS/Trojan/Quanx 订阅)
+功能：将不同格式订阅转换成 QuantumultX，并提供下列可选参数
+   (目前支持 V2RayN/SSR/SS/Trojan/Quanx 订阅)
 
 0️⃣ 请在订阅链接后加入"#"符号后加入下列参数，如 
        "#in=香港+台湾&emoji=1&tfo=1"
