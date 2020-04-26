@@ -1,11 +1,11 @@
 /** 
 
-#QuantumultX 资源解析器(2020-04-26: 14:15)
+#QuantumultX 资源解析器(2020-04-26: 15:30)
 
 本资源解析器作者: Shawn(@XIAO_KOP), 有问题请反馈:@Shawn_KOP_bot
 
 功能：将不同格式订阅转换成 QuantumultX，并提供一下参数
-     (目前支持 V2RayN/SSR/Trojan/Quanx 订阅)
+     (目前支持 V2RayN/SSR/SS/Trojan/Quanx 订阅)
 
 0️⃣ 请在订阅链接后加入"#"符号后加入下列参数，如 
        "#in=香港+台湾&emoji=1&tfo=1"
@@ -54,7 +54,11 @@ if(type0=="Vmess"){
 }else if(type0=="Trojan"){
 	total=TJ2QX(content0,Pudp0,Ptfo0);
 	flag=1;
-}else{
+}else if(type0=="SS"){
+	total=SS2QX(content0,Pudp0,Ptfo0);
+	flag=1
+}
+else{
 	$notify("👻该解析器暂未支持您的订阅格式","😭太难写了", "stay tuned");
 	flag=0;
 	$done({content : content0});
@@ -95,6 +99,8 @@ function Type_Check(subs){
 		type="SSR"
 	} else if (subs.indexOf("dHJvamFu")!= -1){
 		type="Trojan"
+	} else if (subs.indexOf("c3M6Ly")!= -1){
+		type="SS"
 	}
 	return type
 }
@@ -186,6 +192,8 @@ function SSR2QX(subs,Pudp,Ptfo){
 		if(list0[i].indexOf("ssr://")!=-1){
 			var nssr=[]
 			var cnt=$base64.decode(list0[i].split("ssr://")[1].replace(/-/g,"+").replace(/_/g,"/")).split("\u0000")[0]
+			var obfshost = '';
+			var oparam = '';
 			if(cnt.split(":").length<=6) { //排除难搞的 ipv6 节点
 			type="shadowsocks=";
 			ip=cnt.split(":")[0]+":"+cnt.split(":")[1];
@@ -234,6 +242,37 @@ function TJ2QX(subs,Pudp,Ptfo){
 			QXList.push(QX);
 		}
 	}
+	return QXList;
+}
+
+//SS 转换 quanx 格式
+function SS2QX(subs,Pudp,Ptfo){
+	const $base64 = new Base64()
+	var list0=$base64.decode(subs).split("\n");
+	//console.log(list0)
+	var QXList=[];
+	for(var i=0;i<list0.length; i++){
+		if(list0[i].indexOf("ss://")!=-1){
+			var nssr=[]
+			var cnt=list0[i].split("ss://")[1]	
+			if(cnt.split(":").length<=6) { //排除难搞的 ipv6 节点
+			type="shadowsocks=";
+			ip=cnt.split("@")[1].split("/")[0];
+			pwdmtd=$base64.decode(cnt.split("@")[0].replace(/-/g,"+").replace(/_/g,"/")).split("\u0000")[0].split(":")
+			pwd="password="+pwdmtd[1];
+			mtd="method="+pwdmtd[0];
+			obfs= cnt.split("obfs%3D")[1]!=null ? ", obfs="+cnt.split("obfs%3D")[1].split("%3B")[0]+", ": "";
+			obfshost=cnt.split("obfs-host%3D")[1]!=null ? "obfs-host="+cnt.split("obfs-host%3D")[1].split("&")[0]: "";
+			tag="tag="+decodeURIComponent(cnt.split("#")[1])
+			pudp= Pudp==1? "udp-relay=true":"udp-relay=false";
+			ptfo= Ptfo==1? "fast-open=true":"fast-open=false";
+			nssr.push(type+ip,pwd,mtd+obfs+obfshost,pudp,ptfo,tag)
+			QX=nssr.join(", ")
+			//console.log(QX)
+			QXList.push(QX);
+		}
+		}
+	} 
 	return QXList;
 }
 
