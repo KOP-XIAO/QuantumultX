@@ -1,6 +1,6 @@
 /** 
 
-#Quantumult X 资源解析器(2020-04-26: 16:20)
+#Quantumult X 资源解析器(2020-04-26: 17:20)
 
 本资源解析器作者: Shawn(@XIAO_KOP), 有问题请反馈:@Shawn_KOP_bot
 
@@ -73,7 +73,7 @@ if(flag==1){
 		$notify("🐷 开始转换节点，类型："+type0,"🐼️ 如需筛选节点请使用in/out及其他参数，可参考此示范:","👉 https://t.me/QuanXNews/110");}
 	}
 	if(Prname){
-		if(Prname!=0){ 
+		if(Pinfo!=0){ 
 		$notify("🏳️‍🌈 开始节点重命名","格式为 \"旧名字@新名字\"","你当前所用的参数为"+Prname);}
 		var Prn=Prname;
 		total=total.map(Rename);
