@@ -1,5 +1,5 @@
 /** 
-#Quantumult X 资源解析器 (2020-04-27: 07:33)
+#Quantumult X 资源解析器 (2020-04-27: 10:03)
 
 本资源解析器作者: Shawn(@XIAO_KOP), 有问题请反馈: @Shawn_KOP_bot
 
@@ -168,7 +168,8 @@ function Pobfs(jsonl){
 	}else if(jsonl.net=="ws"){
 		obfs0="obfs=ws";
 		uri0=jsonl.path!=""? "obfs-uri="+jsonl.path:"obfs-uri=/";
-		obfsi.push(obfs0,uri0)
+		host0= jsonl.host!=""? "obfs-host="+jsonl.host+",":"";
+		obfsi.push(obfs0,host0+uri0);
 		return obfsi.join(", ")
 	}else if(jsonl.tls=="tls"){
 		obfs0="obfs=over-tls";
