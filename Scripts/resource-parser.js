@@ -1,5 +1,5 @@
 /** 
-#Quantumult X 资源解析器 (2020-04-27: 10:03)
+#Quantumult X 资源解析器 (2020-04-28: 13:33)
 
 本资源解析器作者: Shawn(@XIAO_KOP), 有问题请反馈: @Shawn_KOP_bot
 
@@ -38,6 +38,7 @@ var Pudp0=para.indexOf("udp=")!=-1? para.split("#")[1].split("udp=")[1].split("&
 var Ptfo0=para.indexOf("tfo=")!=-1? para.split("#")[1].split("tfo=")[1].split("&")[0].split("+"):0;
 var Pinfo=para.indexOf("info=")!=-1? para.split("#")[1].split("info=")[1].split("&")[0].split("+"):0;
 var Prname=para.indexOf("rename=")!=-1? para.split("#")[1].split("rename=")[1].split("&")[0].split("+"):null;
+
 
 if(type0=="Vmess"){
 	total=V2QX(content0,Pudp0,Ptfo0);
@@ -326,7 +327,7 @@ function emoji_handle(servers,Pemoji){
 		var oname=ser0[i].split("tag=")[1];
 		var hd=ser0[i].split("tag=")[0];
 		var nname=emoji_del(oname);
-		var Lmoji={"🏳️‍🌈": ["流量","时间","应急","过期","Bandwidth","expire"],"🇦🇨": ["AC"],"🇦🇹": ["奥地利","维也纳"],"🇦🇺": ["AU","Australia","Sydney","澳大利亚","澳洲","墨尔本","悉尼"],"🇧🇪": ["BE","比利时"],"🇧🇬️": ["保加利亚"],"🇧🇷": ["BR","Brazil","巴西","圣保罗"],"🇨🇦": ["Canada","Waterloo","加拿大","蒙特利尔","温哥华","楓葉","枫叶","滑铁卢","多伦多"],"🇨🇭": ["瑞士","苏黎世"],"🇩🇪": ["DE","German","GERMAN","德国","德國","法兰克福"],"🇩🇰": ["丹麦"],"🇪🇸": ["ES"],"🇪🇺": ["EU"],"🇫🇮": ["Finland","芬兰","赫尔辛基"],"🇫🇷": ["FR","France","法国","法國","巴黎"],"🇬🇧": ["UK","England","United Kingdom","英国","伦敦","英"],"🇲🇴": ["MO","Macao","澳门","CTM"],"🇭🇰": ["HK","Hongkong","Hong Kong","香港","深港","沪港","呼港","HKT","HKBN","HGC","WTT","CMI","穗港","京港","港"],"🇮🇩": ["Indonesia","印尼","印度尼西亚","雅加达"],"🇮🇪": ["Ireland","爱尔兰","都柏林"],"🇮🇳": ["India","印度","孟买","Mumbai"],"🇮🇹": ["Italy","Nachash","意大利","米兰","義大利"],"🇯🇵": ["JP","Japan","日本","东京","大阪","埼玉","沪日","穗日","川日","中日","泉日","杭日","深日","辽日"],"🇰🇵": ["KP","朝鲜"],"🇰🇷": ["KR","Korea","KOR","韩国","首尔","韩","韓"],"🇲🇽️": ["MEX","MX","墨西哥"],"🇲🇾": ["MY","Malaysia","马来西亚","吉隆坡"],"🇳🇱": ["NL","Netherlands","荷兰","荷蘭","尼德蘭","阿姆斯特丹"],"🇵🇭": ["PH","Philippines","菲律宾"],"🇷🇴": ["RO","罗马尼亚"],"🇷🇺": ["RU","Russia","俄罗斯","俄羅斯","伯力","莫斯科","圣彼得堡","西伯利亚","新西伯利亚","京俄","杭俄"],"🇸🇦": ["沙特","迪拜"],"🇸🇪": ["SE","Sweden"],"🇸🇬": ["SG","Singapore","新加坡","狮城","沪新","京新","泉新","穗新","深新","杭新"],"🇹🇭": ["TH","Thailand","泰国","泰國","曼谷"],"🇹🇷": ["TR","Turkey","土耳其","伊斯坦布尔"],"🇹🇼": ["TW","Taiwan","台湾","台北","台中","新北","彰化","CHT","台","HINET"],"🇺🇸": ["US","America","United States","美国","美","京美","波特兰","达拉斯","俄勒冈","凤凰城","费利蒙","硅谷","拉斯维加斯","洛杉矶","圣何塞","圣克拉拉","西雅图","芝加哥","沪美","哥伦布","纽约"],"🇻🇳": ["VN","越南","胡志明市"],"🇿🇦":["South Africa","南非"],"🇦🇪":["United Arab Emirates","阿联酋"],"🇦🇷": ["AR","阿根廷"],"🇨🇳": ["CN","China","回国","中国","江苏","北京","上海","广州","深圳","杭州","徐州","青岛","宁波","镇江","back"]}
+		var Lmoji={"🏳️‍🌈": ["流量","时间","应急","过期","Bandwidth","expire"],"🇦🇨": ["AC"],"🇦🇹": ["奥地利","维也纳"],"🇦🇺": ["AU","Australia","Sydney","澳大利亚","澳洲","墨尔本","悉尼"],"🇧🇪": ["BE","比利时"],"🇧🇬️": ["保加利亚"],"🇧🇷": ["BR","Brazil","巴西","圣保罗"],"🇨🇦": ["Canada","Waterloo","加拿大","蒙特利尔","温哥华","楓葉","枫叶","滑铁卢","多伦多"],"🇨🇭": ["瑞士","苏黎世"],"🇩🇪": ["DE","German","GERMAN","德国","德國","法兰克福"],"🇩🇰": ["丹麦"],"🇪🇸": ["ES"],"🇪🇺": ["EU"],"🇫🇮": ["Finland","芬兰","赫尔辛基"],"🇫🇷": ["FR","France","法国","法國","巴黎"],"🇬🇧": ["UK","England","United Kingdom","英国","伦敦","英"],"🇲🇴": ["MO","Macao","澳门","CTM"],"🇭🇰": ["HK","Hongkong","Hong Kong","香港","深港","沪港","呼港","HKT","HKBN","HGC","WTT","CMI","穗港","京港","港"],"🇮🇩": ["Indonesia","印尼","印度尼西亚","雅加达"],"🇮🇪": ["Ireland","爱尔兰","都柏林"],"🇮🇳": ["India","印度","孟买","Mumbai"],"🇮🇹": ["Italy","Nachash","意大利","米兰","義大利"],"🇯🇵": ["JP","Japan","日本","东京","大阪","埼玉","沪日","穗日","川日","中日","泉日","杭日","深日","辽日"],"🇰🇵": ["KP","朝鲜"],"🇰🇷": ["KR","Korea","KOR","韩国","首尔","韩","韓"],"🇲🇽️": ["MEX","MX","墨西哥"],"🇲🇾": ["MY","Malaysia","马来西亚","吉隆坡"],"🇳🇱": ["NL","Netherlands","荷兰","荷蘭","尼德蘭","阿姆斯特丹"],"🇵🇭": ["PH","Philippines","菲律宾"],"🇷🇴": ["RO","罗马尼亚"],"🇷🇺": ["RU","Russia","俄罗斯","俄羅斯","伯力","莫斯科","圣彼得堡","西伯利亚","新西伯利亚","京俄","杭俄"],"🇸🇦": ["沙特","迪拜"],"🇸🇪": ["SE","Sweden"],"🇸🇬": ["SG","Singapore","新加坡","狮城","沪新","京新","泉新","穗新","深新","杭新"],"🇹🇭": ["TH","Thailand","泰国","泰國","曼谷"],"🇹🇷": ["TR","Turkey","土耳其","伊斯坦布尔"],"🇹🇼": ["TW","Taiwan","台湾","台北","台中","新北","彰化","CHT","台","HINET"],"🇺🇸": ["US","USA","America","United States","美国","美","京美","波特兰","达拉斯","俄勒冈","凤凰城","费利蒙","硅谷","矽谷","拉斯维加斯","洛杉矶","圣何塞","圣克拉拉","西雅图","芝加哥","沪美","哥伦布","纽约"],"🇻🇳": ["VN","越南","胡志明市"],"🇿🇦":["South Africa","南非"],"🇦🇪":["United Arab Emirates","阿联酋"],"🇦🇷": ["AR","阿根廷"],"🇨🇳": ["CN","China","回国","中国","江苏","北京","上海","广州","深圳","杭州","徐州","青岛","宁波","镇江","back"]}
 		if(Pemoji==1) { 
 			str1 = JSON.stringify(Lmoji)
 			aa=JSON.parse(str1)
@@ -343,102 +344,283 @@ function emoji_handle(servers,Pemoji){
 	return nlist
 }
 
-//来自 yichahucha 大佬的 Base64 编码/解码: https://github.com/yichahucha/surge/tree/master
-function Base64() {
-	// private property
-	_keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-	// public method for encoding
-	this.encode = function (input) {
-		var output = "";
-		var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
-		var i = 0;
-		input = _utf8_encode(input);
-		while (i < input.length) {
-			chr1 = input.charCodeAt(i++);
-			chr2 = input.charCodeAt(i++);
-			chr3 = input.charCodeAt(i++);
-			enc1 = chr1 >> 2;
-			enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
-			enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
-			enc4 = chr3 & 63;
-			if (isNaN(chr2)) {
-				enc3 = enc4 = 64;
-			} else if (isNaN(chr3)) {
-				enc4 = 64;
+// Base64, adapted from internet : https://www.jianshu.com/p/54084db83d70
+function Base64(){
+	
+	// 一般的Base64编码字符
+	var commonbase64EncodeChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	// 对URL进行编码使用的字符
+	var urlBase64EncodeChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+	
+	// Base64解码用到的映射表，兼容一般编码的Base64和针对URL进行扩展编码的Base64
+	var base64DecodeChars = new Array(
+		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 62, 63, -1, -1, 63,
+		52, 53, 54, 55, 56, 57, 58, 59, 60, 61, -1, -1, -1, -1, -1, -1,
+		-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+		15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, 62, -1,
+		-1, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+		41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, -1, -1, -1, -1, -1);
+	
+	
+	/** 通用的Base64编码函数
+	 * str为待编码的串
+	 * isUrl用来表明编码的对象(str)是否是一个URL
+	*/
+	function base64encode(str,isUrl){
+		var out, i, len;
+		var c1, c2, c3;
+		
+		// 针对不同的编码方式，选择不同的字符集
+		var base64EncodeChars = isUrl ? urlBase64EncodeChars : commonbase64EncodeChars;
+		
+		len = str.length;
+		i = 0;
+		out = "";
+		while(i < len){
+			c1 = str.charCodeAt(i++) & 0xff;
+			
+			// 当最后只有一个字节时
+			if(i == len){
+				out += base64EncodeChars.charAt(c1 >> 2);
+				out += base64EncodeChars.charAt((c1 & 0x3) << 4);
+				out += "==";
+				break;
 			}
-			output = output +
-				_keyStr.charAt(enc1) + _keyStr.charAt(enc2) +
-				_keyStr.charAt(enc3) + _keyStr.charAt(enc4);
-		}
-		return output;
-	}
-	// public method for decoding
-	this.decode = function (input) {
-		var output = "";
-		var chr1, chr2, chr3;
-		var enc1, enc2, enc3, enc4;
-		var i = 0;
-		input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
-		while (i < input.length) {
-			enc1 = _keyStr.indexOf(input.charAt(i++));
-			enc2 = _keyStr.indexOf(input.charAt(i++));
-			enc3 = _keyStr.indexOf(input.charAt(i++));
-			enc4 = _keyStr.indexOf(input.charAt(i++));
-			chr1 = (enc1 << 2) | (enc2 >> 4);
-			chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
-			chr3 = ((enc3 & 3) << 6) | enc4;
-			output = output + String.fromCharCode(chr1);
-			if (enc3 != 64) {
-				output = output + String.fromCharCode(chr2);
-			}
-			if (enc4 != 64) {
-				output = output + String.fromCharCode(chr3);
-			}
-		}
-		output = _utf8_decode(output);
-		return output;
-	}
-	// private method for UTF-8 encoding
-	_utf8_encode = function (string) {
-		string = string.replace(/\r\n/g, "\n");
-		var utftext = "";
-		for (var n = 0; n < string.length; n++) {
-			var c = string.charCodeAt(n);
-			if (c < 128) {
-				utftext += String.fromCharCode(c);
-			} else if ((c > 127) && (c < 2048)) {
-				utftext += String.fromCharCode((c >> 6) | 192);
-				utftext += String.fromCharCode((c & 63) | 128);
-			} else {
-				utftext += String.fromCharCode((c >> 12) | 224);
-				utftext += String.fromCharCode(((c >> 6) & 63) | 128);
-				utftext += String.fromCharCode((c & 63) | 128);
-			}
+			
+			
+			c2 = str.charCodeAt(i++);
 
+			// 当最后剩余两个字节时
+			if(i == len){
+				out += base64EncodeChars.charAt(c1 >> 2);
+				out += base64EncodeChars.charAt(((c1 & 0x3) << 4) | ((c2 & 0xF0) >> 4));
+				out += base64EncodeChars.charAt((c2 & 0xF) << 2);
+				out += "=";
+				break;
+			}
+			
+			//当剩余字节数大于等于3时
+			c3 = str.charCodeAt(i++);
+			out += base64EncodeChars.charAt(c1 >> 2);
+			out += base64EncodeChars.charAt(((c1 & 0x3) << 4) | ((c2 & 0xF0) >> 4));
+			out += base64EncodeChars.charAt(((c2 & 0xF) << 2) | ((c3 & 0xC0) >> 6));
+			out += base64EncodeChars.charAt(c3 & 0x3F);
 		}
-		return utftext;
+		return out;
 	}
-	// private method for UTF-8 decoding
-	_utf8_decode = function (utftext) {
-		var string = "";
-		var i = 0;
-		var c = c1 = c2 = 0;
-		while (i < utftext.length) {
-			c = utftext.charCodeAt(i);
-			if (c < 128) {
-				string += String.fromCharCode(c);
-				i++;
-			} else if ((c > 191) && (c < 224)) {
-				c2 = utftext.charCodeAt(i + 1);
-				string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
-				i += 2;
-			} else {
-				c2 = utftext.charCodeAt(i + 1);
-				c3 = utftext.charCodeAt(i + 2);
-				string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
-				i += 3;
+
+	/**
+	 * Base64解码函数
+	 * @param str
+	 * @returns {*}
+	 */
+	function base64decode(str){
+		var c1, c2, c3, c4;
+		var i, len, out;
+		
+		len = str.length;
+		i = 0;
+		out = "";
+		while(i < len){
+			/*  得到第一个字符 c1
+				* 并过虑掉前后所有与Base64编码无关的字符
+				* */
+			do{
+				c1 = base64DecodeChars[str.charCodeAt(i++) & 0xff];
+			}while(i < len && c1 == -1);
+			
+			// 如果已经到达字符串结尾，并最后还未得到有效的Base64编码字符就结尾循环
+			if(c1 == -1)
+				break;
+			
+			/*  得到字符 c2
+			 * 并过滤掉所有与Base64编码无关的字符
+			 */
+			do{
+				c2 = base64DecodeChars[str.charCodeAt(i++) & 0xff];
+			}while(i < len && c2 == -1);
+
+			// 如果已经到达字符串结尾，并最后还未得到有效的Base64编码字符就结尾循环
+			if(c2 == -1)
+				break;
+			
+			// 根据Base64编码的 c1 和 c2 解码得到一个编码前的字符
+			out += String.fromCharCode((c1 << 2) | ((c2 & 0x30) >> 4));
+
+			/*  得到字符 c3
+			 * 并过滤掉所有与Base64编码无关的字符
+			 * 如果获取的 c3 是 '=' 字符则说明已经解码完成，返回解码得到的字符串
+			 */
+			do{
+				c3 = str.charCodeAt(i++) & 0xff;
+				if(c3 == 61)
+					return out;
+				c3 = base64DecodeChars[c3];
+			}while(i < len && c3 == -1);
+
+			// 如果已经到达字符串结尾，并最后还未得到有效的Base64编码字符就结尾循环
+			if(c3 == -1)
+				break;
+			
+			// 根据Base64编码的 c2 和 c3 解码得到一个编码前的字符
+			out += String.fromCharCode(((c2 & 0XF) << 4) | ((c3 & 0x3C) >> 2));
+			
+			/* 这一步就比较复杂了
+			 * 先是尝试获取第四个Base64 编码的字符 c4
+			 * 如果获取的 c4 是 '=' 字符则说明已经解码完成，返回解码得到的字符串
+			 * */
+			do{
+				c4 = str.charCodeAt(i++) & 0xff;
+				if(c4 == 61)
+					return out;
+				c4 = base64DecodeChars[c4];
+			}while(i < len && c4 == -1);
+
+			// 如果已经到达字符串结尾，并最后还未得到有效的Base64编码字符就结尾循环
+			if(c4 == -1)
+				break;
+
+			// 根据Base64编码的 c3 和 c4 解码得到一个编码前的字符
+			out += String.fromCharCode(((c3 & 0x03) << 6) | c4);
+		}
+		return out;
+	}
+
+	/**
+	 * 把 unicode 码转换成 utf8 编码
+	 * @param str
+	 * @returns {string}
+	 */
+	function unicodeToUtf8(str){
+		var out, i, len, c;
+		
+		out = "";
+		len = str.length;
+		for(i = 0; i < len; i++){
+			c = str.charCodeAt(i);
+			
+			// 兼容 ASCII
+			if((c >= 0x0001) && (c <= 0x007F)){
+				out += str.charAt(i);
+			}else if(c > 0x07FF){
+				// 占三个字节的 utf8
+				out += String.fromCharCode(0xE0 | ((c >> 12) & 0x0F));
+				out += String.fromCharCode(0x80 | ((c >> 6) & 0x3F));
+				out += String.fromCharCode(0x80 | ((c >> 0) & 0x3F));
+			}else{
+				// 占两个字节的 utf8
+				out += String.fromCharCode(0xC0 | ((c >> 6) & 0x1F));
+				out += String.fromCharCode(0x80 | ((c >> 0) & 0x3F));
 			}
 		}
-		return string;
+		return out;
 	}
-}
+
+	/**
+	 * 把 utf8 编码转换成 unicode 码
+	 * @param str
+	 * @returns {string}
+	 */
+	function utf8ToUnicode(str){
+		var out, i, len, c;
+		var char2, char3;
+		
+		out = "";
+		len = str.length;
+		i = 0;
+		while(i < len){
+			c = str.charCodeAt(i++);
+			switch(c >> 4){
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+				case 7:
+					// 0xxxxxxx ASCII 编码
+					out += str.charAt(i - 1);
+					break;
+				case 12:
+				case 13:
+					// 110x xxxx   10xx xxxx
+					// 占两个字节的 utf8
+					char2 = str.charCodeAt(i++);
+					out += String.fromCharCode(((c & 0x1F) << 6) | (char2 & 0x3F));
+					break;
+				case 14:
+					// 1110 xxxx  10xx xxxx  10xx xxxx
+					// 占三个字节的 utf8
+					char2 = str.charCodeAt(i++);
+					char3 = str.charCodeAt(i++);
+					out += String.fromCharCode(((c & 0x0F) << 12) |
+						((char2 & 0x3F) << 6) |
+						((char3 & 0x3F) << 0));
+					break;
+			}
+		}
+		
+		return out;
+	}
+
+	/**
+	 * 转成 十六 进制编码
+	 * @param str
+	 * @returns {string}
+	 * @constructor
+	 */
+	function CharToHex(str){
+		var out, i, len, c, h;
+		out = "";
+		len = str.length;
+		i = 0;
+		while(i < len){
+			c = str.charCodeAt(i++);
+			
+			// 把数据转换成十六进制的字符串
+			h = c.toString(16);
+			if(h.length < 2)
+				h = "0" + h;
+			
+			out += "\\x" + h + " ";
+			if(i > 0 && i % 8 == 0)
+				out += "\r\n";
+		}
+		
+		return out;
+	}
+	
+	this.encode=function(str){
+				// 普通 Base64 编码
+				return base64encode(unicodeToUtf8(str));
+			};
+	this.decode=function(str){
+				// 普通 Base64 编码
+				return utf8ToUnicode(base64decode(str));
+			};
+//	base64={
+//		encode:function(str){
+//			// 普通 Base64 编码
+//			return base64encode(unicodeToUtf8(str));
+//		},
+//		encodeUrl:function(str){
+//			// 使用 Base64 编码字符串
+//			return base64encode(unicodeToUtf8(str),1)
+//		},
+//		decode:function(str){
+//			// 兼容的 Base64 解码
+//			return utf8ToUnicode(base64decode(str));
+//		},
+//		encodeToHex:function(str){
+//			// 普通 Base64 编码 以十六进制显示
+//			return CharToHex(base64encode(unicodeToUtf8(str)));
+//		},
+//		encodeUrlToHex:function(str){
+//			// 使用 Base64 编码 url 以十六进制显示
+//			return CharToHex(base64encode(unicodeToUtf8(str),1));
+//		}
+//	}
+};
