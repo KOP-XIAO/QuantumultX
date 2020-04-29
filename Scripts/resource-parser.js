@@ -1,5 +1,5 @@
 /** 
-#Quantumult X 资源解析器 (2020-04-29: 11:33)
+#Quantumult X 资源解析器 (2020-04-29: 21:33)
 
 本资源解析器作者: Shawn(@XIAO_KOP), 有问题请反馈: @Shawn_KOP_bot
 
@@ -70,7 +70,6 @@ if(type0=="Vmess"){
 }
 
 if(flag==2){
-	if(Pout0){$notify("正在删除复写规则&主机名","删除参数为:",Pout0);}
 	$done({content:total.join("\n")});
 }else if(flag==1){
 	if(Pin0||Pout0){
@@ -121,7 +120,8 @@ function Trim(item){
 //删除 rewrite 引用中的某部分
 function Rewrite_Filter(subs,Pout){
 	cnt=subs;
-	nlist=[]
+	nlist=[];
+	drewrite=[];
 	Pout=Pout.map(Trim);
 	if(Pout!="" && Pout!=null){
 	for(var i=0;i<cnt.length;i++){
@@ -129,27 +129,33 @@ function Rewrite_Filter(subs,Pout){
 		if(cc.trim()!=""){
 		const exclude = (item) => cc.indexOf(item)!=-1;
 		if(Pout.some(exclude)){
-			if(cc.indexOf("hostname")!=-1 && cc.indexOf("=")!=-1){
-				nname=[]
+			if(cc.indexOf("hostname")!=-1 && cc.indexOf("=")!=-1){ //hostname  部分
+				nname=[];//保留项
+				dname=[];//删除项目
 				hname=cc.split("=")[1].split(",");
 				for(var j=0;j<hname.length;j++){
 					dd=hname[j]
 					const excludehn = (item) => dd.indexOf(item)!=-1;
 					if(!Pout.some(excludehn)){
 						nname.push(hname[j])	
-					}
+					}else{dname.push(hname[j])}
 				} //for j
 				hname="hostname="+nname.join(", ");
 				//console.log(hname)
 				nlist.push(hname)
-				}  // if cc 
+				if(dname.length>0){$notify("🤖 您添加的过滤关键词为："+Pout0.join(", "),"☠️ 主机名 hostname 中已为您删除以下"+dname.length+"个匹配项",dname.join(",") )}
+				}  // if cc -hostname
+				else{
+					drewrite.push(cc)
+				}
 		}else{ //if Pout.some
 				nlist.push(cc)
 					} //else
 		}
 	}//cnt for
+	if(drewrite.length>0){$notify("🤖 您添加的过滤关键词为："+Pout0.join(", "),"☠️ 复写 rewrite 中已为您删除以下"+drewrite.length+"个匹配项",drewrite.join("\n") )};
 	return nlist
-	} else{
+	} else{ // Pout if
 		return cnt;}
 	
 }
