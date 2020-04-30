@@ -16,20 +16,20 @@
 
 4️⃣ rename 重命名, rename=旧名@新名, 以及 "前缀@", "@后缀", 用 "+" 连接, 如 "rename=香港@HK+[SS]@+@[1X]"
 
-5⃣️ rewrite(复写)/filter(分流) 引用的筛选，参数为 "out=xxx", 分流规则额外支持 "policy=xx" 参数, 可用于直接指定策略组，或者为 Surge 格式的 rule-set 生成策略组(默认"Shawn"策略组)
+5️⃣ rewrite(复写)/filter(分流) 引用的筛选，参数为 "out=xxx", 分流规则额外支持 "policy=xx" 参数, 可用于直接指定策略组，或者为 Surge 格式的 rule-set 生成策略组(默认"Shawn"策略组)
 
-6⃣️ info=1, 用于打开服务器类型下转换解析器的提示通知 (默认关闭), rewrite/filter 类型则强制在有 out 参数时开启通知，以免规则误删除
+6️⃣ info=1, 用于打开服务器类型下转换解析器的提示通知 (默认关闭), rewrite/filter 类型则强制在有 out 参数时开启通知，以免规则误删除
 
  */
 
 
 /**
  * 使用说明，
-0⃣️ 在Quantumult X 配置文件中[general] 部分，加入 resource_parser_url=https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/resource-parser.js
-1⃣️ 假设原始订阅连接为: https://raw.githubusercontent.com/crossutility/Quantumult-X/master/server-complete.txt , 
-2⃣️ 假设你想要保留的参数为 in=tls+ss, 想要过滤的参数为 out=http+2, 请注意下面订阅链接后一定要加 ”#“ 符号
-3⃣️ 则填入 Quanx 节点引用的的总链接为  https://raw.githubusercontent.com/crossutility/Quantumult-X/master/server-complete.txt#in=tls+ss&out=http+2
-4⃣️ 填入上述链接并打开的资源解析器开关
+0️⃣ 在Quantumult X 配置文件中[general] 部分，加入 resource_parser_url=https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/resource-parser.js
+1️⃣ 假设原始订阅连接为: https://raw.githubusercontent.com/crossutility/Quantumult-X/master/server-complete.txt , 
+2️⃣ 假设你想要保留的参数为 in=tls+ss, 想要过滤的参数为 out=http+2, 请注意下面订阅链接后一定要加 ”#“ 符号
+3️⃣ 则填入 Quanx 节点引用的的总链接为  https://raw.githubusercontent.com/crossutility/Quantumult-X/master/server-complete.txt#in=tls+ss&out=http+2
+4️⃣ 填入上述链接并打开的资源解析器开关
  */
 
 var content0=$resource.content;
