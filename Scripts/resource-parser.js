@@ -1,5 +1,5 @@
 /** 
-#Quantumult X 资源解析器 (2020-04-30: 18:33)
+#Quantumult X 资源解析器 (2020-04-30: 19:33)
 
 本资源解析器作者: Shawn(@XIAO_KOP), 有问题请反馈: @Shawn_KOP_bot
 
@@ -108,7 +108,7 @@ function Type_Check(subs){
 	var type=""
 	var RuleK=["host","domain","ip-cidr","geoip","user-agent"];
 	const RuleCheck = (item) => subs.toLowerCase().indexOf(item)!=-1;
-	if(RuleK.some(RuleCheck)){
+	if(RuleK.some(RuleCheck) && subs.indexOf("=")==-1){
 		type="Rule";
 	} else if (subs.indexOf("dm1lc3M6Ly")!= -1){
 		type="Vmess"
