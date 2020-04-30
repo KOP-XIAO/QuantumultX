@@ -1,11 +1,10 @@
 /** 
-#Quantumult X 资源解析器 (2020-04-29: 21:33)
+#Quantumult X 资源解析器 (2020-04-30: 18:33)
 
 本资源解析器作者: Shawn(@XIAO_KOP), 有问题请反馈: @Shawn_KOP_bot
 
 主要功能: 将节点订阅解析成 Quantumult X 引用片段, 并提供下列可选参数 (已支持 V2RayN/SSR/SS/Trojan/QuanX 订阅)；
-
-附赠功能：rewrite 复写引用过滤
+附赠功能：rewrite 复写引用/ filter 分流 过滤
 
 0️⃣ 在订阅链接后加入 "#" 符号后再加参数, 不同参数间请使用 "&" 来连接, 如: "#in=香港+台湾&emoji=1&tfo=1"
 
@@ -17,9 +16,10 @@
 
 4️⃣ rename 重命名, rename=旧名@新名, 以及 "前缀@", "@后缀", 用 "+" 连接, 如 "rename=香港@HK+[SS]@+@[1X]"
 
-5️⃣ info=1, 用于打开转换解析器的提示通知 (默认关闭)
+5⃣️ rewrite(复写)/filter(分流) 引用的筛选，参数为 "out=xxx", 分流规则额外支持 "policy=xx" 参数, 可用于直接指定策略组，或者为 Surge 格式的 rule-set 生成策略组(默认"Shawn"策略组)
 
-6⃣️ 支持过滤主机名跟重写规则，用于 rewrite 引用模块，参数一样为 "out=para"
+6⃣️ info=1, 用于打开服务器类型下转换解析器的提示通知 (默认关闭), rewrite/filter 类型则强制在有 out 参数时开启通知，以免规则误删除
+
  */
 
 
@@ -42,6 +42,7 @@ var Pudp0=para.indexOf("udp=")!=-1? para.split("#")[1].split("udp=")[1].split("&
 var Ptfo0=para.indexOf("tfo=")!=-1? para.split("#")[1].split("tfo=")[1].split("&")[0].split("+"):0;
 var Pinfo=para.indexOf("info=")!=-1? para.split("#")[1].split("info=")[1].split("&")[0].split("+"):0;
 var Prname=para.indexOf("rename=")!=-1? para.split("#")[1].split("rename=")[1].split("&")[0].split("+"):null;
+var Ppolicy=para.indexOf("policy=")!=-1? para.split("#")[1].split("policy=")[1].split("&")[0].split("+"):"Shawn";
 
 
 if(type0=="Vmess"){
@@ -63,13 +64,18 @@ if(type0=="Vmess"){
 	flag=2;
 	content0=content0.split("\n");
 	total=Rewrite_Filter(content0,Pout0);
-	}else {
-	$notify("👻该解析器暂未支持您的订阅格式","😭太难写了", "stay tuned");
+}else if(type0=="Rule"){
+	flag=3;
+	total=content0.split("\n");
+	total=Rule_Handle(total,Pout0);
+}else {
+	$notify("👻 该解析器暂未支持您的订阅格式, 已尝试直接导入","😭 太难写了", "☠️ stay tuned");
 	flag=0;
-	$done({content : content0});
 }
 
-if(flag==2){
+if(flag==3){
+	$done({content : total.join("\n")});
+}else if(flag==2){
 	$done({content:total.join("\n")});
 }else if(flag==1){
 	if(Pin0||Pout0){
@@ -92,13 +98,19 @@ if(flag==2){
 		total=total.map(Rename);
 	}
 	$done({content : total.join("\n")});	
+}else {
+	$done({content : content0});
 }
 
 
 //判断订阅类型
 function Type_Check(subs){
 	var type=""
-	if (subs.indexOf("dm1lc3M6Ly")!= -1){
+	var RuleK=["host","domain","ip-cidr","geoip","user-agent"];
+	const RuleCheck = (item) => subs.toLowerCase().indexOf(item)!=-1;
+	if(RuleK.some(RuleCheck)){
+		type="Rule";
+	} else if (subs.indexOf("dm1lc3M6Ly")!= -1){
 		type="Vmess"
 	} else if (subs.indexOf("tag")!=-1){
 		type="QuanX"
@@ -143,7 +155,7 @@ function Rewrite_Filter(subs,Pout){
 				hname="hostname="+nname.join(", ");
 				//console.log(hname)
 				nlist.push(hname)
-				if(dname.length>0){$notify("🤖 您添加的过滤关键词为："+Pout0.join(", "),"☠️ 主机名 hostname 中已为您删除以下"+dname.length+"个匹配项",dname.join(",") )}
+				if(dname.length>0){$notify("🤖 您添加的[rewrite]过滤关键词为："+Pout0.join(", "),"☠️ 主机名 hostname 中已为您删除以下"+dname.length+"个匹配项",dname.join(",") )}
 				}  // if cc -hostname
 				else{
 					drewrite.push(cc)
@@ -153,11 +165,64 @@ function Rewrite_Filter(subs,Pout){
 					} //else
 		}
 	}//cnt for
-	if(drewrite.length>0){$notify("🤖 您添加的过滤关键词为："+Pout0.join(", "),"☠️ 复写 rewrite 中已为您删除以下"+drewrite.length+"个匹配项",drewrite.join("\n") )};
+	if(drewrite.length>0){$notify("🤖 您添加的[rewrite]过滤关键词为："+Pout0.join(", "),"☠️ 复写 rewrite 中已为您删除以下"+drewrite.length+"个匹配项",drewrite.join("\n") )};
 	return nlist
 	} else{ // Pout if
 		return cnt;}
-	
+}
+
+//分流规则转换及过滤，可用于 surge 及 quanx 的 rule-list
+function Rule_Handle(subs,Pout){
+	cnt=subs //.split("\n");
+	out=Pout; //过滤参数
+	ply=Ppolicy; //策略组
+	var nlist=[]
+	var RuleK=["//","#",";"];
+	if(Pout!="" && Pout!=null){
+		var dlist=[];
+		for(var i=0;i<cnt.length;i++){
+			cc=cnt[i]
+			const exclude = (item) =>cc.indexOf(item)!=-1;
+			const RuleCheck = (item) => cc.indexOf(item)!=-1; //无视注释行
+			if(Pout.some(exclude) && !RuleK.some(RuleCheck)){
+				dlist.push(cnt[i])
+			} else if(!RuleK.some(RuleCheck) && cc){ //if Pout.some, 不操作注释项
+			dd=Rule_Policy(cc);
+			nlist.push(dd);
+			}
+		}//for cnt
+		var no=dlist.length
+		if(dlist.length>0){$notify("🤖 您添加的分流 [filter] 过滤关键词为："+out,"☠️ 已为您删除以下 "+no+"条匹配规则", dlist.join("\n"))
+		}else{$notify("🤖 您添加的[filter]过滤关键词为："+out,"☠️ 没有发现任何匹配项",dlist)}
+		return nlist
+	} else{return cnt.map(Rule_Policy)}//if Pout
+}
+
+function Rule_Policy(content){ //增加、替换 policy
+	var cnt=content.split(",");
+	var RuleK=["//","#",";"];
+	const RuleCheck = (item) => cnt[0].indexOf(item)!=-1; //无视注释行
+	if(cnt.length==3 && cnt.indexOf("no-resolve")==-1){
+		ply0 = Ppolicy!="Shawn"? Ppolicy:cnt[2]
+		nn=cnt[0]+", "+cnt[1]+", "+ply0
+	} else if(cnt.length==2){ //Surge rule-set
+		ply0 = Ppolicy!="Shawn"? Ppolicy:"Shawn"
+		nn=cnt[0]+", "+cnt[1]+", "+ply0
+	}else if(cnt.length==3 && cnt[2].indexOf("no-resolve")!=-1){
+		ply0 = Ppolicy!="Shawn"? Ppolicy:"Shawn"
+		nn=cnt[0]+", "+cnt[1]+", "+ply0+", "+cnt[2]
+	}else if(cnt.length==4 && cnt[3].indexOf("no-resolve")!=-1){
+		ply0 = Ppolicy!="Shawn"? Ppolicy:cnt[2]
+		nn=cnt[0]+", "+cnt[1]+", "+ply0+", "+cnt[3]
+	}else if(!RuleK.some(RuleCheck)&& content){
+		$notify("未能解析其中部分规则",content);
+		return ""
+	}else{return ""}
+	if(cnt[0].indexOf("URL-REGEX")!=-1 || cnt[0].indexOf("PROCESS")!=-1){
+		nn=""
+	} else {nn=nn.replace("IP-CIDR6","ip6-cidr")}
+	return nn
+		
 }
 
 //V2RayN 订阅转换成 QUANX 格式
