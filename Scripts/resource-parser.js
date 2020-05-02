@@ -158,14 +158,15 @@ function Rewrite_Filter(subs,Pout){
 				if(dname.length>0){$notify("🤖 您添加的[rewrite]过滤关键词为："+Pout0.join(", "),"☠️ 主机名 hostname 中已为您删除以下"+dname.length+"个匹配项",dname.join(",") )}
 				}  // if cc -hostname
 				else{
-					drewrite.push(cc)
+					drewrite.push(cc);
+					nlist.push(cc.replace(/ url /g," - "));
 				}
 		}else{ //if Pout.some
 				nlist.push(cc)
 					} //else
 		}
 	}//cnt for
-	if(drewrite.length>0){$notify("🤖 您添加的[rewrite]过滤关键词为："+Pout0.join(", "),"☠️ 复写 rewrite 中已为您删除以下"+drewrite.length+"个匹配项",drewrite.join("\n") )};
+	if(drewrite.length>0){$notify("🤖 您添加的[rewrite]过滤关键词为："+Pout0.join(", "),"☠️ 复写 rewrite 中已为您禁用以下"+drewrite.length+"个匹配项",drewrite.join("\n") )};
 	return nlist
 	} else{ // Pout if
 		return cnt;}
