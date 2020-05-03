@@ -1,25 +1,25 @@
 /** 
-#Quantumult X 资源解析器 (2020-05-03: 19:33)
+#Quantumult X 资源解析器 (2020-05-03: 22:33)
 
 本资源解析器作者: Shawn(@XIAO_KOP), 有问题请反馈: @Shawn_KOP_bot
 
-主要功能: 将节点订阅解析成 Quantumult X 引用片段, 并提供下列可选参数 (已支持 V2RayN/SSR/SS/Trojan/QuanX(list)/Surge(conf&list)格式)；
+主要功能: 将各类服务器订阅解析成 Quantumult X 引用片段(已支持 V2RayN/SSR/SS/Trojan/QuanX(list)/Surge3⬆️(conf&list)格式)，并提供下列可选参数；
 
-附加功能: rewrite 复写 /filter 分流 过滤, 可用于解决无法单独禁用远程 rewrite 中某(几)条 js/rewrite/filter 的问题
+附加功能: rewrite 复写 /filter 分流 过滤, 可用于解决无法单独禁用远程 rewrite 中某(几)条 rewrite/hostname/filter 的问题
 
-0️⃣ 在订阅链接后加入 "#" 符号后再加参数, 不同参数间请使用 "&" 来连接, 如: "#in=香港+台湾&emoji=1&tfo=1"
+0️⃣ 请在订阅链接后加入 "#" 符号后再加参数, 不同参数间请使用 "&" 来连接, 如: "#in=香港+台湾&emoji=1&tfo=1"
 
 1️⃣ 筛选参数 in, out, 分别为保留与排除, 多参数用 "+" 连接, 可直接用中文 (如 "in=香港+台湾&out=BGP" )
 
 2️⃣ emoji 参数为 emoji=1,2 或 -1, 为添加或删除节点名中的 emoji 旗帜 (国行设备请用 emoji=2 )
 
-3️⃣ udp=1, tfo=1 参数开启 udp-relay 及 fast-open (默认关闭, 且此参数对源类型为 QuanX 的链接无效)
+3️⃣ udp=1, tfo=1 参数开启 udp-relay 及 fast-open (默认关闭, 且此参数对源类型为 QuanX/Surge 的链接无效)
 
 4️⃣ rename 重命名, rename=旧名@新名, 以及 "前缀@", "@后缀", 用 "+" 连接, 如 "rename=香港@HK+[SS]@+@[1X]"
 
 5⃣️ rewrite(复写)/filter(分流) 引用的筛选，参数为 "out=xxx", 分流规则额外支持 "policy=xx" 参数, 可用于直接指定策略组，或者为 Surge 格式的 rule-set 生成策略组(默认"Shawn"策略组)
 
-6⃣️ info=1, 用于打开服务器类型下转换解析器的提示通知 (默认关闭), rewrite/filter 类型则强制在有 out 参数时开启通知，以免规则误删除
+6⃣️ info=1, 用于打开服务器类型下转换解析器的提示通知 (默认关闭), rewrite/filter 类型则会强制在有 out 参数时开启通知提示，以免规则误删除
 
  */
 
@@ -31,6 +31,7 @@
 2️⃣ 假设你想要保留的参数为 in=tls+ss, 想要过滤的参数为 out=http+2, 请注意下面订阅链接后一定要加 ”#“ 符号
 3️⃣ 则填入 Quanx 节点引用的的总链接为  https://raw.githubusercontent.com/crossutility/Quantumult-X/master/server-complete.txt#in=tls+ss&out=http+2
 4️⃣ 填入上述链接并打开的资源解析器开关
+5⃣️ 因为 rewrite/filter 的 UI 中暂时没有提供解析器开关，需要去配置文件中自行添加参数开启(opt-parser=true)
  */
 
 var content0=$resource.content;
