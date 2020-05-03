@@ -4,7 +4,8 @@
 本资源解析器作者: Shawn(@XIAO_KOP), 有问题请反馈: @Shawn_KOP_bot
 
 主要功能: 将节点订阅解析成 Quantumult X 引用片段, 并提供下列可选参数 (已支持 V2RayN/SSR/SS/Trojan/QuanX(list)/Surge(conf&list)格式)；
-附赠功能：rewrite 复写引用/ filter 分流 过滤
+
+附加功能: rewrite 复写 /filter 分流 过滤, 可用于解决无法单独禁用远程 rewrite 中某(几)条 js/rewrite/filter 的问题
 
 0️⃣ 在订阅链接后加入 "#" 符号后再加参数, 不同参数间请使用 "&" 来连接, 如: "#in=香港+台湾&emoji=1&tfo=1"
 
