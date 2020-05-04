@@ -1,11 +1,11 @@
 /** 
-#Quantumult X 资源解析器 (2020-05-03: 22:33)
+#Quantumult X 资源解析器 (2020-05-04: 22:33)
 
 本资源解析器作者: Shawn(@XIAO_KOP), 有问题请反馈: @Shawn_KOP_bot
 
 主要功能: 将各类服务器订阅解析成 Quantumult X 引用片段(已支持 V2RayN/SSR/SS/Trojan/QuanX(list)/Surge3⬆️(conf&list)格式)，并提供下列可选参数；
 
-附加功能: rewrite 复写 /filter 分流 过滤, 可用于解决无法单独禁用远程 rewrite 中某(几)条 rewrite/hostname/filter 的问题
+附加功能: rewrite(复写) /filter(分流) 过滤, 可用于解决无法单独禁用远程引用资源中某(几)条 rewrite/hostname/filter 的问题
 
 0️⃣ 请在订阅链接后加入 "#" 符号后再加参数, 不同参数间请使用 "&" 来连接, 如: "#in=香港+台湾&emoji=1&tfo=1"
 
@@ -17,9 +17,11 @@
 
 4️⃣ rename 重命名, rename=旧名@新名, 以及 "前缀@", "@后缀", 用 "+" 连接, 如 "rename=香港@HK+[SS]@+@[1X]"
 
-5⃣️ rewrite(复写)/filter(分流) 引用的筛选，参数为 "out=xxx", 分流规则额外支持 "policy=xx" 参数, 可用于直接指定策略组，或者为 Surge 格式的 rule-set 生成策略组(默认"Shawn"策略组)
+5⃣️ cert=0，跳过证书验证(vmess/trojan)，即强制 tls-verification=false
 
-6⃣️ info=1, 用于打开服务器类型下转换解析器的提示通知 (默认关闭), rewrite/filter 类型则会强制在有 out 参数时开启通知提示，以免规则误删除
+6⃣️ rewrite(复写)/filter(分流) 引用的筛选，参数为 "out=xxx", 分流规则额外支持 "policy=xx" 参数, 可用于直接指定策略组，或者为 Surge 格式的 rule-set 生成策略组(默认"Shawn"策略组)
+
+7⃣️ info=1, 用于打开服务器类型下转换解析器的提示通知 (默认关闭), rewrite/filter 类型则会强制在有 out 参数时开启通知提示，以免规则误删除
 
  */
 
@@ -45,10 +47,11 @@ var Ptfo0=para.indexOf("tfo=")!=-1? para.split("#")[1].split("tfo=")[1].split("&
 var Pinfo=para.indexOf("info=")!=-1? para.split("#")[1].split("info=")[1].split("&")[0].split("+"):0;
 var Prname=para.indexOf("rename=")!=-1? para.split("#")[1].split("rename=")[1].split("&")[0].split("+"):null;
 var Ppolicy=para.indexOf("policy=")!=-1? para.split("#")[1].split("policy=")[1].split("&")[0].split("+"):"Shawn";
+var Pcert0=para.indexOf("cert=")!=-1? para.split("#")[1].split("cert=")[1].split("&")[0].split("+"):1;
 
 
 if(type0=="Vmess"){
-	total=V2QX(content0,Pudp0,Ptfo0);
+	total=V2QX(content0,Pudp0,Ptfo0,Pcert0);
 	flag=1;
 }else if(type0=="QuanX"){
 	total=content0.split("\n");
@@ -57,7 +60,7 @@ if(type0=="Vmess"){
 	total=SSR2QX(content0,Pudp0,Ptfo0);
 	flag=1;
 }else if(type0=="Trojan"){
-	total=TJ2QX(content0,Pudp0,Ptfo0);
+	total=TJ2QX(content0,Pudp0,Ptfo0,Pcert0);
 	flag=1;
 }else if(type0=="SS"){
 	total=SS2QX(content0,Pudp0,Ptfo0);
@@ -236,10 +239,11 @@ function Rule_Policy(content){ //增加、替换 policy
 }
 
 //V2RayN 订阅转换成 QUANX 格式
-function V2QX(subs,Pudp,Ptfo){
+function V2QX(subs,Pudp,Ptfo,Pcert){
 	const $base64 = new Base64()
 	var list0=$base64.decode(subs).split("\n");
 	var QXList=[]
+	var cert=Pcert
 	for(var i=0;i<list0.length; i++){
 		if(list0[i].trim()!=""){
 		var server=String($base64.decode(list0[i].replace("vmess://","")).trim()).split("\u0000")[0];
@@ -252,7 +256,7 @@ function V2QX(subs,Pudp,Ptfo){
 			tag="tag="+decodeURIComponent(ss.ps);
 			udp= Pudp==1? "udp-relay=true":"udp-relay=false";
 			tfo= Ptfo==1? "fast-open=true":"fast-open=false";
-			obfs=Pobfs(ss);
+			obfs=Pobfs(ss,cert);
 			if(obfs=="" || obfs==undefined){
 				nss.push(ip,mtd,pwd,tfo,udp,tag)
 			}else {
@@ -291,10 +295,12 @@ function filter(Servers,Pin,Pout){
 }
 
 // Vmess obfs 参数
-function Pobfs(jsonl){
-	var obfsi=[]
+function Pobfs(jsonl,Pcert){
+	var obfsi=[];
+	var cert=Pcert;
+	tcert= cert==0? "tls-verification=false":"tls-verification=true"
 	if(jsonl.net=="ws" && jsonl.tls=="tls"){
-		obfs0="obfs=wss, ";
+		obfs0="obfs=wss, "+tcert+", ";
 		uri0=jsonl.path!=""? "obfs-uri="+jsonl.path:"obfs-uri=/";
 		host0= jsonl.host!=""? "obfs-host="+jsonl.host+",":"";
 		obfsi.push(obfs0+host0+uri0)
@@ -306,7 +312,7 @@ function Pobfs(jsonl){
 		obfsi.push(obfs0,host0+uri0);
 		return obfsi.join(", ")
 	}else if(jsonl.tls=="tls"){
-		obfs0="obfs=over-tls";
+		obfs0="obfs=over-tls, "+tcert;
 		uri0=jsonl.path!=""? "obfs-uri="+jsonl.path:"";
 		host0=jsonl.host!=""? "obfs-host="+jsonl.host:"";
 		obfsi.push(obfs0+host0)
@@ -352,7 +358,7 @@ function SSR2QX(subs,Pudp,Ptfo){
 }
 
 //Trojan 类型转换成 QX
-function TJ2QX(subs,Pudp,Ptfo){
+function TJ2QX(subs,Pudp,Ptfo,Pcert){
 	const $base64 = new Base64()
 	var list0=$base64.decode(subs).split("\n");
 	var QXList=[];
@@ -364,7 +370,8 @@ function TJ2QX(subs,Pudp,Ptfo){
 			ip=cnt.split("@")[1].split("?")[0];
 			pwd="password="+cnt.split("@")[0];
 			obfs="over-tls=true";
-			pcert= cnt.indexOf("allowInsecure=0")!= -1? "tls-verification=true":"tls-verification=false";	
+			pcert= cnt.indexOf("allowInsecure=0")!= -1? "tls-verification=true":"tls-verification=false";
+			if(Pcert==0){pcert="tls-verification=false"}	
 			pudp= Pudp==1? "udp-relay=true":"udp-relay=false";
 			ptfo= Ptfo==1? "fast-open=true":"fast-open=false";
 			tag="tag="+decodeURIComponent(cnt.split("#")[1])
