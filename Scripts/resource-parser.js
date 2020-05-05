@@ -1,5 +1,5 @@
 /** 
-#Quantumult X 资源解析器 (2020-05-05: 20:33)
+#Quantumult X 资源解析器 (2020-05-05: 23:59)
 
 本资源解析器作者: Shawn(@XIAO_KOP), 有问题请反馈: @Shawn_KOP_bot
 
@@ -372,7 +372,7 @@ function TJ2QX(subs,Pudp,Ptfo,Pcert){
 			var ntrojan=[]
 			var cnt=list0[i].split("trojan://")[1]
 			type="trojan=";
-			ip=cnt.split("@")[1].split("?")[0];
+			ip=cnt.split("@")[1].split(":443")[0]+":443";
 			pwd="password="+cnt.split("@")[0];
 			obfs="over-tls=true";
 			pcert= cnt.indexOf("allowInsecure=0")!= -1? "tls-verification=true":"tls-verification=false";
