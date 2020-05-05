@@ -1,5 +1,5 @@
 /** 
-#Quantumult X 资源解析器 (2020-05-04: 22:33)
+#Quantumult X 资源解析器 (2020-05-05: 17:33)
 
 本资源解析器作者: Shawn(@XIAO_KOP), 有问题请反馈: @Shawn_KOP_bot
 
@@ -9,19 +9,20 @@
 
 0️⃣ 请在订阅链接后加入 "#" 符号后再加参数, 不同参数间请使用 "&" 来连接, 如: "#in=香港+台湾&emoji=1&tfo=1"
 
-1️⃣ 筛选参数 in, out, 分别为保留与排除, 多参数用 "+" 连接, 可直接用中文 (如 "in=香港+台湾&out=BGP" )
+1️⃣ 节点/服务器 订阅--参数说明
+- in, out, 分别为保留/排除参数, 多参数用 "+" 连接, 可直接用中文 (如 "in=香港+台湾&out=BGP" )
+- emoji=1,2 或 -1, 为添加或删除节点名中的 emoji 旗帜 (国行设备请用 emoji=2 )
+- udp=1, tfo=1 参数开启 udp-relay 及 fast-open (默认关闭, 此参数对源类型为 QuanX/Surge 的链接无效)
+- rename 重命名, rename=旧名@新名, 以及 "前缀@", "@后缀", 用 "+" 连接, 如 "rename=香港@HK+[SS]@+@[1X]"
+- cert=0，跳过证书验证(vmess/trojan)，即强制"tls-verification=false"
+- sort=1 或 sort=-1, 排序参数，分别根据节点名 正序/逆序 排列
 
-2️⃣ emoji 参数为 emoji=1,2 或 -1, 为添加或删除节点名中的 emoji 旗帜 (国行设备请用 emoji=2 )
+2⃣️ rewrite(复写)/filter(分流) 引用--参数说明
+- 参数为 "out=xxx", 多个参数用 "+" 连接；
+- 分流规则额外支持 "policy=xx" 参数, 可用于直接指定策略组，或者为 Surge 格式的 rule-set 生成策略组(默认"Shawn"策略组)
 
-3️⃣ udp=1, tfo=1 参数开启 udp-relay 及 fast-open (默认关闭, 且此参数对源类型为 QuanX/Surge 的链接无效)
-
-4️⃣ rename 重命名, rename=旧名@新名, 以及 "前缀@", "@后缀", 用 "+" 连接, 如 "rename=香港@HK+[SS]@+@[1X]"
-
-5⃣️ cert=0，跳过证书验证(vmess/trojan)，即强制 tls-verification=false
-
-6⃣️ rewrite(复写)/filter(分流) 引用的筛选，参数为 "out=xxx", 分流规则额外支持 "policy=xx" 参数, 可用于直接指定策略组，或者为 Surge 格式的 rule-set 生成策略组(默认"Shawn"策略组)
-
-7⃣️ info=1, 用于打开服务器类型下转换解析器的提示通知 (默认关闭), rewrite/filter 类型则会强制在有 out 参数时开启通知提示，以免规则误删除
+3⃣️ 通用参数：info=1, 用于打开资源解析器的提示通知 (默认关闭), 
+ rewrite/filter 类型则会强制在有 out 参数时开启通知提示，以免发生规则误删除
 
  */
 
@@ -48,6 +49,7 @@ var Pinfo=para.indexOf("info=")!=-1? para.split("#")[1].split("info=")[1].split(
 var Prname=para.indexOf("rename=")!=-1? para.split("#")[1].split("rename=")[1].split("&")[0].split("+"):null;
 var Ppolicy=para.indexOf("policy=")!=-1? para.split("#")[1].split("policy=")[1].split("&")[0].split("+"):"Shawn";
 var Pcert0=para.indexOf("cert=")!=-1? para.split("#")[1].split("cert=")[1].split("&")[0].split("+"):1;
+var Psort0=para.indexOf("sort=")!=-1? para.split("#")[1].split("sort=")[1].split("&")[0].split("+"):0;
 
 
 if(type0=="Vmess"){
@@ -104,6 +106,9 @@ if(flag==3){
 		$notify("🏳️‍🌈 开始节点重命名","格式为 \"旧名字@新名字\"","你当前所用的参数为"+Prname);}
 		var Prn=Prname;
 		total=total.map(Rename);
+	}
+	if(Psort0==1 || Psort0==-1){
+		total=QXSort(total,Psort0);
 	}
 	$done({content : total.join("\n")});	
 }else {
@@ -413,6 +418,31 @@ function SS2QX(subs,Pudp,Ptfo){
 	} 
 	return QXList;
 }
+
+//根据节点名排序(不含emoji 部分)
+function QXSort(content,para){
+	var nlist=content;//.split("\n");
+	if(para==1){
+		return nlist.sort(ToTag)
+	}else if(para==-1){
+		return nlist.sort(ToTagR)
+	}
+}
+//正序
+function ToTag(elem1,elem2){
+	var tag1=emoji_del(elem1.split("tag")[1].split("=")[1].trim())
+	var tag2=emoji_del(elem2.split("tag")[1].split("=")[1].trim())
+	res = tag1>tag2? 1:-1
+	return res
+}
+//逆序
+function ToTagR(elem1,elem2){
+	var tag1=emoji_del(elem1.split("tag")[1].split("=")[1].trim())
+	var tag2=emoji_del(elem2.split("tag")[1].split("=")[1].trim())
+	res = tag1>tag2? -1:1
+	return res
+}
+
 
 //节点重命名
 function Rename(str){
