@@ -1,5 +1,5 @@
 /** 
-#Quantumult X 资源解析器 (2020-05-05: 17:33)
+#Quantumult X 资源解析器 (2020-05-05: 20:33)
 
 本资源解析器作者: Shawn(@XIAO_KOP), 有问题请反馈: @Shawn_KOP_bot
 
@@ -151,8 +151,8 @@ function Rewrite_Filter(subs,Pout){
 	cnt=subs;
 	nlist=[];
 	drewrite=[];
-	Pout=Pout.map(Trim);
 	if(Pout!="" && Pout!=null){
+	Pout=Pout.map(Trim);
 	for(var i=0;i<cnt.length;i++){
 		var cc=cnt[i];
 		if(cc.trim()!=""){
