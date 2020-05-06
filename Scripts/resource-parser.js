@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-06: 12:33)
+# Quantumult X 资源解析器 (2020-05-06: 20:33)
 
 本资源解析器作者: Shawn(请勿私聊问怎么用), 有bug请反馈: @Shawn_KOP_bot  
 
@@ -407,7 +407,7 @@ function SS2QX(subs,Pudp,Ptfo){
 			var cnt=list0[i].split("ss://")[1]	
 			if(cnt.split(":").length<=6) { //排除难搞的 ipv6 节点
 			type="shadowsocks=";
-			ip=cnt.split("@")[1].split("/")[0];
+			ip=cnt.split("@")[1].split("#")[0].split("/")[0];
 			pwdmtd=$base64.decode(cnt.split("@")[0].replace(/-/g,"+").replace(/_/g,"/")).split("\u0000")[0].split(":")
 			pwd="password="+pwdmtd[1];
 			mtd="method="+pwdmtd[0];
