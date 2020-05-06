@@ -1,7 +1,7 @@
 /** 
-#Quantumult X 资源解析器 (2020-05-05: 23:59)
+# Quantumult X 资源解析器 (2020-05-06: 12:33)
 
-本资源解析器作者: Shawn(@XIAO_KOP), 有问题请反馈: @Shawn_KOP_bot
+本资源解析器作者: Shawn(请勿私聊问怎么用), 有bug请反馈: @Shawn_KOP_bot  
 
 主要功能: 将各类服务器订阅解析成 Quantumult X 引用片段(已支持 V2RayN/SSR/SS/Trojan/QuanX(list)/Surge3⬆️(conf&list)格式)，并提供下列可选参数；
 
@@ -10,15 +10,16 @@
 0️⃣ 请在订阅链接后加入 "#" 符号后再加参数, 不同参数间请使用 "&" 来连接, 如: "#in=香港+台湾&emoji=1&tfo=1"
 
 1️⃣ 节点/服务器 订阅--参数说明
-- in, out, 分别为保留/排除参数, 多参数用 "+" 连接, 可直接用中文 (如 "in=香港+台湾&out=BGP" )
-- emoji=1,2 或 -1, 为添加或删除节点名中的 emoji 旗帜 (国行设备请用 emoji=2 )
-- udp=1, tfo=1 参数开启 udp-relay 及 fast-open (默认关闭, 此参数对源类型为 QuanX/Surge 的链接无效)
-- rename 重命名, rename=旧名@新名, 以及 "前缀@", "@后缀", 用 "+" 连接, 如 "rename=香港@HK+[SS]@+@[1X]"
-- cert=0，跳过证书验证(vmess/trojan)，即强制"tls-verification=false"
+- in, out, 分别为保留/排除参数, 多参数用 "+" 连接, 可直接用中文 (如 "in=香港+台湾&out=BGP" );
+- emoji=1,2 或 -1, 为添加或删除节点名中的 emoji 旗帜 (国行设备请用 emoji=2 );
+- udp=1, tfo=1 参数开启 udp-relay 及 fast-open (默认关闭, 此参数对源类型为 QuanX/Surge 的链接无效);
+- rename 重命名, rename=旧名@新名, 以及 "前缀@", "@后缀", 用 "+" 连接, 如 "rename=香港@HK+[SS]@+@[1X]";
+- cert=0，跳过证书验证(vmess/trojan)，即强制"tls-verification=false";
+- tls13=1, 开启 "tls13=true"(vmess/trojan), 请自行确认服务端是否支持;
 - sort=1 或 sort=-1, 排序参数，分别根据节点名 正序/逆序 排列
 
 2⃣️ rewrite(复写)/filter(分流) 引用--参数说明
-- 参数为 "out=xxx", 多个参数用 "+" 连接；
+- 参数为 "out=xxx", 多个参数用 "+" 连接;
 - 分流规则额外支持 "policy=xx" 参数, 可用于直接指定策略组，或者为 Surge 格式的 rule-set 生成策略组(默认"Shawn"策略组)
 
 3⃣️ 通用参数：info=1, 用于打开资源解析器的提示通知 (默认关闭), 
@@ -50,10 +51,11 @@ var Prname=para.indexOf("rename=")!=-1? para.split("#")[1].split("rename=")[1].s
 var Ppolicy=para.indexOf("policy=")!=-1? para.split("#")[1].split("policy=")[1].split("&")[0].split("+"):"Shawn";
 var Pcert0=para.indexOf("cert=")!=-1? para.split("#")[1].split("cert=")[1].split("&")[0].split("+"):1;
 var Psort0=para.indexOf("sort=")!=-1? para.split("#")[1].split("sort=")[1].split("&")[0].split("+"):0;
+var PTls13=para.indexOf("tls13=")!=-1? para.split("#")[1].split("tls13=")[1].split("&")[0].split("+"):0;
 
 
 if(type0=="Vmess"){
-	total=V2QX(content0,Pudp0,Ptfo0,Pcert0);
+	total=V2QX(content0,Pudp0,Ptfo0,Pcert0,PTls13);
 	flag=1;
 }else if(type0=="QuanX"){
 	total=content0.split("\n");
@@ -62,7 +64,7 @@ if(type0=="Vmess"){
 	total=SSR2QX(content0,Pudp0,Ptfo0);
 	flag=1;
 }else if(type0=="Trojan"){
-	total=TJ2QX(content0,Pudp0,Ptfo0,Pcert0);
+	total=TJ2QX(content0,Pudp0,Ptfo0,Pcert0,PTls13);
 	flag=1;
 }else if(type0=="SS"){
 	total=SS2QX(content0,Pudp0,Ptfo0);
@@ -151,8 +153,8 @@ function Rewrite_Filter(subs,Pout){
 	cnt=subs;
 	nlist=[];
 	drewrite=[];
-	if(Pout!="" && Pout!=null){
-	Pout=Pout.map(Trim);
+	if(Pout!="" && Pout){
+    Pout=Pout.map(Trim);
 	for(var i=0;i<cnt.length;i++){
 		var cc=cnt[i];
 		if(cc.trim()!=""){
@@ -185,7 +187,8 @@ function Rewrite_Filter(subs,Pout){
 	}//cnt for
 	if(drewrite.length>0){$notify("🤖 您添加的[rewrite]过滤关键词为："+Pout0.join(", "),"☠️ 复写 rewrite 中已为您禁用以下"+drewrite.length+"个匹配项",drewrite.join("\n") )};
 	return nlist
-	} else{ // Pout if
+	}else { // Pout if
+//$notify("no filter at all")
 		return cnt;}
 }
 
@@ -243,14 +246,16 @@ function Rule_Policy(content){ //增加、替换 policy
 		
 }
 
+
 //V2RayN 订阅转换成 QUANX 格式
-function V2QX(subs,Pudp,Ptfo,Pcert){
+function V2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 	const $base64 = new Base64()
 	var list0=$base64.decode(subs).split("\n");
 	var QXList=[]
 	var cert=Pcert
+	var tls13=Ptls13
 	for(var i=0;i<list0.length; i++){
-		if(list0[i].trim()!=""){
+		if(list0[i].trim()!="" && list0[i].indexOf("vmess://")!=-1){
 		var server=String($base64.decode(list0[i].replace("vmess://","")).trim()).split("\u0000")[0];
 		var nss=[];
 		if(server!=""){
@@ -261,7 +266,7 @@ function V2QX(subs,Pudp,Ptfo,Pcert){
 			tag="tag="+decodeURIComponent(ss.ps);
 			udp= Pudp==1? "udp-relay=true":"udp-relay=false";
 			tfo= Ptfo==1? "fast-open=true":"fast-open=false";
-			obfs=Pobfs(ss,cert);
+			obfs=Pobfs(ss,cert,tls13);
 			if(obfs=="" || obfs==undefined){
 				nss.push(ip,mtd,pwd,tfo,udp,tag)
 			}else {
@@ -300,12 +305,13 @@ function filter(Servers,Pin,Pout){
 }
 
 // Vmess obfs 参数
-function Pobfs(jsonl,Pcert){
+function Pobfs(jsonl,Pcert,Ptls13){
 	var obfsi=[];
 	var cert=Pcert;
-	tcert= cert==0? "tls-verification=false":"tls-verification=true"
+	tcert= cert==0? "tls-verification=false":"tls-verification=true";
+	tls13= Ptls13==1? "tls13=true":"tls13=false"
 	if(jsonl.net=="ws" && jsonl.tls=="tls"){
-		obfs0="obfs=wss, "+tcert+", ";
+		obfs0="obfs=wss, "+tcert+", "+tls13+", ";
 		uri0=jsonl.path!=""? "obfs-uri="+jsonl.path:"obfs-uri=/";
 		host0= jsonl.host!=""? "obfs-host="+jsonl.host+",":"";
 		obfsi.push(obfs0+host0+uri0)
@@ -317,7 +323,7 @@ function Pobfs(jsonl,Pcert){
 		obfsi.push(obfs0,host0+uri0);
 		return obfsi.join(", ")
 	}else if(jsonl.tls=="tls"){
-		obfs0="obfs=over-tls, "+tcert;
+		obfs0="obfs=over-tls, "+tcert+", "+tls13;
 		uri0=jsonl.path!=""? "obfs-uri="+jsonl.path:"";
 		host0=jsonl.host!=""? "obfs-host="+jsonl.host:"";
 		obfsi.push(obfs0+host0)
@@ -363,7 +369,7 @@ function SSR2QX(subs,Pudp,Ptfo){
 }
 
 //Trojan 类型转换成 QX
-function TJ2QX(subs,Pudp,Ptfo,Pcert){
+function TJ2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 	const $base64 = new Base64()
 	var list0=$base64.decode(subs).split("\n");
 	var QXList=[];
@@ -372,15 +378,16 @@ function TJ2QX(subs,Pudp,Ptfo,Pcert){
 			var ntrojan=[]
 			var cnt=list0[i].split("trojan://")[1]
 			type="trojan=";
-			ip=cnt.split("@")[1].split(":443")[0]+":443";
+			ip=cnt.split("@")[1].split("：443")[0]+":443";
 			pwd="password="+cnt.split("@")[0];
 			obfs="over-tls=true";
 			pcert= cnt.indexOf("allowInsecure=0")!= -1? "tls-verification=true":"tls-verification=false";
+			ptls13= Ptls13==1?"tls13=true":"tls13=false"
 			if(Pcert==0){pcert="tls-verification=false"}	
 			pudp= Pudp==1? "udp-relay=true":"udp-relay=false";
 			ptfo= Ptfo==1? "fast-open=true":"fast-open=false";
 			tag="tag="+decodeURIComponent(cnt.split("#")[1])
-			ntrojan.push(type+ip,pwd,obfs,pcert,pudp,ptfo,tag)
+			ntrojan.push(type+ip,pwd,obfs,pcert,ptls13,pudp,ptfo,tag)
 			QX=ntrojan.join(", ");
 			QXList.push(QX);
 		}
