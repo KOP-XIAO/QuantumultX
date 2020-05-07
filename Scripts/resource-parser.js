@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-06: 20:33)
+# Quantumult X 资源解析器 (2020-05-07: 16:33)
 
 本资源解析器作者: Shawn(请勿私聊问怎么用), 有bug请反馈: @Shawn_KOP_bot  
 
@@ -9,7 +9,7 @@
 
 0️⃣ 请在订阅链接后加入 "#" 符号后再加参数, 不同参数间请使用 "&" 来连接, 如: "#in=香港+台湾&emoji=1&tfo=1"
 
-1️⃣ 节点/服务器 订阅--参数说明
+1️⃣ 节点/服务器 订阅--参数说明:
 - in, out, 分别为保留/排除参数, 多参数用 "+" 连接, 可直接用中文 (如 "in=香港+台湾&out=BGP" );
 - emoji=1,2 或 -1, 为添加或删除节点名中的 emoji 旗帜 (国行设备请用 emoji=2 );
 - udp=1, tfo=1 参数开启 udp-relay 及 fast-open (默认关闭, 此参数对源类型为 QuanX/Surge 的链接无效);
@@ -18,7 +18,7 @@
 - tls13=1, 开启 "tls13=true"(vmess/trojan), 请自行确认服务端是否支持;
 - sort=1 或 sort=-1, 排序参数，分别根据节点名 正序/逆序 排列
 
-2⃣️ rewrite(复写)/filter(分流) 引用--参数说明
+2⃣️ rewrite(复写)/filter(分流) 引用--参数说明:
 - 参数为 "out=xxx", 多个参数用 "+" 连接;
 - 分流规则额外支持 "policy=xx" 参数, 可用于直接指定策略组，或者为 Surge 格式的 rule-set 生成策略组(默认"Shawn"策略组)
 
@@ -35,7 +35,9 @@
 2️⃣ 假设你想要保留的参数为 in=tls+ss, 想要过滤的参数为 out=http+2, 请注意下面订阅链接后一定要加 ”#“ 符号
 3️⃣ 则填入 Quanx 节点引用的的总链接为  https://raw.githubusercontent.com/crossutility/Quantumult-X/master/server-complete.txt#in=tls+ss&out=http+2
 4️⃣ 填入上述链接并打开的资源解析器开关
-5⃣️ 因为 rewrite/filter 的 UI 中暂时没有提供解析器开关，需要去配置文件中自行添加参数开启(opt-parser=true)
+5⃣️ 因为 rewrite/filter 的 UI 中暂时没有提供解析器开关，需要去配置文件中的相关行，自行添加参数以开启，如：
+	https://Advertising.list, tag=🚦去广告，update-interval=86400, opt-parser=true, enabled=true
+
  */
 
 var content0=$resource.content;
@@ -285,9 +287,9 @@ function filter(Servers,Pin,Pout){
 	var NList=[];
 	for(var i=0;i<Servers.length; i++){
 		if(Servers[i].indexOf("tag")!=-1){
-			name=Servers[i].split("tag=")[1]
-			const include = (item) => name.indexOf(item) != -1;
-			const exclude = (item) => name.indexOf(item) != -1;
+			name=Servers[i].split("tag=")[1].toUpperCase()
+			const include = (item) => name.indexOf(item.toUpperCase()) != -1;
+			const exclude = (item) => name.indexOf(item.toUpperCase()) != -1;
 			if(Pin){
 				if(Pin.some(include)&&Pout){
 					if(!Pout.some(exclude)){
