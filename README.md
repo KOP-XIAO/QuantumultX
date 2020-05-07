@@ -10,7 +10,7 @@ https://github.com/KOP-XIAO/QuantumultX/blob/master/Scripts/resource-parser.js
 
 
 
-有bug请反馈 @Shawn_KOP_bot
+有bug请反馈 [@Shawn_KOP_bot](https://t.me/Shawn_KOP_bot) 
 
 
 
