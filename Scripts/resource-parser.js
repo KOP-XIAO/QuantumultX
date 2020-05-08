@@ -126,13 +126,19 @@ if(flag==3){
 function Type_Check(subs){
 	var type=""
 	var RuleK=["host","domain","ip-cidr","geoip","user-agent"];
+	var QuanXK=["tag=","shadowsocks=","trojan=","vmess=","http="]
+	var SurgeK=["=ss","=vmess","=trojan","=http"]
 	const RuleCheck = (item) => subs.toLowerCase().indexOf(item)!=-1;
 	var subi=subs.replace(/ /g,"")
+	const QuanXCheck = item => subi.toLowerCase().indexOf(item)!=-1;
+	const SurgeCheck = item => subi.toLowerCase().indexOf(item)!=-1;
 	if (subs.indexOf("dm1lc3M6Ly")!= -1){
 		type="Vmess"
 	} else if(subs.indexOf("[Proxy]")!=-1){
 		type="Surge";
-	} else if (subi.indexOf("tag=")!=-1){
+	} else if(SurgeK.some(SurgeCheck)){
+		type="Surge"
+	} else if(QuanXK.some(QuanXCheck)){
 		type="QuanX"
 	} else if (subs.indexOf("c3NyOi8v")!= -1){
 		type="SSR"
@@ -143,9 +149,7 @@ function Type_Check(subs){
 	} else if(subs.indexOf("hostname")!=-1){
 		type="rewrite"
 	} else if(RuleK.some(RuleCheck)){
-			type="Rule";
-	} else if(subi.indexOf("=ss"||"=vmess"||"=trojan"||"=http")!=-1){
-		type="Surge"
+		type="Rule";
 	}
 	return type
 }
