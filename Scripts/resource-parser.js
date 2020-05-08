@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-08: 14:33)
+# Quantumult X 资源解析器 (2020-05-08: 20:33)
 
 本资源解析器作者: Shawn(请勿私聊问怎么用)，有bug请反馈: @Shawn_KOP_bot
 更新请关注tg频道: https://t.me/QuanX_API
@@ -56,7 +56,7 @@ var Ppolicy=para.indexOf("policy=")!=-1? para.split("#")[1].split("policy=")[1].
 var Pcert0=para.indexOf("cert=")!=-1? para.split("#")[1].split("cert=")[1].split("&")[0].split("+"):1;
 var Psort0=para.indexOf("sort=")!=-1? para.split("#")[1].split("sort=")[1].split("&")[0].split("+"):0;
 var PTls13=para.indexOf("tls13=")!=-1? para.split("#")[1].split("tls13=")[1].split("&")[0].split("+"):0;
-
+//$notify(type0)
 
 if(type0=="Vmess"){
 	total=V2QX(content0,Pudp0,Ptfo0,Pcert0,PTls13);
@@ -127,13 +127,11 @@ function Type_Check(subs){
 	var type=""
 	var RuleK=["host","domain","ip-cidr","geoip","user-agent"];
 	const RuleCheck = (item) => subs.toLowerCase().indexOf(item)!=-1;
-	if(RuleK.some(RuleCheck) && subs.indexOf("=")==-1){
-		type="Rule";
-	} else if (subs.indexOf("dm1lc3M6Ly")!= -1){
+	if (subs.indexOf("dm1lc3M6Ly")!= -1){
 		type="Vmess"
-	}  else if(subs.indexOf("[Proxy]")!=-1){
-			type="Surge";
-	}else if (subs.indexOf("tag")!=-1){
+	} else if(subs.indexOf("[Proxy]")!=-1){
+		type="Surge";
+	} else if (subs.indexOf("tag")!=-1 && subs.indexOf("ss"||"vmess"||"trojan"||"http")!=-1){
 		type="QuanX"
 	} else if (subs.indexOf("c3NyOi8v")!= -1){
 		type="SSR"
@@ -143,9 +141,11 @@ function Type_Check(subs){
 		type="SS"
 	} else if(subs.indexOf("hostname")!=-1){
 		type="rewrite"
+	} else if(RuleK.some(RuleCheck)){
+			type="Rule";
 	} else if(subs.indexOf("ss"||"vmess"||"trojan"||"http")!=-1){
 		type="Surge"
-		}
+	}
 	return type
 }
 
