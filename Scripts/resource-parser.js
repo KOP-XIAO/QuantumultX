@@ -1,29 +1,31 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-07: 16:33)
+# Quantumult X 资源解析器 (2020-05-08: 14:33)
 
-本资源解析器作者: Shawn(请勿私聊问怎么用), 有bug请反馈: @Shawn_KOP_bot  
+本资源解析器作者: Shawn(请勿私聊问怎么用)，有bug请反馈: @Shawn_KOP_bot
+更新请关注tg频道: https://t.me/QuanX_API
 
-主要功能: 将各类服务器订阅解析成 Quantumult X 引用片段(已支持 V2RayN/SSR/SS/Trojan/QuanX(list)/Surge3⬆️(conf&list)格式)，并提供下列可选参数；
+主要功能: 将各类服务器订阅解析成 QuantumultX 格式引用(支持 V2RayN/SSR/SS/Trojan/QuanX(conf&list)/Surge3⬆️(conf&list)格式)，并提供下列可选参数；
 
-附加功能: rewrite(复写) /filter(分流) 过滤, 可用于解决无法单独禁用远程引用资源中某(几)条 rewrite/hostname/filter 的问题
+附加功能: rewrite(重写) /filter(分流) 过滤, 可用于解决无法单独禁用远程引用中某(几)条 rewrite/hostname/filter, 以及直接导入 Surge 类型规则 list 的问题
 
-0️⃣ 请在订阅链接后加入 "#" 符号后再加参数, 不同参数间请使用 "&" 来连接, 如: "#in=香港+台湾&emoji=1&tfo=1"
+0️⃣ 请在“订阅链接”后加入 "#" 后再加参数, 不同参数间请使用 "&" 来连接, 如: 
+	"https://mysub.com#in=香港+台湾&emoji=1&tfo=1"
 
-1️⃣ 节点/服务器 订阅--参数说明:
-- in, out, 分别为保留/排除参数, 多参数用 "+" 连接, 可直接用中文 (如 "in=香港+台湾&out=BGP" );
-- emoji=1,2 或 -1, 为添加或删除节点名中的 emoji 旗帜 (国行设备请用 emoji=2 );
+1️⃣ "节点"订阅--参数说明:
+- in, out, 分别为 保留/排除, 多参数用 "+" 连接, 可直接用中文, 空格用"%20"代替 (如 "in=香港+台湾&out=香港%20BGP" );
+- emoji=1,2 或 -1, 为添加/删除节点名中的 emoji 旗帜 (国行设备请用 emoji=2 );
 - udp=1, tfo=1 参数开启 udp-relay 及 fast-open (默认关闭, 此参数对源类型为 QuanX/Surge 的链接无效);
 - rename 重命名, rename=旧名@新名, 以及 "前缀@", "@后缀", 用 "+" 连接, 如 "rename=香港@HK+[SS]@+@[1X]";
 - cert=0，跳过证书验证(vmess/trojan)，即强制"tls-verification=false";
 - tls13=1, 开启 "tls13=true"(vmess/trojan), 请自行确认服务端是否支持;
 - sort=1 或 sort=-1, 排序参数，分别根据节点名 正序/逆序 排列
 
-2⃣️ rewrite(复写)/filter(分流) 引用--参数说明:
+2⃣️ "rewrite(重写)/filter(分流)"引用--参数说明:
 - 参数为 "out=xxx", 多个参数用 "+" 连接;
 - 分流规则额外支持 "policy=xx" 参数, 可用于直接指定策略组，或者为 Surge 格式的 rule-set 生成策略组(默认"Shawn"策略组)
 
-3⃣️ 通用参数：info=1, 用于打开资源解析器的提示通知 (默认关闭), 
- rewrite/filter 类型则会强制在有 out 参数时开启通知提示，以免发生规则误删除
+3⃣️ 通用参数: info=1, 用于打开资源解析器的提示通知 (默认关闭), 
+- rewrite/filter 类型则会强制在有 out 参数时开启通知提示被删除（禁用）的内容，以防止规则误删除
 
  */
 
@@ -60,7 +62,7 @@ if(type0=="Vmess"){
 	total=V2QX(content0,Pudp0,Ptfo0,Pcert0,PTls13);
 	flag=1;
 }else if(type0=="QuanX"){
-	total=content0.split("\n");
+	total=isQuanX(content0);
 	flag=1;
 }else if(type0=="SSR"){
 	total=SSR2QX(content0,Pudp0,Ptfo0);
@@ -426,6 +428,22 @@ function SS2QX(subs,Pudp,Ptfo){
 		}
 	} 
 	return QXList;
+}
+
+// 用于过滤非节点部分（比如整份配置中其它内容）
+function isQuanX(content){
+	var cnts=content.split("\n");
+	var nlist=[]
+	for(var i=0;i<cnts.length;i++){
+		var cnti=cnts[i];
+		if(cnti.indexOf("=")!=-1&&cnti.indexOf("tag")!=-1){
+			var cnt=cnti.split("=")[0].trim()
+			if(cnt=="http"||cnt=="shadowsocks"||cnt=="trojan"||cnt=="vmess"){
+				nlist.push(cnti)
+			}
+		}
+}  
+return nlist
 }
 
 //根据节点名排序(不含emoji 部分)
