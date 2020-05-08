@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-08: 20:33)
+# Quantumult X 资源解析器 (2020-05-08: 22:33)
 
 本资源解析器作者: Shawn(请勿私聊问怎么用)，有bug请反馈: @Shawn_KOP_bot
 更新请关注tg频道: https://t.me/QuanX_API
@@ -127,11 +127,12 @@ function Type_Check(subs){
 	var type=""
 	var RuleK=["host","domain","ip-cidr","geoip","user-agent"];
 	const RuleCheck = (item) => subs.toLowerCase().indexOf(item)!=-1;
+	var subi=subs.replace(/ /g,"")
 	if (subs.indexOf("dm1lc3M6Ly")!= -1){
 		type="Vmess"
 	} else if(subs.indexOf("[Proxy]")!=-1){
 		type="Surge";
-	} else if (subs.indexOf("tag")!=-1 && subs.indexOf("ss"||"vmess"||"trojan"||"http")!=-1){
+	} else if (subi.indexOf("tag=")!=-1 && subi.indexOf("shadowsocks="||"vmess="||"trojan="||"http=")!=-1){
 		type="QuanX"
 	} else if (subs.indexOf("c3NyOi8v")!= -1){
 		type="SSR"
@@ -143,7 +144,7 @@ function Type_Check(subs){
 		type="rewrite"
 	} else if(RuleK.some(RuleCheck)){
 			type="Rule";
-	} else if(subs.indexOf("ss"||"vmess"||"trojan"||"http")!=-1){
+	} else if(subi.indexOf("=ss"||"=vmess"||"=trojan"||"=http")!=-1){
 		type="Surge"
 	}
 	return type
