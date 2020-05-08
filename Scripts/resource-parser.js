@@ -132,7 +132,7 @@ function Type_Check(subs){
 		type="Vmess"
 	} else if(subs.indexOf("[Proxy]")!=-1){
 		type="Surge";
-	} else if (subi.indexOf("tag=")!=-1 && subi.indexOf("shadowsocks="||"vmess="||"trojan="||"http=")!=-1){
+	} else if (subi.indexOf("tag=")!=-1){
 		type="QuanX"
 	} else if (subs.indexOf("c3NyOi8v")!= -1){
 		type="SSR"
