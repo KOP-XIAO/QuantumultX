@@ -9,7 +9,7 @@
 附加功能: rewrite(重写) /filter(分流) 过滤, 可用于解决无法单独禁用远程引用中某(几)条 rewrite/hostname/filter, 以及直接导入 Surge 类型规则 list 的问题
 
 0️⃣ 请在“订阅链接”后加入 "#" 后再加参数, 不同参数间请使用 "&" 来连接, 如: 
-	"https://mysub.com#in=香港+台湾&emoji=1&tfo=1"
+"https://mysub.com#in=香港+台湾&emoji=1&tfo=1"
 
 1️⃣ "节点"订阅--参数说明:
 - in, out, 分别为 保留/排除, 多参数用 "+" 连接, 可直接用中文, 空格用"%20"代替 (如 "in=香港+台湾&out=香港%20BGP" );
