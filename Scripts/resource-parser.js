@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-09: 11:59)
+# Quantumult X 资源解析器 (2020-05-09: 13:59)
 
 本资源解析器作者: Shawn(请勿私聊问怎么用)，有bug请反馈: @Shawn_KOP_bot
 更新请关注tg频道: https://t.me/QuanX_API
@@ -125,7 +125,7 @@ if(flag==3){
 //判断订阅类型
 function Type_Check(subs){
 	var type=""
-	var RuleK=["host","domain","ip-cidr","geoip","user-agent"];
+	var RuleK=["host","domain","ip-cidr","geoip","user-agent","ip6-cidr"];
 	var QuanXK=["tag=","shadowsocks=","trojan=","vmess=","http="]
 	var SurgeK=["=ss","=vmess","=trojan","=http"]
 	const RuleCheck = (item) => subs.toLowerCase().indexOf(item)!=-1;
@@ -231,7 +231,10 @@ function Rule_Handle(subs,Pout){
 function Rule_Policy(content){ //增加、替换 policy
 	var cnt=content.split(",");
 	var RuleK=["//","#",";"];
-	const RuleCheck = (item) => cnt[0].indexOf(item)!=-1; //无视注释行
+	var RuleK1=["host","domain","ip-cidr","geoip","user-agent","ip6-cidr"];
+	const RuleCheck = (item) => cnt[0].toLowerCase().indexOf(item)!=-1; //无视注释行
+	const RuleCheck1 = (item) => cnt[0].toLowerCase().indexOf(item)!=-1; //无视 quanx 不支持的规则类别
+	if(RuleK1.some(RuleCheck1)){
 	if(cnt.length==3 && cnt.indexOf("no-resolve")==-1){
 		ply0 = Ppolicy!="Shawn"? Ppolicy:cnt[2]
 		nn=cnt[0]+", "+cnt[1]+", "+ply0
@@ -251,8 +254,8 @@ function Rule_Policy(content){ //增加、替换 policy
 	if(cnt[0].indexOf("URL-REGEX")!=-1 || cnt[0].indexOf("PROCESS")!=-1){
 		nn=""
 	} else {nn=nn.replace("IP-CIDR6","ip6-cidr")}
-	return nn
-		
+	return nn	
+	} else{return ""}//if RuleK1 check	
 }
 
 
