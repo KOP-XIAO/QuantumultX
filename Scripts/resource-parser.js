@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-08: 22:33)
+# Quantumult X 资源解析器 (2020-05-09: 11:59)
 
 本资源解析器作者: Shawn(请勿私聊问怎么用)，有bug请反馈: @Shawn_KOP_bot
 更新请关注tg频道: https://t.me/QuanX_API
@@ -134,13 +134,13 @@ function Type_Check(subs){
 	const SurgeCheck = item => subi.toLowerCase().indexOf(item)!=-1;
 	if (subs.indexOf("dm1lc3M6Ly")!= -1){
 		type="Vmess"
+	} else if(subi.indexOf("tag=")!=-1 && QuanXK.some(QuanXCheck)){
+		type="QuanX"
 	} else if(subs.indexOf("[Proxy]")!=-1){
 		type="Surge";
 	} else if(SurgeK.some(SurgeCheck)){
 		type="Surge"
-	} else if(QuanXK.some(QuanXCheck)){
-		type="QuanX"
-	} else if (subs.indexOf("c3NyOi8v")!= -1){
+	}else if (subs.indexOf("c3NyOi8v")!= -1){
 		type="SSR"
 	} else if (subs.indexOf("dHJvamFu")!= -1){
 		type="Trojan"
