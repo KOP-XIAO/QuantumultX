@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-12: 22:59)
+# Quantumult X 资源解析器 (2020-05-12: 23:59 )
 
 本资源解析器作者: Shawn(请勿私聊问怎么用)，有bug请反馈: @Shawn_KOP_bot
 更新请关注tg频道: https://t.me/QuanX_API
@@ -12,7 +12,7 @@
 "https://mysub.com#in=香港+台湾&emoji=1&tfo=1"
 
 1️⃣ "节点"订阅--参数说明:
-- in, out, 分别为 保留/排除, 多参数用 "+" 连接, 可直接用中文, 空格用"%20"代替 (如 "in=香港+台湾&out=香港%20BGP" );
+- in, out, 分别为 保留/排除, 多参数用 "+" 连接(逻辑"或"), 逻辑"与"请用"."连接，可直接用中文, 空格用"%20"代替 (如 "in=香港.IPLC.04+台湾&out=香港%20BGP" );
 - emoji=1,2 或 -1, 为添加/删除节点名中的 emoji 旗帜 (国行设备请用 emoji=2 );
 - udp=1, tfo=1 参数开启 udp-relay 及 fast-open (默认关闭, 此参数对源类型为 QuanX/Surge 的链接无效);
 - rename 重命名, rename=旧名@新名, 以及 "前缀@", "@后缀", 用 "+" 连接, 如 "rename=香港@HK+[SS]@+@[1X]";
@@ -292,28 +292,57 @@ function V2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 		return QXList
 }
 
-//节点过滤，使用+连接多个关键词:in 为保留，out 为排除
-function filter(Servers,Pin,Pout){
-	var NList=[];
-	for(var i=0;i<Servers.length; i++){
-		if(Servers[i].indexOf("tag")!=-1){
-			name=Servers[i].split("tag=")[1].toUpperCase()
-			const include = (item) => name.indexOf(item.toUpperCase()) != -1;
-			const exclude = (item) => name.indexOf(item.toUpperCase()) != -1;
-			if(Pin){
-				if(Pin.some(include)&&Pout){
-					if(!Pout.some(exclude)){
-					NList.push(Servers[i])
-					}
-				} else if(Pin.some(include)&&!Pout) {NList.push(Servers[i])}
-			} else{
-				if(!Pout.some(exclude)){
-				NList.push(Servers[i])
-				}
-			}		
+////节点过滤，使用+连接多个关键词:in 为保留，out 为排除
+//function filter(Servers,Pin,Pout){
+//	var NList=[];
+//	for(var i=0;i<Servers.length; i++){
+//		if(Servers[i].indexOf("tag")!=-1){
+//			name=Servers[i].split("tag=")[1].toUpperCase()
+//			const include = (item) => name.indexOf(item.toUpperCase()) != -1;
+//			const exclude = (item) => name.indexOf(item.toUpperCase()) != -1;
+//			if(Pin){
+//				if(Pin.some(include)&&Pout){
+//					if(!Pout.some(exclude)){
+//					NList.push(Servers[i])
+//					}
+//				} else if(Pin.some(include)&&!Pout) {NList.push(Servers[i])}
+//			} else{
+//				if(!Pout.some(exclude)){
+//				NList.push(Servers[i])
+//				}
+//			}		
+//		}
+//			}
+//	return NList
+//}
+
+// 判断节点过滤的函数
+function Scheck(content,param){
+	name=content.split("tag=")[1].toUpperCase()
+	if(param){
+		var flag=0;
+	for(i=0;i<param.length;i++){
+		console.log(param[i])
+		var params=param[i].split(".");
+		const checkpara= (item) => name.indexOf(item.toUpperCase()) !=-1;
+		if(params.every(checkpara)){
+			flag=1
 		}
-			}
-	return NList
+	}//for
+	return flag
+	}else { //if param
+		return 2}
+}
+
+//节点过滤，使用+连接多个关键词(逻辑"或"):in 为保留，out 为排除, "与"逻辑请用符号"."连接
+function filter(servers,Pin,Pout){
+	var Nlist=[];
+	for(var i=0;i<servers.length;i++){
+		if(Scheck(servers[i],Pin)!=0 && Scheck(servers[i],Pout)!=1){
+			Nlist.push(servers[i])
+		}
+	}//for
+	return Nlist
 }
 
 // Vmess obfs 参数
