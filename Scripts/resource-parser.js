@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-13: 12:59 )
+# Quantumult X 资源解析器 (2020-05-13: 17:59 )
 
 本资源解析器作者: Shawn(请勿私聊问怎么用)，有bug请反馈: @Shawn_KOP_bot
 更新请关注tg频道: https://t.me/QuanX_API
@@ -386,7 +386,7 @@ function Pobfs(jsonl,Pcert,Ptls13){
 		obfsi.push(obfs0,host0+uri0);
 		return obfsi.join(", ")
 	}else if(jsonl.tls=="tls"){
-		obfs0="obfs=over-tls, "+tcert+", "+tls13;
+		obfs0="obfs=over-tls, "+tcert+", "+tls13+", ";
 		uri0=jsonl.path!=""? "obfs-uri="+jsonl.path:"";
 		host0=jsonl.host!=""? "obfs-host="+jsonl.host:"";
 		obfsi.push(obfs0+host0)
