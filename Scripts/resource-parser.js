@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-12: 23:59 )
+# Quantumult X 资源解析器 (2020-05-13: 12:59 )
 
 本资源解析器作者: Shawn(请勿私聊问怎么用)，有bug请反馈: @Shawn_KOP_bot
 更新请关注tg频道: https://t.me/QuanX_API
@@ -18,13 +18,14 @@
 - rename 重命名, rename=旧名@新名, 以及 "前缀@", "@后缀", 用 "+" 连接, 如 "rename=香港@HK+[SS]@+@[1X]";
 - cert=0，跳过证书验证(vmess/trojan)，即强制"tls-verification=false";
 - tls13=1, 开启 "tls13=true"(vmess/trojan), 请自行确认服务端是否支持;
-- sort=1 或 sort=-1, 排序参数，分别根据节点名 正序/逆序 排列
+- sort=1 或 sort=-1, 排序参数，分别根据节点名 正序/逆序 排列;
+- info=1, 开启通知提示流量信息(前提：原订阅链接有返回该信息)，默认关闭
 
 2⃣️ "rewrite(重写)/filter(分流)"引用--参数说明:
 - 参数为 "out=xxx", 多个参数用 "+" 连接;
 - 分流规则额外支持 "policy=xx" 参数, 可用于直接指定策略组，或者为 Surge 格式的 rule-set 生成策略组(默认"Shawn"策略组)
 
-3⃣️ 通用参数: info=1, 用于打开资源解析器的提示通知 (默认关闭), 
+3⃣️ 通用参数: ntf=1, 用于打开资源解析器的提示通知 (默认关闭), 
 - rewrite/filter 类型则会强制在有 out 参数时开启通知提示被删除（禁用）的内容，以防止规则误删除
 
  */
@@ -56,7 +57,28 @@ var Ppolicy=para.indexOf("policy=")!=-1? para.split("#")[1].split("policy=")[1].
 var Pcert0=para.indexOf("cert=")!=-1? para.split("#")[1].split("cert=")[1].split("&")[0].split("+"):1;
 var Psort0=para.indexOf("sort=")!=-1? para.split("#")[1].split("sort=")[1].split("&")[0].split("+"):0;
 var PTls13=para.indexOf("tls13=")!=-1? para.split("#")[1].split("tls13=")[1].split("&")[0].split("+"):0;
+var Pntf0= para.indexOf("ntf=")!=-1? para.split("#")[1].split("ntf=")[1].split("&")[0].split("+"):0;
 //$notify(type0)
+
+//响应头流量处理部分
+var subinfo=$resource.info;
+var subtag=$resource.tag;
+if(Pinfo==1 && subinfo){
+	var sinfo=subinfo.replace(/ /g,"").toLowerCase();
+	var total="总流量: "+(parseFloat(sinfo.split("total=")[1].split(",")[0])/(1024**3)).toFixed(2)+"GB, ";
+	var usd="已用流量: "+((parseFloat(sinfo.split("upload=")[1].split(",")[0])+parseFloat(sinfo.split("download=")[1].split(",")[0]))/(1024**3)).toFixed(2)+"GB"
+	if(sinfo.indexOf("expire=")!=-1){
+		var epr= new Date(parseFloat(sinfo.split("expire=")[1].split(",")[0])*1000);
+		var year=epr.getFullYear();  // 获取完整的年份(4位,1970)
+		var mth=epr.getMonth()+1 < 10 ? '0'+(epr.getMonth()+1):(epr.getMonth()+1);  // 获取月份(0-11,0代表1月,用的时候记得加上1)
+		var day=epr.getDate()<10 ? "0"+(epr.getDate()):epr.getDate(); 
+		epr=year+"-"+mth+"-"+day
+		} else{
+			epr=""
+		}
+	var message=total+usd;
+	$notify("流量信息: "+subtag,"过期时间: "+epr, message)
+}
 
 if(type0=="Vmess"){
 	total=V2QX(content0,Pudp0,Ptfo0,Pcert0,PTls13);
@@ -95,20 +117,20 @@ if(flag==3){
 	$done({content:total.join("\n")});
 }else if(flag==1){
 	if(Pin0||Pout0){
-		if(Pinfo!=0){
+		if(Pntf0!=0){
 		$notify("👥 开始转换节点，类型："+type0,"🐶 您已添加节点筛选参数，如下","👍️ 保留的关键字："+Pin0+"\n👎️ 排除的关键字："+Pout0);}
 		total=filter(total,Pin0,Pout0)
 		} else {
-			if(Pinfo!=0){
+			if(Pntf0!=0){
 		$notify("🐷 开始转换节点，类型："+type0,"🐼️ 如需筛选节点请使用in/out及其他参数，可参考此示范:","👉 https://t.me/QuanXNews/110");}
 	}
 	if(Pemoji){
-			if(Pinfo!=0){
+			if(Pntf0!=0){
 			$notify("🏳️‍🌈 开始更改旗帜 emoji","清除emoji请用参数 -1, 国行设备添加emoji请使用参数 2","你当前所用的参数为 emoji="+Pemoji)};
 			total=emoji_handle(total,Pemoji);
 		}
 	if(Prname){
-		if(Pinfo!=0){ 
+		if(Pntf0!=0){ 
 		$notify("🏳️‍🌈 开始节点重命名","格式为 \"旧名字@新名字\"","你当前所用的参数为"+Prname);}
 		var Prn=Prname;
 		total=total.map(Rename);
