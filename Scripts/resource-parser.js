@@ -280,6 +280,32 @@ function Rule_Policy(content){ //增加、替换 policy
 	} else{return ""}//if RuleK1 check	
 }
 
+// Vmess obfs 参数
+function Pobfs(jsonl,Pcert,Ptls13){
+	var obfsi=[];
+	var cert=Pcert;
+	tcert= cert==0? "tls-verification=false":"tls-verification=true";
+	tls13= Ptls13==1? "tls13=true":"tls13=false"
+	if(jsonl.net=="ws" && jsonl.tls=="tls"){
+		obfs0="obfs=wss, "+tcert+", "+tls13+", ";
+		uri0=jsonl.path!=""? "obfs-uri="+jsonl.path:"obfs-uri=/";
+		host0= jsonl.host!=""? "obfs-host="+jsonl.host+",":"";
+		obfsi.push(obfs0+host0+uri0)
+		return obfsi.join(", ")
+	}else if(jsonl.net=="ws"){
+		obfs0="obfs=ws";
+		uri0=jsonl.path!=""? "obfs-uri="+jsonl.path:"obfs-uri=/";
+		host0= jsonl.host!=""? "obfs-host="+jsonl.host+",":"";
+		obfsi.push(obfs0,host0+uri0);
+		return obfsi.join(", ")
+	}else if(jsonl.tls=="tls"){
+		obfs0="obfs=over-tls, "+tcert+", "+tls13;
+		uri0=jsonl.path!=""? "obfs-uri="+jsonl.path:"";
+		host0=jsonl.host!=""? ", obfs-host="+jsonl.host:"";
+		obfsi.push(obfs0+host0)
+		return obfsi.join(", ")
+	}
+}
 
 //V2RayN 订阅转换成 QUANX 格式
 function V2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
@@ -365,33 +391,6 @@ function filter(servers,Pin,Pout){
 		}
 	}//for
 	return Nlist
-}
-
-// Vmess obfs 参数
-function Pobfs(jsonl,Pcert,Ptls13){
-	var obfsi=[];
-	var cert=Pcert;
-	tcert= cert==0? "tls-verification=false":"tls-verification=true";
-	tls13= Ptls13==1? "tls13=true":"tls13=false"
-	if(jsonl.net=="ws" && jsonl.tls=="tls"){
-		obfs0="obfs=wss, "+tcert+", "+tls13+", ";
-		uri0=jsonl.path!=""? "obfs-uri="+jsonl.path:"obfs-uri=/";
-		host0= jsonl.host!=""? "obfs-host="+jsonl.host+",":"";
-		obfsi.push(obfs0+host0+uri0)
-		return obfsi.join(", ")
-	}else if(jsonl.net=="ws"){
-		obfs0="obfs=ws";
-		uri0=jsonl.path!=""? "obfs-uri="+jsonl.path:"obfs-uri=/";
-		host0= jsonl.host!=""? "obfs-host="+jsonl.host+",":"";
-		obfsi.push(obfs0,host0+uri0);
-		return obfsi.join(", ")
-	}else if(jsonl.tls=="tls"){
-		obfs0="obfs=over-tls, "+tcert+", "+tls13+", ";
-		uri0=jsonl.path!=""? "obfs-uri="+jsonl.path:"";
-		host0=jsonl.host!=""? "obfs-host="+jsonl.host:"";
-		obfsi.push(obfs0+host0)
-		return obfsi.join(", ")
-	}
 }
 
 //SSR 转换 quanx 格式
