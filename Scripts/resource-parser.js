@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-13: 18:59 )
+# Quantumult X 资源解析器 (2020-05-15: 11:59 )
 
 本资源解析器作者: Shawn(请勿私聊问怎么用)，有bug请反馈: @Shawn_KOP_bot
 更新请关注tg频道: https://t.me/QuanX_API
@@ -11,7 +11,7 @@
 0️⃣ 请在“订阅链接”后加入 "#" 后再加参数, 不同参数间请使用 "&" 来连接, 如: 
 "https://mysub.com#in=香港+台湾&emoji=1&tfo=1"
 
-1️⃣ "节点"订阅--参数说明:
+1️⃣ "节点" 订阅--参数说明:
 - in, out, 分别为 保留/排除, 多参数用 "+" 连接(逻辑"或"), 逻辑"与"请用"."连接，可直接用中文, 空格用"%20"代替 (如 "in=香港.IPLC.04+台湾&out=香港%20BGP" );
 - emoji=1,2 或 -1, 为添加/删除节点名中的 emoji 旗帜 (国行设备请用 emoji=2 );
 - udp=1, tfo=1 参数开启 udp-relay 及 fast-open (默认关闭, 此参数对源类型为 QuanX/Surge 的链接无效);
@@ -21,7 +21,7 @@
 - sort=1 或 sort=-1, 排序参数，分别根据节点名 正序/逆序 排列;
 - info=1, 开启通知提示流量信息(前提：原订阅链接有返回该信息)，默认关闭
 
-2⃣️ "rewrite(重写)/filter(分流)"引用--参数说明:
+2⃣️ "rewrite(重写)/filter(分流)" 引用--参数说明:
 - 参数为 "out=xxx", 多个参数用 "+" 连接;
 - 分流规则额外支持 "policy=xx" 参数, 可用于直接指定策略组，或者为 Surge 格式的 rule-set 生成策略组(默认"Shawn"策略组)
 
@@ -33,14 +33,16 @@
 
 /**
  * 使用说明，
-0️⃣ 在Quantumult X 配置文件中[general] 部分，加入 resource_parser_url=https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/resource-parser.js
+0️⃣ 在QuantumultX 配置文件中[general] 部分，加入 resource_parser_url=https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/resource-parser.js
 1️⃣ 假设原始订阅连接为: https://raw.githubusercontent.com/crossutility/Quantumult-X/master/server-complete.txt , 
 2️⃣ 假设你想要保留的参数为 in=tls+ss, 想要过滤的参数为 out=http+2, 请注意下面订阅链接后一定要加 ”#“ 符号
 3️⃣ 则填入 Quanx 节点引用的的总链接为  https://raw.githubusercontent.com/crossutility/Quantumult-X/master/server-complete.txt#in=tls+ss&out=http+2
-4️⃣ 填入上述链接并打开的资源解析器开关
-5⃣️ 因为 rewrite/filter 的 UI 中暂时没有提供解析器开关，需要去配置文件中的相关行，自行添加参数以开启，如：
-	https://Advertising.list, tag=🚦去广告，update-interval=86400, opt-parser=true, enabled=true
+4️⃣ 填入上述链接, 并打开的资源解析器开关
+------------------------------
 
+⚠️⚠️ 由于 rewrite/filter 的 UI 中暂时没有提供解析器开关，想使用的请自行去配置文件中的相关行，添加参数"opt-parser=true"以开启，如：
+https://Advertising.list#policy=Shawn&out=aweme, tag=🚦去广告，update-interval=86400, opt-parser=true, enabled=true
+⚠️⚠️如提示"没有自定义解析器"，请长按右下角图标后点击左侧刷新按钮，更新资源，后台退出 app，直到出现解析器说明
  */
 
 var content0=$resource.content;
@@ -440,7 +442,11 @@ function TJ2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 			var ntrojan=[]
 			var cnt=list0[i].split("trojan://")[1]
 			type="trojan=";
-			ip=cnt.split("@")[1].split(":443")[0]+":443";
+			if(cnt.indexOf(":443")!=-1){
+				ip=cnt.split("@")[1].split(":443")[0]+":443";
+			}else{
+				ip=cnt.split("@")[1].split("?")[0]; //非 443 端口的奇葩机场？
+			}
 			pwd="password="+cnt.split("@")[0];
 			obfs="over-tls=true";
 			pcert= cnt.indexOf("allowInsecure=0")!= -1? "tls-verification=true":"tls-verification=false";
