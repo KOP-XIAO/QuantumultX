@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-16: 16:59 )
+# Quantumult X 资源解析器 (2020-05-17: 12:59 )
 
 本资源解析器作者: Shawn(请勿私聊问怎么用)，有bug请反馈: @Shawn_KOP_bot
 更新请关注tg频道: https://t.me/QuanX_API
@@ -68,19 +68,20 @@ var subinfo=$resource.info;
 var subtag=$resource.tag;
 if(Pinfo==1 && subinfo){
 	var sinfo=subinfo.replace(/ /g,"").toLowerCase();
-	var total="总流量: "+(parseFloat(sinfo.split("total=")[1].split(",")[0])/(1024**3)).toFixed(2)+"GB, ";
+	var total="总流量: "+(parseFloat(sinfo.split("total=")[1].split(",")[0])/(1024**3)).toFixed(2)+"GB";
 	var usd="已用流量: "+((parseFloat(sinfo.split("upload=")[1].split(",")[0])+parseFloat(sinfo.split("download=")[1].split(",")[0]))/(1024**3)).toFixed(2)+"GB"
+	var left="剩余流量: "+((parseFloat(sinfo.split("total=")[1].split(",")[0])/(1024**3))-((parseFloat(sinfo.split("upload=")[1].split(",")[0])+parseFloat(sinfo.split("download=")[1].split(",")[0]))/(1024**3))).toFixed(2)+"GB"
 	if(sinfo.indexOf("expire=")!=-1){
 		var epr= new Date(parseFloat(sinfo.split("expire=")[1].split(",")[0])*1000);
 		var year=epr.getFullYear();  // 获取完整的年份(4位,1970)
 		var mth=epr.getMonth()+1 < 10 ? '0'+(epr.getMonth()+1):(epr.getMonth()+1);  // 获取月份(0-11,0代表1月,用的时候记得加上1)
 		var day=epr.getDate()<10 ? "0"+(epr.getDate()):epr.getDate(); 
-		epr=year+"-"+mth+"-"+day
+		epr="过期时间: "+year+"-"+mth+"-"+day
 		} else{
-			epr=""
+			epr="订阅链接: "+para.split("#")[0] //没过期时间的显示订阅链接
 		}
-	var message=total+usd;
-	$notify("流量信息: "+subtag,"过期时间: "+epr, message)
+	var message=total+"\n"+usd+", "+left;
+	$notify("流量信息: "+subtag, epr, message)
 }
 
 if(type0=="Subs-B64Encode"){
