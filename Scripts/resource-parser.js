@@ -1,10 +1,10 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-17: 12:59 )
+# Quantumult X 资源解析器 (2020-05-20: 12:59 )
 
 本资源解析器作者: Shawn(请勿私聊问怎么用)，有bug请反馈: @Shawn_KOP_bot
 更新请关注tg频道: https://t.me/QuanX_API
 
-主要功能: 将各类服务器订阅解析成 QuantumultX 格式引用(支持 V2RayN/SSR/SS/Trojan/QuanX(conf&list)/Surge3⬆️(conf&list)格式)，并提供 1⃣️ 中的可选参数；
+主要功能: 将各类服务器订阅解析成 QuantumultX 格式引用(支持 V2RayN/SSR/SS/Trojan/QuanX(conf&list)/Surge(conf&list)格式)，并提供 1⃣️ 中的可选参数；
 
 附加功能: rewrite(重写) /filter(分流) 过滤, 可用于解决无法单独禁用远程引用中某(几)条 rewrite/hostname/filter, 以及直接导入 Surge 类型规则 list 的问题
 
@@ -147,7 +147,7 @@ function Type_Check(subs){
 	var type=""
 	var RuleK=["host","domain","ip-cidr","geoip","user-agent","ip6-cidr"];
 	var QuanXK=["shadowsocks=","trojan=","vmess=","http="];
-	var SurgeK=["=ss","=vmess","=trojan","=http"];
+	var SurgeK=["=ss","=vmess","=trojan","=http","=custom"];
 	var SubK=["dm1lc3M6Ly","c3NyOi8v","dHJvamFu","c3M6Ly"];
 	var SubK2=["ss://","vmess://","ssr://","trojan://"];
 	var subi=subs.replace(/ /g,"")
@@ -283,7 +283,7 @@ function SubsEd2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 	const $base64 = new Base64()
 	var list0=$base64.decode(subs).split("\n");
 	var QuanXK=["shadowsocks=","trojan=","vmess=","http="];
-	var SurgeK=["=ss","=vmess","=trojan","=http"];
+	var SurgeK=["=ss","=vmess","=trojan","=http","=custom"];
 	var QXlist=[];
 	var node=""
 	for(i=0;i<list0.length;i++){
@@ -647,19 +647,43 @@ function Surge2QX(conf){
 	for(i=0;i<QXlist.length;i++){
 		var cnt=QXlist[i];
 		//console.log(cnt)
-		if(cnt.indexOf("trojan")!=-1){
-			Nlist.push(Strojan2QX(cnt))
+		if(cnt.split("=")[1].split(",")[0].indexOf("trojan")!=-1){
+			Nlist.push(Strojan2QX(cnt))//surge 3的trojan
 			}else if(cnt.split("=")[1].split(",")[0].indexOf("http")!=-1){
-				Nlist.push(Shttp2QX(cnt))
+				Nlist.push(Shttp2QX(cnt)) //surge 3的http
 			}else if(cnt.split("=")[1].split(",")[0].indexOf("vmess")!=-1){
-				Nlist.push(SVmess2QX(cnt))
+				Nlist.push(SVmess2QX(cnt)) //surge 3的Vmess
 			}else if(cnt.split("=")[1].split(",")[0].indexOf("ss")!=-1){
-				Nlist.push(SSS2QX(cnt))
+				Nlist.push(SSS2QX(cnt)) //surge 3的SS
+			}else if(cnt.split("=")[1].split(",")[0].indexOf("custom")!=-1){
+				Nlist.push(SCT2QX(cnt)) //surge2写法
 			}
 	}
 	return(Nlist)
 	//console.log(Nlist)
 	}
+	
+// surge2 中的 SS 类型写法(custom)
+//🇷🇺 俄罗斯 GIA = custom, ip, 152, aes-128-gcm, password123, https://dler.cloud/download/SSEncrypt.module, obfs=tls, obfs-host=xxx.windows.com, udp-relay=true
+function SCT2QX(content){
+	var cnt=content;
+	var tag="tag="+cnt.split("=")[0].trim();
+	var ipport=cnt.split(",")[1].trim()+":"+cnt.split(",")[2].trim();
+	var pmtd="method="+cnt.split(",")[3].trim();
+	var pwd="password="+cnt.split(",")[4].trim();
+	if(cnt.indexOf("obfs")!=-1){
+			pobfs="obfs="+cnt.replace(/obfs-host/,"").split("obfs")[1].split(",")[0].split("=")[1]
+		}else {pobfs=""}
+	var phost=cnt.indexOf("obfs-host")!=-1? "obfs-host"+cnt.split("obfs-host")[1].split(",")[0].trim():"";
+	if(phost!=""){
+			pobfs=pobfs+", "+phost
+		}
+	var ptfo= paraCheck(cnt,"tfo")=="true"? "fast-open=true":"fast-open=false";
+	var pudp= paraCheck(cnt,"udp")=="true"? "udp-relay=true":"udp-relay=false";
+	var nserver= pobfs!=""? "shadowsocks= "+[ipport,pmtd,pwd,pobfs,ptfo,pudp,tag].join(", "):"shadowsocks= "+[ipport,pmtd,pwd,ptfo,pudp,tag].join(", ");
+	return nserver
+}
+
 	
 // surge 中的 SS 类型
 function SSS2QX(content){
@@ -715,7 +739,7 @@ function SVmess2QX(content){
 function isSurge(content){
 	if(content.indexOf("=")!=-1){
 		cnt=content.split("=")[1].split(",")[0].trim()
-		if(cnt=="http"||cnt=="ss"||cnt=="trojan"||cnt=="vmess"){
+		if(cnt=="http"||cnt=="ss"||cnt=="trojan"||cnt=="vmess"||cnt=="custom"){
 			return content
 		}
 	}
