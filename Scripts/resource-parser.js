@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-20: 12:59 )
+# Quantumult X 资源解析器 (2020-05-21: 12:59 )
 
 本资源解析器作者: Shawn(请勿私聊问怎么用)，有bug请反馈: @Shawn_KOP_bot
 更新请关注tg频道: https://t.me/QuanX_API
@@ -136,6 +136,7 @@ if(flag==3){
 	if(Psort0==1 || Psort0==-1){
 		total=QXSort(total,Psort0);
 	}
+	total=TagCheck_QX(total)
 	$done({content : total.join("\n")});	
 }else {
 	$done({content : content0});
@@ -287,6 +288,7 @@ function SubsEd2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 	var QXlist=[];
 	var node=""
 	for(i=0;i<list0.length;i++){
+		if(list0[i].trim().length>3){
 		var type=list0[i].split("://")[0].trim()
 		var listi=list0[i].replace(/ /g,"")
 		const QuanXCheck = (item) => listi.toLowerCase().indexOf(item)!=-1;
@@ -304,7 +306,9 @@ function SubsEd2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 		}else if(SurgeK.some(SurgeCheck)){
 			node = Surge2QX(list0[i])
 		}
+		//$notify("Final","results",node)
 		QXlist.push(node)
+	}
 	}
 	return QXlist
 }
@@ -340,6 +344,32 @@ function Subs2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 	return QXlist
 }
 
+// 检查节点名字(重复以及空名)等QuanX 不允许的情形
+function TagCheck_QX(content){
+	var Olist=content
+	var Nlist=[]
+	var nmlist=[]
+	for(i=0;i<Olist.length;i++){
+		var item=Olist[i]
+		var nm=item.split("tag")[1].split("=")[1].trim() // get tag
+		if(nm==""){
+			nm=" ["+item.split("=")[0]+"] "+item.split("=")[1].split(",")[0].split(":")[0]
+			$notify("⚠️ 订阅内出现空节点名:", "✅ 已自动将节点“类型+IP”作为节点名","✅ "+nm)
+			item=item.split("tag")[0]+"tag="+nm
+		}
+		while(nmlist.indexOf(nm)!=-1){
+			$notify("⚠️ 订阅内出现重复节点名:", "⚠️ "+ nm, "✅ 已自动添加“”符号作为区分:"+nm+"")
+			nm=nm+""
+			item=item.split("tag")[0]+"tag="+nm
+			}	
+		nmlist.push(nm)		
+		Nlist.push(item)
+		
+		}
+	return Nlist
+}
+	
+
 //V2RayN uri转换成 QUANX 格式
 function V2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 	const $base64 = new Base64()
@@ -361,7 +391,6 @@ function V2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 		}else {
 			nss.push(ip,mtd,pwd,obfs,tfo,udp,tag);}
 		QX=nss.join(", ");
-		//$notify("Lists","check",QX)
 	}
 	return QX
 }
