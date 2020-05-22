@@ -45,6 +45,7 @@ https://Advertising.list#policy=MineGroup&out=aweme, tag=🚦去广告，update-
 ⚠️⚠️ 由于 rewrite/filter 的 UI 中暂时没有提供解析器开关，想使用的请自行去配置文件中的相关行，添加参数"opt-parser=true"以开启，如：
 https://Advertising.list#policy=Shawn&out=aweme, tag=🚦去广告，update-interval=86400, opt-parser=true, enabled=true
  */
+
 var content0=$resource.content;
 var para=decodeURIComponent($resource.link);
 var type0=Type_Check(content0);
@@ -140,18 +141,8 @@ if(flag==3){
 	if(Psort0==1 || Psort0==-1){
 		total=QXSort(total,Psort0);
 	}
-<<<<<<< HEAD
-<<<<<<< HEAD
 	total=TagCheck_QX(total)
 	if(total.length==0){
-=======
-	total=TagCheck_QX(total);
-		if(total.length==0){
->>>>>>> 2fc50cc2f6ffcbbbf80aaff57172fb8feecfe39a
-=======
-	total=TagCheck_QX(total);
-		if(total.length==0){
->>>>>>> 2fc50cc2f6ffcbbbf80aaff57172fb8feecfe39a
 		$notify("‼️无有效节点","⁉️请自行检查原始链接以及过滤参数",para)
 		};
 	$done({content : total.join("\n")});	
