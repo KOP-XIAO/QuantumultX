@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-21: 12:59 )
+# Quantumult X 资源解析器 (2020-05-22: 19:59 )
 
 本资源解析器作者: Shawn(请勿私聊问怎么用)，有bug请反馈: @Shawn_KOP_bot
 更新请关注tg频道: https://t.me/QuanX_API
@@ -45,7 +45,6 @@ https://Advertising.list#policy=MineGroup&out=aweme, tag=🚦去广告，update-
 ⚠️⚠️ 由于 rewrite/filter 的 UI 中暂时没有提供解析器开关，想使用的请自行去配置文件中的相关行，添加参数"opt-parser=true"以开启，如：
 https://Advertising.list#policy=Shawn&out=aweme, tag=🚦去广告，update-interval=86400, opt-parser=true, enabled=true
  */
-
 var content0=$resource.content;
 var para=decodeURIComponent($resource.link);
 var type0=Type_Check(content0);
@@ -104,9 +103,14 @@ if(type0=="Subs-B64Encode"){
 	flag=3;
 	total=content0.split("\n");
 	total=Rule_Handle(total,Pout0);
-}else {
-	$notify("😭 太难写了", "👻 本解析器 暂未支持 或 未能识别 该订阅格式", "☠️ 已尝试直接导入Quantumult X");
+}else if(content0.trim()==""){
+	$notify("‼️链接內容为空","⁉️请自行检查原始链接以及过滤参数",para);
 	flag=0;
+	$done({content : ""})
+}else {
+	$notify("😭 太难写了", "👻 本解析器 暂未支持/未能识别 该订阅格式", "☠️ 已尝试直接导入Quantumult X");
+	$done({content : content0});
+	flag=-1;
 }
 
 if(flag==3){
@@ -136,10 +140,16 @@ if(flag==3){
 	if(Psort0==1 || Psort0==-1){
 		total=QXSort(total,Psort0);
 	}
+<<<<<<< HEAD
 	total=TagCheck_QX(total)
+	if(total.length==0){
+=======
+	total=TagCheck_QX(total);
+		if(total.length==0){
+>>>>>>> 2fc50cc2f6ffcbbbf80aaff57172fb8feecfe39a
+		$notify("‼️无有效节点","⁉️请自行检查原始链接以及过滤参数",para)
+		};
 	$done({content : total.join("\n")});	
-}else {
-	$done({content : content0});
 }
 
 
