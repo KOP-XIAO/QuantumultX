@@ -136,7 +136,10 @@ if(flag==3){
 	if(Psort0==1 || Psort0==-1){
 		total=QXSort(total,Psort0);
 	}
-	total=TagCheck_QX(total)
+	total=TagCheck_QX(total);
+		if(total.length==0){
+		$notify("‼️无有效节点","⁉️请自行检查原始链接以及过滤参数",para)
+		};
 	$done({content : total.join("\n")});	
 }else {
 	$done({content : content0});
