@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-23: 10:59 )
+# Quantumult X 资源解析器 (2020-05-23: 11:59 )
 
 本资源解析器作者: Shawn(请勿私聊问怎么用)，有bug请反馈: @Shawn_KOP_bot
 更新请关注tg频道: https://t.me/QuanX_API
@@ -370,11 +370,11 @@ function TagCheck_QX(content){
 		var nm=item.split("tag")[1].split("=")[1].trim() // get tag
 		if(nm==""){
 			nm=" ["+item.split("=")[0]+"] "+item.split("=")[1].split(",")[0].split(":")[0]
-			$notify("⚠️ 订阅内出现空节点名:", "✅ 已自动将节点"类型+IP"作为节点名","✅ "+nm)
+			$notify("⚠️ 订阅内出现空节点名:", "✅ 已自动将节点[类型+IP]作为节点名","✅ "+nm)
 			item=item.split("tag")[0]+"tag="+nm
 		}
 		while(nmlist.indexOf(nm)!=-1){
-			$notify("⚠️ 订阅内出现重复节点名:", "⚠️ "+ nm, "✅ 已自动添加""符号作为区分:"+nm+"")
+			$notify("⚠️ 订阅内出现重复节点名:", "⚠️ "+ nm, "✅ 已自动添加“”符号作为区分:"+nm+"")
 			nm=nm+""
 			item=item.split("tag")[0]+"tag="+nm
 			}	
