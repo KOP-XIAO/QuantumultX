@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-23: 12:59 )
+# Quantumult X 资源解析器 (2020-05-23: 16:59 )
 
 本资源解析器作者: Shawn(请勿私聊问怎么用)，有bug请反馈: @Shawn_KOP_bot
 更新请关注tg频道: https://t.me/QuanX_API
@@ -148,6 +148,7 @@ if(flag==3){
 	if(total.length==0){
 		$notify("‼️无有效节点","⁉️请自行检查原始链接以及过滤参数",para)
 		};
+	//$notify("Final","List",total)
 	$done({content : total.join("\n")});	
 }
 
@@ -531,7 +532,7 @@ function TJ2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 	if(cnt.indexOf(":443")!=-1){
 		ip=cnt.split("@")[1].split(":443")[0]+":443";
 	}else{
-		ip=cnt.split("@")[1].split("?")[0]; //非 443 端口的奇葩机场？
+		ip=cnt.split("@")[1].split("?")[0].split("\n")[0].trim(); //非 443 端口的奇葩机场？
 	}
 	pwd="password="+cnt.split("@")[0];
 	obfs="over-tls=true";
@@ -540,7 +541,7 @@ function TJ2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 	if(Pcert==0){pcert="tls-verification=false"}	
 	pudp= Pudp==1? "udp-relay=true":"udp-relay=false";
 	ptfo= Ptfo==1? "fast-open=true":"fast-open=false";
-	tag="tag="+decodeURIComponent(cnt.split("#")[1])
+	tag=cnt.indexOf("#")!=-1? "tag="+decodeURIComponent(cnt.split("#")[1]):"tag= [trojan]"+ip
 	ntrojan.push(type+ip,pwd,obfs,pcert,ptls13,pudp,ptfo,tag)
 	QX=ntrojan.join(", ");
 	return QX;
