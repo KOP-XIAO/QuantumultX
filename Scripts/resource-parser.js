@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-23: 16:59 )
+# Quantumult X 资源解析器 (2020-05-24: 12:59 )
 
 本资源解析器作者: Shawn(请勿私聊问怎么用)，有bug请反馈: @Shawn_KOP_bot
 更新请关注tg频道: https://t.me/QuanX_API
@@ -149,7 +149,8 @@ if(flag==3){
 		$notify("‼️无有效节点","⁉️请自行检查原始链接以及过滤参数",para)
 		};
 	//$notify("Final","List",total)
-	$done({content : total.join("\n")});	
+    total=total.join("\n");
+	$done({content : total});
 }
 
 
@@ -158,7 +159,7 @@ function Type_Check(subs){
 	var type="unknown"
 	var RuleK=["host","domain","ip-cidr","geoip","user-agent","ip6-cidr"];
 	var QuanXK=["shadowsocks=","trojan=","vmess=","http="];
-	var SurgeK=["=ss","=vmess","=trojan","=http","=custom"];
+	var SurgeK=["=ss,","=vmess,","=trojan,","=http,","=custom,","=https,"];
 	var SubK=["dm1lc3M6Ly","c3NyOi8v","dHJvamFu","c3M6Ly"];
 	var SubK2=["ss://","vmess://","ssr://","trojan://"];
 	var html="<!DOCTYPE html>"
