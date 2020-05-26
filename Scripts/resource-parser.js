@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-25: 17:59 )
+# Quantumult X 资源解析器 (2020-05-26: 23:59 )
 
 解析器作者: Shawn(请勿私聊问怎么用)
 有bug请反馈: @Shawn_KOP_bot
@@ -69,7 +69,7 @@ var Pntf0= mark0 && para.indexOf("ntf=")!=-1? para.split("#")[1].split("ntf=")[1
 var Pb64= mark0 && para.indexOf("b64=")!=-1? para.split("#")[1].split("b64=")[1].split("&")[0].split("+"):0;
 const subinfo=$resource.info;
 const subtag=$resource.tag;
-//$notify(type0,"tt",subtag)
+//$notify(type0,"tt",content0)
 const Base64=new Base64Code();
 
 //响应头流量处理部分
@@ -431,20 +431,20 @@ function Pobfs(jsonl,Pcert,Ptls13){
 	tls13= Ptls13==1? "tls13=true":"tls13=false"
 	if(jsonl.net=="ws" && jsonl.tls=="tls"){
 		obfs0="obfs=wss, "+tcert+", "+tls13+", ";
-		uri0=jsonl.path!=""? "obfs-uri="+jsonl.path:"obfs-uri=/";
-		host0= jsonl.host!=""? "obfs-host="+jsonl.host+",":"";
+		uri0= jsonl.path && jsonl.path!=""? "obfs-uri="+jsonl.path:"obfs-uri=/";
+		host0= jsonl.host && jsonl.host!=""? "obfs-host="+jsonl.host+",":"";
 		obfsi.push(obfs0+host0+uri0)
 		return obfsi.join(", ")
 	}else if(jsonl.net=="ws"){
 		obfs0="obfs=ws";
-		uri0=jsonl.path!=""? "obfs-uri="+jsonl.path:"obfs-uri=/";
-		host0= jsonl.host!=""? "obfs-host="+jsonl.host+",":"";
+		uri0= jsonl.path && jsonl.path!=""? "obfs-uri="+jsonl.path:"obfs-uri=/";
+		host0= jsonl.host && jsonl.host!=""? "obfs-host="+jsonl.host+",":"";
 		obfsi.push(obfs0,host0+uri0);
 		return obfsi.join(", ")
 	}else if(jsonl.tls=="tls"){
 		obfs0="obfs=over-tls, "+tcert+", "+tls13;
-		uri0=jsonl.path!=""? "obfs-uri="+jsonl.path:"";
-		host0=jsonl.host!=""? ", obfs-host="+jsonl.host:"";
+		uri0=jsonl.path && jsonl.path!=""? "obfs-uri="+jsonl.path:"";
+		host0=jsonl.host && jsonl.host!=""? ", obfs-host="+jsonl.host:"";
 		obfsi.push(obfs0+host0)
 		return obfsi.join(", ")
 	}
