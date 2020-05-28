@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-27: 13:59 )
+# Quantumult X 资源解析器 (2020-05-28: 13:59 )
 
 解析器作者: Shawn(请勿私聊问怎么用)
 有bug请反馈: @Shawn_KOP_bot
@@ -27,7 +27,7 @@
 2⃣️ "rewrite(重写)/filter(分流)" 引用--参数说明:
 - in, out, 分别为 保留/排除, 多个参数用 "+" 连接(谨慎使用);
 - 分流规则额外支持 "policy=xx" 参数, 可用于直接指定策略组，或者为 Surge 格式的 rule-set 生成策略组(默认"Shawn"策略组)
-⚠️⚠️ 由于 rewrite/filter 的 UI 中暂时没有提供解析器开关，想使用的请自行去配置文件中的相关行，添加参数"opt-parser=true"以开启，如：
+⚠️⚠️ 由于商店版本中 rewrite/filter 的 UI 暂时没有提供解析器开关，想使用的请自行去配置文件中的相关行，添加参数"opt-parser=true"以开启，如：
 https://Advertising.list#policy=MineGroup&out=aweme, tag=🚦去广告，update-interval=86400, opt-parser=true, enabled=true
 
 3⃣️ 通用参数: ntf=1, 用于打开资源解析器的提示通知 (默认关闭), 
@@ -69,6 +69,7 @@ var Psort0=mark0 && para.indexOf("sort=")!=-1? para.split("#")[1].split("sort=")
 var PTls13=mark0 && para.indexOf("tls13=")!=-1? para.split("#")[1].split("tls13=")[1].split("&")[0].split("+"):0;
 var Pntf0= mark0 && para.indexOf("ntf=")!=-1? para.split("#")[1].split("ntf=")[1].split("&")[0].split("+"):0;
 var Pb64= mark0 && para.indexOf("b64=")!=-1? para.split("#")[1].split("b64=")[1].split("&")[0].split("+"):0;
+var emojino=["0️⃣","1⃣️","2⃣️","3⃣️","4⃣️","5⃣️","6⃣️","7⃣️","8⃣️","9⃣️","🔟"]
 const subinfo=$resource.info;
 const subtag=$resource.tag!=undefined? $resource.tag:"";
 const Base64=new Base64Code();
@@ -86,7 +87,7 @@ if(Pinfo==1 && subinfo){
 		var day=epr.getDate()<10 ? "0"+(epr.getDate()):epr.getDate(); 
 		epr="过期时间: "+year+"-"+mth+"-"+day
 		} else{
-			epr="订阅链接: "+para.split("#")[0] //没过期时间的显示订阅链接
+			epr="过期时间: ✈️ 未提供該信息" //没过期时间的显示订阅链接
 		}
 	var message=total+"\n"+usd+", "+left;
 	$notify("流量信息: "+subtag, epr, message)
@@ -473,12 +474,12 @@ function TagCheck_QX(content){
 		}
 		var ni=0
 		while(nmlist.indexOf(nm)!=-1){
-			ni=ni+1
-			nm=nm.split("")[0]+"^"+ni
+			nm=ni<=10? nm.split(" ⌘")[0]+" ⌘"+emojino[ni]:nm.split(" ⌘")[0]+" ⌘"+ni
 			item=item.split("tag")[0]+"tag="+nm
+			ni=ni+1
 			}	
 		if(ni!=0){
-			$notify("⚠️ "+"["+subtag+"]"+" 订阅内出现重复节点名 ", "⚠️ "+ nm.split("")[0], "✅ 已自动添加“”符号作为区分:"+nm)
+			$notify("⚠️ "+"["+subtag+"]"+" 订阅内出现重复节点名 ", "⚠️ "+ nm.split("")[0], "✅ 已自动添加⌘符号作为区分:"+nm)
 			}
 		nmlist.push(nm)	
 		ni=0	
