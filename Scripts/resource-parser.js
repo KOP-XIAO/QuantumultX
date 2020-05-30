@@ -736,7 +736,7 @@ function Rename(str){
 					if(name==nemoji){
 						name=oname+" "+name
 					}else if(Pemoji==1 || Pemoji==2){
-						name=name.split(" ")[0]+" "+oname+name.split(" ")[1]
+						name=name.replace(name.split(" ")[0],name.split(" ")[0]+oname)
 					}else { name=oname+" "+name}
 				}else if(nname){//后缀
 					name=name+nname
