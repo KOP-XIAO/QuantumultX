@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-30: 22:59 )
+# Quantumult X 资源解析器 (2020-05-30: 23:59 )
 
 解析器作者: Shawn(请勿私聊问怎么用)
 有bug请反馈: @Shawn_KOP_bot
@@ -136,17 +136,17 @@ if(flag==3){
 			if(Pntf0!=0){
 		$notify("🐷 "+"["+subtag+"]"+" 开始转换节点订阅","🐼️ 如需筛选节点请使用in/out及其他参数，可参考此示范:","👉 https://t.me/QuanXNews/110");}
 	}
+	if(Pemoji){
+				if(Pntf0!=0){
+				$notify("🏳️‍🌈 "+"["+subtag+"]"+" 开始更改旗帜 emoji","清除emoji请用参数 -1, 国行设备添加emoji请使用参数 2","你当前所用的参数为 emoji="+Pemoji)};
+				total=emoji_handle(total,Pemoji);
+			}
 	if(Prname){
 		if(Pntf0!=0){ 
 		$notify("🏳️‍🌈 "+"["+subtag+"]"+" 开始节点重命名","格式为 \"旧名字@新名字\"","你当前所用的参数为"+Prname);}
 		var Prn=Prname;
 		total=total.map(Rename);
 	}
-	if(Pemoji){
-			if(Pntf0!=0){
-			$notify("🏳️‍🌈 "+"["+subtag+"]"+" 开始更改旗帜 emoji","清除emoji请用参数 -1, 国行设备添加emoji请使用参数 2","你当前所用的参数为 emoji="+Pemoji)};
-			total=emoji_handle(total,Pemoji);
-		}
 	if(Psort0==1 || Psort0==-1){
 		total=QXSort(total,Psort0);
 	}
@@ -722,7 +722,7 @@ function Rename(str){
 	var server=str;
 	if(server.indexOf("tag=")!=-1){
 		hd=server.split("tag=")[0]
-		name=server.split("tag=")[1]
+		name=server.split("tag=")[1].trim()
 		for(i=0;i<Prn.length;i++){
 			nname=Prn[i].split("@")[1];
 			oname=Prn[i].split("@")[0];
@@ -731,9 +731,14 @@ function Rename(str){
 				while(name.indexOf(oname)!=-1){
 					name=name.replace(oname,nname)
 				}
-				}else if(oname){
-					name=oname+name
-				}else if(nname){
+				}else if(oname){//前缀
+					var nemoji=emoji_del(name)
+					if(name==nemoji){
+						name=oname+" "+name
+					}else if(Pemoji==1 || Pemoji==2){
+						name=name.split(" ")[0]+" "+oname+name.split(" ")[1]
+					}else { name=oname+" "+name}
+				}else if(nname){//后缀
 					name=name+nname
 				}else(name=name)	
 			nserver=hd+"tag="+name
