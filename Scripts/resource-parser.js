@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-29: 20:59 )
+# Quantumult X 资源解析器 (2020-05-30: 22:59 )
 
 解析器作者: Shawn(请勿私聊问怎么用)
 有bug请反馈: @Shawn_KOP_bot
@@ -136,17 +136,17 @@ if(flag==3){
 			if(Pntf0!=0){
 		$notify("🐷 "+"["+subtag+"]"+" 开始转换节点订阅","🐼️ 如需筛选节点请使用in/out及其他参数，可参考此示范:","👉 https://t.me/QuanXNews/110");}
 	}
-	if(Pemoji){
-			if(Pntf0!=0){
-			$notify("🏳️‍🌈 "+"["+subtag+"]"+" 开始更改旗帜 emoji","清除emoji请用参数 -1, 国行设备添加emoji请使用参数 2","你当前所用的参数为 emoji="+Pemoji)};
-			total=emoji_handle(total,Pemoji);
-		}
 	if(Prname){
 		if(Pntf0!=0){ 
 		$notify("🏳️‍🌈 "+"["+subtag+"]"+" 开始节点重命名","格式为 \"旧名字@新名字\"","你当前所用的参数为"+Prname);}
 		var Prn=Prname;
 		total=total.map(Rename);
 	}
+	if(Pemoji){
+			if(Pntf0!=0){
+			$notify("🏳️‍🌈 "+"["+subtag+"]"+" 开始更改旗帜 emoji","清除emoji请用参数 -1, 国行设备添加emoji请使用参数 2","你当前所用的参数为 emoji="+Pemoji)};
+			total=emoji_handle(total,Pemoji);
+		}
 	if(Psort0==1 || Psort0==-1){
 		total=QXSort(total,Psort0);
 	}
