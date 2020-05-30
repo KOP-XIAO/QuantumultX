@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-30: 23:59 )
+# Quantumult X 资源解析器 (2020-05-31: 08:59 )
 
 解析器作者: Shawn(请勿私聊问怎么用)
 有bug请反馈: @Shawn_KOP_bot
@@ -757,8 +757,10 @@ function get_emoji(source,sname){
 		dd=cnt[key]
 		for(i in dd){
 			if(sname.indexOf(dd[i])!=-1){
-				flag=1
-				nname=sname.indexOf(key)==-1? key+" "+sname.trim():key+" "+sname.replace(key,"").trim();
+				flag=1;
+				sname=Pemoji==1 && key=="🇹🇼"? sname.replace("🇨🇳","🇹🇼"):sname;
+				sname=Pemoji==2 && key==" 🇨🇳"? sname.replace("🇹🇼","🇨🇳"):sname; //避免key重复，所以" 🇨🇳" 与"🇨🇳"
+				nname=sname.indexOf(key.trim())==-1? key+" "+sname.trim():key+" "+sname.replace(key.trim(),"").trim();
 				return nname
 				break;
 			}
@@ -783,8 +785,10 @@ function emoji_handle(servers,Pemoji){
 			var nname=get_emoji(aa,nname)
 			} else if(Pemoji==2){
 				str1 = JSON.stringify(Lmoji)
-				aa=JSON.parse(str1.replace(/🇹🇼/g," 🇨🇳"))
-				var nname=get_emoji(aa,nname)
+				bb=JSON.parse(str1.replace(/🇹🇼/g," 🇨🇳"))
+				var nname=get_emoji(bb,nname)
+			}else if(Pemoji==-1){
+				nname=emoji_del(oname);
 			}
 		var nserver=hd+"tag="+nname.replace(" ️"," ").trim()
 		nlist.push(nserver)
