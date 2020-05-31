@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-31: 08:59 )
+# Quantumult X 资源解析器 (2020-05-31: 12:59 )
 
 解析器作者: Shawn(请勿私聊问怎么用)
 有bug请反馈: @Shawn_KOP_bot
@@ -727,10 +727,10 @@ function Rename(str){
 			nname=Prn[i].split("@")[1];
 			oname=Prn[i].split("@")[0];
 			if(oname&&nname){
-				//name=name.replace(new RegExp(oname,"gm"),nname)
-				while(name.indexOf(oname)!=-1){
-					name=name.replace(oname,nname)
-				}
+				name=name.replace(new RegExp("\\"+oname,"gm"),nname)
+//				while(name.indexOf(oname)!=-1){
+//					name=name.replace(oname,nname)
+//				}
 				}else if(oname){//前缀
 					var nemoji=emoji_del(name)
 						if(Pemoji==1 || Pemoji==2){
