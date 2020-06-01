@@ -87,7 +87,7 @@ if(Pinfo==1 && subinfo){
 		var day=epr.getDate()<10 ? "0"+(epr.getDate()):epr.getDate(); 
 		epr="过期时间: "+year+"-"+mth+"-"+day
 		} else{
-			epr="过期时间: ✈️ 未提供該信息" //没过期时间的显示订阅链接
+			epr="";//"过期时间: ✈️ 未提供該信息" //没过期时间的显示订阅链接
 		}
 	var message=total+"\n"+usd+", "+left;
 	$notify("流量信息: "+subtag, epr, message)
