@@ -1,11 +1,11 @@
 /** 
-# Quantumult X 资源解析器 (2020-05-31: 12:59 )
+# Quantumult X 资源解析器 (2020-06-01: 10:59 )
 
 解析器作者: Shawn(请勿私聊问怎么用)
 有bug请反馈: @Shawn_KOP_bot
 更新请关注tg频道: https://t.me/QuanX_API
 
-主要功能: 将各类服务器订阅解析成 QuantumultX 格式引用(支持 V2RayN/SSR/SS/Trojan/QuanX(conf&list)/Surge(conf&list)格式)，并提供 1⃣️ 中的可选参数；
+主要功能: 将各类服务器订阅解析成 QuantumultX 格式引用(支持 V2RayN/SSR/SS/Trojan/QuanX(conf&list)/Surge(conf&list)/https(仅部分格式) 订阅)，并提供 1⃣️ 中的可选参数；
 
 附加功能: rewrite(重写) /filter(分流) 过滤, 可用于解决无法单独禁用远程引用中某(几)条 rewrite/hostname/filter, 以及直接导入 Surge 类型规则 list 的问题
 
@@ -397,14 +397,16 @@ function SubsEd2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 	var QuanXK=["shadowsocks=","trojan=","vmess=","http="];
 	var SurgeK=["=ss","=vmess","=trojan","=http","=custom"];
 	var QXlist=[];
-	var node=""
 	for(i=0;i<list0.length;i++){
+		var node=""
 		if(list0[i].trim().length>3){
 		var type=list0[i].split("://")[0].trim()
+		//$notify(type)
 		var listi=list0[i].replace(/ /g,"")
 		const QuanXCheck = (item) => listi.toLowerCase().indexOf(item)!=-1;
 		const SurgeCheck = (item) => listi.toLowerCase().indexOf(item)!=-1;
 		if(type=="vmess"){
+			
 			node= V2QX(list0[i],Pudp,Ptfo,Pcert,Ptls13)
 		}else if(type=="ssr"){
 			node= SSR2QX(list0[i],Pudp,Ptfo)
@@ -412,6 +414,8 @@ function SubsEd2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 			node = SS2QX(list0[i],Pudp,Ptfo)
 		}else if(type=="trojan"){
 			node = TJ2QX(list0[i],Pudp,Ptfo,Pcert,Ptls13)
+		}else if(type="https"){ //subs,Ptfo,Pcert,Ptls13
+			node = HPS2QX(list0[i],Ptfo,Pcert,Ptls13)
 		}else if(QuanXK.some(QuanXCheck)){
 			node = list0[i]
 		}else if(SurgeK.some(SurgeCheck)){
@@ -431,8 +435,8 @@ function Subs2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 	var QuanXK=["shadowsocks=","trojan=","vmess=","http="];
 	var SurgeK=["=ss","=vmess","=trojan","=http"];
 	var QXlist=[];
-	var node=""
 	for(i=0;i<list0.length;i++){
+		var node=""
 		if(list0[i].trim().length>3){
 		var type=list0[i].split("://")[0].trim()
 		var listi=list0[i].replace(/ /g,"")
@@ -446,6 +450,8 @@ function Subs2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 			node = SS2QX(list0[i],Pudp,Ptfo)
 		}else if(type=="trojan"){
 			node = TJ2QX(list0[i],Pudp,Ptfo,Pcert,Ptls13)
+		}else if(type="https"){
+			node = HPS2QX(list0[i],Ptfo,Pcert,Ptls13)
 		}else if(QuanXK.some(QuanXCheck)){
 			node = list0[i]
 		}else if(SurgeK.some(SurgeCheck)){
@@ -488,7 +494,27 @@ function TagCheck_QX(content){
 		}
 	return Nlist
 }
-	
+//http=example.com:443, username=name, password=pwd, over-tls=true, tls-host=example.com, tls-verification=true, tls13=true, fast-open=false, udp-relay=false, tag=http-tls-02
+//HTTPS 类型 URI 转换成 QUANX 格式
+function HPS2QX(subs,Ptfo,Pcert,Ptls13){
+
+	var server=Base64.decode(subs.replace("https://","")).trim().split("\u0000")[0];
+	var nss=[]
+	if(server!=""){
+		var ipport="http="+server.split("@")[1].split("#")[0].split("/")[0];
+		var uname="username="+server.split(":")[0];
+		var pwd="password="+server.split("@")[0].split(":")[1];
+		var tag="tag="+server.split("#")[1];
+		var tls="over-tls=true";
+		var cert=Pcert!=0? "tls-verification=true":"tls-verification=false";
+		var tfo=Ptfo==1? "fast-open=true":"fast-open=false";
+		var tls13=Ptls13==1? "tls13=true":"tls13=false";
+		nss.push(ipport,uname,pwd,tls,cert,tfo,tls13,tag)
+	}
+	var QX=nss.join(",");
+	return QX
+	//$notify("ts","content",QX)
+}	
 
 //V2RayN uri转换成 QUANX 格式
 function V2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
