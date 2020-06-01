@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-06-01: 10:59 )
+# Quantumult X 资源解析器 (2020-06-01: 23:59 )
 
 解析器作者: Shawn(请勿私聊问怎么用)
 有bug请反馈: @Shawn_KOP_bot
@@ -17,7 +17,7 @@
 - in, out, 分别为 保留/排除, 多参数用 "+" 连接(逻辑"或"), 逻辑"与"请用"."连接，可直接用中文, 空格用"%20"代替 (如 "in=香港.IPLC.04+台湾&out=香港%20BGP" );
 - emoji=1,2 或 -1, 为添加/删除节点名中的 emoji 旗帜 (国行设备请用 emoji=2 );
 - udp=1, tfo=1 参数开启 udp-relay 及 fast-open (默认关闭, 此参数对源类型为 QuanX/Surge 的链接无效);
-- rename 重命名, rename=旧名@新名, 以及 "前缀@", "@后缀", 用 "+" 连接, 如 "rename=香港@HK+[SS]@+@[1X]";
+- rename 重命名, rename=旧名@新名, 以及 "前缀@", "@后缀","删除字符☠️" 用 "+" 连接, 如 "rename=香港@HK+[SS]@+@[1X]+倍率☠️";
 - cert=0，跳过证书验证(vmess/trojan)，即强制"tls-verification=false";
 - tls13=1, 开启 "tls13=true"(vmess/trojan), 请自行确认服务端是否支持;
 - sort=1 或 sort=-1, 排序参数，分别根据节点名 正序/逆序 排列;
@@ -87,7 +87,7 @@ if(Pinfo==1 && subinfo){
 		var day=epr.getDate()<10 ? "0"+(epr.getDate()):epr.getDate(); 
 		epr="过期时间: "+year+"-"+mth+"-"+day
 		} else{
-			epr="";//"过期时间: ✈️ 未提供該信息" //没过期时间的显示订阅链接
+			epr=""; //"过期时间: ✈️ 未提供該信息" //没过期时间的显示订阅链接
 		}
 	var message=total+"\n"+usd+", "+left;
 	$notify("流量信息: "+subtag, epr, message)
@@ -757,13 +757,16 @@ function Rename(str){
 //				while(name.indexOf(oname)!=-1){
 //					name=name.replace(oname,nname)
 //				}
-				}else if(oname){//前缀
+				}else if(oname && oname.indexOf("☠️")==-1){//前缀
 					var nemoji=emoji_del(name)
 						if(Pemoji==1 || Pemoji==2){
 						name=name.replace(name.split(" ")[0]+" ",name.split(" ")[0]+" "+oname)
 					}else { name=oname+name}
 				}else if(nname){//后缀
 					name=name+nname
+				}else if(oname && oname.indexOf("☠️")!=-1){ //删除特定字符
+					var del=new RegExp("\\"+oname.split("☠️")[0],"gm");
+					name=name.replace(del,"")
 				}else(name=name)	
 			nserver=hd+"tag="+name
 		}
