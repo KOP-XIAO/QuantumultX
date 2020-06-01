@@ -406,7 +406,6 @@ function SubsEd2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 		const QuanXCheck = (item) => listi.toLowerCase().indexOf(item)!=-1;
 		const SurgeCheck = (item) => listi.toLowerCase().indexOf(item)!=-1;
 		if(type=="vmess"){
-			
 			node= V2QX(list0[i],Pudp,Ptfo,Pcert,Ptls13)
 		}else if(type=="ssr"){
 			node= SSR2QX(list0[i],Pudp,Ptfo)
@@ -414,7 +413,7 @@ function SubsEd2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 			node = SS2QX(list0[i],Pudp,Ptfo)
 		}else if(type=="trojan"){
 			node = TJ2QX(list0[i],Pudp,Ptfo,Pcert,Ptls13)
-		}else if(type="https"){ //subs,Ptfo,Pcert,Ptls13
+		}else if(type=="https"){ //subs,Ptfo,Pcert,Ptls13
 			node = HPS2QX(list0[i],Ptfo,Pcert,Ptls13)
 		}else if(QuanXK.some(QuanXCheck)){
 			node = list0[i]
@@ -431,6 +430,7 @@ function SubsEd2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 
 //混合订阅类型，用于未整体进行 base64 encode 的类型
 function Subs2QX(subs,Pudp,Ptfo,Pcert,Ptls13){ 
+	//$notify("start","cnt",subs)
 	var list0=subs.split("\n");
 	var QuanXK=["shadowsocks=","trojan=","vmess=","http="];
 	var SurgeK=["=ss","=vmess","=trojan","=http"];
@@ -450,7 +450,7 @@ function Subs2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 			node = SS2QX(list0[i],Pudp,Ptfo)
 		}else if(type=="trojan"){
 			node = TJ2QX(list0[i],Pudp,Ptfo,Pcert,Ptls13)
-		}else if(type="https"){
+		}else if(type=="https"){
 			node = HPS2QX(list0[i],Ptfo,Pcert,Ptls13)
 		}else if(QuanXK.some(QuanXCheck)){
 			node = list0[i]
