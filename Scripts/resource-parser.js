@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-06-01: 23:59 )
+# Quantumult X 资源解析器 (2020-06-02: 14:59 )
 
 解析器作者: Shawn(请勿私聊问怎么用)
 有bug请反馈: @Shawn_KOP_bot
@@ -17,7 +17,7 @@
 - in, out, 分别为 保留/排除, 多参数用 "+" 连接(逻辑"或"), 逻辑"与"请用"."连接，可直接用中文, 空格用"%20"代替 (如 "in=香港.IPLC.04+台湾&out=香港%20BGP" );
 - emoji=1,2 或 -1, 为添加/删除节点名中的 emoji 旗帜 (国行设备请用 emoji=2 );
 - udp=1, tfo=1 参数开启 udp-relay 及 fast-open (默认关闭, 此参数对源类型为 QuanX/Surge 的链接无效);
-- rename 重命名, rename=旧名@新名, 以及 "前缀@", "@后缀","删除字符☠️" 用 "+" 连接, 如 "rename=香港@HK+[SS]@+@[1X]+倍率☠️";
+- rename 重命名、删除字段, rename=旧名@新名, 以及 "前缀@", "@后缀","删除字段☠️" 用 "+" 连接, 如 "rename=香港@HK+[SS]@+@[1X]+倍率☠️";
 - cert=0，跳过证书验证(vmess/trojan)，即强制"tls-verification=false";
 - tls13=1, 开启 "tls13=true"(vmess/trojan), 请自行确认服务端是否支持;
 - sort=1 或 sort=-1, 排序参数，分别根据节点名 正序/逆序 排列;
@@ -240,9 +240,9 @@ function Rewrite_Filter(subs,Pin,Pout){
 		}
 	}
 	if(dwrite.length>0){
-		$notify("🤖 您为 "+"["+subtag+"]"+" 添加的 [rewrite] 过滤关键词为:","🚫 禁用: "+Pout0.join(", "),"☠️ 复写 rewrite 中已禁用以下"+dwrite.length+"个匹配项:"+"\n"+dwrite.join("\n") )
+		$notify("🤖 "+"["+subtag+"]"+" 复写 [rewrite] 过滤关键词为:","🚫 禁用: "+Pout0.join(", "),"☠️ 复写 rewrite 中已禁用以下"+dwrite.length+"个匹配项:"+"\n"+dwrite.join("\n") )
 	}
-	if(Nlist.length==0){$notify("🤖 您为 "+"["+subtag+"]"+" 添加的筛选关键词为:","✅ 保留: "+Pin+",🚫 删除: "+Pout,"☠️ 筛选后剩余rewrite规则数为 0️⃣ 条, 请检查参数及原始链接" )}
+	if(Nlist.length==0){$notify("🤖 "+"["+subtag+"]"+" 筛选关键词为:","✅ 保留: "+Pin+",🚫 删除: "+Pout,"☠️ 筛选后剩余rewrite规则数为 0️⃣ 条, 请检查参数及原始链接" )}
 	if(hostname!=""){Nlist.push(hostname)}
 	return Nlist
 }
@@ -274,11 +274,11 @@ function HostNamecheck(content,parain,paraout){
 	hname="hostname="+nname.join(", ");
 	if(dname.length>0){
 		if(paraout && paraout!=""){
-			$notify("🤖 您为 "+"["+subtag+"]"+" 添加的 [rewrite] 过滤关键词为:","🚫 删除: "+paraout,"☠️ 主机名 hostname 中已删除以下"+dname.length+"个匹配项:"+"\n"+dname.join(",") )
+			$notify("🤖 "+"["+subtag+"]"+" 复写 [rewrite] 过滤关键词为:","🚫 删除: "+paraout,"☠️ 主机名 hostname 中已删除以下"+dname.length+"个匹配项:"+"\n"+dname.join(",") )
 		}
 	}
 	if(nname.length==0){
-		$notify("🤖 您为 "+"["+subtag+"]"+" 添加的 [rewrite] 筛选关键词为:","✅ 保留: "+parain+",🚫 删除: "+paraout,"☠️ 主机名 hostname 中剩余项为 0️⃣, 请检查参数及原始链接" )
+		$notify("🤖 "+"["+subtag+"]"+" 复写 [rewrite] 筛选关键词为:","✅ 保留: "+parain+",🚫 删除: "+paraout,"☠️ 主机名 hostname 中剩余项为 0️⃣, 请检查参数及原始链接" )
 	}
 	return hname
 }
@@ -325,16 +325,16 @@ function Rule_Handle(subs,Pout,Pin){
 		} //else if cc
 		}//for cnt
 		var no=dlist.length
-		if(dlist.length>0){$notify("🤖 您为 "+"["+subtag+"]"+" 添加的分流 [filter] 筛选删除关键词为:","🚫 "+ Tout,"☠️ 已删除以下 "+no+"条匹配规则:"+"\n"+dlist.join("\n"))
-		}else{$notify("🤖 您为 "+"["+subtag+"]"+" 添加的 [filter] 筛选删除关键词为:","🚫 "+Tout,"☠️ 没有发现任何匹配项, , 请检查参数或原始链接")}
+		if(dlist.length>0){$notify("🤖 "+"["+subtag+"]"+" 分流 [filter] 筛选删除关键词为:","🚫 "+ Tout,"☠️ 已删除以下 "+no+"条匹配规则:"+"\n"+dlist.join("\n"))
+		}else{$notify("🤖  "+"["+subtag+"]"+" 分流 [filter] 筛选删除关键词为:","🚫 "+Tout,"☠️ 没有发现任何匹配项, , 请检查参数或原始链接")}
 		if(Tin!="" && Tin!=null){  //有 in 跟 out 参数时
 		if(nlist.length>0 ){
-			$notify("🤖 您为 "+"["+subtag+"]"+" 添加的分流 [filter] 筛选保留关键词为:","✅ "+Tin,"🎯 已保留以下 "+nlist.length+"条匹配规则:"+"\n"+nlist.join("\n"))
-		} else{$notify("🤖 您为 "+"["+subtag+"]"+" 添加的分流 [filter] 筛选关键词为:","✅ 保留:"+Tin+",🚫 删除:"+Tout,"☠️ 筛选后剩余规则数为 0️⃣ 条, 请检查参数及原始链接")
+			$notify("🤖  "+"["+subtag+"]"+" 分流 [filter] 筛选保留关键词为:","✅ "+Tin,"🎯 已保留以下 "+nlist.length+"条匹配规则:"+"\n"+nlist.join("\n"))
+		} else{$notify("🤖  "+"["+subtag+"]"+" 分流 [filter] 筛选关键词为:","✅ 保留:"+Tin+",🚫 删除:"+Tout,"☠️ 筛选后剩余规则数为 0️⃣ 条, 请检查参数及原始链接")
 	} 
 	} else {// if Tin (No Tin)
 		if(nlist.length==0 ){
-			$notify("🤖 您为 "+"["+subtag+"]"+" 添加的分流 [filter] 筛选删除关键词为:","🚫 "+Tout,"☠️ 筛选后剩余规则数为 0️⃣ 条, 请检查参数及原始链接")
+			$notify("🤖  "+"["+subtag+"]"+" 分流 [filter] 筛选删除关键词为:","🚫 "+Tout,"☠️ 筛选后剩余规则数为 0️⃣ 条, 请检查参数及原始链接")
 	}
 	} 
 	return nlist;
@@ -352,8 +352,8 @@ function Rule_Handle(subs,Pout,Pin){
 		}
 	} // for cnt
 	if(nlist.length>0){
-	$notify("🤖 您为 "+"["+subtag+"]"+" 添加的分流 [filter] 保留筛选关键词为:","✅ "+Tin,"🎯 已保留以下 "+nlist.length+"条匹配规则:"+"\n"+nlist.join("\n"))
-} else{$notify("🤖 您为 "+"["+subtag+"]"+" 添加的分流 [filter] 保留筛选关键词为:","✅ "+Tin,"☠️ 筛选后剩余规则数为 0️⃣ 条, 请检查参数及原始链接")}
+	$notify("🤖 "+"["+subtag+"]"+" 分流 [filter] 保留筛选关键词为:","✅ "+Tin,"🎯 已保留以下 "+nlist.length+"条匹配规则:"+"\n"+nlist.join("\n"))
+} else{$notify("🤖 "+"["+subtag+"]"+" 分流 [filter] 保留筛选关键词为:","✅ "+Tin,"☠️ 筛选后剩余规则数为 0️⃣ 条, 请检查参数及原始链接")}
 	return nlist;
 	} else {  //if Tin
 	return cnt.map(Rule_Policy)
@@ -470,28 +470,35 @@ function TagCheck_QX(content){
 	var Olist=content
 	var Nlist=[]
 	var nmlist=[]
+	var nulllist=[]; //记录空名字节点
+	var duplist=[];  //记录重名节点
+	var no=0;
 	for(i=0;i<Olist.length;i++){
 		var item=Olist[i]
 		var nm=item.split("tag")[1].split("=")[1].trim() // get tag
-		if(nm==""){
+		if(nm==""){ //空名字
 			nm=" ["+item.split("=")[0]+"] "+item.split("=")[1].split(",")[0].split(":")[0]
-			$notify("⚠️ "+"["+subtag+"]"+" 订阅内出现空节点名 ", "✅ 已自动将节点“类型+IP”作为节点名","✅ "+nm)
 			item=item.split("tag")[0]+"tag="+nm
+			nulllist.push(nm)
 		}
 		var ni=0
-		while(nmlist.indexOf(nm)!=-1){
+		while(nmlist.indexOf(nm)!=-1){ //重名
 			nm=ni<=10? nm.split(" ⌘")[0]+" ⌘"+emojino[ni]:nm.split(" ⌘")[0]+" ⌘"+ni
 			item=item.split("tag")[0]+"tag="+nm
 			ni=ni+1
-			}	
-		if(ni!=0){
-			$notify("⚠️ "+"["+subtag+"]"+" 订阅内出现重复节点名 ", "⚠️ "+ nm.split("")[0], "✅ 已自动添加⌘符号作为区分:"+nm)
 			}
+		if(ni!=0){ duplist.push(nm)}	
 		nmlist.push(nm)	
 		ni=0	
 		Nlist.push(item)
-		
-		}
+	} // for
+	//$notify(nulllist.length,)
+	if(nulllist.length>=1){
+		no= nulllist.length<=10? emojino[nulllist.length]:nulllist.length ;
+		$notify("⚠️ "+"["+subtag+"]"+" 订阅内出现"+no+"个空节点名 ", "✅ 已自动将节点“类型+IP”作为节点名",nulllist.join("\n"))}
+	if(duplist.length>=1){
+		no= duplist.length<=10? emojino[duplist.length]:duplist.length ;
+		$notify("⚠️ "+"["+subtag+"]"+" 订阅内出现"+no+"个重复节点名 ", "✅ 已自动添加⌘符号作为区分:", duplist.join("\n"))}
 	return Nlist
 }
 //http=example.com:443, username=name, password=pwd, over-tls=true, tls-host=example.com, tls-verification=true, tls13=true, fast-open=false, udp-relay=false, tag=http-tls-02
