@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-06-02: 14:59 )
+# Quantumult X 资源解析器 (2020-06-03: 11:59 )
 
 解析器作者: Shawn(请勿私聊问怎么用)
 有bug请反馈: @Shawn_KOP_bot
@@ -697,8 +697,8 @@ function SS2QX(subs,Pudp,Ptfo){
 	}
 	pwd="password="+pwdmtd[1];
 	mtd="method="+pwdmtd[0];
-	obfs= cnt.split("obfs%3D")[1]!=null ? ", obfs="+cnt.split("obfs%3D")[1].split("%3B")[0]+", ": "";
-	obfshost=cnt.split("obfs-host%3D")[1]!=null ? "obfs-host="+cnt.split("obfs-host%3D")[1].split("&")[0].split("#")[0]: "";
+	obfs= cnt.split("obfs%3D")[1]!=null ? ", obfs="+cnt.split("obfs%3D")[1].split("%3B")[0]: "";
+	obfshost=cnt.split("obfs-host%3D")[1]!=null ? ", obfs-host="+cnt.split("obfs-host%3D")[1].split("&")[0].split("#")[0]:"";
 	tag="tag="+decodeURIComponent(cnt.split("#")[1])
 	pudp= Pudp==1? "udp-relay=true":"udp-relay=false";
 	ptfo= Ptfo==1? "fast-open=true":"fast-open=false";
