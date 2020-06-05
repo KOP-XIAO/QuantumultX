@@ -1,5 +1,5 @@
 /** 
-# Quantumult X 资源解析器 (2020-06-03: 11:59 )
+# Quantumult X 资源解析器 (2020-06-05: 11:59 )
 
 解析器作者: Shawn(请勿私聊问怎么用)
 有bug请反馈: @Shawn_KOP_bot
