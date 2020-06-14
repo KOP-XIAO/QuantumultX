@@ -1,5 +1,5 @@
 /** 
-☑️ Quantumult X 资源解析器 © Shawn ~ ⟦2020-06-14: 10:59⟧
+☑️ Quantumult X 资源解析器 © Shawn ~ ⟦2020-06-14: 14:59⟧
 ----------------------------------------------------------
 🚫 有BUG请反馈: @Shawn_KOP_bot
 ⛳️ 关注tg频道: https://t.me/QuanX_API
@@ -36,7 +36,7 @@ B. rewrite(重写) /filter(分流) 转换筛选
 ⦿ 示范: 禁用某重写引用中的 淘宝比价 js 以及 weibo 的 js
 ⚠️ ☞  https://myrewrite.list#out=tb_price.js+wb_ad.js
 
----------------------------------------------------------------
+----------------------------------------------------------
  */
 
 
@@ -62,23 +62,27 @@ var para=(link0.indexOf("http")!=-1 && link0.indexOf("://")!=-1)?decodeURICompon
 var mark0=para.indexOf("#")!=-1? true:false;
 var type0=Type_Check(content0);
 //$notify(link0,"type",type0)
-var Pin0=mark0 && para.indexOf("in=")!=-1? para.split("#")[1].split("in=")[1].split("&")[0].split("+"):null;
-var Pout0=mark0 && para.indexOf("out=")!=-1? para.split("#")[1].split("out=")[1].split("&")[0].split("+"):null;
-var Pemoji=mark0 && para.indexOf("emoji=")!=-1? para.split("#")[1].split("emoji=")[1].split("&")[0].split("+"):null;
-var Pudp0=mark0 && para.indexOf("udp=")!=-1? para.split("#")[1].split("udp=")[1].split("&")[0].split("+"):0;
-var Ptfo0=mark0 && para.indexOf("tfo=")!=-1? para.split("#")[1].split("tfo=")[1].split("&")[0].split("+"):0;
-var Pinfo=mark0 && para.indexOf("info=")!=-1? para.split("#")[1].split("info=")[1].split("&")[0].split("+"):0;
-var Prname=mark0 && para.indexOf("rename=")!=-1? para.split("#")[1].split("rename=")[1].split("&")[0].split("+"):null;
-var Ppolicy=mark0 && para.indexOf("policy=")!=-1? para.split("#")[1].split("policy=")[1].split("&")[0].split("+"):"Shawn";
-var Pcert0=mark0 && para.indexOf("cert=")!=-1? para.split("#")[1].split("cert=")[1].split("&")[0].split("+"):1;
-var Psort0=mark0 && para.indexOf("sort=")!=-1? para.split("#")[1].split("sort=")[1].split("&")[0].split("+"):0;
-var PTls13=mark0 && para.indexOf("tls13=")!=-1? para.split("#")[1].split("tls13=")[1].split("&")[0].split("+"):0;
-var Pntf0= mark0 && para.indexOf("ntf=")!=-1? para.split("#")[1].split("ntf=")[1].split("&")[0].split("+"):0;
-var Pb64= mark0 && para.indexOf("b64=")!=-1? para.split("#")[1].split("b64=")[1].split("&")[0].split("+"):0;
+para1=para.slice(para.indexOf("#")) //防止参数中其它位置也存在"#"
+//$notify("para1","ss",para1)
+var Pin0=mark0 && para.indexOf("in=")!=-1? para1.split("#")[1].split("in=")[1].split("&")[0].split("+"):null;
+var Pout0=mark0 && para.indexOf("out=")!=-1? para1.split("#")[1].split("out=")[1].split("&")[0].split("+"):null;
+var Pemoji=mark0 && para.indexOf("emoji=")!=-1? para1.split("#")[1].split("emoji=")[1].split("&")[0].split("+"):null;
+var Pudp0=mark0 && para.indexOf("udp=")!=-1? para1.split("#")[1].split("udp=")[1].split("&")[0].split("+"):0;
+var Ptfo0=mark0 && para.indexOf("tfo=")!=-1? para1.split("#")[1].split("tfo=")[1].split("&")[0].split("+"):0;
+var Pinfo=mark0 && para.indexOf("info=")!=-1? para1.split("#")[1].split("info=")[1].split("&")[0].split("+"):0;
+var Prname=mark0 && para.indexOf("rename=")!=-1? para1.split("#")[1].split("rename=")[1].split("&")[0].split("+"):null;
+var Ppolicy=mark0 && para.indexOf("policy=")!=-1? para1.split("#")[1].split("policy=")[1].split("&")[0].split("+"):"Shawn";
+var Pcert0=mark0 && para.indexOf("cert=")!=-1? para1.split("#")[1].split("cert=")[1].split("&")[0].split("+"):1;
+var Psort0=mark0 && para.indexOf("sort=")!=-1? para1.split("#")[1].split("sort=")[1].split("&")[0].split("+"):0;
+var PTls13=mark0 && para.indexOf("tls13=")!=-1? para1.split("#")[1].split("tls13=")[1].split("&")[0].split("+"):0;
+var Pntf0= mark0 && para.indexOf("ntf=")!=-1? para1.split("#")[1].split("ntf=")[1].split("&")[0].split("+"):0;
+var Pb64= mark0 && para.indexOf("b64=")!=-1? para1.split("#")[1].split("b64=")[1].split("&")[0].split("+"):0;
 var emojino=[" 0️⃣ "," 1⃣️ "," 2⃣️ "," 3⃣️ "," 4⃣️ "," 5⃣️ "," 6⃣️ "," 7⃣️ "," 8⃣️ "," 9⃣️ "," 🔟 "]
 const subinfo=$resource.info;
 const subtag=$resource.tag!=undefined? $resource.tag:"";
 const Base64=new Base64Code();
+const escapeRegExp = str => str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'); //正则匹配使用
+
 //$notify(link0,type0,content0)
 
 //响应头流量处理部分
@@ -488,7 +492,7 @@ function TagCheck_QX(content){
 		var item=Olist[i]
 		var nl=item.slice(item.indexOf("tag"))
 		//$notify(nl)
-		var nm=nl.slice(nl.indexOf("="))
+		var nm=nl.slice(nl.indexOf("=")+1)
 		//nl<3? item.split("tag")[1].split("=")[1].trim():item.split("tag")[1].split("=")[1].trim() // get tag
 		//$notify(nm)
 		if(nm==""){ //空名字
@@ -775,7 +779,8 @@ function Rename(str){
 			nname=Prn[i].split("@")[1];
 			oname=Prn[i].split("@")[0];
 			if(oname&&nname){
-				name=name.replace(new RegExp("\\"+oname,"gm"),nname)
+				var rn=escapeRegExp(oname)
+				name=name.replace(new RegExp(oname,"gm"),nname)
 //				while(name.indexOf(oname)!=-1){
 //					name=name.replace(oname,nname)
 //				}
@@ -787,7 +792,9 @@ function Rename(str){
 				}else if(nname){//后缀
 					name=name+nname
 				}else if(oname && oname.indexOf("☠️")!=-1){ //删除特定字符
-					var del=new RegExp("\\"+oname.split("☠️")[0],"gm");
+				//$notify(oname)
+				var nn=escapeRegExp(oname.split("☠️")[0])
+					var del=new RegExp(nn,"gm");
 					name=name.replace(del,"")
 				}else(name=name)	
 			nserver=hd+"tag="+name
