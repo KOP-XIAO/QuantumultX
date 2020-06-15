@@ -1,39 +1,38 @@
 /** 
-☑️ Quantumult X 资源解析器 © Shawn ~ ⟦2020-06-14: 14:59⟧
+☑️ 资源解析器 © Shawn ~ ⟦2020-06-15: 12:59⟧
 ----------------------------------------------------------
-🚫 有BUG请反馈: @Shawn_KOP_bot
-⛳️ 关注tg频道: https://t.me/QuanX_API
+🚫 发现BUG请反馈: @Shawn_KOP_bot
+⛳️ 关注tg相关频道: https://t.me/QuanX_API
 
 🤖 主要功能: 
-A. 将各类服务器订阅解析成 Quantumult X 格式
+A. 将各格式服务器订阅解析成 Quantumult X 格式引用
 ✔︎ 支持 V2RayN/SSR/SS/Trojan/QuanX/Surge/https 订阅
 ✔︎ 提供说明 1⃣️ 中的可选个性化参数
-B. rewrite(重写) /filter(分流) 转换筛选 
+B. rewrite(重写) /filter(分流) 的转换&筛选 
 ✔︎ 用于禁用远程引用中某(几)项 rewrite/hostname/filter
-✔︎ Surge 类型规则 list（不含策略组）的解析与使用
+✔︎ Surge 类型规则 list(不含策略组)的解析与使用
 ----------------------------------------------------------
-0️⃣ 原始订阅链接后加 "#" , 不同参数用 "&" 连接: 
-❖☞ https://mysub.com#in=香港+台湾&emoji=1&tfo=1
-⚠️ 本地资源引用, 请将参数 "#in=xxx.." 填入资源文件第一行
+0️⃣ ⟦原始订阅链接⟧ 后加 "#" , 不同参数用 "&" 连接: 
+⚠️ ☞ https://mysub.com#in=香港+台湾&emoji=1&tfo=1
+❖ 本地资源引用, 请将参数 "#in=xxx.." 填入资源文件第一行 ❖
 
-1️⃣ "节点" 订阅 ➠ 参数说明:
-⦿ info=1, 开启通知提示机场 ✈️ 流量信息（如有）;
-⦿ emoji=1,2 或 -1, 为添加/删除节点名中的地区 emoji 旗帜 
+1️⃣ ⟦server 节点⟧ 订阅 ➠ 参数说明:
+⦿ info=1, 开启通知提示机场 ✈️ 流量信息(如有提供);
+⦿ emoji=1,2 或 -1, 为添加/删除节点名中的地区 emoji 旗帜;
     - 国行设备请用 emoji=2
-⦿ udp=1, tfo=1, tls13=1, 分别开启 udp-relay/fast-open/tls13;
-    - 此参数对源类型为 QuanX/Surge 的链接无效
+⦿ udp=1, tfo=1, tls13=1, 分别开启 udp-relay/fast-open/tls1.3;
 ⦿ cert=0, 强制"tls-verification=false" 跳过证书验证;
-    - 延迟测试只有第一个数据时, 可尝试此参数
-⦿ in, out, 分别为 保留/删除 节点, 多参数用 "+" 连接(逻辑"或"), 逻辑"与"用 "." 连接, 可直接用中文, 空格用"%20"代替;
+⦿ in, out, 分别为 保留/删除 节点, 多参数用 "+" 连接(逻辑"或"), 逻辑"与"用 "." 连接;
+    - 可直接用中文, 空格用 "%20" 代替
     - 如 "in=香港.IPLC.04+台湾&out=香港%20BGP"
 ⦿ rename 重命名、删除字段, "旧名@新名", "删除字段☠️", 以及 "前缀@", "@后缀",用 "+" 连接多个参数;
     - 如 "rename=香港@HK+[SS]@+@[1X]+倍率☠️"
 ⦿ sort=1, -1, 排序参数, 分别根据节点名 正序/逆序 排列;
 
-2⃣️ "rewrite(重写)/filter(分流)" 引用 ➠ 参数说明:
-⦿ in, out, 根据关键词 保留/禁用 相关的规则、重写，多个参数用 "+" 连接;
-⦿ 分流规则额外支持 "policy=xxx" 参数, 可用于直接指定策略组，或为 Surge 格式的 rule-set 生成策略组(默认"Shawn"策略组);
-⦿ 示范: 禁用某重写引用中的 淘宝比价 js 以及 weibo 的 js
+2⃣️ ⟦rewrite 重写⟧/⟦filter 分流⟧ 引用 ➠ 参数说明:
+⦿ in, out, 根据关键词 保留/禁用 相关的规则、重写;
+⦿ 分流规则另有 "policy=xxx" 参数, 可用于直接指定策略组，或为 Surge 类型 rule-set 生成策略组(默认"Shawn"策略组);
+⦿ 示范: 禁用某重写引用中的 "淘宝比价 js" 以及 "weibo 的 js"
 ⚠️ ☞  https://myrewrite.list#out=tb_price.js+wb_ad.js
 
 ----------------------------------------------------------
@@ -780,7 +779,7 @@ function Rename(str){
 			oname=Prn[i].split("@")[0];
 			if(oname&&nname){
 				var rn=escapeRegExp(oname)
-				name=name.replace(new RegExp(oname,"gm"),nname)
+				name=name.replace(new RegExp(rn,"gm"),nname)
 //				while(name.indexOf(oname)!=-1){
 //					name=name.replace(oname,nname)
 //				}
