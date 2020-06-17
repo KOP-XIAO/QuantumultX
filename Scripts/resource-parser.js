@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧 ⟦2020-06-17 13:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧 ⟦2020-06-17 22:40⟧
 ----------------------------------------------------------
 🚫 发现𝐁𝐔𝐆请反馈: @Shawn_KOP_bot
 ⛳️ 关注tg相关频道: https://t.me/QuanX_API
@@ -7,7 +7,7 @@
 
 🤖 主要功能: 
 A. 将各格式服务器订阅解析成 𝐐𝐮𝐚𝐧𝐭𝐮𝐦𝐮𝐥𝐭 𝐗 格式引用
-✔︎ 支持 V2RayN/SSR/SS/Trojan/QuanX/Surge/https 订阅
+✔︎ 支持 V2RayN/SSR/SS/SSD/Trojan/QuanX/Surge/https 订阅
 ✔︎ 提供说明 1⃣️ 中的可选个性化参数
 B. rewrite(重写) /filter(分流) 的转换&筛选 
 ✔︎ 用于禁用远程引用中某(几)项 rewrite/hostname/filter
@@ -178,9 +178,9 @@ function Type_Check(subs){
 	var RuleK=["host","domain","ip-cidr","geoip","user-agent","ip6-cidr"];
 	var QuanXK=["shadowsocks=","trojan=","vmess=","http="];
 	var SurgeK=["=ss,","=vmess,","=trojan,","=http,","=custom,","=https,"];
-	var SubK=["dm1lc3M6Ly","c3NyOi8v","dHJvamFu","c3M6Ly"];
+	var SubK=["dm1lc3M6Ly","c3NyOi8v","dHJvamFu","c3M6Ly","c3NkOi8v"];
 	var RewriteK=[" url "]
-	var SubK2=["ss://","vmess://","ssr://","trojan://"];
+	var SubK2=["ss://","vmess://","ssr://","trojan://","ssd://"];
 	var html="DOCTYPE html"
 	var subi=subs.replace(/ /g,"")
 	const RuleCheck = (item) => subs.toLowerCase().indexOf(item)!=-1;
@@ -463,6 +463,8 @@ function Subs2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 			node= SSR2QX(list0[i],Pudp,Ptfo)
 		}else if(type=="ss"){
 			node = SS2QX(list0[i],Pudp,Ptfo)
+		}else if(type=="ssd"){
+			node = SSD2QX(list0[i],Pudp,Ptfo)
 		}else if(type=="trojan"){
 			node = TJ2QX(list0[i],Pudp,Ptfo,Pcert,Ptls13)
 		}else if(type=="https"){
@@ -472,8 +474,13 @@ function Subs2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 		}else if(SurgeK.some(SurgeCheck)){
 			node = Surge2QX(list0[i])
 		}
-		if(node!=""){
-	QXlist.push(node)}
+		if (node instanceof Array){
+		    for (var j in node) {
+		        QXlist.push(node[j])
+		    }
+		}else if(node!=""){
+	        QXlist.push(node)
+	    }
 	}
 	}
 	//$notify("final", "list", QXlist)
@@ -726,6 +733,32 @@ function SS2QX(subs,Pudp,Ptfo){
 	return QX;
 	//console.log(QX)
 }
+}
+
+//SSD 类型 URI 转换 quanx 格式
+function SSD2QX(subs,Pudp,Ptfo){
+    var j=0
+	var QX=[]
+    var cnt=JSON.parse(Base64.decode(subs.split("ssd://")[1]))
+	//$notify("SSD转换 ing","SSD",cnt)	
+	type="shadowsocks=";
+    pwd="password="+cnt.password;
+	mtd="method="+cnt.encryption;
+	obfs=cnt.plugin_options.split(";")[0]!=null ? ", "+cnt.plugin_options.split(";")[0]: "";
+	obfshost=cnt.plugin_options.split(";")[1]!=null ? ", "+cnt.plugin_options.split(";")[1]: "";
+	pudp= Pudp==1? "udp-relay=true":"udp-relay=false";
+	ptfo= Ptfo==1? "fast-open=true":"fast-open=false";
+	for (var i in cnt.servers) {
+        ip=cnt.servers[i].server;
+        if(ip.indexOf(".")>0){ //排除难搞的 ipv6 节点
+            port=":"+cnt.servers[i].port;
+            tag="tag="+cnt.servers[i].remarks;
+            QX[j]=type+ip+port+", "+pwd+", "+mtd+obfs+obfshost+", "+pudp+", "+ptfo+", "+tag;
+            var j=j+1;
+        }
+    }
+	return QX;
+	//console.log(QX)
 }
 
 // 用于过滤非节点部分（比如整份配置中其它内容）
