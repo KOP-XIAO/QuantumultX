@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧 ⟦2020-06-17 23:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧 ⟦2020-06-18 00:59⟧
 ----------------------------------------------------------
 🚫 发现𝐁𝐔𝐆请反馈: @Shawn_KOP_bot
 ⛳️ 关注tg相关频道: https://t.me/QuanX_API
@@ -754,7 +754,7 @@ function SSD2QX(subs,Pudp,Ptfo){
 	ptfo= Ptfo==1? "fast-open=true":"fast-open=false";
 	for (var i in cnt.servers) {
         ip=cnt.servers[i].server;
-		if(obfs=""){
+		if(obfs==""){
 			obfs=cnt.servers[i].plugin_options.split(";")[0]!=null ? ", "+cnt.plugin_options.split(";")[0]: "";
 			obfshost=cnt.servers[i].plugin_options.split(";")[1]!=null ? ", "+cnt.plugin_options.split(";")[1]: "";
 		}
@@ -765,6 +765,7 @@ function SSD2QX(subs,Pudp,Ptfo){
             var j=j+1;
         }
     }
+	//$notify("QX","tst",QX)
 	return QX;
 	//console.log(QX)
 }
