@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧 ⟦2020-06-16 11:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧 ⟦2020-06-17 13:59⟧
 ----------------------------------------------------------
 🚫 发现𝐁𝐔𝐆请反馈: @Shawn_KOP_bot
 ⛳️ 关注tg相关频道: https://t.me/QuanX_API
@@ -26,7 +26,7 @@ B. rewrite(重写) /filter(分流) 的转换&筛选
 ⦿ in, out, 分别为 保留/删除 节点, 多参数用 "+" 连接(逻辑"或"), 逻辑"与"用 "." 连接;
   ∎ 可直接用中文, 空格用 "%20" 代替
   ∎ 如 "in=香港.IPLC.04+台湾&out=香港%20BGP"
-⦿ rename 重命名、删除字段, "旧名@新名", "删除字段☠️", 以及 "前缀@", "@后缀",用 "+" 连接多个参数;
+⦿ rename 重命名、删除字段, "旧名@新名", "删除字段1.删除字段2☠️", 以及 "前缀@", "@后缀",用 "+" 连接多个参数;
   ∎ 如 "rename=香港@HK+[SS]@+@[1X]+倍率☠️"
 ⦿ sort=1, -1, 排序参数, 分别根据节点名 正序/逆序 排列;
 
@@ -781,9 +781,6 @@ function Rename(str){
 			if(oname&&nname){
 				var rn=escapeRegExp(oname)
 				name=name.replace(new RegExp(rn,"gm"),nname)
-//				while(name.indexOf(oname)!=-1){
-//					name=name.replace(oname,nname)
-//				}
 				}else if(oname && oname.indexOf("☠️")==-1){//前缀
 					var nemoji=emoji_del(name)
 						if(Pemoji==1 || Pemoji==2){
@@ -791,11 +788,13 @@ function Rename(str){
 					}else { name=oname+name}
 				}else if(nname){//后缀
 					name=name+nname
-				}else if(oname && oname.indexOf("☠️")!=-1){ //删除特定字符
-				//$notify(oname)
-				var nn=escapeRegExp(oname.split("☠️")[0])
-					var del=new RegExp(nn,"gm");
-					name=name.replace(del,"")
+				}else if(oname && oname.indexOf("☠️")!=-1){ //删除特定字符，多字符用.连接
+					hh=oname.split("☠️")[0].split(".")
+					for(j=0;j<hh.length;j++){
+						var nn=escapeRegExp(hh[j])
+						var del=new RegExp(nn,"gm");
+						name=name.replace(del,"")
+					}
 				}else(name=name)	
 			nserver=hd+"tag="+name
 		}
