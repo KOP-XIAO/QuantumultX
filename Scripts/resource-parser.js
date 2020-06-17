@@ -1,9 +1,9 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧 ⟦2020-06-17 22:40⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧 ⟦2020-06-17 23:59⟧
 ----------------------------------------------------------
 🚫 发现𝐁𝐔𝐆请反馈: @Shawn_KOP_bot
 ⛳️ 关注tg相关频道: https://t.me/QuanX_API
-🗣 🆃🄷🄰🄽🄺🅂 🆃🄾 @Jamie CHIEN, @M**F**
+🗣 🆃🄷🄰🄽🄺🅂 🆃🄾  @Jamie CHIEN, @M**F**, @c0lada
 
 🤖 主要功能: 
 A. 将各格式服务器订阅解析成 𝐐𝐮𝐚𝐧𝐭𝐮𝐦𝐮𝐥𝐭 𝐗 格式引用
@@ -739,19 +739,27 @@ function SS2QX(subs,Pudp,Ptfo){
 function SSD2QX(subs,Pudp,Ptfo){
     var j=0
 	var QX=[]
-    var cnt=JSON.parse(Base64.decode(subs.split("ssd://")[1]))
-	//$notify("SSD转换 ing","SSD",cnt)	
-	type="shadowsocks=";
-    pwd="password="+cnt.password;
-	mtd="method="+cnt.encryption;
-	obfs=cnt.plugin_options.split(";")[0]!=null ? ", "+cnt.plugin_options.split(";")[0]: "";
-	obfshost=cnt.plugin_options.split(";")[1]!=null ? ", "+cnt.plugin_options.split(";")[1]: "";
+    var cnt=JSON.parse(Base64.decode(subs.split("ssd://")[1]))	
+	var type="shadowsocks=";
+    var pwd="password="+cnt.password;
+	var mtd="method="+cnt.encryption;
+	var obfs=""
+	var obfshost=""
+	var port=cnt.port? ":"+cnt.port:""
+	if(cnt.plugin_options){
+		obfs=cnt.plugin_options.split(";")[0]!=null ? ", "+cnt.plugin_options.split(";")[0]: "";
+		obfshost=cnt.plugin_options.split(";")[1]!=null ? ", "+cnt.plugin_options.split(";")[1]: "";
+	}
 	pudp= Pudp==1? "udp-relay=true":"udp-relay=false";
 	ptfo= Ptfo==1? "fast-open=true":"fast-open=false";
 	for (var i in cnt.servers) {
         ip=cnt.servers[i].server;
+		if(obfs=""){
+			obfs=cnt.servers[i].plugin_options.split(";")[0]!=null ? ", "+cnt.plugin_options.split(";")[0]: "";
+			obfshost=cnt.servers[i].plugin_options.split(";")[1]!=null ? ", "+cnt.plugin_options.split(";")[1]: "";
+		}
         if(ip.indexOf(".")>0){ //排除难搞的 ipv6 节点
-            port=":"+cnt.servers[i].port;
+            port=cnt.servers[i].port?":"+cnt.servers[i].port:port;
             tag="tag="+cnt.servers[i].remarks;
             QX[j]=type+ip+port+", "+pwd+", "+mtd+obfs+obfshost+", "+pudp+", "+ptfo+", "+tag;
             var j=j+1;
