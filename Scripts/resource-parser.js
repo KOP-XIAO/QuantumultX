@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧 ⟦2020-06-18 13:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧 ⟦2020-06-18 14:59⟧
 ----------------------------------------------------------
 🚫 发现𝐁𝐔𝐆请反馈: @Shawn_KOP_bot
 ⛳️ 关注🆃🅶相关频道: https://t.me/QuanX_API
@@ -24,7 +24,7 @@ B. rewrite(重写) /filter(分流) 的转换&筛选
 ⦿ udp=1, tfo=1, tls13=1, 分别开启 udp-relay/fast-open/tls1.3;
 ⦿ cert=0, 强制"tls-verification=false" 跳过证书验证;
 ⦿ in, out, 分别为 保留/删除 节点, 多参数用 "+" 连接(逻辑"或"), 逻辑"与"用 "." 连接;
-  ♦︎ 可直接用中文, 空格用 "%20" 代替
+  ♦︎ 直接用中文, 空格用 "%20" 代替, "&" 用 "%26" 替代
   ♦︎ 如 "in=香港.IPLC.04+台湾&out=香港%20BGP"
 ⦿ rename 重命名、删除字段, "旧名@新名", "删除字段1.删除字段2☠️", 以及 "前缀@", "@后缀",用 "+" 连接多个参数;
   ♦︎ 如 "rename=香港@HK+[SS]@+@[1X]+倍率☠️"
@@ -59,10 +59,10 @@ PS. 隐藏参数 ntf=1, 用于打开资源解析器的操作提示通知 (默认
 var content0=$resource.content;
 var link0=$resource.link;
 //$notify(link0,"tt",content0)
-var para=(link0.indexOf("http")!=-1 && link0.indexOf("://")!=-1)?decodeURIComponent(link0):content0.split("\n")[0];
+var para=(link0.indexOf("http")!=-1 && link0.indexOf("://")!=-1)? link0:content0.split("\n")[0];
 var mark0=para.indexOf("#")!=-1? true:false;
 var type0=Type_Check(content0);
-//$notify(link0,"type",type0)
+//$notify(link0,"type",para)
 para1=para.slice(para.indexOf("#")+1) //防止参数中其它位置也存在"#"
 //$notify("para1","ss",para1)
 var Pin0=mark0 && para.indexOf("in=")!=-1? para1.split("in=")[1].split("&")[0].split("+"):null;
@@ -71,7 +71,7 @@ var Pemoji=mark0 && para.indexOf("emoji=")!=-1? para1.split("emoji=")[1].split("
 var Pudp0=mark0 && para.indexOf("udp=")!=-1? para1.split("udp=")[1].split("&")[0].split("+"):0;
 var Ptfo0=mark0 && para.indexOf("tfo=")!=-1? para1.split("tfo=")[1].split("&")[0].split("+"):0;
 var Pinfo=mark0 && para.indexOf("info=")!=-1? para1.split("info=")[1].split("&")[0].split("+"):0;
-var Prname=mark0 && para.indexOf("rename=")!=-1? para1.split("rename=")[1].split("&")[0].split("+"):null;
+var Prname=mark0 && para.indexOf("rename=")!=-1? decodeURIComponent(para1.split("rename=")[1].split("&")[0]).split("+"):null;
 var Ppolicy=mark0 && para.indexOf("policy=")!=-1? para1.split("policy=")[1].split("&")[0].split("+"):"Shawn";
 var Pcert0=mark0 && para.indexOf("cert=")!=-1? para1.split("cert=")[1].split("&")[0].split("+"):1;
 var Psort0=mark0 && para.indexOf("sort=")!=-1? para1.split("sort=")[1].split("&")[0].split("+"):0;
