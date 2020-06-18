@@ -1,8 +1,8 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧 ⟦2020-06-18 00:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧 ⟦2020-06-18 13:59⟧
 ----------------------------------------------------------
 🚫 发现𝐁𝐔𝐆请反馈: @Shawn_KOP_bot
-⛳️ 关注tg相关频道: https://t.me/QuanX_API
+⛳️ 关注🆃🅶相关频道: https://t.me/QuanX_API
 🗣 🆃🄷🄰🄽🄺🅂 🆃🄾  @Jamie CHIEN, @M**F**, @c0lada
 
 🤖 主要功能: 
@@ -20,14 +20,15 @@ B. rewrite(重写) /filter(分流) 的转换&筛选
 1️⃣ ⟦server 节点⟧ ➠ 参数说明:
 ⦿ info=1, 开启通知提示机场 ✈️ 流量信息(如有提供);
 ⦿ emoji=1,2 或 -1, 为添加/删除节点名中的地区 emoji 旗帜;
-  ∎ 国行设备请用 emoji=2
+  ♦︎ 国行设备请用 emoji=2
 ⦿ udp=1, tfo=1, tls13=1, 分别开启 udp-relay/fast-open/tls1.3;
 ⦿ cert=0, 强制"tls-verification=false" 跳过证书验证;
 ⦿ in, out, 分别为 保留/删除 节点, 多参数用 "+" 连接(逻辑"或"), 逻辑"与"用 "." 连接;
-  ∎ 可直接用中文, 空格用 "%20" 代替
-  ∎ 如 "in=香港.IPLC.04+台湾&out=香港%20BGP"
+  ♦︎ 可直接用中文, 空格用 "%20" 代替
+  ♦︎ 如 "in=香港.IPLC.04+台湾&out=香港%20BGP"
 ⦿ rename 重命名、删除字段, "旧名@新名", "删除字段1.删除字段2☠️", 以及 "前缀@", "@后缀",用 "+" 连接多个参数;
-  ∎ 如 "rename=香港@HK+[SS]@+@[1X]+倍率☠️"
+  ♦︎ 如 "rename=香港@HK+[SS]@+@[1X]+倍率☠️"
+  ♦︎ rename=@ 可用于删除 “@” 符号本身
 ⦿ sort=1, -1, 排序参数, 分别根据节点名 正序/逆序 排列;
 
 2⃣️ ⟦rewrite 重写⟧/⟦filter 分流⟧ ➠ 参数说明:
@@ -62,26 +63,28 @@ var para=(link0.indexOf("http")!=-1 && link0.indexOf("://")!=-1)?decodeURICompon
 var mark0=para.indexOf("#")!=-1? true:false;
 var type0=Type_Check(content0);
 //$notify(link0,"type",type0)
-para1=para.slice(para.indexOf("#")) //防止参数中其它位置也存在"#"
+para1=para.slice(para.indexOf("#")+1) //防止参数中其它位置也存在"#"
 //$notify("para1","ss",para1)
-var Pin0=mark0 && para.indexOf("in=")!=-1? para1.split("#")[1].split("in=")[1].split("&")[0].split("+"):null;
-var Pout0=mark0 && para.indexOf("out=")!=-1? para1.split("#")[1].split("out=")[1].split("&")[0].split("+"):null;
-var Pemoji=mark0 && para.indexOf("emoji=")!=-1? para1.split("#")[1].split("emoji=")[1].split("&")[0].split("+"):null;
-var Pudp0=mark0 && para.indexOf("udp=")!=-1? para1.split("#")[1].split("udp=")[1].split("&")[0].split("+"):0;
-var Ptfo0=mark0 && para.indexOf("tfo=")!=-1? para1.split("#")[1].split("tfo=")[1].split("&")[0].split("+"):0;
-var Pinfo=mark0 && para.indexOf("info=")!=-1? para1.split("#")[1].split("info=")[1].split("&")[0].split("+"):0;
-var Prname=mark0 && para.indexOf("rename=")!=-1? para1.split("#")[1].split("rename=")[1].split("&")[0].split("+"):null;
-var Ppolicy=mark0 && para.indexOf("policy=")!=-1? para1.split("#")[1].split("policy=")[1].split("&")[0].split("+"):"Shawn";
-var Pcert0=mark0 && para.indexOf("cert=")!=-1? para1.split("#")[1].split("cert=")[1].split("&")[0].split("+"):1;
-var Psort0=mark0 && para.indexOf("sort=")!=-1? para1.split("#")[1].split("sort=")[1].split("&")[0].split("+"):0;
-var PTls13=mark0 && para.indexOf("tls13=")!=-1? para1.split("#")[1].split("tls13=")[1].split("&")[0].split("+"):0;
-var Pntf0= mark0 && para.indexOf("ntf=")!=-1? para1.split("#")[1].split("ntf=")[1].split("&")[0].split("+"):0;
-var Pb64= mark0 && para.indexOf("b64=")!=-1? para1.split("#")[1].split("b64=")[1].split("&")[0].split("+"):0;
+var Pin0=mark0 && para.indexOf("in=")!=-1? para1.split("in=")[1].split("&")[0].split("+"):null;
+var Pout0=mark0 && para.indexOf("out=")!=-1? para1.split("out=")[1].split("&")[0].split("+"):null;
+var Pemoji=mark0 && para.indexOf("emoji=")!=-1? para1.split("emoji=")[1].split("&")[0].split("+"):null;
+var Pudp0=mark0 && para.indexOf("udp=")!=-1? para1.split("udp=")[1].split("&")[0].split("+"):0;
+var Ptfo0=mark0 && para.indexOf("tfo=")!=-1? para1.split("tfo=")[1].split("&")[0].split("+"):0;
+var Pinfo=mark0 && para.indexOf("info=")!=-1? para1.split("info=")[1].split("&")[0].split("+"):0;
+var Prname=mark0 && para.indexOf("rename=")!=-1? para1.split("rename=")[1].split("&")[0].split("+"):null;
+var Ppolicy=mark0 && para.indexOf("policy=")!=-1? para1.split("policy=")[1].split("&")[0].split("+"):"Shawn";
+var Pcert0=mark0 && para.indexOf("cert=")!=-1? para1.split("cert=")[1].split("&")[0].split("+"):1;
+var Psort0=mark0 && para.indexOf("sort=")!=-1? para1.split("sort=")[1].split("&")[0].split("+"):0;
+var PTls13=mark0 && para.indexOf("tls13=")!=-1? para1.split("tls13=")[1].split("&")[0].split("+"):0;
+var Pntf0= mark0 && para.indexOf("ntf=")!=-1? para1.split("ntf=")[1].split("&")[0].split("+"):0;
+var Pb64= mark0 && para.indexOf("b64=")!=-1? para1.split("b64=")[1].split("&")[0].split("+"):0;
 var emojino=[" 0️⃣ "," 1⃣️ "," 2⃣️ "," 3⃣️ "," 4⃣️ "," 5⃣️ "," 6⃣️ "," 7⃣️ "," 8⃣️ "," 9⃣️ "," 🔟 "]
 const subinfo=$resource.info;
 const subtag=$resource.tag!=undefined? $resource.tag:"";
 const Base64=new Base64Code();
 const escapeRegExp = str => str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'); //处理特殊符号以便正则匹配使用
+var tg_link0 = {"open-url" :  "https://t.me/QuanX_API", "media-url" :"https://static-movie.a.88cdn.com/e8a669a19614546a86270d246dc37475?imageView2/2/w/1081/q/85/interlace/1/format/gif"};
+//https://raw.githubusercontent.com/crossutility/Quantumult-X/master/quantumult-x.png
 
 //$notify(link0,type0,content0)
 
@@ -101,7 +104,7 @@ if(Pinfo==1 && subinfo){
 			epr=""; //"过期时间: ✈️ 未提供該信息" //没过期时间的显示订阅链接
 		}
 	var message=total+"\n"+usd+", "+left;
-	$notify("流量信息: "+subtag, epr, message)
+	$notify("流量信息: "+subtag, epr, message,tg_link0)
 }
 
 if(type0=="Subs-B64Encode"){
@@ -820,23 +823,25 @@ function Rename(str){
 		for(i=0;i<Prn.length;i++){
 			nname=Prn[i].split("@")[1];
 			oname=Prn[i].split("@")[0];
-			if(oname&&nname){
+			if(oname&&nname){ //重命名
 				var rn=escapeRegExp(oname)
 				name=name.replace(new RegExp(rn,"gm"),nname)
-				}else if(oname && oname.indexOf("☠️")==-1){//前缀
+				}else if(oname && nname==""){//前缀
 					var nemoji=emoji_del(name)
-						if(Pemoji==1 || Pemoji==2){
+						if(Pemoji==1 || Pemoji==2){ //判断是否有重复 emoji，有则删除旧有
 						name=name.replace(name.split(" ")[0]+" ",name.split(" ")[0]+" "+oname)
 					}else { name=oname+name}
-				}else if(nname){//后缀
-					name=name+nname
+				}else if(nname && oname==""){//后缀
+					name= name+nname
 				}else if(oname && oname.indexOf("☠️")!=-1){ //删除特定字符，多字符用.连接
-					hh=oname.split("☠️")[0].split(".")
+					hh=oname.slice(0,oname.length-2).split(".")
 					for(j=0;j<hh.length;j++){
 						var nn=escapeRegExp(hh[j])
 						var del=new RegExp(nn,"gm");
 						name=name.replace(del,"")
 					}
+				}else if(oname=="" && nname==""){ //删除@符号
+					name=name.replace(/@/g,"")
 				}else(name=name)	
 			nserver=hd+"tag="+name
 		}
