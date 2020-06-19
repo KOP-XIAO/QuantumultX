@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧 ⟦2020-06-19 12:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧 ⟦2020-06-19 13:35⟧
 ----------------------------------------------------------
 🚫 发现𝐁𝐔𝐆请反馈: @Shawn_KOP_bot
 ⛳️ 关注🆃🅶相关频道: https://t.me/QuanX_API
@@ -25,7 +25,7 @@ B. rewrite(重写) /filter(分流) 的转换&筛选
 ⦿ cert=0, 强制"tls-verification=false" 跳过证书验证;
 ⦿ in, out, 分别为 保留/删除 节点, 多参数用 "+" 连接(逻辑"或"), 逻辑"与"用 "." 连接;
     ♦︎ 可直接用中文, 特殊字符请 urlencode 替代，如
-        ❖ "@"☞"%40", "+"☞"%2B",空格☞ "%20", "&"☞"%26"
+        ❖ "@"☞"%40", "+"☞"%2B", 空格☞"%20", "&"☞"%26"
     ♦︎ 如 "in=香港.IPLC.04+台湾&out=香港%20BGP"
 ⦿ rename 重命名、删除字段, "旧名@新名", "删除字段1.删除字段2☠️", 以及 "前缀@", "@后缀",用 "+" 连接多个参数;
     ♦︎ 如 "rename=香港@HK+[SS]@+@[1X]+倍率☠️"
@@ -65,14 +65,14 @@ var type0=Type_Check(content0);
 //$notify(link0,"type",para)
 para1=para.slice(para.indexOf("#")+1) //防止参数中其它位置也存在"#"
 //$notify("para1","ss",para1)
-var Pin0=mark0 && para.indexOf("in=")!=-1? para1.split("in=")[1].split("&")[0].split("+"):null;
-var Pout0=mark0 && para.indexOf("out=")!=-1? para1.split("out=")[1].split("&")[0].split("+"):null;
+var Pin0=mark0 && para.indexOf("in=")!=-1? decodeURIComponent(para1.split("in=")[1].split("&")[0]).split("+"):null;
+var Pout0=mark0 && para.indexOf("out=")!=-1? decodeURIComponent(para1.split("out=")[1].split("&")[0]).split("+"):null;
 var Pemoji=mark0 && para.indexOf("emoji=")!=-1? para1.split("emoji=")[1].split("&")[0].split("+"):null;
 var Pudp0=mark0 && para.indexOf("udp=")!=-1? para1.split("udp=")[1].split("&")[0].split("+"):0;
 var Ptfo0=mark0 && para.indexOf("tfo=")!=-1? para1.split("tfo=")[1].split("&")[0].split("+"):0;
 var Pinfo=mark0 && para.indexOf("info=")!=-1? para1.split("info=")[1].split("&")[0].split("+"):0;
-var Prname=mark0 && para.indexOf("rename=")!=-1? para1.split("rename=")[1].split("&")[0].split("+"):null;
-var Prrname=mark0 && para.indexOf("rrname=")!=-1? para1.split("rrname=")[1].split("&")[0].split("+"):null;
+var Prname=mark0 && para.indexOf("rename=")!=-1? decodeURIComponent(para1.split("rename=")[1].split("&")[0]).split("+"):null;
+var Prrname=mark0 && para.indexOf("rrname=")!=-1? decodeURIComponent(para1.split("rrname=")[1].split("&")[0]).split("+"):null;
 var Ppolicy=mark0 && para.indexOf("policy=")!=-1? para1.split("policy=")[1].split("&")[0].split("+"):"Shawn";
 var Pcert0=mark0 && para.indexOf("cert=")!=-1? para1.split("cert=")[1].split("&")[0].split("+"):1;
 var Psort0=mark0 && para.indexOf("sort=")!=-1? para1.split("sort=")[1].split("&")[0].split("+"):0;
@@ -146,7 +146,7 @@ if(flag==3){
 	if(Pin0||Pout0){
 		if(Pntf0!=0){
 		$notify("👥 引用"+"⟦"+subtag+"⟧"+" 开始节点筛选","🐶 您已添加节点筛选参数，如下","👍️ 保留的关键字: "+Pin0+"\n👎️ 排除的关键字: "+Pout0);}
-		total=filter(total,Pin0,Pout0)
+		total=Filter(total,Pin0,Pout0)
 		} else {
 			if(Pntf0!=0){
 		$notify("👥 引用"+"⟦"+subtag+"⟧"+" 开始转换节点订阅","🐼️ 如需筛选节点请使用in/out及其他参数，可参考此示范:","👉 https://t.me/QuanXNews/110");}
@@ -630,10 +630,8 @@ function Scheck(content,param){
 }
 
 //节点过滤，使用+连接多个关键词(逻辑"或"):in 为保留，out 为排除, "与"逻辑请用符号"."连接
-function filter(servers,Pin,Pout){
+function Filter(servers,Pin,Pout){
 	var Nlist=[];
-	Pin=decodeURIComponent(Pin) // urldecode
-	Pout=decodeURIComponent(Pout) // urldecode
 	for(var i=0;i<servers.length;i++){
 		if(Scheck(servers[i],Pin)!=0 && Scheck(servers[i],Pout)!=1){
 			Nlist.push(servers[i])
@@ -807,8 +805,8 @@ function Rename(str){
 		hd=server.split("tag=")[0]
 		name=server.split("tag=")[1].trim()
 		for(i=0;i<Prn.length;i++){
-			nname=decodeURIComponent(Prn[i].split("@")[1]);
-			oname=decodeURIComponent(Prn[i].split("@")[0]);
+			nname=Prn[i].split("@")[1];
+			oname=Prn[i].split("@")[0];
 			if(oname&&nname){ //重命名
 				var rn=escapeRegExp(oname)
 				name=name.replace(new RegExp(rn,"gm"),nname)
