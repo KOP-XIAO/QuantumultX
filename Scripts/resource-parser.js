@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧 ⟦2020-06-19 13:35⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧 ⟦2020-06-19 14:56⟧
 ----------------------------------------------------------
 🚫 发现𝐁𝐔𝐆请反馈: @Shawn_KOP_bot
 ⛳️ 关注🆃🅶相关频道: https://t.me/QuanX_API
@@ -24,11 +24,12 @@ B. rewrite(重写) /filter(分流) 的转换&筛选
 ⦿ udp=1, tfo=1, tls13=1, 分别开启 udp-relay/fast-open/tls1.3;
 ⦿ cert=0, 强制"tls-verification=false" 跳过证书验证;
 ⦿ in, out, 分别为 保留/删除 节点, 多参数用 "+" 连接(逻辑"或"), 逻辑"与"用 "." 连接;
-    ♦︎ 可直接用中文, 特殊字符请 urlencode 替代，如
+    ♦︎ 可直接用中文, 特殊字符请 urlencode 后使用, 如
         ❖ "@"☞"%40", "+"☞"%2B", 空格☞"%20", "&"☞"%26"
     ♦︎ 如 "in=香港.IPLC.04+台湾&out=香港%20BGP"
 ⦿ rename 重命名、删除字段, "旧名@新名", "删除字段1.删除字段2☠️", 以及 "前缀@", "@后缀",用 "+" 连接多个参数;
-    ♦︎ 如 "rename=香港@HK+[SS]@+@[1X]+倍率☠️"
+    ♦︎ 如 "rename=香港@HK+[SS]@+@[1X]+倍率.流量☠️"
+    ♦︎ 如想删除 ".", 请用"rename=.@點+點☠️" 类似操作
 ⦿ sort=1, -1, 排序参数, 分别根据节点名 正序/逆序 排列;
 
 2⃣️ ⟦rewrite 重写⟧/⟦filter 分流⟧ ➠ 参数说明:
@@ -65,14 +66,14 @@ var type0=Type_Check(content0);
 //$notify(link0,"type",para)
 para1=para.slice(para.indexOf("#")+1) //防止参数中其它位置也存在"#"
 //$notify("para1","ss",para1)
-var Pin0=mark0 && para.indexOf("in=")!=-1? decodeURIComponent(para1.split("in=")[1].split("&")[0]).split("+"):null;
-var Pout0=mark0 && para.indexOf("out=")!=-1? decodeURIComponent(para1.split("out=")[1].split("&")[0]).split("+"):null;
+var Pin0=mark0 && para.indexOf("in=")!=-1? (para1.split("in=")[1].split("&")[0].split("+")).map(decodeURIComponent):null;
+var Pout0=mark0 && para.indexOf("out=")!=-1? (para1.split("out=")[1].split("&")[0].split("+")).map(decodeURIComponent):null;
 var Pemoji=mark0 && para.indexOf("emoji=")!=-1? para1.split("emoji=")[1].split("&")[0].split("+"):null;
 var Pudp0=mark0 && para.indexOf("udp=")!=-1? para1.split("udp=")[1].split("&")[0].split("+"):0;
 var Ptfo0=mark0 && para.indexOf("tfo=")!=-1? para1.split("tfo=")[1].split("&")[0].split("+"):0;
 var Pinfo=mark0 && para.indexOf("info=")!=-1? para1.split("info=")[1].split("&")[0].split("+"):0;
-var Prname=mark0 && para.indexOf("rename=")!=-1? decodeURIComponent(para1.split("rename=")[1].split("&")[0]).split("+"):null;
-var Prrname=mark0 && para.indexOf("rrname=")!=-1? decodeURIComponent(para1.split("rrname=")[1].split("&")[0]).split("+"):null;
+var Prname=mark0 && para.indexOf("rename=")!=-1? para1.split("rename=")[1].split("&")[0].split("+"):null;
+var Prrname=mark0 && para.indexOf("rrname=")!=-1? para1.split("rrname=")[1].split("&")[0].split("+"):null;
 var Ppolicy=mark0 && para.indexOf("policy=")!=-1? para1.split("policy=")[1].split("&")[0].split("+"):"Shawn";
 var Pcert0=mark0 && para.indexOf("cert=")!=-1? para1.split("cert=")[1].split("&")[0].split("+"):1;
 var Psort0=mark0 && para.indexOf("sort=")!=-1? para1.split("sort=")[1].split("&")[0].split("+"):0;
@@ -805,8 +806,8 @@ function Rename(str){
 		hd=server.split("tag=")[0]
 		name=server.split("tag=")[1].trim()
 		for(i=0;i<Prn.length;i++){
-			nname=Prn[i].split("@")[1];
-			oname=Prn[i].split("@")[0];
+			nname=Prn[i].split("@")[1]? decodeURIComponent(Prn[i].split("@")[1]):Prn[i].split("@")[1];
+			oname=Prn[i].split("@")[0]? decodeURIComponent(Prn[i].split("@")[0]):Prn[i].split("@")[0];
 			if(oname&&nname){ //重命名
 				var rn=escapeRegExp(oname)
 				name=name.replace(new RegExp(rn,"gm"),nname)
@@ -826,7 +827,8 @@ function Rename(str){
 					}
 				}else if(oname=="" && nname==""){ //删除@符号
 					name=name.replace(/@/g,"")
-				}else(name=name)	
+				}else{
+					name=name}	
 			nserver=hd+"tag="+name
 		}
 	} return nserver
