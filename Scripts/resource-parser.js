@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧 ⟦2020-06-19 10:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧 ⟦2020-06-19 11:59⟧
 ----------------------------------------------------------
 🚫 发现𝐁𝐔𝐆请反馈: @Shawn_KOP_bot
 ⛳️ 关注🆃🅶相关频道: https://t.me/QuanX_API
@@ -65,8 +65,8 @@ var type0=Type_Check(content0);
 //$notify(link0,"type",para)
 para1=para.slice(para.indexOf("#")+1) //防止参数中其它位置也存在"#"
 //$notify("para1","ss",para1)
-var Pin0=mark0 && para.indexOf("in=")!=-1? para1.split("in=")[1].split("&")[0].split("+"):null;
-var Pout0=mark0 && para.indexOf("out=")!=-1? para1.split("out=")[1].split("&")[0].split("+"):null;
+var Pin0=mark0 && para.indexOf("in=")!=-1? decodeURIComponent(para1.split("in=")[1].split("&")[0]).split("+"):null;
+var Pout0=mark0 && para.indexOf("out=")!=-1? decodeURIComponent(para1.split("out=")[1].split("&")[0]).split("+"):null;
 var Pemoji=mark0 && para.indexOf("emoji=")!=-1? para1.split("emoji=")[1].split("&")[0].split("+"):null;
 var Pudp0=mark0 && para.indexOf("udp=")!=-1? para1.split("udp=")[1].split("&")[0].split("+"):0;
 var Ptfo0=mark0 && para.indexOf("tfo=")!=-1? para1.split("tfo=")[1].split("&")[0].split("+"):0;
