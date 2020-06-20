@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-06-20 11:56⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-06-20 15:59⟧
 ----------------------------------------------------------
 🚫 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -59,27 +59,25 @@ PS. 隐藏参数 ntf=1, 用于打开资源解析器的操作提示通知 (默认
 //$notify("test",$resource.link)
 var content0=$resource.content;
 var link0=$resource.link;
-//$notify(link0,"tt",content0)
 var para=(link0.indexOf("http")!=-1 && link0.indexOf("://")!=-1)? link0:link0+content0.split("\n")[0];
 var mark0=para.indexOf("#")!=-1? true:false;
 var type0=Type_Check(content0);
 //$notify(link0,"type",para)
 para1=para.slice(para.indexOf("#")+1) //防止参数中其它位置也存在"#"
-//$notify("para1","ss",para1)
-var Pin0=mark0 && para.indexOf("in=")!=-1? (para1.split("in=")[1].split("&")[0].split("+")).map(decodeURIComponent):null;
-var Pout0=mark0 && para.indexOf("out=")!=-1? (para1.split("out=")[1].split("&")[0].split("+")).map(decodeURIComponent):null;
-var Pemoji=mark0 && para.indexOf("emoji=")!=-1? para1.split("emoji=")[1].split("&")[0].split("+"):null;
-var Pudp0=mark0 && para.indexOf("udp=")!=-1? para1.split("udp=")[1].split("&")[0].split("+"):0;
-var Ptfo0=mark0 && para.indexOf("tfo=")!=-1? para1.split("tfo=")[1].split("&")[0].split("+"):0;
-var Pinfo=mark0 && para.indexOf("info=")!=-1? para1.split("info=")[1].split("&")[0].split("+"):0;
-var Prname=mark0 && para.indexOf("rename=")!=-1? para1.split("rename=")[1].split("&")[0].split("+"):null;
-var Prrname=mark0 && para.indexOf("rrname=")!=-1? para1.split("rrname=")[1].split("&")[0].split("+"):null;
-var Ppolicy=mark0 && para.indexOf("policy=")!=-1? para1.split("policy=")[1].split("&")[0].split("+"):"Shawn";
-var Pcert0=mark0 && para.indexOf("cert=")!=-1? para1.split("cert=")[1].split("&")[0].split("+"):1;
-var Psort0=mark0 && para.indexOf("sort=")!=-1? para1.split("sort=")[1].split("&")[0].split("+"):0;
-var PTls13=mark0 && para.indexOf("tls13=")!=-1? para1.split("tls13=")[1].split("&")[0].split("+"):0;
-var Pntf0= mark0 && para.indexOf("ntf=")!=-1? para1.split("ntf=")[1].split("&")[0].split("+"):0;
-var Pb64= mark0 && para.indexOf("b64=")!=-1? para1.split("b64=")[1].split("&")[0].split("+"):0;
+var Pin0=mark0 && para1.indexOf("in=")!=-1? (para1.split("in=")[1].split("&")[0].split("+")).map(decodeURIComponent):null;
+var Pout0=mark0 && para1.indexOf("out=")!=-1? (para1.split("out=")[1].split("&")[0].split("+")).map(decodeURIComponent):null;
+var Pemoji=mark0 && para1.indexOf("emoji=")!=-1? para1.split("emoji=")[1].split("&")[0]:null;
+var Pudp0=mark0 && para1.indexOf("udp=")!=-1? para1.split("udp=")[1].split("&")[0]:0;
+var Ptfo0=mark0 && para1.indexOf("tfo=")!=-1? para1.split("tfo=")[1].split("&")[0]:0;
+var Pinfo=mark0 && para1.indexOf("info=")!=-1? para1.split("info=")[1].split("&")[0]:0;
+var Prname=mark0 && para1.indexOf("rename=")!=-1? para1.split("rename=")[1].split("&")[0].split("+"):null;
+var Prrname=mark0 && para1.indexOf("rrname=")!=-1? para1.split("rrname=")[1].split("&")[0].split("+"):null;
+var Ppolicy=mark0 && para1.indexOf("policy=")!=-1? para1.split("policy=")[1].split("&")[0]:"Shawn";
+var Pcert0=mark0 && para1.indexOf("cert=")!=-1? para1.split("cert=")[1].split("&")[0]:1;
+var Psort0=mark0 && para1.indexOf("sort=")!=-1? para1.split("sort=")[1].split("&")[0]:0;
+var PTls13=mark0 && para1.indexOf("tls13=")!=-1? para1.split("tls13=")[1].split("&")[0]:0;
+var Pntf0= mark0 && para1.indexOf("ntf=")!=-1? para1.split("ntf=")[1].split("&")[0]:0;
+var Pb64= mark0 && para1.indexOf("b64=")!=-1? para1.split("b64=")[1].split("&")[0]:0;
 var emojino=[" 0️⃣ "," 1⃣️ "," 2⃣️ "," 3⃣️ "," 4⃣️ "," 5⃣️ "," 6⃣️ "," 7⃣️ "," 8⃣️ "," 9⃣️ "," 🔟 "]
 const subinfo=$resource.info;
 const subtag=$resource.tag!=undefined? $resource.tag:"";
