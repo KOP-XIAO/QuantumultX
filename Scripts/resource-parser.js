@@ -59,7 +59,7 @@ PS. 隐藏参数 ntf=1, 用于打开资源解析器的操作提示通知 (默认
 //$notify("test",$resource.link)
 var content0=$resource.content;
 var link0=$resource.link;
-$notify(link0,"tt",content0)
+//$notify(link0,"tt",content0)
 var para=(link0.indexOf("http")!=-1 && link0.indexOf("://")!=-1)? link0:link0+content0.split("\n")[0];
 var mark0=para.indexOf("#")!=-1? true:false;
 var type0=Type_Check(content0);
