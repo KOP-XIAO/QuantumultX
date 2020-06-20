@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-06-20 15:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-06-21 07:59⟧
 ----------------------------------------------------------
 🚫 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -47,7 +47,7 @@ B. rewrite(重写) /filter(分流) 的转换&筛选
 0️⃣ 在QuantumultX 配置文件中[general] 部分，加入 resource_parser_url=https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/resource-parser.js
 ⚠️⚠️如提示"没有自定义解析器"，请长按右下角图标后点击左侧刷新按钮，更新资源，后台退出 app，直到出现解析器说明
 1️⃣ 假设原始订阅连接为: https://raw.githubusercontent.com/crossutility/Quantumult-X/master/server-complete.txt , 
-2️⃣ 假设你想要保留的参数为 in=tls+ss, 想要过滤的参数为 out=http+2, 请注意下面订阅链接后一定要加 ”#“ 符号
+2️⃣ 假设你想要保留的参数为 in=tls+ss, 想要过滤的参数为 out=http+2, 请注意下面订阅链接后一定要加 "#" 符号
 3️⃣ 则填入 Quanx 节点引用的的总链接为  https://raw.githubusercontent.com/crossutility/Quantumult-X/master/server-complete.txt#in=tls+ss&out=http+2
 4️⃣ 填入上述链接, 并打开的资源解析器开关
 
@@ -72,7 +72,7 @@ var Ptfo0=mark0 && para1.indexOf("tfo=")!=-1? para1.split("tfo=")[1].split("&")[
 var Pinfo=mark0 && para1.indexOf("info=")!=-1? para1.split("info=")[1].split("&")[0]:0;
 var Prname=mark0 && para1.indexOf("rename=")!=-1? para1.split("rename=")[1].split("&")[0].split("+"):null;
 var Prrname=mark0 && para1.indexOf("rrname=")!=-1? para1.split("rrname=")[1].split("&")[0].split("+"):null;
-var Ppolicy=mark0 && para1.indexOf("policy=")!=-1? para1.split("policy=")[1].split("&")[0]:"Shawn";
+var Ppolicy=mark0 && para1.indexOf("policy=")!=-1? decodeURIComponent(para1.split("policy=")[1].split("&")[0]):"Shawn";
 var Pcert0=mark0 && para1.indexOf("cert=")!=-1? para1.split("cert=")[1].split("&")[0]:1;
 var Psort0=mark0 && para1.indexOf("sort=")!=-1? para1.split("sort=")[1].split("&")[0]:0;
 var PTls13=mark0 && para1.indexOf("tls13=")!=-1? para1.split("tls13=")[1].split("&")[0]:0;
@@ -88,6 +88,7 @@ var subinfo_link = {"open-url": "https://t.me/QuanX_API", "media-url" :"https://
 var rwrite_link = {"open-url":link0, "media-url": "https://shrtm.nu/G2Xn"}
 var rule_link={"open-url":link0, "media-url": "https://shrtm.nu/7eiK"}
 var nan_link={"open-url":link0, "media-url": qxpng}
+var sub_link={"open-url":link0, "media-url": "https://shrtm.nu/ebAr"}
 
 
 //$notify(link0,type0,content0)
@@ -147,27 +148,25 @@ if(flag==3){
 	$done({content:total.join("\n")});
 }else if(flag==1){
 	if(Pin0||Pout0){
-		if(Pntf0!=0){
-		$notify("👥 引用"+"⟦"+subtag+"⟧"+" 开始节点筛选","🐶 您已添加节点筛选参数，如下","👍️ 保留的关键字: "+Pin0+"\n👎️ 排除的关键字: "+Pout0);}
 		total=Filter(total,Pin0,Pout0)
 		} else {
 			if(Pntf0!=0){
-		$notify("👥 引用"+"⟦"+subtag+"⟧"+" 开始转换节点订阅","🐼️ 如需筛选节点请使用in/out及其他参数，可参考此示范:","👉 https://t.me/QuanXNews/110");}
+		$notify("👥 引用"+"⟦"+subtag+"⟧"+" 开始转换节点订阅","🐼️ 如需筛选节点请使用in/out及其他参数，可参考此示范:","👉 https://t.me/QuanXNews/110",sub_link);}
 	}
 	if(Prrname){
 		if(Pntf0!=0){ 
-		$notify("👥 引用"+"⟦"+subtag+"⟧"+" 开始节点重命名","⚠️ 格式为 \"旧名@新名\",\"删除字段☠️\",及 \"前缀@\",\"@后缀\"","👉 当前添加参数为: "+Prrname);}
+		$notify("👥 引用"+"⟦"+subtag+"⟧"+" 开始节点重命名","⚠️ 格式为 \"旧名@新名\",\"删除字段☠️\",及 \"前缀@\",\"@后缀\"","👉 当前添加参数为: "+Prrname, sub_link);}
 		var Prn=Prrname;
 		total=total.map(Rename);
 	}
 	if(Pemoji){
 				if(Pntf0!=0){
-				$notify("👥 引用"+"⟦"+subtag+"⟧"+" 开始更改旗帜 emoji","⚠️ 清除emoji请用参数 -1, 国行设备添加emoji请使用参数 2","👉 当前添加参数为: emoji="+Pemoji)};
+				$notify("👥 引用"+"⟦"+subtag+"⟧"+" 开始更改旗帜 emoji","⚠️ 清除emoji请用参数 -1, 国行设备添加emoji请使用参数 2","👉 当前添加参数为: emoji="+Pemoji,sub_link)};
 				total=emoji_handle(total,Pemoji);
 			}
 	if(Prname){
 		if(Pntf0!=0){ 
-		$notify("👥 引用"+"⟦"+subtag+"⟧"+" 开始节点重命名","⚠️ 格式为 \"旧名@新名\",\"删除字段☠️\",及 \"前缀@\",\"@后缀\"","👉 当前添加参数为: "+Prname);}
+		$notify("👥 引用"+"⟦"+subtag+"⟧"+" 开始节点重命名","⚠️ 格式为 \"旧名@新名\",\"删除字段☠️\",及 \"前缀@\",\"@后缀\"","👉 当前添加参数为: "+Prname,sub_link);}
 		var Prn=Prname;
 		total=total.map(Rename);
 	}
@@ -534,7 +533,7 @@ function TagCheck_QX(content){
 	//$notify(nulllist.length,)
 	if(nulllist.length>=1){
 		no= nulllist.length<=10? emojino[nulllist.length]:nulllist.length ;
-		$notify("⚠️ 引用"+"⟦"+subtag+"⟧"+" 内有"+no+"个空节点名 ", "✅ 已将节点“类型+IP”设为节点名"," ⨁ "+nulllist.join("\n ⨁ "),nan_link)}
+		$notify("⚠️ 引用"+"⟦"+subtag+"⟧"+" 内有"+no+"个空节点名 ", "✅ 已将节点"类型+IP"设为节点名"," ⨁ "+nulllist.join("\n ⨁ "),nan_link)}
 	if(duplist.length>=1){
 		no= duplist.length<=10? emojino[duplist.length]:duplist.length ;
 		$notify("⚠️ 引用"+"⟦"+subtag+"⟧"+" 内有"+no+"个重复节点名 ", "✅ 已添加⌘符号作为区分:", " ⨁ "+duplist.join("\n ⨁ "),nan_link)}
@@ -635,11 +634,18 @@ function Scheck(content,param){
 //节点过滤，使用+连接多个关键词(逻辑"或"):in 为保留，out 为排除, "与"逻辑请用符号"."连接
 function Filter(servers,Pin,Pout){
 	var Nlist=[];
+	var Delist=[]
 	for(var i=0;i<servers.length;i++){
 		if(Scheck(servers[i],Pin)!=0 && Scheck(servers[i],Pout)!=1){
 			Nlist.push(servers[i])
-		}
+		}else{Delist.push(servers[i].replace(/ /g,"").split("tag=")[1])} //记录未被保留节点
 	}//for
+	if(Pntf0!=0 && Delist.length>=1){//通知部分
+	var no= Delist.length<=10? emojino[ Delist.length]:Delist.length ;
+	var pfi=Pin? "in="+Pin:""
+	var pfo=Pout? "out="+Pout:""
+	$notify("👥 引用"+"⟦"+subtag+"⟧"+" 开始节点筛选","🕹 筛选关键字: "+pfi+pfo, "☠️ 已删除以下 "+no+"个节点\n"+" ⨁ "+Delist.join(", "),sub_link);
+	}
 	return Nlist
 }
 
