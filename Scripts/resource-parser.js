@@ -1,8 +1,8 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧 ⟦2020-06-19 14:56⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-06-20 11:56⟧
 ----------------------------------------------------------
-🚫 发现𝐁𝐔𝐆请反馈: @Shawn_KOP_bot
-⛳️ 关注🆃🅶相关频道: https://t.me/QuanX_API
+🚫 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
+⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
 🗣 🆃🄷🄰🄽🄺🅂 🆃🄾  @Jamie CHIEN, @M**F**, @c0lada
 
 🤖 主要功能: 
@@ -59,8 +59,8 @@ PS. 隐藏参数 ntf=1, 用于打开资源解析器的操作提示通知 (默认
 //$notify("test",$resource.link)
 var content0=$resource.content;
 var link0=$resource.link;
-//$notify(link0,"tt",content0)
-var para=(link0.indexOf("http")!=-1 && link0.indexOf("://")!=-1)? link0:content0.split("\n")[0];
+$notify(link0,"tt",content0)
+var para=(link0.indexOf("http")!=-1 && link0.indexOf("://")!=-1)? link0:link0+content0.split("\n")[0];
 var mark0=para.indexOf("#")!=-1? true:false;
 var type0=Type_Check(content0);
 //$notify(link0,"type",para)
@@ -85,8 +85,12 @@ const subinfo=$resource.info;
 const subtag=$resource.tag!=undefined? $resource.tag:"";
 const Base64=new Base64Code();
 const escapeRegExp = str => str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'); //处理特殊符号以便正则匹配使用
-var tg_link0 = {"open-url" :  "https://t.me/QuanX_API", "media-url" :"https://5b0988e595225.cdn.sohucs.com/images/20190109/039e7eda9a42464e9d1729079c628245.jpeg"};
-//https://raw.githubusercontent.com/crossutility/Quantumult-X/master/quantumult-x.png
+const qxpng="https://raw.githubusercontent.com/crossutility/Quantumult-X/master/quantumult-x.png"
+var subinfo_link = {"open-url": "https://t.me/QuanX_API", "media-url" :"https://shrtm.nu/ebAr"};
+var rwrite_link = {"open-url":link0, "media-url": "https://shrtm.nu/G2Xn"}
+var rule_link={"open-url":link0, "media-url": "https://shrtm.nu/7eiK"}
+var nan_link={"open-url":link0, "media-url": qxpng}
+
 
 //$notify(link0,type0,content0)
 
@@ -106,7 +110,7 @@ if(Pinfo==1 && subinfo){
 			epr=""; //"过期时间: ✈️ 未提供該信息" //没过期时间的显示订阅链接
 		}
 	var message=total+"\n"+usd+", "+left;
-	$notify("流量信息: ⟦"+subtag+"⟧", epr, message,tg_link0)
+	$notify("流量信息: ⟦"+subtag+"⟧", epr, message,subinfo_link)
 }
 
 if(type0=="Subs-B64Encode"){
@@ -130,11 +134,11 @@ if(type0=="Subs-B64Encode"){
 	total=content0.split("\n");
 	total=Rule_Handle(total,Pout0,Pin0);
 }else if(content0.trim()==""){
-	$notify("‼️ 引用"+"⟦"+subtag+"⟧"+" 链接返回內容为空","⁉️请自行复制原始链接到浏览器, 确认链接是否失效",para.split("#")[0]);
+	$notify("‼️ 引用"+"⟦"+subtag+"⟧"+" 链接返回內容为空","⁉️请自行复制原始链接到浏览器, 确认链接是否失效",para.split("#")[0],nan_link);
 	flag=0;
 	$done({content : ""})
 }else if(type0=="unknown"){
-	$notify("😭 太难写了, 可能是 bug ⁉️  "+"⟦"+subtag+"⟧", "👻 本解析器 暂未支持/未能识别 该订阅格式", "⚠️ 已尝试直接导入Quantumult X");
+	$notify("😭 太难写了, 可能是 bug ⁉️  "+"⟦"+subtag+"⟧", "👻 本解析器 暂未支持/未能识别 该订阅格式", "⚠️ 已尝试直接导入Quantumult X",nan_link);
 	$done({content : content0});
 	flag=-1;
 }else { flag=0 }
@@ -174,7 +178,7 @@ if(flag==3){
 	}
 	total=TagCheck_QX(total)
 	if(total.length==0){
-		$notify("‼️ 引用"+"⟦"+subtag+"⟧"+"无有效节点","⁉️请自行检查原始链接以及过滤参数",para)
+		$notify("‼️ 引用"+"⟦"+subtag+"⟧"+"无有效节点","⁉️请自行检查原始链接以及过滤参数",para,nan_link)
 		};
 	//$notify("Final","List",total)
     total=total.join("\n");
@@ -189,7 +193,7 @@ function Type_Check(subs){
 	var RuleK=["host","domain","ip-cidr","geoip","user-agent","ip6-cidr"];
 	var QuanXK=["shadowsocks=","trojan=","vmess=","http="];
 	var SurgeK=["=ss,","=vmess,","=trojan,","=http,","=custom,","=https,"];
-	var SubK=["dm1lc3M6Ly","c3NyOi8v","dHJvamFu","c3M6Ly","c3NkOi8v"];
+	var SubK=["dm1lc3M","c3NyOi8v","dHJvamFu","c3M6Ly","c3NkOi8v"];
 	var RewriteK=[" url "]
 	var SubK2=["ss://","vmess://","ssr://","trojan://","ssd://"];
 	var html="DOCTYPE html"
@@ -202,7 +206,7 @@ function Type_Check(subs){
 	var subsn=subs.split("\n")
 	//$notify("Subs","cnt",subs)
 	if(subs.indexOf(html)!=-1){
-		$notify("‼️ 该链接返回内容有误","⁉️ 请自行复制原始链接到浏览器, 确认链接是否失效",link0);
+		$notify("‼️ 该链接返回内容有误","⁉️ 请自行复制原始链接到浏览器, 确认链接是否失效",link0,nan_link);
 		type="web";
 	} else if(SubK.some(SubCheck)){  //b64加密的订阅类型
 		type="Subs-B64Encode"
@@ -263,9 +267,9 @@ function Rewrite_Filter(subs,Pin,Pout){
 	}
 	if(dwrite.length>0){
 		nowrite=dwrite.length<=10?emojino[dwrite.length]:dwrite.length
-		$notify("🤖 "+"重写引用  ➟ "+"⟦"+subtag+"⟧","⛔️ 禁用: "+Pout0.join(", "),"☠️ 重写 rewrite 中已禁用以下"+nowrite+"个匹配项:"+"\n ⨷ "+dwrite.join("\n ⨷ ") )
+		$notify("🤖 "+"重写引用  ➟ "+"⟦"+subtag+"⟧","⛔️ 禁用: "+Pout0.join(", "),"☠️ 重写 rewrite 中已禁用以下"+nowrite+"个匹配项:"+"\n ⨷ "+dwrite.join("\n ⨷ "),rwrite_link )
 	}
-	if(Nlist.length==0){$notify("🤖 "+"重写引用  ➟ "+"⟦"+subtag+"⟧","✅ 保留: "+Pin+",⛔️ 禁用: "+Pout,"⚠️ 筛选后剩余rewrite规则数为 0️⃣ 条, 请检查参数及原始链接" )}
+	if(Nlist.length==0){$notify("🤖 "+"重写引用  ➟ "+"⟦"+subtag+"⟧","✅ 保留: "+Pin+",⛔️ 禁用: "+Pout,"⚠️ 筛选后剩余rewrite规则数为 0️⃣ 条, 请检查参数及原始链接",nan_link)}
 	if(hostname!=""){Nlist.push(hostname)}
 	return Nlist
 }
@@ -298,11 +302,11 @@ function HostNamecheck(content,parain,paraout){
 	if(dname.length>0){
 		if(paraout && paraout!=""){
 			var noname=dname.length<=10?emojino[dname.length]:dname.length
-			$notify("🤖 "+"重写引用  ➟ "+"⟦"+subtag+"⟧","⛔️ 禁用: "+paraout,"☠️ 主机名 hostname 中已删除以下"+noname+"个匹配项:"+"\n ⨷ "+dname.join(",") )
+			$notify("🤖 "+"重写引用  ➟ "+"⟦"+subtag+"⟧","⛔️ 禁用: "+paraout,"☠️ 主机名 hostname 中已删除以下"+noname+"个匹配项:"+"\n ⨷ "+dname.join(","),rwrite_link )
 		}
 	}
 	if(nname.length==0){
-		$notify("🤖 "+"重写引用  ➟ "+"⟦"+subtag+"⟧","✅ 保留: "+parain+",⛔️ 禁用: "+paraout,"⚠️ 主机名 hostname 中剩余 0️⃣ 项, 请检查参数及原始链接" )
+		$notify("🤖 "+"重写引用  ➟ "+"⟦"+subtag+"⟧","✅ 保留: "+parain+",⛔️ 禁用: "+paraout,"⚠️ 主机名 hostname 中剩余 0️⃣ 项, 请检查参数及原始链接",nan_link )
 	}
 	return hname
 }
@@ -349,17 +353,17 @@ function Rule_Handle(subs,Pout,Pin){
 		} //else if cc
 		}//for cnt
 		var no=dlist.length<=10?emojino[dlist.length]:dlist.length
-		if(dlist.length>0){$notify("🤖 "+"分流引用  ➟ "+"⟦"+subtag+"⟧","⛔️ 禁用: "+ Tout,"☠️ 已禁用以下"+no+"条匹配规则:"+"\n ⨷ "+dlist.join("\n ⨷ "))
-		}else{$notify("🤖 "+"分流引用  ➟ "+"⟦"+subtag+"⟧","⛔️ 禁用: "+Tout,"⚠️ 未发现任何匹配项, 请检查参数或原始链接")}
+		if(dlist.length>0){$notify("🤖 "+"分流引用  ➟ "+"⟦"+subtag+"⟧","⛔️ 禁用: "+ Tout,"☠️ 已禁用以下"+no+"条匹配规则:"+"\n ⨷ "+dlist.join("\n ⨷ "),rule_link)
+		}else{$notify("🤖 "+"分流引用  ➟ "+"⟦"+subtag+"⟧","⛔️ 禁用: "+Tout,"⚠️ 未发现任何匹配项, 请检查参数或原始链接",nan_link)}
 		if(Tin!="" && Tin!=null){  //有 in 跟 out 参数时
 		if(nlist.length>0 ){
 			var noin0=nlist.length<=10?emojino[nlist.length]:nlist.length
-			$notify("🤖 "+"分流引用  ➟ "+"⟦"+subtag+"⟧","✅ 保留:"+Tin,"🎯 已保留以下 "+noin0+"条匹配规则:"+"\n ⨁ "+nlist.join("\n ⨁ "))
-		} else{$notify("🤖 "+"分流引用  ➟ "+"⟦"+subtag+"⟧","✅ 保留:"+Tin+",⛔️ 禁用: "+Tout,"⚠️ 筛选后剩余规则数为 0️⃣ 条, 请检查参数及原始链接")
+			$notify("🤖 "+"分流引用  ➟ "+"⟦"+subtag+"⟧","✅ 保留:"+Tin,"🎯 已保留以下 "+noin0+"条匹配规则:"+"\n ⨁ "+nlist.join("\n ⨁ "),rule_link)
+		} else{$notify("🤖 "+"分流引用  ➟ "+"⟦"+subtag+"⟧","✅ 保留:"+Tin+",⛔️ 禁用: "+Tout,"⚠️ 筛选后剩余规则数为 0️⃣ 条, 请检查参数及原始链接",nan_link)
 	} 
 	} else {// if Tin (No Tin)
 		if(nlist.length==0 ){
-			$notify("🤖 "+"分流引用  ➟ "+"⟦"+subtag+"⟧","⛔️ 禁用: "+Tout,"⚠️ 筛选后剩余规则数为 0️⃣ 条, 请检查参数及原始链接")
+			$notify("🤖 "+"分流引用  ➟ "+"⟦"+subtag+"⟧","⛔️ 禁用: "+Tout,"⚠️ 筛选后剩余规则数为 0️⃣ 条, 请检查参数及原始链接",nan_link)
 	}
 	} 
 	return [...dlist,...nlist];
@@ -378,8 +382,8 @@ function Rule_Handle(subs,Pout,Pin){
 	} // for cnt
 	if(nlist.length>0){
 		var noin=nlist.length<=10?emojino[nlist.length]:nlist.length
-	$notify("🤖 "+"分流引用  ➟ "+"⟦"+subtag+"⟧","✅ 保留:"+Tin,"🎯 已保留以下 "+noin+"条匹配规则:"+"\n ⨁ "+nlist.join("\n ⨁ "))
-} else{$notify("🤖 "+"分流引用  ➟ "+"⟦"+subtag+"⟧","✅ 保留:"+Tin,"⚠️ 筛选后剩余规则数为 0️⃣ 条, 请检查参数及原始链接")}
+	$notify("🤖 "+"分流引用  ➟ "+"⟦"+subtag+"⟧","✅ 保留:"+Tin,"🎯 已保留以下 "+noin+"条匹配规则:"+"\n ⨁ "+nlist.join("\n ⨁ "),rule_link)
+} else{$notify("🤖 "+"分流引用  ➟ "+"⟦"+subtag+"⟧","✅ 保留:"+Tin,"⚠️ 筛选后剩余规则数为 0️⃣ 条, 请检查参数及原始链接",nan_link)}
 	return [...dlist,...nlist];
 	} else {  //if Tin
 	return cnt.map(Rule_Policy)
@@ -406,7 +410,7 @@ function Rule_Policy(content){ //增加、替换 policy
 		ply0 = Ppolicy!="Shawn"? Ppolicy:cnt[2]
 		nn=cnt[0]+", "+cnt[1]+", "+ply0+", "+cnt[3]
 	}else if(!RuleK.some(RuleCheck)&& content){
-		$notify("未能解析"+"⟦"+subtag+"⟧"+"其中部分规则:",content);
+		$notify("未能解析"+"⟦"+subtag+"⟧"+"其中部分规则:",content,nan_link);
 		return ""
 	}else{return ""}
 	if(cnt[0].indexOf("URL-REGEX")!=-1 || cnt[0].indexOf("PROCESS")!=-1){
@@ -532,10 +536,10 @@ function TagCheck_QX(content){
 	//$notify(nulllist.length,)
 	if(nulllist.length>=1){
 		no= nulllist.length<=10? emojino[nulllist.length]:nulllist.length ;
-		$notify("⚠️ 引用"+"⟦"+subtag+"⟧"+" 内有"+no+"个空节点名 ", "✅ 已将节点“类型+IP”设为节点名"," ⨁ "+nulllist.join("\n ⨁ "))}
+		$notify("⚠️ 引用"+"⟦"+subtag+"⟧"+" 内有"+no+"个空节点名 ", "✅ 已将节点“类型+IP”设为节点名"," ⨁ "+nulllist.join("\n ⨁ "),nan_link)}
 	if(duplist.length>=1){
 		no= duplist.length<=10? emojino[duplist.length]:duplist.length ;
-		$notify("⚠️ 引用"+"⟦"+subtag+"⟧"+" 内有"+no+"个重复节点名 ", "✅ 已添加⌘符号作为区分:", " ⨁ "+duplist.join("\n ⨁ "))}
+		$notify("⚠️ 引用"+"⟦"+subtag+"⟧"+" 内有"+no+"个重复节点名 ", "✅ 已添加⌘符号作为区分:", " ⨁ "+duplist.join("\n ⨁ "),nan_link)}
 	return Nlist
 }
 //http=example.com:443, username=name, password=pwd, over-tls=true, tls-host=example.com, tls-verification=true, tls13=true, fast-open=false, udp-relay=false, tag=http-tls-02
