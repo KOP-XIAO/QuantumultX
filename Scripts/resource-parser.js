@@ -590,7 +590,7 @@ function V2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 		ss=JSON.parse(server);
 		ip="vmess="+ss.add+":"+ss.port;
 		pwd="password="+ss.id;
-		mtd="method=aes-128-gcm"
+		mtd="method=none"
 		tag="tag="+decodeURIComponent(ss.ps);
 		udp= Pudp==1? "udp-relay=true":"udp-relay=false";
 		tfo= Ptfo==1? "fast-open=true":"fast-open=false";
