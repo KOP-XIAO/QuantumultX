@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-06-22 17:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-06-23 09:59⟧
 ----------------------------------------------------------
 🚫 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -30,7 +30,7 @@ B. rewrite(重写) /filter(分流) 的转换&筛选
 ⦿ rename 重命名、删除字段, "旧名@新名", "删除字段1.删除字段2☠️", 以及 "前缀@", "@后缀",用 "+" 连接多个参数;
     ❖ 如 "rename=香港@HK+[SS]@+@[1X]+倍率.流量☠️"
     ❖ 如想删除 ".", 请用"rename=.@點+點☠️" 类似操作
-⦿ sort=1, -1, 排序参数, 分别根据节点名 正序/逆序 排列;
+⦿ sort=1, -1, x,排序参数, 分别根据节点名 正序/逆序/随机 排列;
 
 2⃣️ ⟦rewrite 重写⟧/⟦filter 分流⟧ ➠ 参数说明:
 ⦿ in, out, 根据关键词 保留/禁用 相关的规则、重写;
@@ -185,6 +185,8 @@ if(flag==3){
 	}
 	if(Psort0==1 || Psort0==-1){
 		total=QXSort(total,Psort0);
+	}else if(Psort0=="x"){
+		total=shuffle(total)
 	}
 	total=TagCheck_QX(total)
 	// if(total.length==0){
@@ -196,6 +198,18 @@ if(flag==3){
 		total=Base64.encode(total)} //强制 base64
 	$done({content : total});
 }
+
+// 随机洗牌排序
+function shuffle(arr) { 
+	var input = arr; 
+	for (var i = input.length-1; i >=0; i--) { 
+		var randomIndex = Math.floor(Math.random()*(i+1)); 
+		var itemAtIndex = input[randomIndex]; 
+		input[randomIndex] = input[i]; 
+		input[i] = itemAtIndex; 
+		} 
+		return input; 
+	} 
 
 //判断订阅类型
 function Type_Check(subs){
