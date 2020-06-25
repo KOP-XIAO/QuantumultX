@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-06-23 09:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-06-25 09:39⟧
 ----------------------------------------------------------
 🚫 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -794,13 +794,14 @@ function SSD2QX(subs,Pudp,Ptfo){
 		obfs=cnt.plugin_options.split(";")[0]!=null ? ", "+cnt.plugin_options.split(";")[0]: "";
 		obfshost=cnt.plugin_options.split(";")[1]!=null ? ", "+cnt.plugin_options.split(";")[1]: "";
 	}
+
 	pudp= Pudp==1? "udp-relay=true":"udp-relay=false";
 	ptfo= Ptfo==1? "fast-open=true":"fast-open=false";
 	for (var i in cnt.servers) {
         ip=cnt.servers[i].server;
 		if(obfs==""){
-			obfs=cnt.servers[i].plugin_options.split(";")[0]!=null ? ", "+cnt.plugin_options.split(";")[0]: "";
-			obfshost=cnt.servers[i].plugin_options.split(";")[1]!=null ? ", "+cnt.plugin_options.split(";")[1]: "";
+			obfs=cnt.servers[i].plugin_options.split(";")[0]!=null ? ", "+cnt.servers[i].plugin_options.split(";")[0]: "";
+			obfshost=cnt.servers[i].plugin_options.split(";")[1]!=null ? ", "+cnt.servers[i].plugin_options.split(";")[1]: "";
 		}
         if(ip.indexOf(".")>0){ //排除难搞的 ipv6 节点
             port=cnt.servers[i].port?":"+cnt.servers[i].port:port;
