@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-06-25 09:39⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-06-25 09:59⟧
 ----------------------------------------------------------
 🚫 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -799,9 +799,15 @@ function SSD2QX(subs,Pudp,Ptfo){
 	ptfo= Ptfo==1? "fast-open=true":"fast-open=false";
 	for (var i in cnt.servers) {
         ip=cnt.servers[i].server;
-		if(obfs==""){
+		if(cnt.servers[i].plugin_options){
 			obfs=cnt.servers[i].plugin_options.split(";")[0]!=null ? ", "+cnt.servers[i].plugin_options.split(";")[0]: "";
 			obfshost=cnt.servers[i].plugin_options.split(";")[1]!=null ? ", "+cnt.servers[i].plugin_options.split(";")[1]: "";
+		}
+		if(cnt.servers[i].encryption){  //独立的加密方式
+			mtd="method="+cnt.servers[i].encryption 
+		}
+		if(cnt.servers[i].password){  //独立的密码
+			pwd="password="+cnt.servers[i].password 
 		}
         if(ip.indexOf(".")>0){ //排除难搞的 ipv6 节点
             port=cnt.servers[i].port?":"+cnt.servers[i].port:port;
