@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-06-25 09:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-06-25 22:59⟧
 ----------------------------------------------------------
 🚫 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -23,6 +23,7 @@ B. rewrite(重写) /filter(分流) 的转换&筛选
     ❖ 国行设备请用 emoji=2
 ⦿ udp=1, tfo=1, tls13=1, 分别开启 udp-relay/fast-open/tls1.3;
 ⦿ cert=0, 强制"tls-verification=false" 跳过证书验证;
+⦿ regex=正则筛选, 请自行折腾正则表达式的写法;
 ⦿ in, out, 分别为 保留/删除 节点, 多参数用 "+" 连接(逻辑"或"), 逻辑"与"用 "." 连接;
     ❖ 可直接用中文, 特殊字符请 urlencode 后使用, 如
         ∎ "@"☞"%40", "+"☞"%2B", 空格☞"%20", "&"☞"%26"
@@ -69,7 +70,8 @@ var type0=Type_Check(content0);
 para1=para.slice(para.indexOf("#")+1) //防止参数中其它位置也存在"#"
 var Pin0=mark0 && para1.indexOf("in=")!=-1? (para1.split("in=")[1].split("&")[0].split("+")).map(decodeURIComponent):null;
 var Pout0=mark0 && para1.indexOf("out=")!=-1? (para1.split("out=")[1].split("&")[0].split("+")).map(decodeURIComponent):null;
-//$notify(link0,"type0",para)
+var Preg=mark0 && para1.indexOf("regex=")!=-1? decodeURIComponent(para1.split("regex=")[1].split("&")[0]):null; //正则过滤参数
+//$notify(link0,"type0",Preg)
 var Phin0=mark0 && para1.indexOf("inhn=")!=-1? (para1.split("inhn=")[1].split("&")[0].split("+")).map(decodeURIComponent):null; //hostname 
 var Phout0=mark0 && para1.indexOf("outhn=")!=-1? (para1.split("outhn=")[1].split("&")[0].split("+")).map(decodeURIComponent):null; //hostname
 //$notify(link0,"type1",para)
@@ -161,25 +163,18 @@ if(flag==3){
 }else if(flag==1){
 	if(Pin0||Pout0){
 		total=Filter(total,Pin0,Pout0)
-		} 
-	// 	else {
-	// 		if(Pntf0!=0){
-	// 	$notify("👥 引用"+"⟦"+subtag+"⟧"+" 开始转换节点订阅","🐼️ 如需筛选节点请使用in/out及其他参数，可参考此示范:","👉 https://t.me/QuanXNews/110",sub_link);}
-	// }
+		}
+	if(Preg){
+		total=total.map(Regex).filter(Boolean)
+	} 
 	if(Prrname){
-		// if(Pntf0!=0){ 
-		// $notify("👥 引用"+"⟦"+subtag+"⟧"+" 开始节点重命名","⚠️ 格式为 \"旧名@新名\",\"删除字段☠️\",及 \"前缀@\",\"@后缀\"","👉 当前添加参数为: "+Prrname, sub_link);}
 		var Prn=Prrname;
 		total=total.map(Rename);
 	}
 	if(Pemoji){
-				// if(Pntf0!=0){
-				// $notify("👥 引用"+"⟦"+subtag+"⟧"+" 开始更改旗帜 emoji","⚠️ 清除emoji请用参数 -1, 国行设备添加emoji请使用参数 2","👉 当前添加参数为: emoji="+Pemoji,sub_link)};
 				total=emoji_handle(total,Pemoji);
 			}
 	if(Prname){
-		// if(Pntf0!=0){ 
-		// $notify("👥 引用"+"⟦"+subtag+"⟧"+" 开始节点重命名","⚠️ 格式为 \"旧名@新名\",\"删除字段☠️\",及 \"前缀@\",\"@后缀\"","👉 当前添加参数为: "+Prname,sub_link);}
 		var Prn=Prname;
 		total=total.map(Rename);
 	}
@@ -189,10 +184,6 @@ if(flag==3){
 		total=shuffle(total)
 	}
 	total=TagCheck_QX(total)
-	// if(total.length==0){
-	// 	$notify("‼️ 引用"+"⟦"+subtag+"⟧"+"无有效节点","⁉️请自行检查原始链接以及过滤参数",para,nan_link)
-	// 	};
-	//$notify("Final","List",total)
     total=total.join("\n");
 	if(flag==1){
 		total=Base64.encode(total)} //强制 base64
@@ -654,6 +645,14 @@ function Pobfs(jsonl,Pcert,Ptls13){
 	}
 }
 
+//正则筛选
+function Regex(content){
+	Preg=RegExp(Preg)
+	cnt=content.split("tag=")[1]
+	if(Preg.test(cnt)){
+		return content
+	}
+}
 
 // 判断节点过滤的函数
 function Scheck(content,param){
