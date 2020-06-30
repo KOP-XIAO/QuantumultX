@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-06-30 10:29⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-06-30 15:59⟧
 ----------------------------------------------------------
 🚫 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -12,6 +12,7 @@ A. 将各格式的服务器订阅解析成 𝐐𝐮𝐚𝐧𝐭𝐮𝐦𝐮𝐥�
 B. rewrite(重写) /filter(分流) 的转换&筛选 
 ✔︎ 用于禁用远程引用中某(几)项 rewrite/hostname/filter
 ✔︎ Surge 类型规则 list(不含策略组)的解析与使用
+✔︎ Surge 模块/配置 URL-REGEX、302(7) 复写、Script 的解析
 ----------------------------------------------------------
 0️⃣ ⟦原始订阅链接⟧ 后加 "#" , 不同参数用 "&" 连接: 
 ⚠️ ☞ https://mysub.com#in=香港+台湾&emoji=1&tfo=1
@@ -37,6 +38,7 @@ B. rewrite(重写) /filter(分流) 的转换&筛选
 2⃣️ ⟦rewrite 重写⟧/⟦filter 分流⟧ ➠ 参数说明:
 ⦿ in, out, 根据关键词 保留/禁用 相关的规则、重写;
 ⦿ inhn, outhn, “保留/删除”主机名(hostname);
+⦿ dst=regex/script，分别为只保留 Surge-module/profile 中的 url-regex/rewrite(script), 默认全部保留;
 ⦿ 分流规则另有 "policy=xxx" 参数, 可用于直接指定策略组，或为 Surge 类型 rule-set 生成策略组(默认"Shawn"策略组);
 ⦿ 示范: 禁用某重写引用中的 "淘宝比价 js" 以及 "weibo 的 js"
 ⚠️ ☞  https://myrewrite.list#out=tb_price.js+wb_ad.js
@@ -72,7 +74,7 @@ para1=para.slice(para.indexOf("#")+1) //防止参数中其它位置也存在"#"
 var Pin0=mark0 && para1.indexOf("in=")!=-1? (para1.split("in=")[1].split("&")[0].split("+")).map(decodeURIComponent):null;
 var Pout0=mark0 && para1.indexOf("out=")!=-1? (para1.split("out=")[1].split("&")[0].split("+")).map(decodeURIComponent):null;
 var Preg=mark0 && para1.indexOf("regex=")!=-1? decodeURIComponent(para1.split("regex=")[1].split("&")[0]):null; //server正则过滤参数
-//$notify(link0,"type0",Preg)
+//$notify(link0,"type0",type0)
 var Phin0=mark0 && para1.indexOf("inhn=")!=-1? (para1.split("inhn=")[1].split("&")[0].split("+")).map(decodeURIComponent):null; //hostname 
 var Phout0=mark0 && para1.indexOf("outhn=")!=-1? (para1.split("outhn=")[1].split("&")[0].split("+")).map(decodeURIComponent):null; //hostname
 //$notify(link0,"type1",para)
@@ -139,6 +141,17 @@ if(type0=="Subs-B64Encode"){
 }else if(type0=="Surge"){
 	total=Surge2QX(content0);
 	flag=1;
+}else if(type0=="sgmodule"){
+	flag=2
+	if(para1.indexOf("dst=regex")!=-1){
+		total=URX2QX(content0)
+		}else if(para1.indexOf("dst=script")!=-1){
+		total=SCP2QX(content0)
+		}else {
+			total=SGMD2QX(content0)
+		}
+	//total=total.split("\n")
+	total=Rewrite_Filter(total,Pin0,Pout0);
 }else if(type0=="rewrite"){
 	flag=2;
 	content0=content0.split("\n");
@@ -234,7 +247,9 @@ function Type_Check(subs){
 		type="Surge";
 	} else if(SurgeK.some(SurgeCheck)){
 		type="Surge"
-	} else if(subi.indexOf("hostname=")!=-1 || RewriteK.some(RewriteCheck)){
+	} else if(subi.indexOf("[Script]")!=-1 || subi.indexOf("[Rule]")!=-1 || subi.indexOf("[URL Rewrite]")!=-1){ // Surge module /profile 类型
+		type="sgmodule"
+	}else if(subi.indexOf("hostname=")!=-1 || RewriteK.some(RewriteCheck)){
 		type="rewrite"
 	} else if(RuleK.some(RuleCheck) && subs.indexOf(html)==-1){
 		type="Rule";
@@ -248,6 +263,67 @@ function Trim(item){
 	return item.trim()
 	}
 
+//url-regex 转换成 Quantumult X
+function URX2QX(subs){
+	var nrw=[]
+	var rw=""
+	subs=subs.split("\n")
+	for(var i=0;i<subs.length;i++){
+		if(subs[i].slice(0,9)=="URL-REGEX"){
+			//console.log(subs[i])
+			rw=subs[i].replace(/ /g,"").split(",REJECT")[0].split("GEX,")[1]+" url "+"reject-200"
+			nrw.push(rw)
+		}
+	}//console.log(nrw)
+	return nrw
+}
+
+//script 转换成 Quantumult X
+function SCP2QX(subs){
+	var nrw=[]
+	var rw=""
+	subs=subs.split("\n")
+	for(var i=0;i<subs.length;i++){
+		if(subs[i].slice(0,8)=="hostname"){
+			hn=subs[i].replace(/\%.*\%/g,"")
+			//console.log(hn)
+			nrw.push(hn)
+		}
+		var SC=["type=",".js","pattern=","script-path="]
+		const sccheck = (item) => subs[i].indexOf(item)!=-1
+		if(SC.every(sccheck)){
+			//console.log(subs[i])
+			ptn=subs[i].split("pattern=")[1].split(",")[0]
+			js=subs[i].split("script-path=")[1].split(",")[0]
+			type=subs[i].split("type=")[1].split(",")[0].trim()
+			if(type=="http-response" && subs[i].indexOf("requires-body=1")!=-1){
+				type="script-response-body "
+			}else if(type=="http-response" && subs[i].indexOf("requires-body=1")==-1){
+				type="script-response-header "
+			}else if(type=="http-request" && subs[i].indexOf("requires-body=1")!=-1){
+				type="script-request-body "
+			}else if(type=="http-request" && subs[i].indexOf("requires-body=1")==-1){
+				type="script-request-header "
+			}
+			rw=ptn+" url "+type+js
+			nrw.push(rw)
+		}else if(subs[i].indexOf(" 302")!=-1 || subs[i].indexOf(" 307")!=-1){ //rewrite 复写
+			//console.log(subs[i])
+			rw=subs[i].split(" ")[0]+" url "+subs[i].split(" ")[2]+" "+subs[i].split(" ")[1]
+			nrw.push(rw)
+		}
+	}//console.log(nrw)
+	return nrw
+}
+// 如果 URL-Regex 跟 rewrite/script 都需要
+function SGMD2QX(subs){
+	var nrw0=URX2QX(subs)
+	var nrw1=SCP2QX(subs)
+	var nrwt=[...nrw0, ...nrw1]
+	//console.log(nrw)
+	//$notify("..","...",nrw)
+	return nrwt
+}
 
 //Rewrite过滤，使用+连接多个关键词(逻辑"或"):in 为保留，out 为排除
 function Rewrite_Filter(subs,Pin,Pout){
