@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-06-28 11:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-06-30 10:29⟧
 ----------------------------------------------------------
 🚫 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -224,10 +224,10 @@ function Type_Check(subs){
 	if(subs.indexOf(html)!=-1){
 		$notify("‼️ 该链接返回内容有误","⁉️ 请自行复制原始链接到浏览器, 确认链接是否失效",link0,nan_link);
 		type="web";
-	} else if(SubK.some(SubCheck)){  //b64加密的订阅类型
-		type="Subs-B64Encode"
 	} else if(subsn.length>=1 && SubK2.some(SubCheck)){ //未b64加密的多行URI 组合订阅
-		type="Subs"
+			type="Subs"
+	}else if(SubK.some(SubCheck)){  //b64加密的订阅类型
+		type="Subs-B64Encode"
 	} else if(subi.indexOf("tag=")!=-1 && QuanXK.some(QuanXCheck)){
 		type="QuanX"
 	} else if(subs.indexOf("[Proxy]")!=-1){
@@ -239,6 +239,7 @@ function Type_Check(subs){
 	} else if(RuleK.some(RuleCheck) && subs.indexOf(html)==-1){
 		type="Rule";
 	}
+	//$notify(type)
 	return type
 }
 
@@ -610,7 +611,6 @@ function HPS2QX(subs,Ptfo,Pcert,Ptls13){
 //quantumult 格式的 vmess URI 转换
 function VQ2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 	var server=String(Base64.decode(subs.replace("vmess://","").trim()).split("\u0000")[0])
-	//console.log(server)
 	var node=""
 	var ip="vmess="+server.split(",")[1].trim()+":"+server.split(",")[2].trim()+", "+"method=aes-128-gcm, "+"password="+server.split(",")[4].split("\"")[1]+", "
 	var tag="tag="+server.split("=")[0]
@@ -636,6 +636,7 @@ function VQ2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 	}
 	node=node+obfs+tag
 	//console.log(node)
+	//$notify(node)
 	return node
 }
 
