@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-06-30 15:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-07-02 11:59⟧
 ----------------------------------------------------------
 🚫 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -12,7 +12,7 @@ A. 将各格式的服务器订阅解析成 𝐐𝐮𝐚𝐧𝐭𝐮𝐦𝐮𝐥�
 B. rewrite(重写) /filter(分流) 的转换&筛选 
 ✔︎ 用于禁用远程引用中某(几)项 rewrite/hostname/filter
 ✔︎ Surge 类型规则 list(不含策略组)的解析与使用
-✔︎ Surge 模块/配置 URL-REGEX、302(7) 复写、Script 的解析
+✔︎ Surge 模块/配置内 URL-REGEX、302(7) 复写、Script 的解析
 ----------------------------------------------------------
 0️⃣ ⟦原始订阅链接⟧ 后加 "#" , 不同参数用 "&" 连接: 
 ⚠️ ☞ https://mysub.com#in=香港+台湾&emoji=1&tfo=1
@@ -38,7 +38,7 @@ B. rewrite(重写) /filter(分流) 的转换&筛选
 2⃣️ ⟦rewrite 重写⟧/⟦filter 分流⟧ ➠ 参数说明:
 ⦿ in, out, 根据关键词 保留/禁用 相关的规则、重写;
 ⦿ inhn, outhn, “保留/删除”主机名(hostname);
-⦿ dst=regex/script，分别为只保留 Surge-module/profile 中的 url-regex/rewrite(script), 默认全部保留;
+⦿ dst=regex/script，分别为只保留 Surge-module/profile 中的 url-regex/script(302/307), 默认全部保留;
 ⦿ 分流规则另有 "policy=xxx" 参数, 可用于直接指定策略组，或为 Surge 类型 rule-set 生成策略组(默认"Shawn"策略组);
 ⦿ 示范: 禁用某重写引用中的 "淘宝比价 js" 以及 "weibo 的 js"
 ⚠️ ☞  https://myrewrite.list#out=tb_price.js+wb_ad.js
@@ -102,8 +102,9 @@ const Base64=new Base64Code();
 const escapeRegExp = str => str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'); //处理特殊符号以便正则匹配使用
 const qxpng="https://raw.githubusercontent.com/crossutility/Quantumult-X/master/quantumult-x.png"
 var subinfo_link = {"open-url": "https://t.me/QuanX_API", "media-url" :"https://shrtm.nu/ebAr"};
-var rwrite_link = {"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/G2Xn"}
-var rule_link={"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/7eiK"}
+var rwrite_link = {"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/x3o2"}
+var rwhost_link = {"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/0n5J"}
+var rule_link={"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/tIHl"}
 var nan_link={"open-url":link0.split("#")[0], "media-url": qxpng}
 var sub_link={"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/ebAr"}
 
@@ -406,9 +407,9 @@ function HostNamecheck(content,parain,paraout){
 			var noname=dname.length<=10?emojino[dname.length]:dname.length
 			var no1name=nname.length<=10?emojino[nname.length]:nname.length
 			if(parain && no1name!=" 0️⃣ "){
-			$notify("🤖 "+"重写引用  ➟ "+"⟦"+subtag+"⟧","⛔️ 筛选参数: "+pfihn+pfohn,"☠️ 主机名 hostname 中已保留以下"+no1name+"个匹配项:"+"\n ⨷ "+nname.join(","),rwrite_link )
+			$notify("🤖 "+"重写引用  ➟ "+"⟦"+subtag+"⟧","⛔️ 筛选参数: "+pfihn+pfohn,"☠️ 主机名 hostname 中已保留以下"+no1name+"个匹配项:"+"\n ⨷ "+nname.join(","),rwhost_link )
 		} else if(dname.length>0){
-			$notify("🤖 "+"重写引用  ➟ "+"⟦"+subtag+"⟧","⛔️ 筛选参数: "+pfihn+pfohn,"☠️ 主机名 hostname 中已删除以下"+noname+"个匹配项:"+"\n ⨷ "+dname.join(","),rwrite_link )}
+			$notify("🤖 "+"重写引用  ➟ "+"⟦"+subtag+"⟧","⛔️ 筛选参数: "+pfihn+pfohn,"☠️ 主机名 hostname 中已删除以下"+noname+"个匹配项:"+"\n ⨷ "+dname.join(","),rwhost_link )}
 		}
 	}
 	if(nname.length==0){
