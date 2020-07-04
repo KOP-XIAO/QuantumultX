@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-07-03 14:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-07-04 17:59⟧
 ----------------------------------------------------------
 🚫 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -12,7 +12,7 @@ A. 将各格式的服务器订阅解析成 𝐐𝐮𝐚𝐧𝐭𝐮𝐦𝐮𝐥�
 B. rewrite(重写) /filter(分流) 的转换&筛选 
 ✔︎ 用于禁用远程引用中某(几)项 rewrite/hostname/filter
 ✔︎ Surge 类型规则 list(不含策略组)的解析与使用
-✔︎ Surge 模块/配置内 URL-REGEX、302(7) 复写、Script 的解析
+✔︎ Surge 模块/配置 URL-REGEX、302(7) 复写、Script 的解析
 ----------------------------------------------------------
 0️⃣ ⟦原始订阅链接⟧ 后加 "#" , 不同参数用 "&" 连接: 
 ⚠️ ☞ https://mysub.com#in=香港+台湾&emoji=1&tfo=1
@@ -34,6 +34,8 @@ B. rewrite(重写) /filter(分流) 的转换&筛选
 ⦿ rename 重命名、删除字段, "旧名@新名", "删除字段1.删除字段2☠️", 以及 "前缀@", "@后缀",用 "+" 连接多个参数;
     ❖ 如 "rename=香港@HK+[SS]@+@[1X]+倍率.流量☠️"
     ❖ 如想删除 ".", 请用"rename=.@點+點☠️" 类似操作
+⦿ delreg, 利用正则参数来删除节点名中的字段(⚠️ 慎用)
+    ❖ 如 "delreg=(标准|高级).*HKT"
 ⦿ sort=1, -1, x,分别根据节点名 正序/逆序/随机 排序;
 
 2⃣️ ⟦rewrite 重写⟧/⟦filter 分流⟧ ➠ 参数说明:
@@ -75,6 +77,7 @@ para1=para.slice(para.indexOf("#")+1) //防止参数中其它位置也存在"#"
 var Pin0=mark0 && para1.indexOf("in=")!=-1? (para1.split("in=")[1].split("&")[0].split("+")).map(decodeURIComponent):null;
 var Pout0=mark0 && para1.indexOf("out=")!=-1? (para1.split("out=")[1].split("&")[0].split("+")).map(decodeURIComponent):null;
 var Preg=mark0 && para1.indexOf("regex=")!=-1? decodeURIComponent(para1.split("regex=")[1].split("&")[0]):null; //server正则过滤参数
+var Pregdel=mark0 && para1.indexOf("delreg=")!=-1? decodeURIComponent(para1.split("delreg=")[1].split("&")[0]):null; // 正则删除参数
 //$notify(link0,"type0",type0)
 var Phin0=mark0 && para1.indexOf("inhn=")!=-1? (para1.split("inhn=")[1].split("&")[0].split("+")).map(decodeURIComponent):null; //hostname 
 var Phout0=mark0 && para1.indexOf("outhn=")!=-1? (para1.split("outhn=")[1].split("&")[0].split("+")).map(decodeURIComponent):null; //hostname
@@ -193,6 +196,10 @@ if(flag==3){
 	if(Prname){
 		var Prn=Prname;
 		total=total.map(Rename);
+	}
+	if(Pregdel){
+		var delreg=Pregdel
+		total=total.map(DelReg)
 	}
 	if(Psort0==1 || Psort0==-1){
 		total=QXSort(total,Psort0);
@@ -872,9 +879,11 @@ function SSR2QX(subs,Pudp,Ptfo){
 	ptfo= Ptfo==1? "fast-open=true":"fast-open=false";
 	nssr.push(type+ip,pwd,mtd,obfs+obfshost+oparam+ssrp,pudp,ptfo,tag)
 	QX=nssr.join(", ")
-}
+}else {QX=""}
 	return QX;
 }
+
+
 
 //Trojan 类型 URI 转换成 QX
 function TJ2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
@@ -1011,6 +1020,14 @@ function ToTagR(elem1,elem2){
 	return res
 }
 
+//正则删除节点名内的字符
+function DelReg(content){
+	delreg=RegExp(delreg,"gmi")
+	cnt0=content.split("tag=")[0]
+	cnt1=content.split("tag=")[1]
+	cnt=cnt0+"tag="+cnt1.replace(delreg,"")
+		return cnt
+}
 
 //节点重命名
 function Rename(str){
@@ -1023,7 +1040,7 @@ function Rename(str){
 			oname=Prn[i].split("@")[0]? decodeURIComponent(Prn[i].split("@")[0]):Prn[i].split("@")[0];
 			if(oname&&nname){ //重命名
 				var rn=escapeRegExp(oname)
-				name=name.replace(new RegExp(rn,"gm"),nname)
+				name=name.replace(new RegExp(rn,"gmi"),nname)
 				}else if(oname && nname==""){//前缀
 					var nemoji=emoji_del(name)
 						if(Pemoji==1 || Pemoji==2){ //判断是否有重复 emoji，有则删除旧有
@@ -1035,7 +1052,7 @@ function Rename(str){
 					hh=oname.slice(0,oname.length-2).split(".")
 					for(j=0;j<hh.length;j++){
 						var nn=escapeRegExp(hh[j])
-						var del=new RegExp(nn,"gm");
+						var del=new RegExp(nn,"gmi");
 						name=name.replace(del,"")
 					}
 				}else if(oname=="" && nname==""){ //删除@符号
