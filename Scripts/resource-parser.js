@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-07-04 17:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-07-05 13:59⟧
 ----------------------------------------------------------
 🚫 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -25,15 +25,18 @@ B. rewrite(重写) /filter(分流) 的转换&筛选
 ⦿ udp=1, tfo=1, tls13=1, 分别开启 udp-relay/fast-open/tls1.3;
 ⦿ cert=0, 强制"tls-verification=false" 跳过证书验证;
 ⦿ in, out, 分别为 保留/删除 节点, 多参数用 "+" 连接(逻辑"或"), 逻辑"与"用 "." 连接;
-    ❖ 支持中文(字母大小写忽略), 特殊字符 urlencode 后使用
-        ∎ "@"☞"%40", "+"☞"%2B", 空格☞"%20", "&"☞"%26"
-    ❖ 如 "in=香港.IPLC.04+台湾&out=香港%20BGP"
+    ❖ 支持中文(字母大小写忽略), 操作以下特殊字符时请先替换
+        ∎ "+"☞"%2B", 空格☞"%20", "&"☞"%26", "."☞"\."
+    ❖ 如 "in=香港.IPLC.0\.2倍率+台湾&out=香港%20BGP"
 ⦿ regex=正则筛选(字母大小写忽略), 请自行折腾正则表达式;
     ❖ 可用上面的 in/out 搭配使用，in/out 会优先执行;
     ❖ 对节点完整信息匹配(端口、加密等), 而不只是节点名
 ⦿ rename 重命名、删除字段, "旧名@新名", "删除字段1.删除字段2☠️", 以及 "前缀@", "@后缀",用 "+" 连接多个参数;
     ❖ 如 "rename=香港@HK+[SS]@+@[1X]+倍率.流量☠️"
-    ❖ 如想删除 ".", 请用"rename=.@點+點☠️" 类似操作
+    ❖ 支持中文(字母大小写忽略), 操作以下特殊字符时请先替换
+        ∎ "@"☞"%40","+"☞"%2B", 空格☞"%20", "&"☞"%26"
+    ❖ 字段删除操作中, "."点符号被征用, 用 "\." 来操作
+        ∎ 如删除 "0.2", 请用"0\.2" 代替
 ⦿ delreg, 利用正则参数来删除节点名中的字段(⚠️ 慎用)
     ❖ 如 "delreg=(标准|高级).*HKT"
 ⦿ sort=1, -1, x,分别根据节点名 正序/逆序/随机 排序;
@@ -803,6 +806,17 @@ function Pobfs(jsonl,Pcert,Ptls13){
 	}
 }
 
+//对.的特殊处理(in/out & rename中)
+function Dot2(cnt) {
+	cnt=cnt? cnt.replace(/\\\./g,"这是个点"):""
+	return cnt
+}
+
+function ToDot(cnt) {
+	cnt=cnt? cnt.replace(/这是个点/g,"."):""
+	return cnt
+}
+
 //正则筛选, 完整内容匹配
 function Regex(content){
 	Preg=RegExp(Preg,"i")
@@ -815,11 +829,15 @@ function Regex(content){
 // 判断节点过滤的函数
 function Scheck(content,param){
 	name=content.split("tag=")[1].toUpperCase()
+	//$notify("before",param)
+	param=param? param.map(Dot2):param // 对符号.的特殊处理
+	//$notify("after",param)
 	if(param){
 		var flag=0;
 	for(i=0;i<param.length;i++){
 		//console.log(param[i])
-		var params=param[i].split(".");
+		var params=param[i].split(".").map(ToDot);
+		//$notify(params)
 		const checkpara= (item) => name.indexOf(item.toUpperCase()) !=-1;
 		if(params.every(checkpara)){
 			flag=1
@@ -841,16 +859,17 @@ function Filter(servers,Pin,Pout){
 			Nname.push(servers[i].replace(/ /g,"").split("tag=")[1])
 		}else{Delist.push(servers[i].replace(/ /g,"").split("tag=")[1])} //记录未被保留节点
 	}//for
-	if(Pntf0==1 && Delist.length>=1){//通知部分
 	var no= Delist.length<=10? emojino[ Delist.length]:Delist.length ;
 	var no1= Nlist.length<=10? emojino[ Nlist.length]:Nlist.length ;
-	if(Pin && no1>0){ //有 in 参数就通知保留部分
+	if(Pntf0==1 && Delist.length>=1){//通知部分
+		if(Pin && no1>0){ //有 in 参数就通知保留部分
 		$notify("👥 引用"+"⟦"+subtag+"⟧"+" 开始节点筛选","🕹 筛选关键字: "+pfi+pfo, "☠️ 已保留以下 "+no1+"个节点\n"+Nname.join(", "),sub_link);
 	}else if(Pout && no>0){
 	$notify("👥 引用"+"⟦"+subtag+"⟧"+" 开始节点筛选","🕹 筛选关键字: "+pfi+pfo, "☠️ 已删除以下 "+no+"个节点\n"+Delist.join(", "),sub_link);
-}
-	}else if(no1==0){ //无剩余节点时强制通知
+	}
+	}else if(no1==0 || no1==null){ //无剩余节点时强制通知
 		$notify("‼️ ⟦"+subtag+"⟧"+"筛选后节点数为0️⃣","⚠️ 请自行检查原始链接以及筛选参数", link0, sub_link);}
+		//$notify("After",no1,Nlist)
 	return Nlist
 }
 
@@ -1029,6 +1048,8 @@ function DelReg(content){
 		return cnt
 }
 
+
+
 //节点重命名
 function Rename(str){
 	var server=str;
@@ -1049,13 +1070,13 @@ function Rename(str){
 				}else if(nname && oname==""){//后缀
 					name= name+nname
 				}else if(oname && oname.indexOf("☠️")!=-1){ //删除特定字符，多字符用.连接
-					hh=oname.slice(0,oname.length-2).split(".")
+					hh=Dot2(oname.slice(0,oname.length-2)).split(".") //符号.的特殊处理
 					for(j=0;j<hh.length;j++){
-						var nn=escapeRegExp(hh[j])
+						var nn=escapeRegExp(ToDot(hh[j]))
 						var del=new RegExp(nn,"gmi");
 						name=name.replace(del,"")
 					}
-				}else if(oname=="" && nname==""){ //删除@符号
+				}else if(oname=="" && nname==""){ //仅有@时，删除@符号
 					name=name.replace(/@/g,"")
 				}else{
 					name=name}	
