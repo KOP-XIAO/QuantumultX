@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-07-05 13:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-07-06 00:39⟧
 ----------------------------------------------------------
 🚫 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -102,7 +102,9 @@ var pfi=Pin0? "in="+Pin0.join(", ")+",  ":""
 var pfo=Pout0? "out="+Pout0.join(", "):""
 var pfihn=Phin0? "inhn="+Phin0.join(", ")+",  ":""
 var pfohn=Phout0? "outhn="+Phout0.join(", "):""
-
+var flow="";
+var exptime="";
+var ntf_flow=0;
 const subinfo=$resource.info;
 const subtag=$resource.tag!=undefined? $resource.tag:"";
 const Base64=new Base64Code();
@@ -114,6 +116,8 @@ var rwhost_link = {"open-url":link0.split("#")[0], "media-url": "https://shrtm.n
 var rule_link={"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/tIHl"}
 var nan_link={"open-url":link0.split("#")[0], "media-url": qxpng}
 var sub_link={"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/ebAr"}
+var subinfo_link1={"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/uo13"}
+
 
 
 //$notify(link0,type0,content0)
@@ -134,6 +138,7 @@ if(Pinfo==1 && subinfo){
 			epr=""; //"过期时间: ✈️ 未提供該信息" //没过期时间的显示订阅链接
 		}
 	var message=total+"\n"+usd+", "+left;
+	ntf_flow=1;
 	$notify("流量信息: ⟦"+subtag+"⟧", epr, message,subinfo_link)
 }
 
@@ -183,6 +188,8 @@ if(flag==3){
 }else if(flag==2){
 	$done({content:total.join("\n")});
 }else if(flag==1){
+	if(Pinfo==1&&ntf_flow==0){ //假节点类型的流量通知
+		flowcheck(total)}
 	if(Pin0||Pout0){
 		total=Filter(total,Pin0,Pout0)
 		}
@@ -214,6 +221,21 @@ if(flag==3){
 	if(flag==1){
 		total=Base64.encode(total)} //强制 base64
 	$done({content : total});
+}
+
+//flowcheck
+function flowcheck(cnt){
+	for(i=0;i<cnt.length;i++){
+	var item=cnt[i];
+	var nl=item.slice(item.indexOf("tag"))
+	var nm=nl.slice(nl.indexOf("=")+1)
+	if(item.indexOf("剩余流量")!=-1){
+		flow=nm
+	}else if(item.indexOf("过期时间")!=-1){
+		exptime=nm
+	}
+	}
+	if(flow!=""){$notify("流量信息: ⟦"+subtag+"⟧", flow, exptime,subinfo_link1)}
 }
 
 // 随机洗牌排序
@@ -647,8 +669,6 @@ function TagCheck_QX(content){
 		var nl=item.slice(item.indexOf("tag"))
 		//$notify(nl)
 		var nm=nl.slice(nl.indexOf("=")+1)
-		//nl<3? item.split("tag")[1].split("=")[1].trim():item.split("tag")[1].split("=")[1].trim() // get tag
-		//$notify(nm)
 		if(nm==""){ //空名字
 			nm=" ["+item.split("=")[0]+"] "+item.split("=")[1].split(",")[0].split(":")[0]
 			item=item.split("tag")[0]+"tag="+nm.replace("shadowsocks","ss")
@@ -852,7 +872,7 @@ function Scheck(content,param){
 function Filter(servers,Pin,Pout){
 	var Nlist=[];
 	var Delist=[];
-	var Nname=[]
+	var Nname=[];
 	for(var i=0;i<servers.length;i++){
 		if(Scheck(servers[i],Pin)!=0 && Scheck(servers[i],Pout)!=1){
 			Nlist.push(servers[i])
