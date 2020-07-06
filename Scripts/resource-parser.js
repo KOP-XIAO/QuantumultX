@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-07-06 23:49⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-07-06 00:39⟧
 ----------------------------------------------------------
 🚫 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -276,11 +276,11 @@ function Type_Check(subs){
 	}else if(SubK.some(SubCheck)){  //b64加密的订阅类型
 		type="Subs-B64Encode"
 	} else if(subi.indexOf("tag=")!=-1 && QuanXK.some(QuanXCheck)){
-		type="Subs"//"QuanX"
+		type="QuanX"
 	} else if(subs.indexOf("[Proxy]")!=-1){
 		type="Surge";
 	} else if(SurgeK.some(SurgeCheck)){
-		type="Subs"//"Surge"
+		type="Surge"
 	} else if(subi.indexOf("[Script]")!=-1 || subi.indexOf("[Rule]")!=-1 || subi.indexOf("[URL Rewrite]")!=-1){ // Surge module /profile 类型
 		type="sgmodule"
 	}else if(subi.indexOf("hostname=")!=-1 || RewriteK.some(RewriteCheck)){
