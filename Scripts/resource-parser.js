@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-07-07 10:39⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-07-07 13:39⟧
 ----------------------------------------------------------
 🚫 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -73,9 +73,11 @@ PS. 隐藏参数 ntf=0/1, 用于关闭/打开资源解析器的提示通知
 
 var content0=$resource.content;
 var link0=$resource.link;
+//debug
 //const $notify=console.log
 //const $resource={}
 //const $done=function(snt){return snt}
+//parameters
 var para=(link0.indexOf("http")!=-1 && link0.indexOf("://")!=-1)? link0:link0+content0.split("\n")[0];
 var mark0=para.indexOf("#")!=-1? true:false;
 var type0=Type_Check(content0);
@@ -215,7 +217,6 @@ if(flag==3){
 	}
 	total=TagCheck_QX(total)
     total=total.join("\n");
-	//$notify(total)
 	if(flag==1){
 		total=Base64.encode(total)} //强制 base64
 	$done({content : total});
@@ -591,7 +592,9 @@ function SubsEd2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 			node = list0[i]
 		}else if(SurgeK.some(SurgeCheck)){
 			node = Surge2QX(list0[i])
-		}else{}
+		}else if(LoonK.some(LoonCheck)){
+			node = Loon2QX(list0[i])
+		}
 		//$notify("Final","results",node)
 		if(node!=""){
         QXlist.push(node)}
@@ -607,6 +610,7 @@ function Subs2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 	//$notify(list0,list0.length)
 	var QuanXK=["shadowsocks=","trojan=","vmess=","http="];
 	var SurgeK=["=ss","=vmess","=trojan","=http"];
+	var LoonK=["=shadowsocks"]
 	var QXlist=[];
 	for(var i=0;i<list0.length;i++){
 		var node=""
@@ -615,6 +619,7 @@ function Subs2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 		var listi=list0[i].replace(/ /g,"")
 		const QuanXCheck = (item) => listi.toLowerCase().indexOf(item)!=-1;
 		const SurgeCheck = (item) => listi.toLowerCase().indexOf(item)!=-1;
+		const LoonCheck = (item) => listi.toLowerCase().indexOf(item)!=-1;
 		if(type=="vmess" && list0[i].indexOf("remarks=")==-1){
 			var bnode=Base64.decode(list0[i].split("vmess://")[1])
 			if(bnode.indexOf("over-tls=")==-1){ //v2rayN
@@ -639,7 +644,9 @@ function Subs2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 		}else if(SurgeK.some(SurgeCheck)){
 			//$notify("surge")
 			node = Surge2QX(list0[i])
-		}else {}
+		}else if(LoonK.some(LoonCheck)){
+			node = Loon2QX(list0[i])
+		}
 		if (node instanceof Array){
 		    for (var j in node) {
 		        QXlist.push(node[j])
@@ -662,7 +669,8 @@ function TagCheck_QX(content){
 	var duplist=[];  //记录重名节点
 	var no=0;
 	for(var i=0;i<Olist.length;i++){
-		var item=Olist[i]
+		var item=Olist[i]?Olist[i]:""
+		if(item.replace(/ /gm,"").indexOf("tag=")!=-1){
 		var nl=item.slice(item.indexOf("tag"))
 		//$notify(nl)
 		var nm=nl.slice(nl.indexOf("=")+1)
@@ -681,6 +689,7 @@ function TagCheck_QX(content){
 		nmlist.push(nm)	
 		ni=0	
 		Nlist.push(item)
+		}// if "tag="
 	} // for
 	//$notify(nulllist.length,)
 	if(nulllist.length>=1){
@@ -1289,6 +1298,27 @@ function Shttp2QX(content){
 	}
 	var nserver= puname!=""? "http= "+[ipport,puname,pwd,ptls,ptfo,tag].join(", "):"http= "+[ipport,ptls,ptfo,tag].join(", ");
 	return nserver
+}
+
+function Loon2QX(cnt){
+	var type=cnt.split("=")[1].split(",")[0].trim()
+	var node=""
+	if(type=="Shadowsocks"){ //ss 类型
+		node=LoonSS2QX(cnt)
+	}
+	return node	
+}
+//Loon 的 ss 部分
+function LoonSS2QX(cnt){
+	var node="shadowsocks="
+	var ip=[cnt.split(",")[1].trim(),cnt.split(",")[2].trim()].join(":")
+	var mtd="method="+cnt.split(",")[3].trim()
+	var pwd="password="+cnt.split(",")[4].trim().split("\"")[1]
+	var obfs=cnt.split(",").length==7? ", "+["obfs="+cnt.split(",")[5].trim(),"obfs-host="+cnt.split(",")[6].trim()].join(","):""
+	var tag=", tag="+cnt.split("=")[0].trim()
+	node=node+[ip,mtd,pwd].join(", ")+obfs+tag
+	//$notify(node)
+	return node
 }
 
 //比较完美的一款 base64 encode/decode 工具
