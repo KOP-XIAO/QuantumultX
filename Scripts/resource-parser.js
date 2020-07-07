@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-07-06 00:39⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-07-07 10:39⟧
 ----------------------------------------------------------
 🚫 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -70,9 +70,12 @@ PS. 隐藏参数 ntf=0/1, 用于关闭/打开资源解析器的提示通知
 
 ------------------------------
  */
-//$notify("test",$resource.link)
+
 var content0=$resource.content;
 var link0=$resource.link;
+//const $notify=console.log
+//const $resource={}
+//const $done=function(snt){return snt}
 var para=(link0.indexOf("http")!=-1 && link0.indexOf("://")!=-1)? link0:link0+content0.split("\n")[0];
 var mark0=para.indexOf("#")!=-1? true:false;
 var type0=Type_Check(content0);
@@ -81,10 +84,8 @@ var Pin0=mark0 && para1.indexOf("in=")!=-1? (para1.split("in=")[1].split("&")[0]
 var Pout0=mark0 && para1.indexOf("out=")!=-1? (para1.split("out=")[1].split("&")[0].split("+")).map(decodeURIComponent):null;
 var Preg=mark0 && para1.indexOf("regex=")!=-1? decodeURIComponent(para1.split("regex=")[1].split("&")[0]):null; //server正则过滤参数
 var Pregdel=mark0 && para1.indexOf("delreg=")!=-1? decodeURIComponent(para1.split("delreg=")[1].split("&")[0]):null; // 正则删除参数
-//$notify(link0,"type0",type0)
 var Phin0=mark0 && para1.indexOf("inhn=")!=-1? (para1.split("inhn=")[1].split("&")[0].split("+")).map(decodeURIComponent):null; //hostname 
 var Phout0=mark0 && para1.indexOf("outhn=")!=-1? (para1.split("outhn=")[1].split("&")[0].split("+")).map(decodeURIComponent):null; //hostname
-//$notify(link0,"type1",para)
 var Pemoji=mark0 && para1.indexOf("emoji=")!=-1? para1.split("emoji=")[1].split("&")[0]:null;
 var Pudp0=mark0 && para1.indexOf("udp=")!=-1? para1.split("udp=")[1].split("&")[0]:0;
 var Ptfo0=mark0 && para1.indexOf("tfo=")!=-1? para1.split("tfo=")[1].split("&")[0]:0;
@@ -113,14 +114,10 @@ const qxpng="https://raw.githubusercontent.com/crossutility/Quantumult-X/master/
 var subinfo_link = {"open-url": "https://t.me/QuanX_API", "media-url" :"https://shrtm.nu/ebAr"};
 var rwrite_link = {"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/x3o2"}
 var rwhost_link = {"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/0n5J"}
-var rule_link={"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/tIHl"}
+var rule_link={"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/cpHD"}
 var nan_link={"open-url":link0.split("#")[0], "media-url": qxpng}
 var sub_link={"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/ebAr"}
 var subinfo_link1={"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/uo13"}
-
-
-
-//$notify(link0,type0,content0)
 
 //响应头流量处理部分
 if(Pinfo==1 && subinfo){
@@ -218,6 +215,7 @@ if(flag==3){
 	}
 	total=TagCheck_QX(total)
     total=total.join("\n");
+	//$notify(total)
 	if(flag==1){
 		total=Base64.encode(total)} //强制 base64
 	$done({content : total});
@@ -225,7 +223,7 @@ if(flag==3){
 
 //flowcheck
 function flowcheck(cnt){
-	for(i=0;i<cnt.length;i++){
+	for(var i=0;i<cnt.length;i++){
 	var item=cnt[i];
 	var nl=item.slice(item.indexOf("tag"))
 	var nm=nl.slice(nl.indexOf("=")+1)
@@ -276,11 +274,11 @@ function Type_Check(subs){
 	}else if(SubK.some(SubCheck)){  //b64加密的订阅类型
 		type="Subs-B64Encode"
 	} else if(subi.indexOf("tag=")!=-1 && QuanXK.some(QuanXCheck)){
-		type="QuanX"
+		type="Subs" // QuanX list
 	} else if(subs.indexOf("[Proxy]")!=-1){
-		type="Surge";
+		type="Surge"; // Surge Profiles
 	} else if(SurgeK.some(SurgeCheck)){
-		type="Surge"
+		type="Subs" // Surge proxy list
 	} else if(subi.indexOf("[Script]")!=-1 || subi.indexOf("[Rule]")!=-1 || subi.indexOf("[URL Rewrite]")!=-1){ // Surge module /profile 类型
 		type="sgmodule"
 	}else if(subi.indexOf("hostname=")!=-1 || RewriteK.some(RewriteCheck)){
@@ -354,8 +352,6 @@ function SGMD2QX(subs){
 	var nrw0=URX2QX(subs)
 	var nrw1=SCP2QX(subs)
 	var nrwt=[...nrw0, ...nrw1]
-	//console.log(nrw)
-	//$notify("..","...",nrw)
 	return nrwt
 }
 
@@ -373,8 +369,6 @@ function Rewrite_Filter(subs,Pin,Pout){
 		if(subi!=""){
 		const notecheck = (item) => subi.indexOf(item)==0
 		if(noteK.some(notecheck)){ // 注释项跳过 
-		//console.log("notion")
-			//Nlist.push(subs[i])
 			continue;
 		}else if(hnc==0 && subii.indexOf("hostname=")==0){ //host name 部分
 			//console.log("hostname");
@@ -413,7 +407,7 @@ function HostNamecheck(content,parain,paraout){
 	var hname=content.replace(/ /g,"").split("=")[1].split(",");
 	var nname=[];
 	var dname=[]; //删除项
-	for(i=0;i<hname.length;i++){
+	for(var i=0;i<hname.length;i++){
 		dd=hname[i]
 		const excludehn = (item) => dd.indexOf(item)!=-1;
 		if(paraout && paraout!=""){ //存在 out 参数时
@@ -569,7 +563,7 @@ function SubsEd2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 	var QuanXK=["shadowsocks=","trojan=","vmess=","http="];
 	var SurgeK=["=ss","=vmess","=trojan","=http","=custom"];
 	var QXlist=[];
-	for(i=0;i<list0.length;i++){
+	for(var i=0;i<list0.length;i++){
 		var node=""
 		if(list0[i].trim().length>3){
 		var type=list0[i].split("://")[0].trim()
@@ -597,7 +591,7 @@ function SubsEd2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 			node = list0[i]
 		}else if(SurgeK.some(SurgeCheck)){
 			node = Surge2QX(list0[i])
-		}
+		}else{}
 		//$notify("Final","results",node)
 		if(node!=""){
         QXlist.push(node)}
@@ -610,10 +604,11 @@ function SubsEd2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 function Subs2QX(subs,Pudp,Ptfo,Pcert,Ptls13){ 
 	//$notify("start","cnt",subs)
 	var list0=subs.split("\n");
+	//$notify(list0,list0.length)
 	var QuanXK=["shadowsocks=","trojan=","vmess=","http="];
 	var SurgeK=["=ss","=vmess","=trojan","=http"];
 	var QXlist=[];
-	for(i=0;i<list0.length;i++){
+	for(var i=0;i<list0.length;i++){
 		var node=""
 		if(list0[i].trim().length>3){
 		var type=list0[i].split("://")[0].trim()
@@ -639,10 +634,12 @@ function Subs2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 		}else if(type=="https"){
 			node = HPS2QX(list0[i],Ptfo,Pcert,Ptls13)
 		}else if(QuanXK.some(QuanXCheck)){
+			//$notify("QX")
 			node = list0[i]
 		}else if(SurgeK.some(SurgeCheck)){
+			//$notify("surge")
 			node = Surge2QX(list0[i])
-		}
+		}else {}
 		if (node instanceof Array){
 		    for (var j in node) {
 		        QXlist.push(node[j])
@@ -664,7 +661,7 @@ function TagCheck_QX(content){
 	var nulllist=[]; //记录空名字节点
 	var duplist=[];  //记录重名节点
 	var no=0;
-	for(i=0;i<Olist.length;i++){
+	for(var i=0;i<Olist.length;i++){
 		var item=Olist[i]
 		var nl=item.slice(item.indexOf("tag"))
 		//$notify(nl)
@@ -743,8 +740,6 @@ function VQ2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 		obfs=obfs+cert+tls13
 	}
 	node=node+obfs+tag
-	//console.log(node)
-	//$notify(node)
 	return node
 }
 
@@ -854,7 +849,7 @@ function Scheck(content,param){
 	//$notify("after",param)
 	if(param){
 		var flag=0;
-	for(i=0;i<param.length;i++){
+	for(var i=0;i<param.length;i++){
 		//console.log(param[i])
 		var params=param[i].split(".").map(ToDot);
 		//$notify(params)
@@ -922,8 +917,6 @@ function SSR2QX(subs,Pudp,Ptfo){
 	return QX;
 }
 
-
-
 //Trojan 类型 URI 转换成 QX
 function TJ2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 	var ntrojan=[]
@@ -961,7 +954,6 @@ function SS2QX(subs,Pudp,Ptfo){
 		var cnt0=Base64.decode(cnt.split("#")[0].replace(/-/g,"+").replace(/_/g,"/").split("\u0000")[0]);
 		ip=cnt0.split("@")[1].split("#")[0].split("/")[0];
 		pwdmtd=cnt0.split("@")[0].split(":")
-
 	}
 	pwd="password="+pwdmtd[1];
 	mtd="method="+pwdmtd[0];
@@ -992,7 +984,6 @@ function SSD2QX(subs,Pudp,Ptfo){
 		obfs=cnt.plugin_options.split(";")[0]!=null ? ", "+cnt.plugin_options.split(";")[0]: "";
 		obfshost=cnt.plugin_options.split(";")[1]!=null ? ", "+cnt.plugin_options.split(";")[1]: "";
 	}
-
 	pudp= Pudp==1? "udp-relay=true":"udp-relay=false";
 	ptfo= Ptfo==1? "fast-open=true":"fast-open=false";
 	for (var i in cnt.servers) {
@@ -1068,15 +1059,13 @@ function DelReg(content){
 		return cnt
 }
 
-
-
 //节点重命名
 function Rename(str){
 	var server=str;
 	if(server.indexOf("tag=")!=-1){
 		hd=server.split("tag=")[0]
 		name=server.split("tag=")[1].trim()
-		for(i=0;i<Prn.length;i++){
+		for(var i=0;i<Prn.length;i++){
 			nname=Prn[i].split("@")[1]? decodeURIComponent(Prn[i].split("@")[1]):Prn[i].split("@")[1];
 			oname=Prn[i].split("@")[0]? decodeURIComponent(Prn[i].split("@")[0]):Prn[i].split("@")[0];
 			if(oname&&nname){ //重命名
@@ -1162,7 +1151,7 @@ function emoji_handle(servers,Pemoji){
 function Surge2QX(conf){
 	var QXlist=conf.split("\n").map(isSurge).filter(Boolean)
 	var Nlist=[]
-	for(i=0;i<QXlist.length;i++){
+	for(var i=0;i<QXlist.length;i++){
 		var cnt=QXlist[i];
 		//console.log(cnt)
 		if(cnt.split("=")[1].split(",")[0].indexOf("trojan")!=-1){
@@ -1182,7 +1171,7 @@ function Surge2QX(conf){
 	}
 	
 // surge2 中的 SS 类型写法(custom)
-//🇷🇺 俄罗斯 GIA = custom, ip, 152, aes-128-gcm, password123, https://dler.cloud/download/SSEncrypt.module, obfs=tls, obfs-host=xxx.windows.com, udp-relay=true
+//🇷🇺 俄罗斯 GIA = custom, ip, 152, aes-128-gcm, password123, https://xxx/download/SSEncrypt.module, obfs=tls, obfs-host=xxx.windows.com, udp-relay=true
 function SCT2QX(content){
 	var cnt=content;
 	var tag="tag="+cnt.split("=")[0].trim();
