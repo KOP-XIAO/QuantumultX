@@ -74,9 +74,9 @@ PS. 隐藏参数 ntf=0/1, 用于关闭/打开资源解析器的提示通知
 var content0=$resource.content;
 var link0=$resource.link;
 //debug
-const $notify=console.log
-const $resource={}
-const $done=function(snt){return snt}
+//const $notify=console.log
+//const $resource={}
+//const $done=function(snt){return snt}
 //parameters
 var para=(link0.indexOf("http")!=-1 && link0.indexOf("://")!=-1)? link0:link0+content0.split("\n")[0];
 var para1=para.slice(para.indexOf("#")+1) //防止参数中其它位置也存在"#"
@@ -223,7 +223,7 @@ if(flag==3){
 	}
 	total=TagCheck_QX(total)
     total=total.join("\n");
-$notify("Final","test",total)
+//$notify("Final","test",total)
 	if(flag==1){
 		total=Base64.encode(total)} //强制 base64
 	$done({content : total});
