@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-07-07 17:39⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-07-08 14:39⟧
 ----------------------------------------------------------
 🚫 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -9,7 +9,7 @@
 A. 将各格式的服务器订阅解析成 𝐐𝐮𝐚𝐧𝐭𝐮𝐦𝐮𝐥𝐭 𝐗 格式引用
 ✔︎ 支持 Vmess/SS(R/D)/Trojan/QuanX/Surge/HTTP(s) 订阅
 ✔︎ 提供说明 1⃣️ 中的可选个性化参数(筛选、重命名 等)
-B. rewrite(重写) /filter(分流) 的转换&筛选 
+B. rewrite(重写) /filter(分流) 的 转换&筛选 
 ✔︎ 用于禁用远程引用中某(几)项 rewrite/hostname/filter
 ✔︎ Surge 类型规则 list(不含策略组)的解析与使用
 ✔︎ Surge 模块/配置 URL-REGEX、302(7) 复写、Script 的解析
@@ -74,14 +74,32 @@ PS. 隐藏参数 ntf=0/1, 用于关闭/打开资源解析器的提示通知
 var content0=$resource.content;
 var link0=$resource.link;
 //debug
-//const $notify=console.log
-//const $resource={}
-//const $done=function(snt){return snt}
+const $notify=console.log
+const $resource={}
+const $done=function(snt){return snt}
 //parameters
 var para=(link0.indexOf("http")!=-1 && link0.indexOf("://")!=-1)? link0:link0+content0.split("\n")[0];
+var para1=para.slice(para.indexOf("#")+1) //防止参数中其它位置也存在"#"
 var mark0=para.indexOf("#")!=-1? true:false;
-var type0=Type_Check(content0);
-para1=para.slice(para.indexOf("#")+1) //防止参数中其它位置也存在"#"
+const subinfo=$resource.info;
+const subtag=$resource.tag!=undefined? $resource.tag:"";
+var Pinfo=mark0 && para1.indexOf("info=")!=-1? para1.split("info=")[1].split("&")[0]:0;
+var ntf_flow=0;
+//常用量
+const Base64=new Base64Code();
+const escapeRegExp = str => str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'); //处理特殊符号以便正则匹配使用
+const qxpng="https://raw.githubusercontent.com/crossutility/Quantumult-X/master/quantumult-x.png"
+const subinfo_link = {"open-url": "https://t.me/QuanX_API", "media-url" :"https://shrtm.nu/ebAr"};
+const rwrite_link = {"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/x3o2"}
+const rwhost_link = {"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/0n5J"}
+const rule_link={"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/cpHD"}
+const nan_link={"open-url":link0.split("#")[0], "media-url": qxpng}
+const sub_link={"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/ebAr"}
+const subinfo_link1={"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/uo13"}
+
+SubFlow() //流量通知
+var type0=Type_Check(content0); //  类型
+//$notify(type0)
 var Pin0=mark0 && para1.indexOf("in=")!=-1? (para1.split("in=")[1].split("&")[0].split("+")).map(decodeURIComponent):null;
 var Pout0=mark0 && para1.indexOf("out=")!=-1? (para1.split("out=")[1].split("&")[0].split("+")).map(decodeURIComponent):null;
 var Preg=mark0 && para1.indexOf("regex=")!=-1? decodeURIComponent(para1.split("regex=")[1].split("&")[0]):null; //server正则过滤参数
@@ -91,7 +109,6 @@ var Phout0=mark0 && para1.indexOf("outhn=")!=-1? (para1.split("outhn=")[1].split
 var Pemoji=mark0 && para1.indexOf("emoji=")!=-1? para1.split("emoji=")[1].split("&")[0]:null;
 var Pudp0=mark0 && para1.indexOf("udp=")!=-1? para1.split("udp=")[1].split("&")[0]:0;
 var Ptfo0=mark0 && para1.indexOf("tfo=")!=-1? para1.split("tfo=")[1].split("&")[0]:0;
-var Pinfo=mark0 && para1.indexOf("info=")!=-1? para1.split("info=")[1].split("&")[0]:0;
 var Prname=mark0 && para1.indexOf("rename=")!=-1? para1.split("rename=")[1].split("&")[0].split("+"):null;
 var Prrname=mark0 && para1.indexOf("rrname=")!=-1? para1.split("rrname=")[1].split("&")[0].split("+"):null;
 var Ppolicy=mark0 && para1.indexOf("policy=")!=-1? decodeURIComponent(para1.split("policy=")[1].split("&")[0]):"Shawn";
@@ -107,38 +124,27 @@ var pfihn=Phin0? "inhn="+Phin0.join(", ")+",  ":""
 var pfohn=Phout0? "outhn="+Phout0.join(", "):""
 var flow="";
 var exptime="";
-var ntf_flow=0;
-const subinfo=$resource.info;
-const subtag=$resource.tag!=undefined? $resource.tag:"";
-const Base64=new Base64Code();
-const escapeRegExp = str => str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'); //处理特殊符号以便正则匹配使用
-const qxpng="https://raw.githubusercontent.com/crossutility/Quantumult-X/master/quantumult-x.png"
-var subinfo_link = {"open-url": "https://t.me/QuanX_API", "media-url" :"https://shrtm.nu/ebAr"};
-var rwrite_link = {"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/x3o2"}
-var rwhost_link = {"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/0n5J"}
-var rule_link={"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/cpHD"}
-var nan_link={"open-url":link0.split("#")[0], "media-url": qxpng}
-var sub_link={"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/ebAr"}
-var subinfo_link1={"open-url":link0.split("#")[0], "media-url": "https://shrtm.nu/uo13"}
 
 //响应头流量处理部分
-if(Pinfo==1 && subinfo){
-	var sinfo=subinfo.replace(/ /g,"").toLowerCase();
-	var total="总流量: "+(parseFloat(sinfo.split("total=")[1].split(",")[0])/(1024**3)).toFixed(2)+"GB";
-	var usd="已用流量: "+((parseFloat(sinfo.split("upload=")[1].split(",")[0])+parseFloat(sinfo.split("download=")[1].split(",")[0]))/(1024**3)).toFixed(2)+"GB"
-	var left="剩余流量: "+((parseFloat(sinfo.split("total=")[1].split(",")[0])/(1024**3))-((parseFloat(sinfo.split("upload=")[1].split(",")[0])+parseFloat(sinfo.split("download=")[1].split(",")[0]))/(1024**3))).toFixed(2)+"GB"
-	if(sinfo.indexOf("expire=")!=-1){
-		var epr= new Date(parseFloat(sinfo.split("expire=")[1].split(",")[0])*1000);
-		var year=epr.getFullYear();  // 获取完整的年份(4位,1970)
-		var mth=epr.getMonth()+1 < 10 ? '0'+(epr.getMonth()+1):(epr.getMonth()+1);  // 获取月份(0-11,0代表1月,用的时候记得加上1)
-		var day=epr.getDate()<10 ? "0"+(epr.getDate()):epr.getDate(); 
-		epr="过期时间: "+year+"-"+mth+"-"+day
-		} else{
-			epr=""; //"过期时间: ✈️ 未提供該信息" //没过期时间的显示订阅链接
-		}
-	var message=total+"\n"+usd+", "+left;
-	ntf_flow=1;
-	$notify("流量信息: ⟦"+subtag+"⟧", epr, message,subinfo_link)
+function SubFlow(){
+	if(Pinfo==1 && subinfo){
+		var sinfo=subinfo.replace(/ /g,"").toLowerCase();
+		var total="总流量: "+(parseFloat(sinfo.split("total=")[1].split(",")[0])/(1024**3)).toFixed(2)+"GB";
+		var usd="已用流量: "+((parseFloat(sinfo.split("upload=")[1].split(",")[0])+parseFloat(sinfo.split("download=")[1].split(",")[0]))/(1024**3)).toFixed(2)+"GB"
+		var left="剩余流量: "+((parseFloat(sinfo.split("total=")[1].split(",")[0])/(1024**3))-((parseFloat(sinfo.split("upload=")[1].split(",")[0])+parseFloat(sinfo.split("download=")[1].split(",")[0]))/(1024**3))).toFixed(2)+"GB"
+		if(sinfo.indexOf("expire=")!=-1){
+			var epr= new Date(parseFloat(sinfo.split("expire=")[1].split(",")[0])*1000);
+			var year=epr.getFullYear();  // 获取完整的年份(4位,1970)
+			var mth=epr.getMonth()+1 < 10 ? '0'+(epr.getMonth()+1):(epr.getMonth()+1);  // 获取月份(0-11,0代表1月,用的时候记得加上1)
+			var day=epr.getDate()<10 ? "0"+(epr.getDate()):epr.getDate(); 
+			epr="过期时间: "+year+"-"+mth+"-"+day
+			} else{
+				epr=""; //"过期时间: ✈️ 未提供該信息" //没过期时间的显示订阅链接
+			}
+		var message=total+"\n"+usd+", "+left;
+		ntf_flow=1;
+		$notify("流量信息: ⟦"+subtag+"⟧", epr, message,subinfo_link)
+	}
 }
 
 if(type0=="Subs-B64Encode"){
@@ -217,12 +223,13 @@ if(flag==3){
 	}
 	total=TagCheck_QX(total)
     total=total.join("\n");
+$notify("Final","test",total)
 	if(flag==1){
 		total=Base64.encode(total)} //强制 base64
 	$done({content : total});
 }
 
-//flowcheck
+//flowcheck-fake-server
 function flowcheck(cnt){
 	for(var i=0;i<cnt.length;i++){
 	var item=cnt[i];
@@ -586,7 +593,7 @@ function SubsEd2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 			node = SS2QX(list0[i],Pudp,Ptfo)
 		}else if(type=="trojan"){
 			node = TJ2QX(list0[i],Pudp,Ptfo,Pcert,Ptls13)
-		}else if(type=="https"){ //subs,Ptfo,Pcert,Ptls13
+		}else if(type=="https"&&listi.indexOf("@")!=-1){ //subs,Ptfo,Pcert,Ptls13
 			node = HPS2QX(list0[i],Ptfo,Pcert,Ptls13)
 		}else if(QuanXK.some(QuanXCheck)){
 			node = list0[i]
@@ -636,7 +643,7 @@ function Subs2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 			node = SSD2QX(list0[i],Pudp,Ptfo)
 		}else if(type=="trojan"){
 			node = TJ2QX(list0[i],Pudp,Ptfo,Pcert,Ptls13)
-		}else if(type=="https"){
+		}else if(type=="https"&&listi.indexOf("@")!=-1){
 			node = HPS2QX(list0[i],Ptfo,Pcert,Ptls13)
 		}else if(QuanXK.some(QuanXCheck)){
 			//$notify("QX")
@@ -703,7 +710,6 @@ function TagCheck_QX(content){
 //http=example.com:443, username=name, password=pwd, over-tls=true, tls-host=example.com, tls-verification=true, tls13=true, fast-open=false, udp-relay=false, tag=http-tls-02
 //HTTPS 类型 URI 转换成 QUANX 格式
 function HPS2QX(subs,Ptfo,Pcert,Ptls13){
-
 	var server=Base64.decode(subs.replace("https://","")).trim().split("\u0000")[0];
 	var nss=[]
 	if(server!=""){
