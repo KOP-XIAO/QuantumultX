@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-07-10 11:39⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-07-10 15:39⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -123,6 +123,7 @@ var pfihn=Phin0? "inhn="+Phin0.join(", ")+",  ":""
 var pfohn=Phout0? "outhn="+Phout0.join(", "):""
 var flow="";
 var exptime="";
+//$notify(type0)
 
 //响应头流量处理部分
 function SubFlow(){
@@ -330,7 +331,7 @@ function SCP2QX(subs){
 		}
 		var SC=["type=",".js","pattern=","script-path="]
 		const sccheck = (item) => subs[i].indexOf(item)!=-1
-		if(SC.every(sccheck)){
+		if(SC.every(sccheck)){ // surge js 新格式
 			//console.log(subs[i])
 			ptn=subs[i].split("pattern=")[1].split(",")[0]
 			js=subs[i].split("script-path=")[1].split(",")[0]
@@ -349,6 +350,21 @@ function SCP2QX(subs){
 		}else if(subs[i].indexOf(" 302")!=-1 || subs[i].indexOf(" 307")!=-1){ //rewrite 复写
 			//console.log(subs[i])
 			rw=subs[i].split(" ")[0]+" url "+subs[i].split(" ")[2]+" "+subs[i].split(" ")[1]
+			nrw.push(rw)
+		}else if(subs[i].indexOf("script-path")!=-1){ //surge js 旧写法
+			type=subs[i].split(" ")[0]
+			js=subs[i].split("script-path")[1].split("=")[1].split(",")[0]
+			ptn=subs[i].split(" ")[1]
+			if(type=="http-response" && subs[i].indexOf("requires-body=1")!=-1){
+				type="script-response-body "
+			}else if(type=="http-response" && subs[i].indexOf("requires-body=1")==-1){
+				type="script-response-header "
+			}else if(type=="http-request" && subs[i].indexOf("requires-body=1")!=-1){
+				type="script-request-body "
+			}else if(type=="http-request" && subs[i].indexOf("requires-body=1")==-1){
+				type="script-request-header "
+			}
+			rw=ptn+" url "+type+js
 			nrw.push(rw)
 		}
 	}//console.log(nrw)
