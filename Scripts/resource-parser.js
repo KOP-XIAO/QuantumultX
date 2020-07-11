@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-07-10 15:39⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-07-11 10:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -15,7 +15,7 @@
 ----------------------------------------------------------
 0️⃣ ⟦原始链接⟧ 后加 "#" 使用, 不同参数用 "&" 连接: 
 ⚠️ ☞ 𝐡𝐭𝐭𝐩𝐬://𝐦𝐲𝐬𝐮𝐛.𝐜𝐨𝐦#𝙚𝙢𝙤𝙟𝙞=1&𝙩𝙛𝙤=1&𝙞𝙣=香港+台湾
-❖ 本地资源引用, 请将参数 "#𝗶𝗻=𝘅𝘅𝘅..." 填入资源文件第一行 ❖
+❖ 本地资源引用, 请将参数 "#𝗶𝗻=𝘅𝘅𝘅." 填入资源文件第 ① 行 ❖
 
 1️⃣ ⟦𝐬𝐞𝐫𝐯𝐞𝐫 节点⟧ ➠ 参数说明:
 ⦿ 𝗶𝗻𝗳𝗼=1, 开启通知提示机场 ✈️ 流量信息(如有提供);
@@ -261,7 +261,7 @@ function Type_Check(subs){
 	var type="unknown"
 	var RuleK=["host","domain","ip-cidr","geoip","user-agent","ip6-cidr"];
 	var QuanXK=["shadowsocks=","trojan=","vmess=","http="];
-	var SurgeK=["=ss,","=vmess,","=trojan,","=http,","=custom,","=https,","=shadowsocks"];
+	var SurgeK=["=ss,","=vmess,","=trojan,","=http,","=custom,","=https,","=shadowsocks","=shadowsocksr"];
 	var SubK=["dm1lc3M","c3NyOi8v","dHJvamFu","c3M6Ly","c3NkOi8v"];
 	var RewriteK=[" url "]
 	var SubK2=["ss://","vmess://","ssr://","trojan://","ssd://"];
@@ -585,6 +585,7 @@ function SubsEd2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 	//$notify("After B64","lists",list0)
 	var QuanXK=["shadowsocks=","trojan=","vmess=","http="];
 	var SurgeK=["=ss","=vmess","=trojan","=http","=custom"];
+	var LoonK=["=shadowsocks","=shadowsocksr"]
 	var QXlist=[];
 	for(var i=0;i<list0.length;i++){
 		var node=""
@@ -594,6 +595,7 @@ function SubsEd2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 		var listi=list0[i].replace(/ /g,"")
 		const QuanXCheck = (item) => listi.toLowerCase().indexOf(item)!=-1;
 		const SurgeCheck = (item) => listi.toLowerCase().indexOf(item)!=-1;
+		const LoonCheck = (item) => listi.toLowerCase().indexOf(item)!=-1;
 		if(type=="vmess" && list0[i].indexOf("remarks=")==-1){
 			var bnode=Base64.decode(list0[i].split("vmess://")[1])
 			if(bnode.indexOf("over-tls=")==-1){ //v2rayN
@@ -632,7 +634,7 @@ function Subs2QX(subs,Pudp,Ptfo,Pcert,Ptls13){
 	//$notify(list0,list0.length)
 	var QuanXK=["shadowsocks=","trojan=","vmess=","http="];
 	var SurgeK=["=ss","=vmess","=trojan","=http"];
-	var LoonK=["=shadowsocks"]
+	var LoonK=["=shadowsocks","=shadowsocksr"]
 	var QXlist=[];
 	for(var i=0;i<list0.length;i++){
 		var node=""
@@ -1326,6 +1328,8 @@ function Loon2QX(cnt){
 	var node=""
 	if(type=="Shadowsocks"){ //ss 类型
 		node=LoonSS2QX(cnt)
+	}else if(type=="ShadowsocksR"){ //ssr 类型
+		node=LoonSSR2QX(cnt)
 	}
 	return node	
 }
@@ -1338,6 +1342,25 @@ function LoonSS2QX(cnt){
 	var obfs=cnt.split(",").length==7? ", "+["obfs="+cnt.split(",")[5].trim(),"obfs-host="+cnt.split(",")[6].trim()].join(","):""
 	var tag=", tag="+cnt.split("=")[0].trim()
 	node=node+[ip,mtd,pwd].join(", ")+obfs+tag
+	//$notify(node)
+	return node
+}
+
+//Loon 的 ssr 部分
+//# SSR 格式：名称=协议类型,地址,端口,加密方式,密码,协议类型,{协议参数},混淆类型,{混淆参数}
+//3 = ShadowsocksR, 1.2.3.4, 443, aes-256-cfb,"password",auth_aes128_md5,{},tls1.2_ticket_auth,{}
+function LoonSSR2QX(cnt){
+	var node="shadowsocks="
+	var ip=[cnt.split(",")[1].trim(),cnt.split(",")[2].trim()].join(":")
+	var mtd="method="+cnt.split(",")[3].trim()
+	var pwd="password="+cnt.split(",")[4].trim().split("\"")[1]
+	//var obfs=cnt.split(",").length==7? ", "+["obfs="+cnt.split(",")[5].trim(),"obfs-host="+cnt.split(",")[6].trim()].join(","):""
+	var ssrp="ssr-protocol="+cnt.split(",")[5].trim()
+	var ssrpara="ssr-protocol-param="+cnt.split(",")[6].replace(/\{|\}/g,"").trim()
+	var obfs="obfs="+cnt.split(",")[7].trim()
+	var obfshost="obfs-host="+cnt.split(",")[8].replace(/\{|\}/g,"").trim()
+	var tag=", tag="+cnt.split("=")[0].trim()
+	node=node+[ip,mtd,pwd,ssrp,ssrpara,obfs,obfshost].join(", ")+tag
 	//$notify(node)
 	return node
 }
