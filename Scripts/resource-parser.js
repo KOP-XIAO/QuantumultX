@@ -1188,11 +1188,8 @@ function get_emoji(source, sname) {
         for (i in dd) {
             if (sname.indexOf(dd[i]) != -1) {
                 flag = 1;
-                sname = Pemoji == 1 && key == "🇹🇼" ? sname.replace("🇨🇳", "🇹🇼") : sname;
-                sname = Pemoji == 2 && key == " 🇨🇳" ? sname.replace("🇹🇼", "🇨🇳") : sname; //避免key重复，所以" 🇨🇳" 与"🇨🇳"
-                nname = sname.indexOf(key.trim()) == -1 ? key + " " + sname.trim() : key + " " + sname.replace(key.trim(), "").trim();
+                nname = key + " " + sname.replace(/[\uD83C][\uDDE6-\uDDFF][\uD83C][\uDDE6-\uDDFF]/g, "").trim(); // use regex to remove the original flag
                 return nname
-                break;
             }
         }
     }
