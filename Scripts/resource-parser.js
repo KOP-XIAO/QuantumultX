@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-07-21 18:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-07-22 14:29⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -38,23 +38,23 @@
 ⦿ 𝗱𝗲𝗹𝗿𝗲𝗴, 利用正则参数来删除节点名中的字段(⚠️ 慎用)
 ⦿ 𝘀𝗼𝗿𝘁=1, -1, x,分别根据节点名 正序/逆序/随机 排序
 ⦿ 𝗿𝗲𝗽𝗹𝗮𝗰𝗲 参数, 正则替换 𝐬𝐞𝐫𝐯𝐞𝐫 中内容, 可用于重命名/更改加密方式等
-⦿ 𝘀𝗳𝗶𝗹𝘁𝗲𝗿 参数可以传入一段 base64 编码的脚本，用于过滤订阅节点
-⦿ 𝘀𝗿𝗲𝗻𝗮𝗺𝗲 参数可以传入一段 base64 编码的脚本，用于重命名订阅节点
-    ❖ 具体参见此说明: 
-        ∎ https://github.com/KOP-XIAO/QuantumultX/pull/9
-
+⦿ 进阶参数 𝘀𝗳𝗶𝗹𝘁𝗲𝗿/𝘀𝗿𝗲𝗻𝗮𝗺𝗲, 可传入一段 base64 编码的脚本, 用于过滤/重命名订阅节点
+    ❖ 说明: https://github.com/KOP-XIAO/QuantumultX/pull/9
 
 2⃣️ ⟦𝐫𝐞𝐰𝐫𝐢𝐭𝐞 重写⟧/⟦𝐟𝐢𝐥𝐭𝐞𝐫 分流⟧ ➠ 参数说明:
 ⦿ 𝗶𝗻, 𝗼𝘂𝘁, 根据关键词 保留/禁用 相关的规则、重写;
 ⦿ 𝗶𝗻𝗵𝗻, 𝗼𝘂𝘁𝗵𝗻, “保留/删除”主机名(𝒉𝒐𝒔𝒕𝒏𝒂𝒎𝒆);
     ❖ 示范: 禁用 "淘宝比价" 及 "weibo" 的 js 同主机名
  𝐡𝐭𝐭𝐩𝐬://𝐦𝐲𝐥𝐢𝐬𝐭#𝒐𝒖𝒕=𝒕𝒃_𝒑𝒓𝒊𝒄𝒆.𝒋𝒔+𝒘𝒃_𝒂𝒅.𝒋𝒔&𝒐𝒖𝒕𝒉𝒏=𝒘𝒆𝒊𝒃𝒐
+⦿ 𝗿𝗲𝗴𝗲𝘅, 正则筛选, 请自行折腾正则表达式;
+    ❖ 可与 𝗶𝗻(𝗵𝗻)/𝗼𝘂𝘁(𝗵𝗻) 一起使用，𝗶𝗻(𝗵𝗻)/𝗼𝘂𝘁(𝗵𝗻) 会优先执行;
+    ❖ 对 𝒉𝒐𝒔𝒕𝒏𝒂𝒎𝒆 & 𝐫𝐞𝐰𝐫𝐢𝐭𝐞/𝐟𝐢𝐥𝐭𝐞𝐫 同时生效
 ⦿ 𝗱𝘀𝘁=𝗿𝗲𝗴𝗲𝘅/𝘀𝗰𝗿𝗶𝗽𝘁，分别为只保留 𝐒𝐮𝐫𝐠𝐞-𝐦𝐨𝐝𝐮𝐥𝐞 中的 𝐮𝐫𝐥-𝐫𝐞𝐠𝐞𝐱/𝐬𝐜𝐫𝐢𝐩𝐭(302/307), 默认全部保留;
     ❖ 把含 𝐮𝐫𝐥-𝐫𝐞𝐠𝐞𝐱 的 𝗿𝘂𝗹𝗲-𝘀𝗲𝘁 转成重写时, 一定要 𝗱𝘀𝘁=𝗿𝗲𝗴𝗲𝘅
 ⦿ 𝗽𝗼𝗹𝗶𝗰𝘆 参数, 用于直接指定策略组，或为 𝐒𝐮𝐫𝐠𝐞 类型 𝗿𝘂𝗹𝗲-𝘀𝗲𝘁 生成策略组(默认"𝐒𝐡𝐚𝐰𝐧"策略组);
 ⦿ 𝗿𝗲𝗽𝗹𝗮𝗰𝗲 参数, 正则替换 𝐟𝐢𝐥𝐭𝐞𝐫/𝐫𝐞𝐰𝐫𝐢𝐭𝐞 内容, regex@new-parameter;
     ❖ 将淘宝比价中脚本替换成 lite 版本, tiktok 中 JP 换成 KR
-		∎ 𝐫𝐞𝐩𝐥𝐚𝐜𝐞=(𝐩𝐫𝐢𝐜𝐞)(.*)@$1_𝐥𝐢𝐭𝐞$2+𝐣𝐩@𝐤𝐫 
+        ∎ 𝐫𝐞𝐩𝐥𝐚𝐜𝐞=(𝐩𝐫𝐢𝐜𝐞)(.*)@$1_𝐥𝐢𝐭𝐞$2+𝐣𝐩@𝐤𝐫 
 
 3⃣️ 通知参数 𝗻𝘁𝗳=0/1, 用于 关闭/打开 资源解析器的提示通知
 ⦿ 𝗿𝗲𝘄𝗿𝗶𝘁𝗲/𝗳𝗶𝗹𝘁𝗲𝗿 默认“开启”通知提示, 以防规则误删除
@@ -190,6 +190,9 @@ if (type0 == "Subs-B64Encode") {
     flag = 3;
     total = content0.split("\n");
     total = Rule_Handle(total, Pout0, Pin0);
+    if (Preg && total.length!=0) { // 正则筛选规则 filter
+    total = total.map(Regex).filter(Boolean) 
+    RegCheck(total, "分流引用", Preg)} 
 } else if (content0.trim() == "") {
     $notify("‼️ 引用" + "⟦" + subtag + "⟧" + " 返回內容为空", "⁉️ 点通知跳转以确认链接是否失效", para.split("#")[0], nan_link);
     flag = 0;
@@ -210,7 +213,8 @@ if (flag == 3) { // rule 类型
         flowcheck(total)
     }
     if (Pin0 || Pout0) { total = Filter(total, Pin0, Pout0) }
-    if (Preg) { total = total.map(Regex).filter(Boolean) }
+    if (Preg) { total = total.map(Regex).filter(Boolean) 
+    	RegCheck(total, "节点订阅", Preg)} 
     if (Psfilter) { total = FilterScript(total, Psfilter) }
     if (Prrname) {
         var Prn = Prrname;
@@ -268,6 +272,15 @@ function shuffle(arr) {
     return input;
 }
 
+// regex 后的检查
+function RegCheck(total, typen, regpara) {
+	if(total.length == 0){ 
+		$notify("‼️ " + typen + "  ➟ " + "⟦" + subtag + "⟧", "⛔️ 筛选正则: regex=" + regpara, "⚠️ 筛选后剩余项为 0️⃣ , 请检查正则参数及原始链接", nan_link)
+	}else if((typen != "节点订阅" && Pntf0 !=0) || (typen == "节点订阅" && Pntf0 ==1)){
+		var nolist = total.length <= 10 ? emojino[total.length] : total.length
+		$notify("🤖 " + typen + "  ➟ " + "⟦" + subtag + "⟧", "⛔️ 筛选正则: regex=" + regpara, "⚠️ 筛选后剩余以下" + nolist + "个匹配项 \\n ⨷ " + total.join("\n ⨷ "), sub_link)
+	}
+}
 //判断订阅类型
 function Type_Check(subs) {
     var type = "unknown"
@@ -398,7 +411,7 @@ function Rewrite_Filter(subs, Pin, Pout) {
             const notecheck = (item) => subi.indexOf(item) == 0
             if (noteK.some(notecheck)) { // 注释项跳过 
                 continue;
-            } else if (hnc == 0 && subii.indexOf("hostname=") == 0) { //host name 部分
+            } else if (hnc == 0 && subii.indexOf("hostname=") == 0) { //hostname 部分
                 hostname = (Phin0 || Phout0) ? HostNamecheck(subi, Phin0, Phout0) : subi;//hostname 部分
             } else if (subii.indexOf("hostname=") != 0) { //rewrite 部分
                 var inflag = Rcheck(subi, Pin);
@@ -423,6 +436,8 @@ function Rewrite_Filter(subs, Pin, Pout) {
         }
     }
     if (Nlist.length == 0) { $notify("🤖 " + "重写引用  ➟ " + "⟦" + subtag + "⟧", "⛔️ 筛选参数: " + pfi + pfo, "⚠️ 筛选后剩余rewrite规则数为 0️⃣ 条, 请检查参数及原始链接", nan_link) }
+    if(Preg){ Nlist = Nlist.map(Regex).filter(Boolean) // regex to filter rewrites
+    	RegCheck(Nlist, "重写引用", Preg) }
     if (hostname != "") { Nlist.push(hostname) }
     return Nlist
 }
@@ -441,7 +456,6 @@ function HostNamecheck(content, parain, paraout) {
                     if (parain.some(excludehn)) { //Pin 命中🎯️
                         nname.push(hname[i])
                     } else {
-                        $notify("..xx")
                         dname.push(hname[i])
                     } //Pin 未命中🎯️的记录
                 } else { nname.push(hname[i]) }	//无in 参数		
@@ -454,7 +468,6 @@ function HostNamecheck(content, parain, paraout) {
             nname.push(hname[i])
         }
     } //for j
-    hname = "hostname=" + nname.join(", ");
     if (Pntf0 != 0) {
         if (paraout || parain) {
             var noname = dname.length <= 10 ? emojino[dname.length] : dname.length
@@ -469,6 +482,9 @@ function HostNamecheck(content, parain, paraout) {
     if (nname.length == 0) {
         $notify("🤖 " + "重写引用  ➟ " + "⟦" + subtag + "⟧", "⛔️ 筛选参数: " + pfihn + pfohn, "⚠️ 主机名 hostname 中剩余 0️⃣ 项, 请检查参数及原始链接", nan_link)
     }
+    if(Preg){ nname = nname.map(Regex).filter(Boolean) 
+    	RegCheck(nname, "主机名", Preg) }
+    hname = "hostname=" + nname.join(", ");
     return hname
 }
 
@@ -885,9 +901,9 @@ function ToDot(cnt) {
 
 //正则筛选, 完整内容匹配
 function Regex(content) {
-    Preg = RegExp(Preg, "i")
+    var Preg0 = RegExp(Preg, "i")
     cnt = content //.split("tag=")[1]
-    if (Preg.test(cnt)) {
+    if (Preg0.test(cnt)) {
         return content
     }
 }
