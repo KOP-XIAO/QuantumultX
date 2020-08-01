@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-07-22 14:29⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-01 14:29⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -20,41 +20,42 @@
 1️⃣ ⟦𝐬𝐞𝐫𝐯𝐞𝐫 节点⟧ ➠ 参数说明:
 ⦿ 𝗶𝗻𝗳𝗼=1, 开启通知提示机场 ✈️ 流量信息(如有提供);
 ⦿ 𝗲𝗺𝗼𝗷𝗶=1(国行设备用2)/-1, 添加/删除节点名内地区旗帜;
-⦿ 𝘂𝗱𝗽=1, 𝘁𝗳𝗼=1, 𝘁𝗹𝘀13=1, 分别开启 𝐮𝐝𝐩-𝐫𝐞𝐥𝐚𝐲/𝐟𝐚𝐬𝐭-𝐨𝐩𝐞𝐧/𝐭𝐥𝐬1.3;
+⦿ 𝘂𝗱𝗽=1/-1, 𝘁𝗳𝗼=1/-1, 分别强制开启(关闭) 𝐮𝐝𝐩-𝐫𝐞𝐥𝐚𝐲/𝐟𝐚𝐬𝐭-𝐨𝐩𝐞𝐧;
+⦿ 𝘁𝗹𝘀13=1, 开启 𝐭𝐥𝐬1.3, 请自行确认服务端是否已开启;
 ⦿ 𝗰𝗲𝗿𝘁=0, 强制"𝐭𝐥𝐬-𝐯𝐞𝐫𝐢𝐟𝐢𝐜𝐚𝐭𝐢𝐨𝐧=𝐟𝐚𝐥𝐬𝐞" 跳过证书验证;
-⦿ 𝗶𝗻, 𝗼𝘂𝘁, 分别为 保留/删除 节点;
+⦿ 𝗶𝗻, 𝗼𝘂𝘁, 分别为 保留、删除 节点;
     ❖ 多参数(逻辑"或")用 "+", 逻辑"与"用 "." 表示;
     ❖ 支持中文, 操作以下特殊字符时请先替换
         ∎ "+"⇒"%2B", 空格⇒"%20", "&"⇒"%26", "."⇒"\."
     ❖ 示范: "𝐢𝐧=香港.0\.2倍率+台湾&𝐨𝐮𝐭=香港%20𝐁𝐆𝐏"
 ⦿ 𝗿𝗲𝗴𝗲𝘅, 正则筛选, 请自行折腾正则表达式;
-    ❖ 可与 𝗶𝗻/𝗼𝘂𝘁 参数搭配使用，𝗶𝗻/𝗼𝘂𝘁 会优先执行;
+    ❖ 可与 𝗶𝗻/𝗼𝘂𝘁 参数搭配使用, 𝗶𝗻/𝗼𝘂𝘁 会优先执行;
     ❖ 对节点的完整信息进行匹配(类型、端口、加密等)
-⦿ 𝗿𝗲𝗻𝗮𝗺𝗲, 重命名: "旧名@新名", "前缀@", "@后缀", 用 "+" 连接多个参数;
+⦿ 𝗿𝗲𝗻𝗮𝗺𝗲 重命名, "旧名@新名", "前缀@", "@后缀", 用 "+" 连接多个参数;
     ❖ 支持中文, 操作以下特殊字符时请先替换
         ∎ "@"⇒"%40","+"⇒"%2B", 空格⇒"%20", "&"⇒"%26"
     ❖ 删除字段: "字段1.字段2☠️", 想删除 "." 时用 "\." 替代
     ❖ 示范: "𝐫𝐞𝐧𝐚𝐦𝐞=香港@𝐇𝐊+[𝐒𝐒]@+@[1𝐗]+流量.0\.2☠️"
-⦿ 𝗱𝗲𝗹𝗿𝗲𝗴, 利用正则参数来删除节点名中的字段(⚠️ 慎用)
-⦿ 𝘀𝗼𝗿𝘁=1, -1, x,分别根据节点名 正序/逆序/随机 排序
+⦿ 𝗱𝗲𝗹𝗿𝗲𝗴, 利用正则表达式来删除节点名中的字段(⚠️ 慎用)
+⦿ 𝘀𝗼𝗿𝘁=1, -1, x, 分别根据节点名 正序/逆序/随机 排序
 ⦿ 𝗿𝗲𝗽𝗹𝗮𝗰𝗲 参数, 正则替换 𝐬𝐞𝐫𝐯𝐞𝐫 中内容, 可用于重命名/更改加密方式等
-⦿ 进阶参数 𝘀𝗳𝗶𝗹𝘁𝗲𝗿/𝘀𝗿𝗲𝗻𝗮𝗺𝗲, 可传入一段 base64 编码的脚本, 用于过滤/重命名订阅节点
+⦿ 进阶参数: 𝘀𝗳𝗶𝗹𝘁𝗲𝗿/𝘀𝗿𝗲𝗻𝗮𝗺𝗲, 可传入一段 base64 编码的脚本, 用于过滤/重命名订阅节点
     ❖ 说明: https://github.com/KOP-XIAO/QuantumultX/pull/9
 
 2⃣️ ⟦𝐫𝐞𝐰𝐫𝐢𝐭𝐞 重写⟧/⟦𝐟𝐢𝐥𝐭𝐞𝐫 分流⟧ ➠ 参数说明:
-⦿ 𝗶𝗻, 𝗼𝘂𝘁, 根据关键词 保留/禁用 相关的规则、重写;
+⦿ 𝗶𝗻, 𝗼𝘂𝘁, 根据关键词 保留/禁用 相关分流、重写规则;
 ⦿ 𝗶𝗻𝗵𝗻, 𝗼𝘂𝘁𝗵𝗻, “保留/删除”主机名(𝒉𝒐𝒔𝒕𝒏𝒂𝒎𝒆);
     ❖ 示范: 禁用 "淘宝比价" 及 "weibo" 的 js 同主机名
  𝐡𝐭𝐭𝐩𝐬://𝐦𝐲𝐥𝐢𝐬𝐭#𝒐𝒖𝒕=𝒕𝒃_𝒑𝒓𝒊𝒄𝒆.𝒋𝒔+𝒘𝒃_𝒂𝒅.𝒋𝒔&𝒐𝒖𝒕𝒉𝒏=𝒘𝒆𝒊𝒃𝒐
 ⦿ 𝗿𝗲𝗴𝗲𝘅, 正则筛选, 请自行折腾正则表达式;
     ❖ 可与 𝗶𝗻(𝗵𝗻)/𝗼𝘂𝘁(𝗵𝗻) 一起使用，𝗶𝗻(𝗵𝗻)/𝗼𝘂𝘁(𝗵𝗻) 会优先执行;
-    ❖ 对 𝒉𝒐𝒔𝒕𝒏𝒂𝒎𝒆 & 𝐫𝐞𝐰𝐫𝐢𝐭𝐞/𝐟𝐢𝐥𝐭𝐞𝐫 同时生效
-⦿ 𝗱𝘀𝘁=𝗿𝗲𝗴𝗲𝘅/𝘀𝗰𝗿𝗶𝗽𝘁，分别为只保留 𝐒𝐮𝐫𝐠𝐞-𝐦𝐨𝐝𝐮𝐥𝐞 中的 𝐮𝐫𝐥-𝐫𝐞𝐠𝐞𝐱/𝐬𝐜𝐫𝐢𝐩𝐭(302/307), 默认全部保留;
-    ❖ 把含 𝐮𝐫𝐥-𝐫𝐞𝐠𝐞𝐱 的 𝗿𝘂𝗹𝗲-𝘀𝗲𝘁 转成重写时, 一定要 𝗱𝘀𝘁=𝗿𝗲𝗴𝗲𝘅
+    ❖ 对 𝒉𝒐𝒔𝒕𝒏𝒂𝒎𝒆 & 𝐫𝐞𝐰𝐫𝐢𝐭𝐞/𝐟𝐢𝐥𝐭𝐞𝐫 同时生效(⚠️ 慎用)
 ⦿ 𝗽𝗼𝗹𝗶𝗰𝘆 参数, 用于直接指定策略组，或为 𝐒𝐮𝐫𝐠𝐞 类型 𝗿𝘂𝗹𝗲-𝘀𝗲𝘁 生成策略组(默认"𝐒𝐡𝐚𝐰𝐧"策略组);
-⦿ 𝗿𝗲𝗽𝗹𝗮𝗰𝗲 参数, 正则替换 𝐟𝐢𝐥𝐭𝐞𝐫/𝐫𝐞𝐰𝐫𝐢𝐭𝐞 内容, regex@new-parameter;
+⦿ 𝗿𝗲𝗽𝗹𝗮𝗰𝗲 参数, 正则替换 𝐟𝐢𝐥𝐭𝐞𝐫/𝐫𝐞𝐰𝐫𝐢𝐭𝐞 内容, regex@newregex;
     ❖ 将淘宝比价中脚本替换成 lite 版本, tiktok 中 JP 换成 KR
         ∎ 𝐫𝐞𝐩𝐥𝐚𝐜𝐞=(𝐩𝐫𝐢𝐜𝐞)(.*)@$1_𝐥𝐢𝐭𝐞$2+𝐣𝐩@𝐤𝐫 
+⦿ 𝗱𝘀𝘁=𝗿𝗲𝗴𝗲𝘅/𝘀𝗰𝗿𝗶𝗽𝘁，分别为只保留 𝐒𝐮𝐫𝐠𝐞-𝐦𝐨𝐝𝐮𝐥𝐞 中的 𝐮𝐫𝐥-𝐫𝐞𝐠𝐞𝐱/𝐬𝐜𝐫𝐢𝐩𝐭(302/307), 默认全部保留;
+    ❖ 把含 𝐮𝐫𝐥-𝐫𝐞𝐠𝐞𝐱 的 𝗿𝘂𝗹𝗲-𝘀𝗲𝘁 转成重写时, 一定要 𝗱𝘀𝘁=𝗿𝗲𝗴𝗲𝘅
 
 3⃣️ 通知参数 𝗻𝘁𝗳=0/1, 用于 关闭/打开 资源解析器的提示通知
 ⦿ 𝗿𝗲𝘄𝗿𝗶𝘁𝗲/𝗳𝗶𝗹𝘁𝗲𝗿 默认“开启”通知提示, 以防规则误删除
@@ -654,10 +655,12 @@ function SubsEd2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
             } else if (QuanXK.some(QuanXCheck)) {
                 node = list0[i]
             } else if (SurgeK.some(SurgeCheck)) {
-                node = Surge2QX(list0[i])
+                node = Surge2QX(list0[i])[0]
             } else if (LoonK.some(LoonCheck)) {
                 node = Loon2QX(list0[i])
             }
+            node = Pudp != 0 ? XUDP(node,Pudp) : node
+            node = Ptfo != 0 ? XTFO(node,Ptfo) : node
             if (node != "") {
                 QXlist.push(node)
             }
@@ -670,7 +673,7 @@ function SubsEd2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
 function Subs2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
     var list0 = subs.split("\n");
     var QuanXK = ["shadowsocks=", "trojan=", "vmess=", "http="];
-    var SurgeK = ["=ss", "=vmess", "=trojan", "=http"];
+    var SurgeK = ["=ss", "=vmess", "=trojan", "=http", "=custom"];
     var LoonK = ["=shadowsocks", "=shadowsocksr"]
     var QXlist = [];
     for (var i = 0; i < list0.length; i++) {
@@ -703,10 +706,12 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
             } else if (QuanXK.some(QuanXCheck)) {
                 node = list0[i]
             } else if (SurgeK.some(SurgeCheck)) {
-                node = Surge2QX(list0[i])
+                node = Surge2QX(list0[i])[0]
             } else if (LoonK.some(LoonCheck)) {
                 node = Loon2QX(list0[i])
             }
+            node = Pudp != 0 ? XUDP(node,Pudp) : node
+            node = Ptfo != 0 ? XTFO(node,Ptfo) : node
             if (node instanceof Array) {
                 for (var j in node) {
                     QXlist.push(node[j])
@@ -1418,6 +1423,27 @@ function LoonSSR2QX(cnt) {
     var tag = ", tag=" + cnt.split("=")[0].trim()
     node = node + [ip, mtd, pwd, ssrp, ssrpara, obfs, obfshost].join(", ") + tag
     return node
+}
+
+// UDP/TFO 参数 (强制 surge/quanx 类型转换)
+function XUDP(cnt,pudp) {
+    var udp = pudp == 1? "udp-relay=true, " : "udp-relay=false, "
+    if(cnt.indexOf("udp-relay") != -1){
+        var cnt0 = cnt.replace(new RegExp("udp\-relay.*\, ", "gmi"), udp)
+    }else{
+        var cnt0 = cnt.replace(new RegExp("tag.*\=", "gmi"), udp+"tag=")
+    }
+    return cnt0
+}
+
+function XTFO(cnt,ptfo) {
+    var tfo = ptfo == 1? "fast-open=true, " : "fast-open=false, "
+    if(cnt.indexOf("fast-open") != -1){
+        cnt = cnt.replace(RegExp("fast\-open.*\, ", "gmi"), tfo)
+    }else{
+        cnt = cnt.replace(RegExp("tag.*\=", "gmi"), tfo+"tag=")
+    }
+    return cnt
 }
 
 //比较完美的一款 base64 encode/decode 工具
