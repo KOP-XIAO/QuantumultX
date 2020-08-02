@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-01 14:29⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-02 11:29⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1429,9 +1429,9 @@ function LoonSSR2QX(cnt) {
 function XUDP(cnt,pudp) {
     var udp = pudp == 1? "udp-relay=true, " : "udp-relay=false, "
     if(cnt.indexOf("udp-relay") != -1){
-        var cnt0 = cnt.replace(new RegExp("udp\-relay.*\, ", "gmi"), udp)
+        var cnt0 = cnt.replace(RegExp("udp\-relay.*?\,", "gmi"), udp)
     }else{
-        var cnt0 = cnt.replace(new RegExp("tag.*\=", "gmi"), udp+"tag=")
+        var cnt0 = cnt.replace(new RegExp("tag.*?\=", "gmi"), udp+"tag=")
     }
     return cnt0
 }
@@ -1439,11 +1439,11 @@ function XUDP(cnt,pudp) {
 function XTFO(cnt,ptfo) {
     var tfo = ptfo == 1? "fast-open=true, " : "fast-open=false, "
     if(cnt.indexOf("fast-open") != -1){
-        cnt = cnt.replace(RegExp("fast\-open.*\, ", "gmi"), tfo)
+        var cnt0 = cnt.replace(RegExp("fast\-open.*?\,", "gmi"), tfo)
     }else{
-        cnt = cnt.replace(RegExp("tag.*\=", "gmi"), tfo+"tag=")
+        var cnt0 = cnt.replace(RegExp("tag.*?\=", "gmi"), tfo+"tag=")
     }
-    return cnt
+    return cnt0
 }
 
 //比较完美的一款 base64 encode/decode 工具
