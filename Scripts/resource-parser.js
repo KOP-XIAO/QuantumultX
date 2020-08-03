@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-02 11:29⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-03 09:29⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -36,6 +36,7 @@
         ∎ "@"⇒"%40","+"⇒"%2B", 空格⇒"%20", "&"⇒"%26"
     ❖ 删除字段: "字段1.字段2☠️", 想删除 "." 时用 "\." 替代
     ❖ 示范: "𝐫𝐞𝐧𝐚𝐦𝐞=香港@𝐇𝐊+[𝐒𝐒]@+@[1𝐗]+流量.0\.2☠️"
+    ❖ 默认emoji 先生效, 如想更改顺序, 请用 𝗿𝗿𝗻𝗮𝗺𝗲 参数
 ⦿ 𝗱𝗲𝗹𝗿𝗲𝗴, 利用正则表达式来删除节点名中的字段(⚠️ 慎用)
 ⦿ 𝘀𝗼𝗿𝘁=1, -1, x, 分别根据节点名 正序/逆序/随机 排序
 ⦿ 𝗿𝗲𝗽𝗹𝗮𝗰𝗲 参数, 正则替换 𝐬𝐞𝐫𝐯𝐞𝐫 中内容, 可用于重命名/更改加密方式等
@@ -1197,7 +1198,7 @@ function RenameScript(servers, script) {
 
 //删除 emoji 
 function emoji_del(str) {
-    return unescape(escape(str).replace(/\%uD.{3}/g, ''));
+    return str.replace(/[\uD83C][\uDDE6-\uDDFF][\uD83C][\uDDE6-\uDDFF]/g, "").trim();//unescape(escape(str).replace(/\%uD.{3}/g, ''));
 }
 
 //为节点名添加 emoji
@@ -1214,7 +1215,7 @@ function get_emoji(source, sname) {
             }
         }
     }
-    if (flag == 0) { return "🏴‍☠️ " + sname.trim() }
+    if (flag == 0) { return "🏴‍☠️ " + sname.replace(/[\uD83C][\uDDE6-\uDDFF][\uD83C][\uDDE6-\uDDFF]/g, "").trim() }
 }
 
 //emoji 处理
