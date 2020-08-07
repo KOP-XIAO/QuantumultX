@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-03 09:29⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-07 11:29⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -313,7 +313,7 @@ function Type_Check(subs) {
         type = "Surge"; // Surge Profiles
     } else if (SurgeK.some(SurgeCheck)) {
         type = "Subs" // Surge proxy list
-    } else if (subi.indexOf("[Script]") != -1 || subi.indexOf("[Rule]") != -1 || subi.indexOf("[URL Rewrite]") != -1 || para1.indexOf("dst=regex") != -1) { // Surge module /rule-set(url-regex) 类型
+    } else if (subi.indexOf("[Script]") != -1 || subi.indexOf("[Rule]") != -1 || subs.indexOf("[URL Rewrite]") != -1 || subs.indexOf("[Map Local]") != -1 || para1.indexOf("dst=regex") != -1) { // Surge module /rule-set(url-regex) 类型
         type = "sgmodule"
     } else if (subi.indexOf("hostname=") != -1 || RewriteK.some(RewriteCheck)) {
         type = "rewrite"
@@ -336,6 +336,9 @@ function URX2QX(subs) {
     for (var i = 0; i < subs.length; i++) {
         if (subs[i].slice(0, 9) == "URL-REGEX") {
             rw = subs[i].replace(/ /g, "").split(",REJECT")[0].split("GEX,")[1] + " url " + "reject-200"
+            nrw.push(rw)
+        } else if (subs[i].indexOf("data=") != -1 && subs.indexOf("[Map Local]") != -1){
+            rw = subs[i].replace(/ /g, "").split("data=")[0] + " url " + "reject-dict"
             nrw.push(rw)
         }
     }
