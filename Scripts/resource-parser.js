@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-12 11:29⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-17 11:29⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -373,7 +373,7 @@ function SCP2QX(subs) {
             rw = ptn + " url " + type + js
             nrw.push(rw)
         } else if (subs[i].indexOf(" 302") != -1 || subs[i].indexOf(" 307") != -1) { //rewrite 复写
-            rw = subs[i].split(" ")[0] + " url " + subs[i].split(" ")[2] + " " + subs[i].split(" ")[1]
+            rw = subs[i].split(" ")[0] + " url " + subs[i].split(" ")[2] + " " + subs[i].split(" ")[3]
             nrw.push(rw)
         } else if (subs[i].indexOf("script-path") != -1) { //surge js 旧写法
             type = subs[i].split(" ")[0]
@@ -1331,7 +1331,7 @@ function SVmess2QX(content) {
         pobfs = ""
     }
     var puri = paraCheck(cnt, "ws-path") != "false" ? "obfs-uri=" + cnt.split("ws-path")[1].split(",")[0].split("=")[1].trim() : "obfs-uri=/"
-    var phost = cnt.indexOf("ws-headers") != -1 ? "obfs-host=" + cnt.split("ws-headers")[1].split(",")[0].split("=")[1].split("Host:")[1].trim() : "";
+    var phost = cnt.indexOf("ws-headers") != -1 ? "obfs-host=" + cnt.split("ws-headers")[1].split(",")[0].split("=")[1].split(":")[1].trim() : "";
     if (pobfs.indexOf("ws" || "wss") != -1) {
         if (phost != "") {
             pobfs = pobfs + ", " + puri + ", " + phost
