@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-19 17:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-19 22:29⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -270,7 +270,8 @@ function RegCheck(total, typen, regpara) {
 //判断订阅类型
 function Type_Check(subs) {
     var type = "unknown"
-    var RuleK = ["host", "domain", "ip-cidr", "geoip", "user-agent", "ip6-cidr"];
+    var RuleK = ["host,", "-suffix,", "domain,", "ip-cidr,", "geoip,", "user-agent,", "ip6-cidr,"];
+    var DomainK = ["domain-set,"]
     var QuanXK = ["shadowsocks=", "trojan=", "vmess=", "http="];
     var SurgeK = ["=ss,", "=vmess,", "=trojan,", "=http,", "=custom,", "=https,", "=shadowsocks", "=shadowsocksr"];
     var SubK = ["dm1lc3M", "c3NyOi8v", "dHJvamFu", "c3M6Ly", "c3NkOi8v"];
@@ -278,7 +279,7 @@ function Type_Check(subs) {
     var SubK2 = ["ss://", "vmess://", "ssr://", "trojan://", "ssd://"];
     var html = "DOCTYPE html"
     var subi = subs.replace(/ /g, "")
-    const RuleCheck = (item) => subs.toLowerCase().indexOf(item) != -1;
+    const RuleCheck = (item) => subi.toLowerCase().indexOf(item) != -1;
     const NodeCheck = (item) => subi.toLowerCase().indexOf(item.toLowerCase()) != -1;
     const RewriteCheck = (item) => subs.indexOf(item) != -1;
     var subsn = subs.split("\n")
@@ -301,6 +302,9 @@ function Type_Check(subs) {
         type = "rewrite"
     } else if (RuleK.some(RuleCheck) && subs.indexOf(html) == -1) {
         type = "Rule";
+    } else if (DomainK.some(RuleCheck)) {
+        type = "Rule";
+        content0 = Domain2Rule(content0) // 转换 domain-set
     }
     return type
 }
@@ -630,6 +634,25 @@ function Rule_Policy(content) { //增加、替换 policy
         } else { nn = nn.replace("IP-CIDR6", "ip6-cidr") }
         return nn
     } else { return "" }//if RuleK1 check	
+}
+
+// Domain-Set
+function Domain2Rule(content) {
+    var cnt = content.split("\n");
+    var RuleK = ["//", "#", ";"]
+    var nlist = []
+    for (var i = 0; i< cnt.length; i++) {
+        cc = cnt[i].trim();
+        const RuleCheck = (item) => cc.indexOf(item) != -1; //无视注释行
+        if(!RuleK.some(RuleCheck) && cc) {
+            if (cc[0] == "."){
+                nlist.push("host-suffix, " + cc.slice(1 , cc.length) )
+            } else {
+                nlist.push("host, " + cc )
+            }
+        }
+    }
+    return nlist.join("\n")
 }
 
 // 正则替换 filter/rewrite 的部分
