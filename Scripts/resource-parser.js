@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-17 11:29⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-19 13:39⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1353,10 +1353,12 @@ function isSurge(content) {
 }
 // 用于参数检查
 function paraCheck(content, para) {
-    if (content.indexOf(para) == -1) {
+    content=content.replace(/ /g,"")
+    if (content.indexOf(para+"=") == -1) {
         return "false"
     } else {
-        return content.split(para)[1].split(",")[0].split("=")[1].trim()
+        //console.log(para)
+        return content.split(para+"=")[1].split(",")[0].trim()
     }
 }
 //surge中 trojan 类型转换
