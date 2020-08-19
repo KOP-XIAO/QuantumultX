@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-19 13:39⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-19 17:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -109,7 +109,9 @@ const sub_link = { "open-url": link1, "media-url": "https://shrtm.nu/ebAr" } // 
 
 
 SubFlow() //流量通知
-var type0 = Type_Check(content0); //  类型
+var type0 = Type_Check(content0); //  类型判断
+
+// 参数获取
 var Pin0 = mark0 && para1.indexOf("in=") != -1 ? (para1.split("in=")[1].split("&")[0].split("+")).map(decodeURIComponent) : null;
 var Pout0 = mark0 && para1.indexOf("out=") != -1 ? (para1.split("out=")[1].split("&")[0].split("+")).map(decodeURIComponent) : null;
 var Psfilter = mark0 && para1.indexOf("sfilter=") != -1 ? Base64.decode(para1.split("sfilter=")[1].split("&")[0]) : null; // script filter
@@ -162,18 +164,15 @@ function SubFlow() {
 }
 
 //flag=1,2,3分别为 server、rewrite、rule 类型
+var flag = 1
 if (type0 == "Subs-B64Encode") {
     total = SubsEd2QX(content0, Pudp0, Ptfo0, Pcert0, PTls13);
-    flag = 1;
 } else if (type0 == "Subs") {
     total = Subs2QX(content0, Pudp0, Ptfo0, Pcert0, PTls13);
-    flag = 1;
 } else if (type0 == "QuanX") {
     total = isQuanX(content0);
-    flag = 1;
 } else if (type0 == "Surge") {
     total = Surge2QX(content0);
-    flag = 1;
 } else if (type0 == "sgmodule") {
     flag = 2
     if (para1.indexOf("dst=regex") != -1) {
@@ -184,17 +183,18 @@ if (type0 == "Subs-B64Encode") {
         total = SGMD2QX(content0)
     }
     total = Rewrite_Filter(total, Pin0, Pout0);
-} else if (type0 == "rewrite") {
+} else if (type0 == "rewrite") { // rewrite 类型
     flag = 2;
-    content0 = content0.split("\n");
-    total = Rewrite_Filter(content0, Pin0, Pout0);
-} else if (type0 == "Rule") {
+    total = Rewrite_Filter(content0.split("\n"), Pin0, Pout0);
+    if (Preplace) { total = ReplaceReg(total, Preplace) }
+    total = total.join("\n")
+} else if (type0 == "Rule") {  // rule 类型, 已处理完毕
     flag = 3;
-    total = content0.split("\n");
-    total = Rule_Handle(total, Pout0, Pin0);
+    total = Rule_Handle(content0.split("\n"), Pout0, Pin0);
     if (Preg && total.length!=0) { // 正则筛选规则 filter
-    total = total.map(Regex).filter(Boolean) 
+    total = total.map(Regex).filter(Boolean).join("\n") 
     RegCheck(total, "分流引用", Preg)} 
+    total = total.join("\n")
 } else if (content0.trim() == "") {
     $notify("‼️ 引用" + "⟦" + subtag + "⟧" + " 返回內容为空", "⁉️ 点通知跳转以确认链接是否失效", para.split("#")[0], nan_link);
     flag = 0;
@@ -205,17 +205,12 @@ if (type0 == "Subs-B64Encode") {
     flag = -1;
 } else { flag = 0 }
 
-if (flag == 3) { // rule 类型
-    $done({ content: total.join("\n") });
-} else if (flag == 2) { // rewrite 类型
-    if (Preplace) { total = ReplaceReg(total, Preplace) }
-    $done({ content: total.join("\n") });
-} else if (flag == 1) { //server 类型
+if (flag == 1) { //server 类型统一处理
     if (Pinfo == 1 && ntf_flow == 0) { //假节点类型的流量通知
         flowcheck(total)
     }
-    if (Pin0 || Pout0) { total = Filter(total, Pin0, Pout0) }
-    if (Preg) { total = total.map(Regex).filter(Boolean) 
+    if (Pin0 || Pout0) { total = Filter(total, Pin0, Pout0) } // in & out 
+    if (Preg) { total = total.map(Regex).filter(Boolean)  // regex
     	RegCheck(total, "节点订阅", Preg)} 
     if (Psfilter) { total = FilterScript(total, Psfilter) }
     if (Prrname) {
@@ -235,17 +230,18 @@ if (flag == 3) { // rule 类型
         total = ReplaceReg(total, Preplace)
     }
     if (Psrename) { total = RenameScript(total, Psrename) }
-    if (Psort0 == 1 || Psort0 == -1) {
+    if (Psort0) {
         total = QXSort(total, Psort0);
-    } else if (Psort0 == "x") {
-        total = shuffle(total)
     }
-    total = TagCheck_QX(total)
-    total = total.join("\n");
-    //$notify("Final","test",total)
-    if (flag == 1) { total = Base64.encode(total) } //强制节点类型的 base64
+    total = TagCheck_QX(total) //节点名检查
+    if (flag == 1) { total = Base64.encode(total.join("\n")) } //强制节点类型 base64 加密后再导入 Quantumult X
     $done({ content: total });
-}
+} else { $done({ content: total });}
+
+/**
+# 以下为具体的 function
+
+*/
 
 //flowcheck-fake-server
 function flowcheck(cnt) {
@@ -260,18 +256,6 @@ function flowcheck(cnt) {
         }
     }
     if (flow != "") { $notify("流量信息: ⟦" + subtag + "⟧", flow, exptime, subinfo_link1) }
-}
-
-// 随机洗牌排序
-function shuffle(arr) {
-    var input = arr;
-    for (var i = input.length - 1; i >= 0; i--) {
-        var randomIndex = Math.floor(Math.random() * (i + 1));
-        var itemAtIndex = input[randomIndex];
-        input[randomIndex] = input[i];
-        input[i] = itemAtIndex;
-    }
-    return input;
 }
 
 // regex 后的检查
@@ -295,23 +279,21 @@ function Type_Check(subs) {
     var html = "DOCTYPE html"
     var subi = subs.replace(/ /g, "")
     const RuleCheck = (item) => subs.toLowerCase().indexOf(item) != -1;
-    const QuanXCheck = (item) => subi.toLowerCase().indexOf(item) != -1;
-    const SurgeCheck = (item) => subi.toLowerCase().indexOf(item) != -1;
-    const SubCheck = (item) => subs.indexOf(item) != -1;
+    const NodeCheck = (item) => subi.toLowerCase().indexOf(item.toLowerCase()) != -1;
     const RewriteCheck = (item) => subs.indexOf(item) != -1;
     var subsn = subs.split("\n")
     if (subs.indexOf(html) != -1) {
         $notify("‼️ 该链接返回内容有误", "⁉️ 点通知跳转以确认链接是否失效", link0, nan_link);
         type = "web";
-    } else if (subsn.length >= 1 && SubK2.some(SubCheck)) { //未b64加密的多行URI 组合订阅
+    } else if (subsn.length >= 1 && SubK2.some(NodeCheck)) { //未b64加密的多行URI 组合订阅
         type = "Subs"
-    } else if (SubK.some(SubCheck)) {  //b64加密的订阅类型
+    } else if (SubK.some(NodeCheck)) {  //b64加密的订阅类型
         type = "Subs-B64Encode"
-    } else if (subi.indexOf("tag=") != -1 && QuanXK.some(QuanXCheck)) {
+    } else if (subi.indexOf("tag=") != -1 && QuanXK.some(NodeCheck)) {
         type = "Subs" // QuanX list
     } else if (subs.indexOf("[Proxy]") != -1) {
         type = "Surge"; // Surge Profiles
-    } else if (SurgeK.some(SurgeCheck)) {
+    } else if (SurgeK.some(NodeCheck)) {
         type = "Subs" // Surge proxy list
     } else if (subi.indexOf("[Script]") != -1 || subi.indexOf("[Rule]") != -1 || subs.indexOf("[URL Rewrite]") != -1 || subs.indexOf("[Map Local]") != -1 || para1.indexOf("dst=regex") != -1) { // Surge module /rule-set(url-regex) 类型
         type = "sgmodule"
@@ -323,6 +305,46 @@ function Type_Check(subs) {
     return type
 }
 
+// 检查节点名字(重复以及空名)等QuanX 不允许的情形
+function TagCheck_QX(content) {
+    var Olist = content
+    var Nlist = []
+    var nmlist = []
+    var nulllist = []; //记录空名字节点
+    var duplist = [];  //记录重名节点
+    var no = 0;
+    for (var i = 0; i < Olist.length; i++) {
+        var item = Olist[i] ? Olist[i] : ""
+        if (item.replace(/ /gm, "").indexOf("tag=") != -1) {
+            var nl = item.slice(item.indexOf("tag"))
+            var nm = nl.slice(nl.indexOf("=") + 1)
+            if (nm == "") { //空名字
+                nm = " [" + item.split("=")[0] + "] " + item.split("=")[1].split(",")[0].split(":")[0]
+                item = item.split("tag")[0] + "tag=" + nm.replace("shadowsocks", "ss")
+                nulllist.push(nm.replace("shadowsocks", "ss"))
+            }
+            var ni = 0
+            while (nmlist.indexOf(nm) != -1) { //重名
+                nm = ni <= 10 ? nm.split(" ⌘")[0] + " ⌘" + emojino[ni] : nm.split(" ⌘")[0] + " ⌘" + ni
+                item = item.split("tag")[0] + "tag=" + nm
+                ni = ni + 1
+            }
+            if (ni != 0) { duplist.push(nm) }
+            nmlist.push(nm)
+            ni = 0
+            Nlist.push(item)
+        }// if "tag="
+    } // for
+    if (nulllist.length >= 1) {
+        no = nulllist.length <= 10 ? emojino[nulllist.length] : nulllist.length;
+        $notify("⚠️ 引用" + "⟦" + subtag + "⟧" + " 内有" + no + "个空节点名 ", "✅ 已将节点“类型+IP”设为节点名", " ⨁ " + nulllist.join("\n ⨁ "), nan_link)
+    }
+    if (duplist.length >= 1) {
+        no = duplist.length <= 10 ? emojino[duplist.length] : duplist.length;
+        $notify("⚠️ 引用" + "⟦" + subtag + "⟧" + " 内有" + no + "个重复节点名 ", "✅ 已添加⌘符号作为区分:", " ⨁ " + duplist.join("\n ⨁ "), nan_link)
+    }
+    return Nlist
+}
 
 function Trim(item) {
     return item.trim()
@@ -636,9 +658,7 @@ function SubsEd2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
         if (list0[i].trim().length > 3) {
             var type = list0[i].split("://")[0].trim()
             var listi = list0[i].replace(/ /g, "")
-            const QuanXCheck = (item) => listi.toLowerCase().indexOf(item) != -1;
-            const SurgeCheck = (item) => listi.toLowerCase().indexOf(item) != -1;
-            const LoonCheck = (item) => listi.toLowerCase().indexOf(item) != -1;
+            const NodeCheck = (item) => listi.toLowerCase().indexOf(item) != -1;
             if (type == "vmess" && list0[i].indexOf("remarks=") == -1) {
                 var bnode = Base64.decode(list0[i].split("vmess://")[1])
                 if (bnode.indexOf("over-tls=") == -1) { //v2rayN
@@ -656,11 +676,11 @@ function SubsEd2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
                 node = TJ2QX(list0[i], Pudp, Ptfo, Pcert, Ptls13)
             } else if (type == "https" && listi.indexOf("@") != -1) { //subs,Ptfo,Pcert,Ptls13
                 node = HPS2QX(list0[i], Ptfo, Pcert, Ptls13)
-            } else if (QuanXK.some(QuanXCheck)) {
+            } else if (QuanXK.some(NodeCheck)) {
                 node = list0[i]
-            } else if (SurgeK.some(SurgeCheck)) {
+            } else if (SurgeK.some(NodeCheck)) {
                 node = Surge2QX(list0[i])[0]
-            } else if (LoonK.some(LoonCheck)) {
+            } else if (LoonK.some(NodeCheck)) {
                 node = Loon2QX(list0[i])
             }
             node = Pudp != 0 ? XUDP(node,Pudp) : node
@@ -685,9 +705,7 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
         if (list0[i].trim().length > 3) {
             var type = list0[i].split("://")[0].trim()
             var listi = list0[i].replace(/ /g, "")
-            const QuanXCheck = (item) => listi.toLowerCase().indexOf(item) != -1;
-            const SurgeCheck = (item) => listi.toLowerCase().indexOf(item) != -1;
-            const LoonCheck = (item) => listi.toLowerCase().indexOf(item) != -1;
+            const NodeCheck = (item) => listi.toLowerCase().indexOf(item) != -1;
             if (type == "vmess" && list0[i].indexOf("remarks=") == -1) {
                 var bnode = Base64.decode(list0[i].split("vmess://")[1])
                 if (bnode.indexOf("over-tls=") == -1) { //v2rayN
@@ -707,11 +725,11 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
                 node = TJ2QX(list0[i], Pudp, Ptfo, Pcert, Ptls13)
             } else if (type == "https" && listi.indexOf("@") != -1) {
                 node = HPS2QX(list0[i], Ptfo, Pcert, Ptls13)
-            } else if (QuanXK.some(QuanXCheck)) {
+            } else if (QuanXK.some(NodeCheck)) {
                 node = list0[i]
-            } else if (SurgeK.some(SurgeCheck)) {
+            } else if (SurgeK.some(NodeCheck)) {
                 node = Surge2QX(list0[i])[0]
-            } else if (LoonK.some(LoonCheck)) {
+            } else if (LoonK.some(NodeCheck)) {
                 node = Loon2QX(list0[i])
             }
             node = Pudp != 0 ? XUDP(node,Pudp) : node
@@ -728,46 +746,6 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
     return QXlist
 }
 
-// 检查节点名字(重复以及空名)等QuanX 不允许的情形
-function TagCheck_QX(content) {
-    var Olist = content
-    var Nlist = []
-    var nmlist = []
-    var nulllist = []; //记录空名字节点
-    var duplist = [];  //记录重名节点
-    var no = 0;
-    for (var i = 0; i < Olist.length; i++) {
-        var item = Olist[i] ? Olist[i] : ""
-        if (item.replace(/ /gm, "").indexOf("tag=") != -1) {
-            var nl = item.slice(item.indexOf("tag"))
-            var nm = nl.slice(nl.indexOf("=") + 1)
-            if (nm == "") { //空名字
-                nm = " [" + item.split("=")[0] + "] " + item.split("=")[1].split(",")[0].split(":")[0]
-                item = item.split("tag")[0] + "tag=" + nm.replace("shadowsocks", "ss")
-                nulllist.push(nm.replace("shadowsocks", "ss"))
-            }
-            var ni = 0
-            while (nmlist.indexOf(nm) != -1) { //重名
-                nm = ni <= 10 ? nm.split(" ⌘")[0] + " ⌘" + emojino[ni] : nm.split(" ⌘")[0] + " ⌘" + ni
-                item = item.split("tag")[0] + "tag=" + nm
-                ni = ni + 1
-            }
-            if (ni != 0) { duplist.push(nm) }
-            nmlist.push(nm)
-            ni = 0
-            Nlist.push(item)
-        }// if "tag="
-    } // for
-    if (nulllist.length >= 1) {
-        no = nulllist.length <= 10 ? emojino[nulllist.length] : nulllist.length;
-        $notify("⚠️ 引用" + "⟦" + subtag + "⟧" + " 内有" + no + "个空节点名 ", "✅ 已将节点“类型+IP”设为节点名", " ⨁ " + nulllist.join("\n ⨁ "), nan_link)
-    }
-    if (duplist.length >= 1) {
-        no = duplist.length <= 10 ? emojino[duplist.length] : duplist.length;
-        $notify("⚠️ 引用" + "⟦" + subtag + "⟧" + " 内有" + no + "个重复节点名 ", "✅ 已添加⌘符号作为区分:", " ⨁ " + duplist.join("\n ⨁ "), nan_link)
-    }
-    return Nlist
-}
 //http=example.com:443, username=name, password=pwd, over-tls=true, tls-host=example.com, tls-verification=true, tls13=true, fast-open=false, udp-relay=false, tag=http-tls-02
 //HTTPS 类型 URI 转换成 QUANX 格式
 function HPS2QX(subs, Ptfo, Pcert, Ptls13) {
@@ -1120,6 +1098,10 @@ function QXSort(content, para) {
         return nlist.sort(ToTag)
     } else if (para == -1) {
         return nlist.sort(ToTagR)
+    } else if(para == "x") {
+        return shuffle(nlist)
+    } else {
+        return nlist
     }
 }
 //正序
@@ -1135,6 +1117,17 @@ function ToTagR(elem1, elem2) {
     var tag2 = emoji_del(elem2.split("tag")[1].split("=")[1].trim())
     res = tag1 > tag2 ? -1 : 1
     return res
+}
+// 随机洗牌排序
+function shuffle(arr) {
+    var input = arr;
+    for (var i = input.length - 1; i >= 0; i--) {
+        var randomIndex = Math.floor(Math.random() * (i + 1));
+        var itemAtIndex = input[randomIndex];
+        input[randomIndex] = input[i];
+        input[i] = itemAtIndex;
+    }
+    return input;
 }
 
 //正则删除节点名内的字符
