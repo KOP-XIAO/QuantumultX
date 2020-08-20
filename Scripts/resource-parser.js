@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-20 10:29⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-20 13:29⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -56,7 +56,8 @@
     ❖ 将淘宝比价中脚本替换成 lite 版本, tiktok 中 JP 换成 KR
         ∎ 𝐫𝐞𝐩𝐥𝐚𝐜𝐞=(𝐩𝐫𝐢𝐜𝐞)(.*)@$1_𝐥𝐢𝐭𝐞$2+𝐣𝐩@𝐤𝐫 
 ⦿ 𝗱𝘀𝘁=𝗿𝗲𝗴𝗲𝘅/𝘀𝗰𝗿𝗶𝗽𝘁，分别为只保留 𝐒𝐮𝐫𝐠𝐞-𝐦𝐨𝐝𝐮𝐥𝐞 中的 𝐮𝐫𝐥-𝐫𝐞𝐠𝐞𝐱/𝐬𝐜𝐫𝐢𝐩𝐭(302/307), 默认全部保留;
-    ❖ 把含 𝐮𝐫𝐥-𝐫𝐞𝐠𝐞𝐱 的 𝗿𝘂𝗹𝗲-𝘀𝗲𝘁 转成重写时, 一定要 𝗱𝘀𝘁=𝗿𝗲𝗴𝗲𝘅
+    ❖ 把含 𝐮𝐫𝐥-𝐫𝐞𝐠𝐞𝐱 的 𝗿𝘂𝗹𝗲-𝘀𝗲𝘁 转成重写时, 一定要 𝗱𝘀𝘁=𝗿𝗲𝗴𝗲𝘅;
+    ❖ 暂不处理 𝐦𝐨𝐝𝐮𝐥𝐞 中非 𝐮𝐫𝐥-𝐫𝐞𝐠𝐞𝐱 的规则类型
 
 3⃣️ 通知参数 𝗻𝘁𝗳=0/1, 用于 关闭/打开 资源解析器的提示通知
 ⦿ 𝗿𝗲𝘄𝗿𝗶𝘁𝗲/𝗳𝗶𝗹𝘁𝗲𝗿 默认“开启”通知提示, 以防规则误删除
@@ -173,7 +174,7 @@ if (type0 == "Subs-B64Encode") {
     total = isQuanX(content0);
 } else if (type0 == "Surge") {
     total = Surge2QX(content0);
-} else if (type0 == "sgmodule") {
+} else if (type0 == "sgmodule") { // surge module 模块，只处理到 rewrite 部分
     flag = 2
     if (para1.indexOf("dst=regex") != -1) {
         total = URX2QX(content0)
@@ -183,6 +184,7 @@ if (type0 == "Subs-B64Encode") {
         total = SGMD2QX(content0)
     }
     total = Rewrite_Filter(total, Pin0, Pout0);
+    total = total.join("\n")
 } else if (type0 == "rewrite") { // rewrite 类型
     flag = 2;
     total = Rewrite_Filter(content0.split("\n"), Pin0, Pout0);
