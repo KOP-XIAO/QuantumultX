@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-23 22:29⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-23 23:39⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -110,7 +110,7 @@ const sub_link = { "open-url": link1, "media-url": "https://shrtm.nu/ebAr" } // 
 
 
 SubFlow() //流量通知
-var type0 = Type_Check(content0); //  类型判断
+
 
 // 参数获取
 var Pin0 = mark0 && para1.indexOf("in=") != -1 ? (para1.split("in=")[1].split("&")[0].split("+")).map(decodeURIComponent) : null;
@@ -128,7 +128,7 @@ var Prname = mark0 && para1.indexOf("rename=") != -1 ? para1.split("rename=")[1]
 var Psrename = mark0 && para1.indexOf("srename=") != -1 ? Base64.decode(para1.split("srename=")[1].split("&")[0]) : null; // script rename
 var Prrname = mark0 && para1.indexOf("rrname=") != -1 ? para1.split("rrname=")[1].split("&")[0].split("+") : null;
 var Ppolicy = mark0 && para1.indexOf("policy=") != -1 ? decodeURIComponent(para1.split("policy=")[1].split("&")[0]) : "Shawn";
-var Pcert0 = mark0 && para1.indexOf("cert=") != -1 ? para1.split("cert=")[1].split("&")[0] : 1;
+var Pcert0 = mark0 && para1.indexOf("cert=") != -1 ? para1.split("cert=")[1].split("&")[0] : 0;
 var Psort0 = mark0 && para1.indexOf("sort=") != -1 ? para1.split("sort=")[1].split("&")[0] : 0;
 var PTls13 = mark0 && para1.indexOf("tls13=") != -1 ? para1.split("tls13=")[1].split("&")[0] : 0;
 var Pntf0 = mark0 && para1.indexOf("ntf=") != -1 ? para1.split("ntf=")[1].split("&")[0] : 2;
@@ -142,6 +142,8 @@ var Pcnt =  para1.indexOf("cnt=") != -1 ? para1.split("cnt=")[1].split("&")[0] :
 var flow = "";
 var exptime = "";
 //$notify(type0)
+
+var type0 = Type_Check(content0); //  类型判断
 
 //响应头流量处理部分
 function SubFlow() {
@@ -303,9 +305,8 @@ function Type_Check(subs) {
                 type = "Subs" // Surge proxy list
         } else if (ClashK.some(NodeCheck)){ // Clash 类型节点转换
                 type = "Clash";
-                console.log(type)
+                //console.log(type)
                 content0 = Clash2QX(subs)
-                console.log("waht"+content0)
         } else if (subi.indexOf("[Script]") != -1 || subi.indexOf("[Rule]") != -1 || subs.indexOf("[URL Rewrite]") != -1 || subs.indexOf("[Map Local]") != -1 || para1.indexOf("dst=regex") != -1) { // Surge module /rule-set(url-regex) 类型
                 type = "sgmodule"
         } else if (subi.indexOf("hostname=") != -1 || RewriteK.some(RewriteCheck)) {
@@ -1470,11 +1471,11 @@ function Clash2QX(cnt) {
                 node=bb[i]
                 typec = node.type
                 if (typec == "ss") {
-                        node = CSS2QX(node,1,1)
+                        node = CSS2QX(node)
                 } else if (typec == "vmess"){
-                        node = CV2QX(node,1,1)
+                        node = CV2QX(node)
                 } else if (typec == "trojan"){
-                        node = CT2QX(node,1,1)
+                        node = CT2QX(node)
                 } else if (typec == "http"){
                         node = CH2QX(node)
                 }
@@ -1484,56 +1485,59 @@ function Clash2QX(cnt) {
 }
 
 //Clash ss type server
-function CSS2QX(cnt,pudp,ptfo) {
+function CSS2QX(cnt) {
 	tag = "tag="+cnt.name.replace(/\\U.+?\s{1}/gi,"")
 	ipt = cnt.server+":"+cnt.port
 	pwd = "password=" + cnt.password
 	mtd = "method="+ cnt.cipher
-        udp = cnt.udp ? "udp-relay=true" : "udp-relay=false"
-        tfo = cnt.tfo ? "fast-open=true" : "fast-open=false"
-        obfs = cnt.plugin == "obfs"? "obfs=" + cnt["plugin-opts"].mode : ""
-        ohost = cnt.plugin == "obfs"? "obfs-host=" + cnt["plugin-opts"].host : ""
-        node = "shadowsocks="+[ipt, pwd, mtd, udp, tfo, obfs, ohost, tag].filter(Boolean).join(", ")
-        console.log(node)
-        return node
+    udp = cnt.udp ? "udp-relay=true" : "udp-relay=false"
+    tfo = cnt.tfo ? "fast-open=true" : "fast-open=false"
+    obfs = cnt.plugin == "obfs"? "obfs=" + cnt["plugin-opts"].mode : ""
+    ohost = cnt.plugin == "obfs"? "obfs-host=" + cnt["plugin-opts"].host : ""
+    node = "shadowsocks="+[ipt, pwd, mtd, udp, tfo, obfs, ohost, tag].filter(Boolean).join(", ")
+    //console.log(node)
+    return node
 }
 
 //Clash vmess type server
-function CV2QX(cnt,pudp,ptfo) {
+function CV2QX(cnt) {
 	tag = "tag="+cnt.name.replace(/\\U.+?\s{1}/gi," ")
 	ipt = cnt.server+":"+cnt.port
 	pwd = "password=" + cnt.uuid
 	mtd = "method="+ "aes-128-gcm" //cnt.cipher
-        udp = cnt.udp ? "udp-relay=true" : "udp-relay=false"
-        tfo = cnt.tfo ? "fast-open=true" : "fast-open=false"
-        obfs = ""
-        if (cnt.network == "ws" && cnt.tls) {
-                obfs = "obfs=wss"
-        } else if (cnt.network == "ws"){
-                obfs = "obfs=ws"
-        } else if (cnt.tls){
-                obfs = "obfs=over-tls"
-        }
-        ohost = cnt["ws-headers"]? "obfs-host=" + cnt["ws-headers"]["Host"] : ""
-        ouri = cnt["ws-path"]? "obfs-uri="+cnt["ws-path"] : ""
-        cert = cnt["skip-cert-verify"] && cnt.tls ? "tls-verification=false" : ""
-        node = "vmess="+[ipt, pwd, mtd, udp, tfo, obfs, ohost, ouri, cert, tag].filter(Boolean).join(", ")
-        console.log(node)
-        return node
+    udp = cnt.udp ? "udp-relay=true" : "udp-relay=false"
+    tfo = cnt.tfo ? "fast-open=true" : "fast-open=false"
+    obfs = ""
+    if (cnt.network == "ws" && cnt.tls) {
+            obfs = "obfs=wss"
+    } else if (cnt.network == "ws"){
+            obfs = "obfs=ws"
+    } else if (cnt.tls){
+            obfs = "obfs=over-tls"
+    }
+    ohost = cnt["ws-headers"]? "obfs-host=" + cnt["ws-headers"]["Host"] : ""
+    ouri = cnt["ws-path"]? "obfs-uri="+cnt["ws-path"] : ""
+    cert = cnt["skip-cert-verify"] && cnt.tls ? "tls-verification=false" : ""
+    if (Pcert0 == 0 && cnt.tls) {cert = "tls-verification=false"}
+    node = "vmess="+[ipt, pwd, mtd, udp, tfo, obfs, ohost, ouri, cert, tag].filter(Boolean).join(", ")
+    //console.log(node)
+    return node
 }
 
 //Clash Trojan
-function CT2QX(cnt,pudp,ptfo) {
-        tag = "tag="+cnt.name.replace(/\\U.+?\s{1}/gi," ")
-        ipt = cnt.server+":"+cnt.port
-        pwd = "password=" + cnt.password
-        otls = "over-tls=true"
-        cert = cnt["skip-cert-verify"] ? "tls-verification=false" : "tls-verification=true"
-        udp = cnt.udp ? "udp-relay=true" : "udp-relay=false"
-        tfo = cnt.tfo ? "fast-open=true" : "fast-open=false"
-        node = "trojan="+[ipt, pwd, otls, cert, udp, tfo, tag].filter(Boolean).join(", ")
-        console.log(node)
-        return node
+function CT2QX(cnt) {
+    tag = "tag="+cnt.name.replace(/\\U.+?\s{1}/gi," ")
+    ipt = cnt.server+":"+cnt.port
+    pwd = "password=" + cnt.password
+    otls = "over-tls=true"
+    cert = cnt["skip-cert-verify"] ? "tls-verification=false" : "tls-verification=true"
+    if (Pcert0 == 0) { 
+        cert = "tls-verification=false" }
+    udp = cnt.udp ? "udp-relay=true" : "udp-relay=false"
+    tfo = cnt.tfo ? "fast-open=true" : "fast-open=false"
+    node = "trojan="+[ipt, pwd, otls, cert, udp, tfo, tag].filter(Boolean).join(", ")
+    //console.log(node)
+    return node
 
 }
 
@@ -1545,8 +1549,9 @@ function CH2QX(cnt){
         pwd = cnt.password ? "password=" + cnt.password : ""
         tls = cnt.tls ? "over-tls=true" : ""
         cert = cnt["skip-cert-verify"] && cnt.tls ? "tls-verification=false" : ""
+        if (Pcert0 == 0) { cert = "tls-verification=false" }
         node = "http="+[ipt, uname, pwd, tls, cert, tag].filter(Boolean).join(", ")
-        console.log(node)
+        //console.log(node)
         return node
 }
 
