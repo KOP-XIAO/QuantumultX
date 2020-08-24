@@ -1465,7 +1465,7 @@ function Clash2QX(cnt) {
     const yaml = new YAML()
     var aa = JSON.stringify(yaml.parse(cnt))
     var bb = JSON.parse(aa).proxies
-    console.log(bb)
+    //console.log(bb)
     var nl = bb.length
     var nodelist=[]
     var node=""
