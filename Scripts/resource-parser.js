@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-24 21:30⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-24 21:35⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1463,9 +1463,11 @@ function LoonSSR2QX(cnt) {
 
 // stuppid manual fix for yaml parse mistakes
 function YAMLFix(cnt){
-    cnt = cnt.replace(/: {/g, ": {,     ").replace(/, host/g,",     host")
-    cnt = cnt.replace(/name: /g,"name: \"").replace(/, server:/g,"\", server:")
-    cnt = cnt.replace(/{|}/g,"").replace(/,/g,"\n   ")
+    if (cnt.indexOf("{") != -1){
+        cnt = cnt.replace(/: {/g, ": {,     ").replace(/, host/g,",     host")
+        cnt = cnt.replace(/{name: /g,"{name: \"").replace(/, server:/g,"\", server:")
+        cnt = cnt.replace(/{|}/g,"").replace(/,/g,"\n   ")
+    }
     cnt = cnt.replace(/  -\n.*name/g,"  - name")
     //console.log(cnt)
     return cnt
