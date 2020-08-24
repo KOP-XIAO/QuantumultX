@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-24 10:30⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-24 17:30⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1460,10 +1460,17 @@ function LoonSSR2QX(cnt) {
     return node
 }
 
+
+// manual fix yaml parser mistakes
+function YAMLFix(cnt){
+    cnt = cnt.replace(/  -\n.*name/g,"  - name") //类型 ① 修复 
+    return cnt
+}
+
 // Clash parser
 function Clash2QX(cnt) {
     const yaml = new YAML()
-    var aa = JSON.stringify(yaml.parse(cnt))
+    var aa = JSON.stringify(yaml.parse(YAMLFix(cnt)))
     var bb = JSON.parse(aa).proxies
     //console.log(bb)
     var nl = bb.length
