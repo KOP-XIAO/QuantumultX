@@ -900,15 +900,15 @@ function Pobfs(jsonl, Pcert, Ptls13) {
                 host0 = jsonl.host && jsonl.host != "" ? "obfs-host=" + jsonl.host + "," : "";
                 obfsi.push(obfs0, host0 + uri0);
                 return obfsi.join(", ")
-        } else if (jsonl.tls == "tls" && !jsonl.net) { // 过滤掉 h2/http 等类型 
+        } else if (jsonl.tls == "tls" && jsonl.net == "tcp") { // 过滤掉 h2/http 等类型 
                 obfs0 = "obfs=over-tls, " + tcert + ", " + tls13;
                 uri0 = jsonl.path && jsonl.path != "" ? "obfs-uri=" + jsonl.path : "";
                 host0 = jsonl.host && jsonl.host != "" ? ", obfs-host=" + jsonl.host : "";
                 obfsi.push(obfs0 + host0)
                 return obfsi.join(", ")
-        } else if(jsonl.net){ // 过滤掉 h2/http 等类型
+        } else if(jsonl.net !="tcp"){ // 过滤掉 h2/http 等类型
             return "NOT-SUPPORTTED"
-        }
+        } else {return ""}
 }
 
 //对.的特殊处理(in/out & rename中)
