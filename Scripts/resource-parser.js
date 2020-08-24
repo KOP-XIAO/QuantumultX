@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-24 17:30⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-24 21:30⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1461,9 +1461,13 @@ function LoonSSR2QX(cnt) {
 }
 
 
-// manual fix yaml parser mistakes
+// stuppid manual fix for yaml parse mistakes
 function YAMLFix(cnt){
-    cnt = cnt.replace(/  -\n.*name/g,"  - name") //类型 ① 修复 
+    cnt = cnt.replace(/: {/g, ": {,     ").replace(/, host/g,",     host")
+    cnt = cnt.replace(/name: /g,"name: \"").replace(/, server:/g,"\", server:")
+    cnt = cnt.replace(/{|}/g,"").replace(/,/g,"\n   ")
+    cnt = cnt.replace(/  -\n.*name/g,"  - name")
+    //console.log(cnt)
     return cnt
 }
 
@@ -1481,6 +1485,8 @@ function Clash2QX(cnt) {
         typec = node.type
         if (typec == "ss") {
             node = CSS2QX(node)
+        } else if (typec == "ssr"){
+            node = CSSR2QX(node)
         } else if (typec == "vmess"){
             node = CV2QX(node)
         } else if (typec == "trojan"){
@@ -1504,6 +1510,23 @@ function CSS2QX(cnt) {
     obfs = cnt.plugin == "obfs"? "obfs=" + cnt["plugin-opts"].mode : ""
     ohost = cnt.plugin == "obfs"? "obfs-host=" + cnt["plugin-opts"].host : ""
     node = "shadowsocks="+[ipt, pwd, mtd, udp, tfo, obfs, ohost, tag].filter(Boolean).join(", ")
+    //console.log(node)
+    return node
+}
+
+//Clash ssr type server
+function CSSR2QX(cnt) {
+    tag = "tag="+cnt.name.replace(/\\U.+?\s{1}/gi,"")
+    ipt = cnt.server+":"+cnt.port
+    pwd = "password=" + cnt.password
+    mtd = "method="+ cnt.cipher
+    udp = cnt.udp ? "udp-relay=true" : "udp-relay=false"
+    tfo = cnt.tfo ? "fast-open=true" : "fast-open=false"
+    prot = "ssr-protocol=" + cnt.protocol 
+    ppara = "ssr-protocol-param=" + cnt["protocol-param"]
+    obfs = "obfs=" + cnt.obfs
+    ohost = "obfs-host=" + cnt["obfs-param"]
+    node = "shadowsocks="+[ipt, pwd, mtd, udp, tfo, prot, ppara, obfs, ohost, tag].filter(Boolean).join(", ")
     //console.log(node)
     return node
 }
@@ -1558,7 +1581,7 @@ function CH2QX(cnt){
         pwd = cnt.password ? "password=" + cnt.password : ""
         tls = cnt.tls ? "over-tls=true" : ""
         cert = cnt["skip-cert-verify"] && cnt.tls ? "tls-verification=false" : ""
-        if (Pcert0 == 0) { cert = "tls-verification=false" }
+        if (Pcert0 == 0 && cnt.tls) { cert = "tls-verification=false" }
         node = "http="+[ipt, uname, pwd, tls, cert, tag].filter(Boolean).join(", ")
         //console.log(node)
         return node
