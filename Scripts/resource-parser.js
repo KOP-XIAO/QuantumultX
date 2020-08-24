@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-23 23:39⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-24 10:30⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -22,7 +22,7 @@
 ⦿ 𝗲𝗺𝗼𝗷𝗶=1(国行设备用2)/-1, 添加/删除节点名内地区旗帜;
 ⦿ 𝘂𝗱𝗽=1/-1, 𝘁𝗳𝗼=1/-1, 分别强制开启(关闭) 𝐮𝐝𝐩-𝐫𝐞𝐥𝐚𝐲/𝐟𝐚𝐬𝐭-𝐨𝐩𝐞𝐧;
 ⦿ 𝘁𝗹𝘀13=1, 开启 𝐭𝐥𝐬1.3, 请自行确认服务端是否已开启;
-⦿ 𝗰𝗲𝗿𝘁=0, 强制"𝐭𝐥𝐬-𝐯𝐞𝐫𝐢𝐟𝐢𝐜𝐚𝐭𝐢𝐨𝐧=𝐟𝐚𝐥𝐬𝐞" 跳过证书验证;
+⦿ 𝗰𝗲𝗿𝘁=1, "𝐭𝐥𝐬-𝐯𝐞𝐫𝐢𝐟𝐢𝐜𝐚𝐭𝐢𝐨𝐧=𝐭𝐫𝐮𝐞" 开启证书验证(默认关闭);
 ⦿ 𝗶𝗻, 𝗼𝘂𝘁, 分别为 保留、删除 节点;
     ❖ 多参数(逻辑"或")用 "+", 逻辑"与"用 "." 表示;
     ❖ 支持中文, 操作以下特殊字符时请先替换
@@ -874,7 +874,7 @@ function V2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
                 obfs = Pobfs(ss, cert, tls13);
                 if (obfs == "" || obfs == undefined) {
                         nss.push(ip, mtd, pwd, tfo, udp, tag)
-                } else {
+                } else if(obfs != "NOT-SUPPORTTED"){
                         nss.push(ip, mtd, pwd, obfs, tfo, udp, tag);
                 }
                 QX = nss.join(", ");
@@ -900,12 +900,14 @@ function Pobfs(jsonl, Pcert, Ptls13) {
                 host0 = jsonl.host && jsonl.host != "" ? "obfs-host=" + jsonl.host + "," : "";
                 obfsi.push(obfs0, host0 + uri0);
                 return obfsi.join(", ")
-        } else if (jsonl.tls == "tls") {
+        } else if (jsonl.tls == "tls" && !jsonl.net) { // 过滤掉 h2/http 等类型 
                 obfs0 = "obfs=over-tls, " + tcert + ", " + tls13;
                 uri0 = jsonl.path && jsonl.path != "" ? "obfs-uri=" + jsonl.path : "";
                 host0 = jsonl.host && jsonl.host != "" ? ", obfs-host=" + jsonl.host : "";
                 obfsi.push(obfs0 + host0)
                 return obfsi.join(", ")
+        } else if(jsonl.net){ // 过滤掉 h2/http 等类型
+            return "NOT-SUPPORTTED"
         }
 }
 
@@ -1371,117 +1373,117 @@ function SVmess2QX(content) {
 
 // 用于过滤非节点部分（比如整份配置中其它内容）
 function isSurge(content) {
-        if (content.indexOf("=") != -1) {
-                cnt = content.split("=")[1].split(",")[0].trim()
-                if (cnt == "http" || cnt == "ss" || cnt == "trojan" || cnt == "vmess" || cnt == "custom") {
-                        return content
-                }
+    if (content.indexOf("=") != -1) {
+        cnt = content.split("=")[1].split(",")[0].trim()
+        if (cnt == "http" || cnt == "ss" || cnt == "trojan" || cnt == "vmess" || cnt == "custom") {
+                return content
         }
+    }
 }
 // 用于参数检查
 function paraCheck(content, para) {
-        content=content.replace(/ /g,"")
-        if (content.indexOf(para+"=") == -1) {
-                return "false"
-        } else {
-                //console.log(para)
-                return content.split(para+"=")[1].split(",")[0].trim()
-        }
+    content=content.replace(/ /g,"")
+    if (content.indexOf(para+"=") == -1) {
+        return "false"
+    } else {
+            //console.log(para)
+        return content.split(para+"=")[1].split(",")[0].trim()
+    }
 }
 //surge中 trojan 类型转换
 function Strojan2QX(content) {
-        var cnt = content;
-        var tag = "tag=" + cnt.split("=")[0].trim();
-        var ipport = cnt.split(",")[1].trim() + ":" + cnt.split(",")[2].trim();
-        var pwd = "password=" + cnt.split("password")[1].split(",")[0].split("=")[1].trim();
-        var ptls = "over-tls=true";
-        var ptfo = paraCheck(cnt, "tfo") == "true" ? "fast-open=true" : "fast-open=false";
-        var pverify = paraCheck(cnt, "skip-cert-verify") == "true" ? "tls-verification=false" : "tls-verification=true";
-        var ptls13 = paraCheck(cnt, "tls13") == "true" ? "tls13=true" : "tls13=false";
-        var nserver = "trojan= " + [ipport, pwd, ptls, ptfo, ptls13, pverify, tag].join(", ");
-        return nserver
+    var cnt = content;
+    var tag = "tag=" + cnt.split("=")[0].trim();
+    var ipport = cnt.split(",")[1].trim() + ":" + cnt.split(",")[2].trim();
+    var pwd = "password=" + cnt.split("password")[1].split(",")[0].split("=")[1].trim();
+    var ptls = "over-tls=true";
+    var ptfo = paraCheck(cnt, "tfo") == "true" ? "fast-open=true" : "fast-open=false";
+    var pverify = paraCheck(cnt, "skip-cert-verify") == "true" ? "tls-verification=false" : "tls-verification=true";
+    var ptls13 = paraCheck(cnt, "tls13") == "true" ? "tls13=true" : "tls13=false";
+    var nserver = "trojan= " + [ipport, pwd, ptls, ptfo, ptls13, pverify, tag].join(", ");
+    return nserver
 }
 // surge 中的 http 类型
 function Shttp2QX(content) {
-        var cnt = content;
-        var tag = "tag=" + cnt.split("=")[0].trim();
-        var ipport = cnt.split(",")[1].trim() + ":" + cnt.split(",")[2].trim();
-        var puname = cnt.indexOf("username") != -1 ? "username=" + cnt.split("username")[1].split(",")[0].split("=")[1].trim() : "";
-        var pwd = cnt.indexOf("password") != -1 ? "password=" + cnt.split("password")[1].split(",")[0].split("=")[1].trim() : "";
-        var ptls = cnt.split("=")[1].split(",")[0].trim() == "https" ? "over-tls=true" : "over-tls=false";
-        var ptfo = paraCheck(cnt, "tfo") == "true" ? "fast-open=true" : "fast-open=false";
-        if (ptls == "over-tls=true") {
-                var pverify = paraCheck(cnt, "skip-cert-verify") == "true" ? "tls-verification=false" : "tls-verification=true";
-                var ptls13 = paraCheck(cnt, "tls13") == "true" ? "tls13=true" : "tls13=false";
-                ptls = ptls + ", " + pverify + ", " + ptls13
-        }
-        var nserver = puname != "" ? "http= " + [ipport, puname, pwd, ptls, ptfo, tag].join(", ") : "http= " + [ipport, ptls, ptfo, tag].join(", ");
-        return nserver
+    var cnt = content;
+    var tag = "tag=" + cnt.split("=")[0].trim();
+    var ipport = cnt.split(",")[1].trim() + ":" + cnt.split(",")[2].trim();
+    var puname = cnt.indexOf("username") != -1 ? "username=" + cnt.split("username")[1].split(",")[0].split("=")[1].trim() : "";
+    var pwd = cnt.indexOf("password") != -1 ? "password=" + cnt.split("password")[1].split(",")[0].split("=")[1].trim() : "";
+    var ptls = cnt.split("=")[1].split(",")[0].trim() == "https" ? "over-tls=true" : "over-tls=false";
+    var ptfo = paraCheck(cnt, "tfo") == "true" ? "fast-open=true" : "fast-open=false";
+    if (ptls == "over-tls=true") {
+        var pverify = paraCheck(cnt, "skip-cert-verify") == "true" ? "tls-verification=false" : "tls-verification=true";
+        var ptls13 = paraCheck(cnt, "tls13") == "true" ? "tls13=true" : "tls13=false";
+        ptls = ptls + ", " + pverify + ", " + ptls13
+    }
+    var nserver = puname != "" ? "http= " + [ipport, puname, pwd, ptls, ptfo, tag].join(", ") : "http= " + [ipport, ptls, ptfo, tag].join(", ");
+    return nserver
 }
 
 function Loon2QX(cnt) {
-        var type = cnt.split("=")[1].split(",")[0].trim()
-        var node = ""
-        if (type == "Shadowsocks") { //ss 类型
-                node = LoonSS2QX(cnt)
-        } else if (type == "ShadowsocksR") { //ssr 类型
-                node = LoonSSR2QX(cnt)
-        }
-        return node
+    var type = cnt.split("=")[1].split(",")[0].trim()
+    var node = ""
+    if (type == "Shadowsocks") { //ss 类型
+            node = LoonSS2QX(cnt)
+    } else if (type == "ShadowsocksR") { //ssr 类型
+            node = LoonSSR2QX(cnt)
+    }
+    return node
 }
 //Loon 的 ss 部分
 function LoonSS2QX(cnt) {
-        var node = "shadowsocks="
-        var ip = [cnt.split(",")[1].trim(), cnt.split(",")[2].trim()].join(":")
-        var mtd = "method=" + cnt.split(",")[3].trim()
-        var pwd = "password=" + cnt.split(",")[4].trim().split("\"")[1]
-        var obfs = cnt.split(",").length == 7 ? ", " + ["obfs=" + cnt.split(",")[5].trim(), "obfs-host=" + cnt.split(",")[6].trim()].join(",") : ""
-        var tag = ", tag=" + cnt.split("=")[0].trim()
-        node = node + [ip, mtd, pwd].join(", ") + obfs + tag
-        return node
+    var node = "shadowsocks="
+    var ip = [cnt.split(",")[1].trim(), cnt.split(",")[2].trim()].join(":")
+    var mtd = "method=" + cnt.split(",")[3].trim()
+    var pwd = "password=" + cnt.split(",")[4].trim().split("\"")[1]
+    var obfs = cnt.split(",").length == 7 ? ", " + ["obfs=" + cnt.split(",")[5].trim(), "obfs-host=" + cnt.split(",")[6].trim()].join(",") : ""
+    var tag = ", tag=" + cnt.split("=")[0].trim()
+    node = node + [ip, mtd, pwd].join(", ") + obfs + tag
+    return node
 }
 
 //Loon 的 ssr 部分
 //# SSR 格式：名称=协议类型,地址,端口,加密方式,密码,协议类型,{协议参数},混淆类型,{混淆参数}
 //3 = ShadowsocksR, 1.2.3.4, 443, aes-256-cfb,"password",auth_aes128_md5,{},tls1.2_ticket_auth,{}
 function LoonSSR2QX(cnt) {
-        var node = "shadowsocks="
-        var ip = [cnt.split(",")[1].trim(), cnt.split(",")[2].trim()].join(":")
-        var mtd = "method=" + cnt.split(",")[3].trim()
-        var pwd = "password=" + cnt.split(",")[4].trim().split("\"")[1]
-        var ssrp = "ssr-protocol=" + cnt.split(",")[5].trim()
-        var ssrpara = "ssr-protocol-param=" + cnt.split(",")[6].replace(/\{|\}/g, "").trim()
-        var obfs = "obfs=" + cnt.split(",")[7].trim()
-        var obfshost = "obfs-host=" + cnt.split(",")[8].replace(/\{|\}/g, "").trim()
-        var tag = ", tag=" + cnt.split("=")[0].trim()
-        node = node + [ip, mtd, pwd, ssrp, ssrpara, obfs, obfshost].join(", ") + tag
-        return node
+    var node = "shadowsocks="
+    var ip = [cnt.split(",")[1].trim(), cnt.split(",")[2].trim()].join(":")
+    var mtd = "method=" + cnt.split(",")[3].trim()
+    var pwd = "password=" + cnt.split(",")[4].trim().split("\"")[1]
+    var ssrp = "ssr-protocol=" + cnt.split(",")[5].trim()
+    var ssrpara = "ssr-protocol-param=" + cnt.split(",")[6].replace(/\{|\}/g, "").trim()
+    var obfs = "obfs=" + cnt.split(",")[7].trim()
+    var obfshost = "obfs-host=" + cnt.split(",")[8].replace(/\{|\}/g, "").trim()
+    var tag = ", tag=" + cnt.split("=")[0].trim()
+    node = node + [ip, mtd, pwd, ssrp, ssrpara, obfs, obfshost].join(", ") + tag
+    return node
 }
 
 // Clash parser
 function Clash2QX(cnt) {
-        const yaml = new YAML()
-        var aa = JSON.stringify(yaml.parse(cnt))
-        var bb = JSON.parse(aa).proxies
-        console.log(bb)
-        var nl = bb.length
-        var nodelist=[]
-        var node=""
-        for (i=0; i<nl; i++){
-                node=bb[i]
-                typec = node.type
-                if (typec == "ss") {
-                        node = CSS2QX(node)
-                } else if (typec == "vmess"){
-                        node = CV2QX(node)
-                } else if (typec == "trojan"){
-                        node = CT2QX(node)
-                } else if (typec == "http"){
-                        node = CH2QX(node)
-                }
-                nodelist.push(node)
+    const yaml = new YAML()
+    var aa = JSON.stringify(yaml.parse(cnt))
+    var bb = JSON.parse(aa).proxies
+    console.log(bb)
+    var nl = bb.length
+    var nodelist=[]
+    var node=""
+    for (i=0; i<nl; i++){
+        node=bb[i]
+        typec = node.type
+        if (typec == "ss") {
+            node = CSS2QX(node)
+        } else if (typec == "vmess"){
+            node = CV2QX(node)
+        } else if (typec == "trojan"){
+            node = CT2QX(node)
+        } else if (typec == "http"){
+            node = CH2QX(node)
         }
-        return nodelist.join("\n")
+        nodelist.push(node)
+    }
+    return nodelist.join("\n")
 }
 
 //Clash ss type server
