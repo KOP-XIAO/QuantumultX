@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-24 21:35⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-08-25 10:45⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1461,15 +1461,15 @@ function LoonSSR2QX(cnt) {
 }
 
 
-// stuppid manual fix for yaml parse mistakes
+// fix yaml parse mistakes
 function YAMLFix(cnt){
     if (cnt.indexOf("{") != -1){
-        cnt = cnt.replace(/: {/g, ": {,     ").replace(/, host/g,",     host")
+        cnt = cnt.replace(/: {/g, ": {,     ").replace(/, (host|path|tls|mux|skip)/g,",     $1")
         cnt = cnt.replace(/{name: /g,"{name: \"").replace(/, server:/g,"\", server:")
         cnt = cnt.replace(/{|}/g,"").replace(/,/g,"\n   ")
     }
     cnt = cnt.replace(/  -\n.*name/g,"  - name")
-    //console.log(cnt)
+    console.log(cnt)
     return cnt
 }
 
@@ -1503,16 +1503,24 @@ function Clash2QX(cnt) {
 
 //Clash ss type server
 function CSS2QX(cnt) {
-	tag = "tag="+cnt.name.replace(/\\U.+?\s{1}/gi,"")
-	ipt = cnt.server+":"+cnt.port
-	pwd = "password=" + cnt.password
-	mtd = "method="+ cnt.cipher
+    tag = "tag="+cnt.name.replace(/\\U.+?\s{1}/gi,"")
+    ipt = cnt.server+":"+cnt.port
+    pwd = "password=" + cnt.password
+    mtd = "method="+ cnt.cipher
     udp = cnt.udp ? "udp-relay=true" : "udp-relay=false"
     tfo = cnt.tfo ? "fast-open=true" : "fast-open=false"
     obfs = cnt.plugin == "obfs"? "obfs=" + cnt["plugin-opts"].mode : ""
     ohost = cnt.plugin == "obfs"? "obfs-host=" + cnt["plugin-opts"].host : ""
-    node = "shadowsocks="+[ipt, pwd, mtd, udp, tfo, obfs, ohost, tag].filter(Boolean).join(", ")
-    //console.log(node)
+    ouri = ""
+    cert = ""
+    if (cnt.plugin == "v2ray-plugin") {
+        obfs = cnt["plugin-opts"].tls? "obfs=wss" : "obfs=ws"
+        ohost = cnt["plugin-opts"].host? "obfs-host=" + cnt["plugin-opts"].host:""
+        ouri = cnt["plugin-opts"].path? "obfs-uri=" + cnt["plugin-opts"].path: ""
+        if (obfs == "obfs=wss") { // tls verification
+            cert = Pcert0 == 1? "" : "tls-verification =false"}
+    }
+    node = "shadowsocks="+[ipt, pwd, mtd, udp, tfo, obfs, ohost, ouri, cert, tag].filter(Boolean).join(", ")
     return node
 }
 
