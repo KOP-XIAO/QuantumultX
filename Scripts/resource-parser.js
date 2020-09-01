@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-09-01 13:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-09-01 20:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -143,7 +143,6 @@ var pfohn = Phout0 ? "outhn=" + Phout0.join(", ") : ""
 var Pcnt =  para1.indexOf("cnt=") != -1 ? para1.split("cnt=")[1].split("&")[0] : 0;
 var flow = "";
 var exptime = "";
-//$notify(type0)
 
 var type0 = Type_Check(content0); //  类型判断
 //$notify(type0)
@@ -301,7 +300,7 @@ function Type_Check(subs) {
         content0 = Clash2QX(subs)
     } else if ( (subi.indexOf("[Script]") != -1 || subi.indexOf("[Rule]") != -1 || subs.indexOf("[URL Rewrite]") != -1 || subs.indexOf("[Map Local]") != -1 || subs.indexOf("[MITM]") != -1 || para1.indexOf("dst=rewrite") != -1) && (para1.indexOf("dst=filter") == -1) && subs.indexOf("[Proxy]") == -1) { // Surge 类型 module /rule-set(含url-regex) 类型
         type = "sgmodule"
-    } else if (subi.indexOf("hostname=") != -1 || RewriteK.some(RewriteCheck)) {
+    } else if ((subi.indexOf("hostname=") != -1 || RewriteK.some(RewriteCheck)) && subs.indexOf("[Proxy]") == -1) {
         type = "rewrite" //Quantumult X 类型 rewrite
     } else if (RuleK.some(RuleCheck) && subs.indexOf(html) == -1 && subs.indexOf("[Proxy]") == -1) {
         type = "Rule";
