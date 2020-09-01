@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-09-01 06:29⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-09-01 08:29⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -146,7 +146,7 @@ var exptime = "";
 //$notify(type0)
 
 var type0 = Type_Check(content0); //  类型判断
-console.log(type0)
+//$notify(type0)
 
 //响应头流量处理部分
 function SubFlow() {
@@ -284,7 +284,7 @@ function Type_Check(subs) {
     var ClashK = ["proxies:"]
     var SubK = ["dm1lc3M", "c3NyOi8v", "dHJvamFu", "c3M6Ly", "c3NkOi8v", "c2hhZG93"];
     var RewriteK = [" url "]
-    var SubK2 = ["ss://", "vmess://", "ssr://", "trojan://", "ssd://"];
+    var SubK2 = ["ss://", "vmess://", "ssr://", "trojan://", "ssd://", "https://"];
     var html = "DOCTYPE html"
     var subi = subs.replace(/ /g, "")
     const RuleCheck = (item) => subi.toLowerCase().indexOf(item) != -1;
@@ -294,17 +294,7 @@ function Type_Check(subs) {
     if (subs.indexOf(html) != -1) {
         $notify("‼️ 该链接返回内容有误", "⁉️ 点通知跳转以确认链接是否失效", link0, nan_link);
         type = "web";
-    } else if (subsn.length >= 1 && SubK2.some(NodeCheck)) { //未b64加密的多行URI 组合订阅
-        type = "Subs"
-    } else if (SubK.some(NodeCheck)) {  //b64加密的订阅类型
-        type = "Subs-B64Encode"
-    } else if (subi.indexOf("tag=") != -1 && QuanXK.some(NodeCheck)) {
-        type = "Subs" // QuanX list
-    } else if (subs.indexOf("[Proxy]") != -1) {
-        type = "Surge"; // Surge Profiles
-    } else if (SurgeK.some(NodeCheck)) {
-        type = "Subs" // Surge proxy list
-    } else if (ClashK.some(NodeCheck)){ // Clash 类型节点转换
+    }  else if (ClashK.some(NodeCheck)){ // Clash 类型节点转换
         type = "Clash";
         //console.log(type)
         content0 = Clash2QX(subs)
@@ -317,7 +307,17 @@ function Type_Check(subs) {
     } else if (DomainK.some(RuleCheck)) {
         type = "Rule";
         content0 = Domain2Rule(content0) // 转换 domain-set
-    } 
+    } else if (subsn.length >= 1 && SubK2.some(NodeCheck)) { //未b64加密的多行URI 组合订阅
+        type = "Subs"
+    } else if (SubK.some(NodeCheck)) {  //b64加密的订阅类型
+        type = "Subs-B64Encode"
+    } else if (subi.indexOf("tag=") != -1 && QuanXK.some(NodeCheck)) {
+        type = "Subs" // QuanX list
+    } else if (subs.indexOf("[Proxy]") != -1) {
+        type = "Surge"; // Surge Profiles
+    } else if (SurgeK.some(NodeCheck)) {
+        type = "Subs" // Surge proxy list
+    }
     return type
 }
 
@@ -718,12 +718,11 @@ function SubsEd2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
             } else if (type == "trojan") {
                 node = TJ2QX(list0[i], Pudp, Ptfo, Pcert, Ptls13)
             } else if (type == "https") { //subs,Ptfo,Pcert,Ptls13
-            console.log("haha")
               if (listi.indexOf("@") != -1) {
                 node = HPS2QX(list0[i], Ptfo, Pcert, Ptls13)
               } else {
-                var listh = Base64.decode(listi.split("https://")[1].split("#")[0])+"#"+listi.split("https://")[1].split("#")[1]
-                listh = "https://" + Base64.encode(listh)
+                var listh = Base64.decode(listi.split("https://")[1].split("#")[0])
+                listh = "https://" + listh + "#" + listi.split("https://")[1].split("#")[1]
                 node = HPS2QX(listh, Ptfo, Pcert, Ptls13)
               }
             } else if (QuanXK.some(NodeCheck)) {
@@ -777,8 +776,8 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
                 if (listi.indexOf("@") != -1) {
                   node = HPS2QX(list0[i], Ptfo, Pcert, Ptls13)
             } else {
-                var listh = Base64.decode(listi.split("https://")[1].split("#")[0])+"#"+listi.split("https://")[1].split("#")[1]
-                listh = "https://" + Base64.encode(listh)
+                var listh = Base64.decode(listi.split("https://")[1].split("#")[0])
+                listh = "https://" + listh + "#" + listi.split("https://")[1].split("#")[1]
                 node = HPS2QX(listh, Ptfo, Pcert, Ptls13)
                 }
             } else if (QuanXK.some(NodeCheck)) {
@@ -802,25 +801,24 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
     return QXlist
 }
 
-//https://username:password@IP:PORT#name
 //http=example.com:443, username=name, password=pwd, over-tls=true, tls-host=example.com, tls-verification=true, tls13=true, fast-open=false, udp-relay=false, tag=http-tls-02
 //HTTPS 类型 URI 转换成 QUANX 格式
 function HPS2QX(subs, Ptfo, Pcert, Ptls13) {
-  var server = Base64.decode(subs.split("@")[0].replace("https://", "")).trim().split("\u0000")[0];
-  var nss = []
-  if (server != "") {
-      var ipport = "http=" + server.split("@")[1].split("#")[0].split("/")[0];
-      var uname = "username=" + server.split(":")[0];
-      var pwd = "password=" + server.split("@")[0].split(":")[1];
-      var tag = "tag=" + server.split("#")[1];
-      var tls = "over-tls=true";
-      var cert = Pcert != 0 ? "tls-verification=true" : "tls-verification=false";
-      var tfo = Ptfo == 1 ? "fast-open=true" : "fast-open=false";
-      var tls13 = Ptls13 == 1 ? "tls13=true" : "tls13=false";
-      nss.push(ipport, uname, pwd, tls, cert, tfo, tls13, tag)
-  }
-  var QX = nss.join(",");
-  return QX
+    var server = subs.replace("https://", "").trim()//Base64.decode(subs.replace("https://", "")).trim().split("\u0000")[0];
+    var nss = []
+    if (server != "") {
+        var ipport = "http=" + server.split("@")[1].split("#")[0].split("/")[0];
+        var uname = "username=" + server.split(":")[0];
+        var pwd = "password=" + server.split("@")[0].split(":")[1];
+        var tag = "tag=" + server.split("#")[1];
+        var tls = "over-tls=true";
+        var cert = Pcert != 0 ? "tls-verification=true" : "tls-verification=false";
+        var tfo = Ptfo == 1 ? "fast-open=true" : "fast-open=false";
+        var tls13 = Ptls13 == 1 ? "tls13=true" : "tls13=false";
+        nss.push(ipport, uname, pwd, tls, cert, tfo, tls13, tag)
+    }
+    var QX = nss.join(",");
+    return QX
 }
 
 //quantumult 格式的 vmess URI 转换
