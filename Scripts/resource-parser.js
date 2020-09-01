@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-09-01 20:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-09-01 21:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -239,10 +239,14 @@ if (flag == 1) { //server 类型统一处理
         total = QXSort(total, Psort0);
     }
     if (Pcnt == 1) {$notify("final content" , "Nodes", total)}
-    total = TagCheck_QX(total) //节点名检查
-    if (Pcnt == 1) {$notify("final content" , "Nodes", total)}
-    if (flag == 1) { total = Base64.encode(total.join("\n")) } //强制节点类型 base64 加密后再导入 Quantumult X
-    $done({ content: total });
+    if (total.length > 0){
+      total = TagCheck_QX(total) //节点名检查
+      total = Base64.encode(total.join("\n")) //强制节点类型 base64 加密后再导入 Quantumult X
+      $done({ content: total });
+    } else {
+      $notify("❓❓ 友情提示", "⚠️⚠️ 解析后无有效内容", "🚥🚥 请自行检查, 或者点击通知跳转反馈", bug_link)
+    }
+    
 } else { $done({ content: total });}
 
 /**
@@ -285,6 +289,7 @@ function Type_Check(subs) {
     var SubK = ["dm1lc3M", "c3NyOi8v", "dHJvamFu", "c3M6Ly", "c3NkOi8v", "c2hhZG93"];
     var RewriteK = [" url "]
     var SubK2 = ["ss://", "vmess://", "ssr://", "trojan://", "ssd://", "https://"];
+    var ModuleK = ["[Script]", "[Rule]", "[URL Rewrite]", "[Map Local]", "[MITM]"]
     var html = "DOCTYPE html"
     var subi = subs.replace(/ /g, "")
     const RuleCheck = (item) => subi.toLowerCase().indexOf(item) != -1;
@@ -292,31 +297,32 @@ function Type_Check(subs) {
     const RewriteCheck = (item) => subs.indexOf(item) != -1;
     var subsn = subs.split("\n")
     if (subs.indexOf(html) != -1) {
-        $notify("‼️ 该链接返回内容有误", "⁉️ 点通知跳转以确认链接是否失效", link0, nan_link);
-        type = "web";
+      $notify("‼️ 该链接返回内容有误", "⁉️ 点通知跳转以确认链接是否失效", link0, nan_link);
+      type = "web";
     }  else if (ClashK.some(NodeCheck)){ // Clash 类型节点转换
-        type = "Clash";
-        //console.log(type)
-        content0 = Clash2QX(subs)
-    } else if ( (subi.indexOf("[Script]") != -1 || subi.indexOf("[Rule]") != -1 || subs.indexOf("[URL Rewrite]") != -1 || subs.indexOf("[Map Local]") != -1 || subs.indexOf("[MITM]") != -1 || para1.indexOf("dst=rewrite") != -1) && (para1.indexOf("dst=filter") == -1) && subs.indexOf("[Proxy]") == -1) { // Surge 类型 module /rule-set(含url-regex) 类型
-        type = "sgmodule"
-    } else if ((subi.indexOf("hostname=") != -1 || RewriteK.some(RewriteCheck)) && subs.indexOf("[Proxy]") == -1) {
-        type = "rewrite" //Quantumult X 类型 rewrite
-    } else if (RuleK.some(RuleCheck) && subs.indexOf(html) == -1 && subs.indexOf("[Proxy]") == -1) {
-        type = "Rule";
+      type = "Clash";
+      content0 = Clash2QX(subs)
+    } else if ( (ModuleK.some(RewriteCheck) || para1.indexOf("dst=rewrite") != -1) && (para1.indexOf("dst=filter") == -1) && subs.indexOf("[Proxy]") == -1) { // Surge 类型 module /rule-set(含url-regex) 类型
+      type = "sgmodule"
+    } else if ((subi.indexOf("hostname=") != -1 || RewriteK.some(RewriteCheck)) && subs.indexOf("[Proxy]") == -1 && subs.indexOf("[server_local]") == -1) {
+      type = "rewrite" //Quantumult X 类型 rewrite
+    } else if (RuleK.some(RuleCheck) && subs.indexOf(html) == -1 && subs.indexOf("[Proxy]") == -1 && subs.indexOf("[server_local]") == -1) {
+      type = "Rule";
     } else if (DomainK.some(RuleCheck)) {
-        type = "Rule";
-        content0 = Domain2Rule(content0) // 转换 domain-set
-    } else if (subsn.length >= 1 && SubK2.some(NodeCheck)) { //未b64加密的多行URI 组合订阅
-        type = "Subs"
+      type = "Rule";
+      content0 = Domain2Rule(content0) // 转换 domain-set
+    } else if (subsn.length >= 1 && SubK2.some(NodeCheck) && subs.indexOf("[Proxy]") == -1 && subs.indexOf("[filter_local]") == -1) { //未b64加密的多行URI 组合订阅
+      type = "Subs"
     } else if (SubK.some(NodeCheck)) {  //b64加密的订阅类型
-        type = "Subs-B64Encode"
-    } else if (subi.indexOf("tag=") != -1 && QuanXK.some(NodeCheck)) {
-        type = "Subs" // QuanX list
+      type = "Subs-B64Encode"
+    } else if (subi.indexOf("tag=") != -1 && QuanXK.some(NodeCheck) && subs.indexOf("[Proxy]") == -1 && subs.indexOf("[filter_local]") == -1) {
+      type = "Subs" // QuanX list
     } else if (subs.indexOf("[Proxy]") != -1) {
-        type = "Surge"; // Surge Profiles
-    } else if (SurgeK.some(NodeCheck)) {
-        type = "Subs" // Surge proxy list
+      type = "Surge"; // Surge Profiles
+    } else if (SurgeK.some(NodeCheck)  && subs.indexOf("[Proxy]") == -1 && subs.indexOf("[filter_local]") == -1) {
+      type = "Subs" // Surge proxy list
+    } else if (subs.indexOf("[server_local]") != -1) {
+      type = "QuanX"  // QuanX Profile
     }
     return type
 }
@@ -726,7 +732,7 @@ function SubsEd2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
                 node = HPS2QX(listh, Ptfo, Pcert, Ptls13)
               }
             } else if (QuanXK.some(NodeCheck)) {
-                node = list0[i]
+                node = isQuanX(list0[i])[0]
             } else if (SurgeK.some(NodeCheck)) {
                 node = Surge2QX(list0[i])[0]
             } else if (LoonK.some(NodeCheck)) {
@@ -772,7 +778,7 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
                 node = SSD2QX(list0[i], Pudp, Ptfo)
             } else if (type == "trojan") {
                 node = TJ2QX(list0[i], Pudp, Ptfo, Pcert, Ptls13)
-            } else if (type == "https") {
+            } else if (type == "https" && list0[i].indexOf(",") == -1) {
                 if (listi.indexOf("@") != -1) {
                   node = HPS2QX(list0[i], Ptfo, Pcert, Ptls13)
             } else {
@@ -781,7 +787,7 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
                 node = HPS2QX(listh, Ptfo, Pcert, Ptls13)
                 }
             } else if (QuanXK.some(NodeCheck)) {
-                node = list0[i]
+                node = isQuanX(list0[i])[0]
             } else if (SurgeK.some(NodeCheck)) {
                 node = Surge2QX(list0[i])[0]
             } else if (LoonK.some(NodeCheck)) {
