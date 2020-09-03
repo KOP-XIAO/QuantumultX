@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-09-02 21:39⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-09-03 10:39⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -172,7 +172,7 @@ function SubFlow() {
 //flag=1,2,3分别为 server、rewrite、rule 类型
 var flag = 1
 if (type0 == "Subs-B64Encode") {
-    total = SubsEd2QX(content0, Pudp0, Ptfo0, Pcert0, PTls13);
+    total = Subs2QX(Base64.decode(content0), Pudp0, Ptfo0, Pcert0, PTls13);
 } else if (type0 == "Subs") {
     total = Subs2QX(content0, Pudp0, Ptfo0, Pcert0, PTls13);
 } else if (type0 == "QuanX" || type0 == "Clash") {
@@ -238,7 +238,6 @@ if (flag == 1) { //server 类型统一处理
     if (Psort0) {
         total = QXSort(total, Psort0);
     }
-    
     if (total.length > 0){
       if (Pcnt == 1) {$notify("final content" , "Nodes:" +total.length, total)}
       total = TagCheck_QX(total).join("\n") //节点名检查
@@ -694,59 +693,6 @@ function ReplaceReg(cnt, para) {
         cnt0 = cnt0.replace(p1, p2)
     }
     return cnt0.split("\n")
-}
-
-//混合订阅类型，用于整体进行了 base64 encode 后的类型
-function SubsEd2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
-    var list0 = Base64.decode(subs).split("\n");
-    var QuanXK = ["shadowsocks=", "trojan=", "vmess=", "http="];
-    var SurgeK = ["=ss", "=vmess", "=trojan", "=http", "=custom"];
-    var LoonK = ["=shadowsocks", "=shadowsocksr"]
-    var QXlist = [];
-    for (var i = 0; i < list0.length; i++) {
-        var node = ""
-        if (list0[i].trim().length > 3) {
-            var type = list0[i].split("://")[0].trim()
-            var listi = list0[i].replace(/ /g, "")
-            const NodeCheck = (item) => listi.toLowerCase().indexOf(item) != -1;
-            if (type == "vmess" && list0[i].indexOf("remarks=") == -1) {
-                var bnode = Base64.decode(list0[i].split("vmess://")[1])
-                if (bnode.indexOf("over-tls=") == -1) { //v2rayN
-                    node = V2QX(list0[i], Pudp, Ptfo, Pcert, Ptls13)
-                } else { //quantumult 类型
-                    node = VQ2QX(list0[i], Pudp, Ptfo, Pcert, Ptls13)
-                }
-            } else if (type == "vmess" && list0[i].indexOf("remarks=") != -1) { //shadowrocket 类型
-                node = VR2QX(list0[i], Pudp, Ptfo, Pcert, Ptls13)
-            } else if (type == "ssr") {
-                node = SSR2QX(list0[i], Pudp, Ptfo)
-            } else if (type == "ss") {
-                node = SS2QX(list0[i], Pudp, Ptfo)
-            } else if (type == "trojan") {
-                node = TJ2QX(list0[i], Pudp, Ptfo, Pcert, Ptls13)
-            } else if (type == "https") { //subs,Ptfo,Pcert,Ptls13
-              if (listi.indexOf("@") != -1) {
-                node = HPS2QX(list0[i], Ptfo, Pcert, Ptls13)
-              } else {
-                var listh = Base64.decode(listi.split("https://")[1].split("#")[0])
-                listh = "https://" + listh + "#" + listi.split("https://")[1].split("#")[1]
-                node = HPS2QX(listh, Ptfo, Pcert, Ptls13)
-              }
-            } else if (QuanXK.some(NodeCheck)) {
-                node = isQuanX(list0[i])[0]
-            } else if (SurgeK.some(NodeCheck)) {
-                node = Surge2QX(list0[i])[0]
-            } else if (LoonK.some(NodeCheck)) {
-                node = Loon2QX(list0[i])
-            }
-            node = Pudp != 0 ? XUDP(node,Pudp) : node
-            node = Ptfo != 0 ? XTFO(node,Ptfo) : node
-            if (node != "") {
-                QXlist.push(node)
-            }
-        }
-    }
-    return QXlist
 }
 
 //混合订阅类型，用于未整体进行 base64 encode 的类型
