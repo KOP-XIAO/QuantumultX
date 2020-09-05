@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-09-03 10:39⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-09-05 14:49⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -239,7 +239,7 @@ if (flag == 1) { //server 类型统一处理
         total = QXSort(total, Psort0);
     }
     if (total.length > 0){
-      if (Pcnt == 1) {$notify("final content" , "Nodes:" +total.length, total)}
+      if (Pcnt == 1) {$notify("Final Content" , "Nodes: " +total.length, total)}
       total = TagCheck_QX(total).join("\n") //节点名检查
       total = Base64.encode(total) //强制节点类型 base64 加密后再导入 Quantumult X
       $done({ content: total });
@@ -865,13 +865,13 @@ function Pobfs(jsonl, Pcert, Ptls13) {
     if (jsonl.net == "ws" && jsonl.tls == "tls") {
         obfs0 = "obfs=wss, " + tcert + ", " + tls13 + ", ";
         uri0 = jsonl.path && jsonl.path != "" ? "obfs-uri=" + jsonl.path : "obfs-uri=/";
-        host0 = jsonl.host && jsonl.host != "" ? "obfs-host=" + jsonl.host + "," : "";
+        host0 = jsonl.host && jsonl.host != "" ? "obfs-host=" + jsonl.host + ", " : "";
         obfsi.push(obfs0 + host0 + uri0)
         return obfsi.join(", ")
     } else if (jsonl.net == "ws") {
         obfs0 = "obfs=ws";
         uri0 = jsonl.path && jsonl.path != "" ? "obfs-uri=" + jsonl.path : "obfs-uri=/";
-        host0 = jsonl.host && jsonl.host != "" ? "obfs-host=" + jsonl.host + "," : "";
+        host0 = jsonl.host && jsonl.host != "" ? "obfs-host=" + jsonl.host + ", " : "";
         obfsi.push(obfs0, host0 + uri0);
         return obfsi.join(", ")
     } else if (jsonl.tls == "tls" && jsonl.net == "tcp") { // 过滤掉 h2/http 等类型 
@@ -1495,14 +1495,14 @@ function CSS2QX(cnt) {
   mtd = "method="+ cnt.cipher
   udp = cnt.udp ? "udp-relay=true" : "udp-relay=false"
   tfo = cnt.tfo ? "fast-open=true" : "fast-open=false"
-  obfs = cnt.plugin == "obfs"? "obfs=" + cnt["plugin-opts"].mode : ""
-  ohost = cnt.plugin == "obfs"? "obfs-host=" + cnt["plugin-opts"].host : ""
+  obfs = cnt["plugin-opts"] ? "obfs=" + cnt["plugin-opts"].mode : ""
+  ohost = cnt["plugin-opts"] ? "obfs-host=" + cnt["plugin-opts"].host : ""
   ouri = ""
   cert = ""
-  if (cnt.plugin == "v2ray-plugin") {
-    obfs = cnt["plugin-opts"].tls? "obfs=wss" : "obfs=ws"
-    ohost = cnt["plugin-opts"].host? "obfs-host=" + cnt["plugin-opts"].host:""
-    ouri = cnt["plugin-opts"].path? "obfs-uri=" + cnt["plugin-opts"].path: ""
+  if (obfs.indexOf("websocket") != -1) {
+      obfs = cnt["plugin-opts"].tls? "obfs=wss" : "obfs=ws"
+      ohost = cnt["plugin-opts"].host? "obfs-host=" + cnt["plugin-opts"].host:""
+      ouri = cnt["plugin-opts"].path? "obfs-uri=" + cnt["plugin-opts"].path: ""
     if (obfs == "obfs=wss") { // tls verification
       cert = Pcert0 == 1? "" : "tls-verification =false"}
   }
