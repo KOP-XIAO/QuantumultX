@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-09-05 14:49⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-09-06 18:49⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -281,7 +281,7 @@ function RegCheck(total, typen, regpara) {
 //判断订阅类型
 function Type_Check(subs) {
     var type = "unknown"
-    var RuleK = ["host,", "-suffix,", "domain,", "ip-cidr,", "ip-cidr6,",  "geoip,", "user-agent,", "ip6-cidr,"];
+    var RuleK = ["host,", "-suffix,", "domain,", "-keyword,", "ip-cidr,", "ip-cidr6,",  "geoip,", "user-agent,", "ip6-cidr,"];
     var DomainK = ["domain-set,"]
     var QuanXK = ["shadowsocks=", "trojan=", "vmess=", "http="];
     var SurgeK = ["=ss,", "=vmess,", "=trojan,", "=http,", "=custom,", "=https,", "=shadowsocks", "=shadowsocksr"];
@@ -818,7 +818,8 @@ function VR2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
         obfs = subs.indexOf("tls=1") != -1 ? "obfs=over-tls, " : "" //over-tls
     } else if (obfs == "websocket") {
         obfs = subs.indexOf("tls=1") != -1 ? "obfs=wss, " : "obfs=ws," //ws,wss 类型
-        obfs = obfs + "obfs-uri=" + subs.split("&path=")[1].split("&")[0] + ", "
+        var ouri = subs.indexOf("&path=") != -1 ? subs.split("&path=")[1].split("&")[0] : "/" //ws,wss 类型
+        obfs = obfs + "obfs-uri=" + ouri + ", "
         var host = subs.indexOf("&obfsParam=") != -1 ? "obfs-host=" + subs.split("&obfsParam=")[1].split("&")[0] + ", " : ""
         obfs = obfs + host
     }
