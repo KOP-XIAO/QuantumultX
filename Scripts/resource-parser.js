@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-09-08 21:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-09-09 19:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -577,7 +577,7 @@ function Rule_Handle(subs, Pout, Pin) {
     if (Tout != "" && Tout != null) { // 有 out 参数时
         var dlist = [];
         for (var i = 0; i < cnt.length; i++) {
-            cc = cnt[i].trim().replace(/^\s*\-/g,"")
+            cc = cnt[i].replace(/^\s*\-\s/g,"").trim()
             const exclude = (item) => cc.indexOf(item) != -1; // 删除项
             const RuleCheck = (item) => cc.indexOf(item) != -1; //无视注释行
             if (Tout.some(exclude) && !RuleK.some(RuleCheck)) {
@@ -616,7 +616,7 @@ function Rule_Handle(subs, Pout, Pin) {
     } else if (Tin != "" && Tin != null) { //if Tout
         var dlist = [];
         for (var i = 0; i < cnt.length; i++) {
-            cc = cnt[i].trim().replace(/^\s*\-/g,"")
+            cc = cnt[i].replace(/^\s*\-\s/g,"").trim()
             const RuleCheck = (item) => cc.indexOf(item) != -1; //无视注释行
             if (!RuleK.some(RuleCheck) && cc) { //if Pout.some, 不操作注释项
                 dd = Rule_Policy(cc);
@@ -639,7 +639,7 @@ function Rule_Handle(subs, Pout, Pin) {
 }
 
 function Rule_Policy(content) { //增加、替换 policy
-    var cnt = content.replace(/^\s*\-/g,"").trim().split(",");
+    var cnt = content.replace(/^\s*\-\s/g,"").trim().split(",");
     var RuleK = ["//", "#", ";"];
     var RuleK1 = ["host", "domain", "ip-cidr", "geoip", "user-agent", "ip6-cidr"];
     const RuleCheck = (item) => cnt[0].toLowerCase().indexOf(item) != -1; //无视注释行
