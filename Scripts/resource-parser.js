@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-09-16 11:29⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-09-16 11:39⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1134,15 +1134,15 @@ function QXSort(content, para) {
 }
 //正序
 function ToTag(elem1, elem2) {
-    var tag1 = emoji_del(elem1.split("tag")[1].split("=")[1].trim())
-    var tag2 = emoji_del(elem2.split("tag")[1].split("=")[1].trim())
+    var tag1 = elem1.split("tag")[1].split("=")[1].trim()
+    var tag2 = elem2.split("tag")[1].split("=")[1].trim()
     res = tag1 > tag2 ? 1 : -1
     return res
 }
 //逆序
 function ToTagR(elem1, elem2) {
-    var tag1 = emoji_del(elem1.split("tag")[1].split("=")[1].trim())
-    var tag2 = emoji_del(elem2.split("tag")[1].split("=")[1].trim())
+    var tag1 = elem1.split("tag")[1].split("=")[1].trim()
+    var tag2 = elem2.split("tag")[1].split("=")[1].trim()
     res = tag1 > tag2 ? -1 : 1
     return res
 }
