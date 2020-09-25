@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-09-20 21:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-09-25 09:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -302,7 +302,7 @@ function Type_Check(subs) {
       content0 = Clash2QX(subs)
     } else if ( (ModuleK.some(RewriteCheck) || para1.indexOf("dst=rewrite") != -1) && (para1.indexOf("dst=filter") == -1) && subs.indexOf("[Proxy]") == -1) { // Surge 类型 module /rule-set(含url-regex) 类型
       type = "sgmodule"
-    } else if ((subi.indexOf("hostname=") != -1 || RewriteK.some(RewriteCheck)) && subs.indexOf("[Proxy]") == -1 && subs.indexOf("[server_local]") == -1 && subs.indexOf("\nhttp-r") == -1) {
+    } else if ((subi.indexOf("hostname=") != -1 || RewriteK.some(RewriteCheck)) && subs.indexOf("[Proxy]") == -1 && subs.indexOf("[server_local]") == -1 && subs.indexOf("\nhttp-r") == -1 && para1.indexOf("dst=filter")==-1) {
       type = "rewrite" //Quantumult X 类型 rewrite
     } else if (RuleK.some(RuleCheck) && subs.indexOf(html) == -1 && subs.indexOf("[Proxy]") == -1 && subs.indexOf("[server_local]") == -1) {
       type = "Rule";
@@ -391,7 +391,7 @@ function URX2QX(subs) {
     return nrw
 }
 
-//script 转换成 Quantumult X
+//script&rewrite 转换成 Quantumult X
 function SCP2QX(subs) {
     var nrw = []
     var rw = ""
@@ -640,11 +640,11 @@ function Rule_Handle(subs, Pout, Pin) {
 }
 
 function Rule_Policy(content) { //增加、替换 policy
-    var cnt = content.replace(/^\s*\-\s/g,"").trim().split(",");
+    var cnt = content.replace(/^\s*\-\s/g,"").replace(/REJECT-TINYGIF/gi,"reject").trim().split(",");
     var RuleK = ["//", "#", ";"];
     var RuleK1 = ["host", "domain", "ip-cidr", "geoip", "user-agent", "ip6-cidr"];
-    const RuleCheck = (item) => cnt[0].toLowerCase().indexOf(item) != -1; //无视注释行
-    const RuleCheck1 = (item) => cnt[0].toLowerCase().indexOf(item) != -1; //无视 quanx 不支持的规则类别
+    const RuleCheck = (item) => cnt[0].trim().toLowerCase().indexOf(item) == 0; //无视注释行
+    const RuleCheck1 = (item) => cnt[0].trim().toLowerCase().indexOf(item) != -1; //无视 quanx 不支持的规则类别
     if (RuleK1.some(RuleCheck1)) {
         if (cnt.length == 3 && cnt.indexOf("no-resolve") == -1) {
             ply0 = Ppolicy != "Shawn" ? Ppolicy : cnt[2]
@@ -659,7 +659,7 @@ function Rule_Policy(content) { //增加、替换 policy
             ply0 = Ppolicy != "Shawn" ? Ppolicy : cnt[2]
             nn = cnt[0] + ", " + cnt[1] + ", " + ply0 + ", " + cnt[3]
         } else if (!RuleK.some(RuleCheck) && content) {
-            $notify("未能解析" + "⟦" + subtag + "⟧" + "其中部分规则:", content, nan_link);
+            //$notify("未能解析" + "⟦" + subtag + "⟧" + "其中部分规则:", content, nan_link);
             return ""
         } else { return "" }
         if (cnt[0].indexOf("URL-REGEX") != -1 || cnt[0].indexOf("PROCESS") != -1) {
