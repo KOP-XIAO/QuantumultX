@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-09-30 18:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-10-02 19:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1018,13 +1018,14 @@ function TJ2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
     pwd = "password=" + cnt.split("@")[0];
     obfs = "over-tls=true";
     pcert = cnt.indexOf("allowInsecure=0") != -1 ? "tls-verification=true" : "tls-verification=false";
+    thost = cnt.indexOf("sni=") != -1? "tls-host="+cnt.split("sni=")[1].split("&")[0]:""
     ptls13 = Ptls13 == 1 ? "tls13=true" : "tls13=false"
     if (Pcert == 0) { pcert = "tls-verification=false" }
     pudp = Pudp == 1 ? "udp-relay=true" : "udp-relay=false";
     ptfo = Ptfo == 1 ? "fast-open=true" : "fast-open=false";
     tag = cnt.indexOf("#") != -1 ? "tag=" + decodeURIComponent(cnt.split("#")[1]) : "tag= [trojan]" + ip
-    ntrojan.push(type + ip, pwd, obfs, pcert, ptls13, pudp, ptfo, tag)
-    QX = ntrojan.join(", ");
+    ntrojan.push(type + ip, pwd, obfs, pcert, thost, ptls13, pudp, ptfo, tag)
+    QX = ntrojan.filter(Boolean).join(", ");
     return QX;
 }
 
