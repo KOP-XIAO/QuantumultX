@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-10-14 17:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-10-25 21:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -79,8 +79,13 @@ resource_parser_url = https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/mas
 ------------------------------
 */
 
-var content0 = $resource.content;
 var link0 = $resource.link;
+var content0 = $resource.content;
+const subinfo = $resource.info;
+const subtag = $resource.tag != undefined ? $resource.tag : "";
+// 非 raw 链接的沙雕情形
+content0 = content0.indexOf("DOCTYPE html") != -1 && link0.indexOf("github.com") != -1 ? ToRaw(content0) : content0 ;
+
 //debug
 //const $resource={}
 //const $done=function(snt){return snt}
@@ -89,8 +94,6 @@ var link0 = $resource.link;
 var para = (link0.indexOf("http") != -1 && link0.indexOf("://") != -1) ? link0 : link0 + content0.split("\n")[0];
 var para1 = para.slice(para.indexOf("#") + 1) //防止参数中其它位置也存在"#"
 var mark0 = para.indexOf("#") != -1 ? true : false;
-const subinfo = $resource.info;
-const subtag = $resource.tag != undefined ? $resource.tag : "";
 var Pinfo = mark0 && para1.indexOf("info=") != -1 ? para1.split("info=")[1].split("&")[0] : 0;
 var ntf_flow = 0;
 //常用量
@@ -304,7 +307,7 @@ function Type_Check(subs) {
     const NodeCheck = (item) => subi.toLowerCase().indexOf(item.toLowerCase()) != -1;
     const RewriteCheck = (item) => subs.indexOf(item) != -1;
     var subsn = subs.split("\n")
-    if (subs.indexOf(html) != -1) {
+    if (subs.indexOf(html) != -1 && link0.indexOf("github.com" == -1)) {
       $notify("‼️ 该链接返回内容有误", "⁉️ 点通知跳转以确认链接是否失效", link0, nan_link);
       type = "web";
     }  else if (ClashK.some(NodeCheck)){ // Clash 类型节点转换
@@ -379,6 +382,22 @@ function TagCheck_QX(content) {
 function Trim(item) {
     return item.trim()
 }
+
+// 用于某些奇葩用户不使用 raw 链接的问题
+function rawtest(cnt) {
+  var Preg0 = RegExp(".*js-file-line\".*?\<\/td\>", "i")
+  if (Preg0.test(cnt)) {
+    return cnt.replace(/(.*js-file-line\"\>)(.*?)(\<\/td\>)/g,"$2").trim()
+  }
+}
+
+function ToRaw(cnt) {
+  cnt = cnt.split("\n").map(rawtest).filter(Boolean).join("\n")
+  var rawlink = link0.replace("github.com","raw.githubusercontent.com").replace("/blob","")
+  $notify( "⚠️⚠️ 将尝试解析该资源" + "⟦" + subtag + "⟧" , "🚥 请正确使用GitHub的 raw 链接" , "❌ 你的链接："+link0+"\n✅ 正确链接："+rawlink, {"open-url":rawlink})
+  return cnt
+}
+
 
 //url-regex 转换成 Quantumult X
 function URX2QX(subs) {
