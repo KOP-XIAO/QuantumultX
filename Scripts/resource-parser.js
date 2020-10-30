@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-10-25 21:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-10-30 21:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -776,13 +776,15 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
             } else if (LoonK.some(NodeCheck)) {
                 node = Loon2QX(list0[i])
             }
-            node = Pudp != 0 ? XUDP(node,Pudp) : node
-            node = Ptfo != 0 ? XTFO(node,Ptfo) : node
             if (node instanceof Array) {
                 for (var j in node) {
+                  node[j] = Pudp != 0 ? XUDP(node[j],Pudp) : node[j]
+                  node[j] = Ptfo != 0 ? XTFO(node[j],Ptfo) : node[j]
                     QXlist.push(node[j])
                 }
             } else if (node != "") {
+              node = Pudp != 0 ? XUDP(node,Pudp) : node
+              node = Ptfo != 0 ? XTFO(node,Ptfo) : node
                 QXlist.push(node)
             }
         }
