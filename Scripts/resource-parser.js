@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-10-30 21:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-10-31 14:39⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -436,9 +436,9 @@ function SCP2QX(subs) {
         const notecheck = (item) => subs[i].indexOf(item) == 0
         if (!NoteK.some(notecheck)){
           if (SC.every(sccheck)) { // surge js 新格式
-            ptn = subs[i].split("pattern=")[1].split(",")[0]
-            js = subs[i].split("script-path=")[1].split(",")[0]
-            type = subs[i].split("type=")[1].split(",")[0].trim()
+            ptn = subs[i].replace(/\s/gi,"").split("pattern=")[1].split(",")[0]
+            js = subs[i].replace(/\s/gi,"").split("script-path=")[1].split(",")[0]
+            type = subs[i].replace(/\s/gi,"").split("type=")[1].split(",")[0].trim()
             if (type == "http-response" && subs[i].indexOf("requires-body=1") != -1) {
               type = "script-response-body "
             } else if (type == "http-response" && subs[i].indexOf("requires-body=1") == -1) {
@@ -462,9 +462,9 @@ function SCP2QX(subs) {
             rw = subs[i].split(" ")[0] + " url reject-200"
             nrw.push(rw)
           } else if (subs[i].indexOf("script-path") != -1) { //surge js 旧写法
-            type = subs[i].split(" ")[0]
+            type = subs[i].replace(/\s+/g," ").split(" ")[0]
             js = subs[i].split("script-path")[1].split("=")[1].split(",")[0]
-            ptn = subs[i].split(" ")[1]
+            ptn = subs[i].replace(/\s+/g," ").split(" ")[1]
             if (type == "http-response" && subs[i].indexOf("requires-body=1") != -1) {
               type = "script-response-body "
             } else if (type == "http-response" && subs[i].indexOf("requires-body=1") == -1) {
