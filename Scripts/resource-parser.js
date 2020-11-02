@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-10-11 10:32⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-10-31 14:39⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -79,8 +79,13 @@ resource_parser_url = https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/mas
 ------------------------------
 */
 
-var content0 = $resource.content;
 var link0 = $resource.link;
+var content0 = $resource.content;
+const subinfo = $resource.info;
+const subtag = $resource.tag != undefined ? $resource.tag : "";
+// 非 raw 链接的沙雕情形
+content0 = content0.indexOf("DOCTYPE html") != -1 && link0.indexOf("github.com") != -1 ? ToRaw(content0) : content0 ;
+
 //debug
 //const $resource={}
 //const $done=function(snt){return snt}
@@ -89,8 +94,6 @@ var link0 = $resource.link;
 var para = (link0.indexOf("http") != -1 && link0.indexOf("://") != -1) ? link0 : link0 + content0.split("\n")[0];
 var para1 = para.slice(para.indexOf("#") + 1) //防止参数中其它位置也存在"#"
 var mark0 = para.indexOf("#") != -1 ? true : false;
-const subinfo = $resource.info;
-const subtag = $resource.tag != undefined ? $resource.tag : "";
 var Pinfo = mark0 && para1.indexOf("info=") != -1 ? para1.split("info=")[1].split("&")[0] : 0;
 var ntf_flow = 0;
 //常用量
@@ -304,7 +307,7 @@ function Type_Check(subs) {
     const NodeCheck = (item) => subi.toLowerCase().indexOf(item.toLowerCase()) != -1;
     const RewriteCheck = (item) => subs.indexOf(item) != -1;
     var subsn = subs.split("\n")
-    if (subs.indexOf(html) != -1) {
+    if (subs.indexOf(html) != -1 && link0.indexOf("github.com" == -1)) {
       $notify("‼️ 该链接返回内容有误", "⁉️ 点通知跳转以确认链接是否失效", link0, nan_link);
       type = "web";
     }  else if (ClashK.some(NodeCheck)){ // Clash 类型节点转换
@@ -380,6 +383,22 @@ function Trim(item) {
     return item.trim()
 }
 
+// 用于某些奇葩用户不使用 raw 链接的问题
+function rawtest(cnt) {
+  var Preg0 = RegExp(".*js-file-line\".*?\<\/td\>", "i")
+  if (Preg0.test(cnt)) {
+    return cnt.replace(/(.*js-file-line\"\>)(.*?)(\<\/td\>)/g,"$2").trim()
+  }
+}
+
+function ToRaw(cnt) {
+  cnt = cnt.split("\n").map(rawtest).filter(Boolean).join("\n")
+  var rawlink = link0.replace("github.com","raw.githubusercontent.com").replace("/blob","")
+  $notify( "⚠️⚠️ 将尝试解析该资源" + "⟦" + subtag + "⟧" , "🚥 请正确使用GitHub的 raw 链接" , "❌ 你的链接："+link0+"\n✅ 正确链接："+rawlink, {"open-url":rawlink})
+  return cnt
+}
+
+
 //url-regex 转换成 Quantumult X
 function URX2QX(subs) {
     var nrw = []
@@ -417,9 +436,9 @@ function SCP2QX(subs) {
         const notecheck = (item) => subs[i].indexOf(item) == 0
         if (!NoteK.some(notecheck)){
           if (SC.every(sccheck)) { // surge js 新格式
-            ptn = subs[i].split("pattern=")[1].split(",")[0]
-            js = subs[i].split("script-path=")[1].split(",")[0]
-            type = subs[i].split("type=")[1].split(",")[0].trim()
+            ptn = subs[i].replace(/\s/gi,"").split("pattern=")[1].split(",")[0]
+            js = subs[i].replace(/\s/gi,"").split("script-path=")[1].split(",")[0]
+            type = subs[i].replace(/\s/gi,"").split("type=")[1].split(",")[0].trim()
             if (type == "http-response" && subs[i].indexOf("requires-body=1") != -1) {
               type = "script-response-body "
             } else if (type == "http-response" && subs[i].indexOf("requires-body=1") == -1) {
@@ -443,9 +462,9 @@ function SCP2QX(subs) {
             rw = subs[i].split(" ")[0] + " url reject-200"
             nrw.push(rw)
           } else if (subs[i].indexOf("script-path") != -1) { //surge js 旧写法
-            type = subs[i].split(" ")[0]
+            type = subs[i].replace(/\s+/g," ").split(" ")[0]
             js = subs[i].split("script-path")[1].split("=")[1].split(",")[0]
-            ptn = subs[i].split(" ")[1]
+            ptn = subs[i].replace(/\s+/g," ").split(" ")[1]
             if (type == "http-response" && subs[i].indexOf("requires-body=1") != -1) {
               type = "script-response-body "
             } else if (type == "http-response" && subs[i].indexOf("requires-body=1") == -1) {
@@ -757,13 +776,15 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
             } else if (LoonK.some(NodeCheck)) {
                 node = Loon2QX(list0[i])
             }
-            node = Pudp != 0 ? XUDP(node,Pudp) : node
-            node = Ptfo != 0 ? XTFO(node,Ptfo) : node
             if (node instanceof Array) {
                 for (var j in node) {
+                  node[j] = Pudp != 0 ? XUDP(node[j],Pudp) : node[j]
+                  node[j] = Ptfo != 0 ? XTFO(node[j],Ptfo) : node[j]
                     QXlist.push(node[j])
                 }
             } else if (node != "") {
+              node = Pudp != 0 ? XUDP(node,Pudp) : node
+              node = Ptfo != 0 ? XTFO(node,Ptfo) : node
                 QXlist.push(node)
             }
         }
@@ -1363,13 +1384,13 @@ function SCT2QX(content) {
         pobfs = pobfs + ", " + phost
     }
     var ptfo = paraCheck(cnt, "tfo") == "true" ? "fast-open=true" : "fast-open=false";
-    var pudp = paraCheck(cnt, "udp") == "true" ? "udp-relay=true" : "udp-relay=false";
+    var pudp = paraCheck(cnt, "udp-relay") == "true" ? "udp-relay=true" : "udp-relay=false";
     var nserver = pobfs != "" ? "shadowsocks= " + [ipport, pmtd, pwd, pobfs, ptfo, pudp, tag].join(", ") : "shadowsocks= " + [ipport, pmtd, pwd, ptfo, pudp, tag].join(", ");
     return nserver
 }
 
 
-// surge 中的 SS 类型
+// surge3 中的 SS 类型
 function SSS2QX(content) {
     var cnt = content;
     var tag = "tag=" + cnt.split("=")[0].trim();
@@ -1384,7 +1405,7 @@ function SSS2QX(content) {
         pobfs = pobfs + ", " + phost
     }
     var ptfo = paraCheck(cnt, "tfo") == "true" ? "fast-open=true" : "fast-open=false";
-    var pudp = paraCheck(cnt, "udp") == "true" ? "udp-relay=true" : "udp-relay=false";
+    var pudp = paraCheck(cnt, "udp-relay") == "true" ? "udp-relay=true" : "udp-relay=false";
     var nserver = pobfs != "" ? "shadowsocks= " + [ipport, pmtd, pwd, pobfs, ptfo, pudp, tag].join(", ") : "shadowsocks= " + [ipport, pmtd, pwd, ptfo, pudp, tag].join(", ");
     return nserver
 }
