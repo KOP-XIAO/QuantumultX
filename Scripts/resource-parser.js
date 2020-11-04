@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-10-31 14:39⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-11-04 14:39⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1532,7 +1532,9 @@ function LoonSSR2QX(cnt) {
 
 // fix yaml parse mistakes
 function YAMLFix(cnt){
+  
   if (cnt.indexOf("{") != -1){
+    cnt = cnt.replace(/\"/g,"")
       cnt = cnt.replace(/(^|\n)- /g, "$1  - ").replace(/    - /g,"  - ").replace(/:(?!\s)/g,": ").replace(/\,\"/g,", \"").replace(/: {/g, ": {,     ").replace(/, (host|path|tls|mux|skip)/g,",     $1")
       //console.log(cnt)
       cnt = cnt.replace(/{name: /g,"{name: \"").replace(/, server:/g,"\", server:")
