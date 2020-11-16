@@ -48,7 +48,7 @@
         "24 5 * * * https://ooxx.be/js/jegotrip.js, tag=无忧行, img-url=https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/Images/Task/JegoTrip.png",
         "25 5 * * * https://raw.githubusercontent.com/chavyleung/scripts/master/flyertea/flyertea.js, tag=飞客茶馆, img-url=https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/Images/Task/flyertea.png"
         ],
-        "addons":["https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/GetCookie.conf"]
+        "addons":"https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/GetCookie.conf"
         }
     ]
 }
