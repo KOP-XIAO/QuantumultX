@@ -2,7 +2,7 @@
     "name":"HotKids",
     "description":"Crontab Task Gallery",
     "task":[
-        {"config":"0 12 * * 1 https://raw.githubusercontent.com/Peng-YM/QuanX/master/Tasks/epic.js, tag=点此添加cookie重写, img-url=hhttps://raw.githubusercontent.com/crossutility/Quantumult-X/master/quantumult-x.png","addons":"https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/GetCookie.conf"},
+        {"config":"0 12 * * 1 https://raw.githubusercontent.com/Peng-YM/QuanX/master/Tasks/epic.js, tag=cookie重写, img-url=https://raw.githubusercontent.com/crossutility/Quantumult-X/master/quantumult-x.png","addons":"https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/GetCookie.conf"},
         "0 12 * * 1 https://raw.githubusercontent.com/Peng-YM/QuanX/master/Tasks/epic.js, tag=每周 Epic 游戏限免, img-url=https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/Images/Task/epic.png",
         "0 9 * * * https://raw.githubusercontent.com/evilbutcher/Quantumult_X/master/check_in/idaily/idaily.js, tag=iDaily·每日环球视野, img-url=https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/Images/Task/iDaily.png",
         "0 9 * * * https://raw.githubusercontent.com/zZPiglet/Task/master/MovieCalendar/MovieCalendar.js, tag=豆瓣·电影日历, img-url=https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/Images/Task/douban.png",
