@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-11-20 10:29⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-11-21 10:29⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -82,9 +82,7 @@ resource_parser_url = https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/mas
 ------------------------------
 */
 
-var link0 = $resource.link;
-var content0 = $resource.content;
-const subinfo = $resource.info;
+let [link0, content0, subinfo] = [$resource.link, $resource.content, $resource.info]
 const subtag = $resource.tag != undefined ? $resource.tag : "";
 // 非 raw 链接的沙雕情形
 content0 = content0.indexOf("DOCTYPE html") != -1 && link0.indexOf("github.com") != -1 ? ToRaw(content0) : content0 ;
@@ -152,58 +150,18 @@ var type0 = Type_Check(content0); //  类型判断
 //$notify(type0,"hh",content0)
 
 //flag=1,2,3分别为 server、rewrite、rule 类型
-const errornode=""
+let [errornode, total] = ""
 var flag = 1
 
 try {
-  ResourceParse();
+  total = ResourceParse();
+  
 } catch (err) {
-    $notify("❌ 解析出现错误", "", err);
+    $notify("❌ 解析出现错误", "⚠️请点击发送链接反馈", err, bug_link);
 }
 
-if (flag == 1) { //server 类型统一处理
-    total = total.filter(Boolean)
-    if (Pinfo == 1 && ntf_flow == 0) { //假节点类型的流量通知
-        flowcheck(total)
-    }
-    if (Pin0 || Pout0) { total = Filter(total, Pin0, Pout0) } // in & out 
-    if (Preg) { total = total.map(Regex).filter(Boolean)  // regex
-    	RegCheck(total, "节点订阅", Preg)} 
-    if (Psfilter) { total = FilterScript(total, Psfilter) }
-    if (Prrname) {
-        var Prn = Prrname;
-        total = total.map(Rename);
-    }
-    if (Pemoji) { total = emoji_handle(total, Pemoji); }
-    if (Prname) {
-        var Prn = Prname;
-        total = total.map(Rename);
-    }
-    if (Pregdel) {
-        var delreg = Pregdel
-        total = total.map(DelReg)
-    }
-    if (Preplace) { // server 类型也可用 replace 参数进行重命名操作
-        total = ReplaceReg(total, Preplace)
-    }
-    if (Psrename) { total = RenameScript(total, Psrename) }
-    if (Psort0) {
-        total = QXSort(total, Psort0);
-    }
-    if (total.length > 0){
-      if (Pcnt == 1) {$notify("Final Content" , "Nodes: " +total.length, total)}
-      total = TagCheck_QX(total).join("\n") //节点名检查
-      total = Base64.encode(total) //强制节点类型 base64 加密后再导入 Quantumult X
-      $done({ content: total });
-    } else {
-      $notify("❓❓ 友情提示", "⚠️⚠️ 解析后无有效内容", "🚥🚥 请自行检查相关参数, 或者点击通知跳转反馈", bug_link)
-      $done({ content: errornode })
-    }
-} else if (flag == 0){
-  $done({ content: errornode })
-} else if (flag == -1){
-  $done({ content: content0 })
-} else { $done({ content: total });}
+$done({ content: total });
+
 
 /**
 # 以下为具体的 function
@@ -211,6 +169,7 @@ if (flag == 1) { //server 类型统一处理
 */
 
 function ResourceParse() {
+  //预处理
   if (type0 == "Subs-B64Encode") {
     total = Subs2QX(Base64.decode(content0), Pudp0, Ptfo0, Pcert0, PTls13);
   } else if (type0 == "Subs") {
@@ -245,6 +204,56 @@ function ResourceParse() {
     $notify("😭 未能解析, 可能是 bug ⁉️  " + "⟦" + subtag + "⟧", "👻 本解析器 暂未支持/未能识别 该订阅格式", "⚠️ 将直接导入Quantumult X \n 如认为是 BUG, 请点通知跳转反馈", bug_link);
     flag = -1;
   } else { flag = 0 }
+  
+  //开始处理
+  if (flag == 1) { //server 类型统一处理
+    total = total.filter(Boolean)
+    if (Pinfo == 1 && ntf_flow == 0) { //假节点类型的流量通知
+      flowcheck(total)
+    }
+    if (Pin0 || Pout0) { total = Filter(total, Pin0, Pout0) } // in & out 
+    if (Preg) { total = total.map(Regex).filter(Boolean)  // regex
+      RegCheck(total, "节点订阅", Preg)} 
+    if (Psfilter) { total = FilterScript(total, Psfilter) }
+    if (Prrname) {
+      Prn = Prrname;
+      total = total.map(Rename);
+    }
+    if (Pemoji) { total = emoji_handle(total, Pemoji); }
+    if (Prname) {
+      Prn = Prname;
+      total = total.map(Rename);
+    }
+    if (Pregdel) {
+      delreg = Pregdel
+      total = total.map(DelReg)
+    }
+    if (Preplace) { // server 类型也可用 replace 参数进行重命名操作
+      total = ReplaceReg(total, Preplace)
+    }
+    if (Psrename) { total = RenameScript(total, Psrename) }
+    if (Psort0) {
+      total = QXSort(total, Psort0);
+    }
+    if (total.length > 0){
+      if (Pcnt == 1) {$notify("Final Content" , "Nodes: " +total.length, total)}
+      total = TagCheck_QX(total).join("\n") //节点名检查
+      total = Base64.encode(total) //强制节点类型 base64 加密后再导入 Quantumult X
+      //$done({ content: total });
+    } else {
+      $notify("❓❓ 友情提示", "⚠️⚠️ 解析后无有效内容", "🚥🚥 请自行检查相关参数, 或者点击通知跳转反馈", bug_link)
+      total = errornode
+      //$done({ content: errornode })
+    }
+  } else if (flag == 0){
+    total = errornode
+    //$done({ content: errornode })
+  } else if (flag == -1){
+    total = content0
+    //$done({ content: content0 })
+  } 
+  return total
+  
 }
 
 //响应头流量处理部分
