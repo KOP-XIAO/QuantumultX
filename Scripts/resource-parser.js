@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-11-21 11:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-11-24 21:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -460,9 +460,11 @@ function SCP2QX(subs) {
               type = "script-request-body "
             } else if (type == "http-request" && subs[i].indexOf("requires-body=1") == -1) {
               type = "script-request-header "
+            } else {type = "" }
+            if (type != "") {
+              rw = ptn + " url " + type + js
+              nrw.push(rw)
             }
-            rw = ptn + " url " + type + js
-            nrw.push(rw)
           } else if (subs[i].indexOf(" 302") != -1 || subs[i].indexOf(" 307") != -1) { //rewrite 302&307 复写
             rw = subs[i].split(" ")[0] + " url " + subs[i].split(" ")[2] + " " + subs[i].split(" ")[1]
             nrw.push(rw)
@@ -486,9 +488,12 @@ function SCP2QX(subs) {
               type = "script-request-body "
             } else if (type == "http-request" && subs[i].indexOf("requires-body=1") == -1) {
               type = "script-request-header "
+            } else {type = "" }
+            if (type != "") {
+              rw = ptn + " url " + type + js
+              nrw.push(rw)
             }
-            rw = ptn + " url " + type + js
-            nrw.push(rw)
+            
           }
         }
 
@@ -1092,7 +1097,7 @@ function SS2QX(subs, Pudp, Ptfo) {
         }
         pwd = "password=" + pwdmtd[1];
         mtd = "method=" + pwdmtd[0];
-        obfs = cnt.split("obfs%3D")[1] != null ? ", obfs=" + cnt.split("obfs%3D")[1].split("%3B")[0] : "";
+        obfs = cnt.split("obfs%3D")[1] != null ? ", obfs=" + cnt.split("obfs%3D")[1].split("%3B")[0].split("#")[0] : "";
         obfshost = cnt.split("obfs-host%3D")[1] != null ? ", obfs-host=" + cnt.split("obfs-host%3D")[1].split("&")[0].split("#")[0] : "";
         tag = "tag=" + decodeURIComponent(cnt.split("#")[1])
         pudp = Pudp == 1 ? "udp-relay=true" : "udp-relay=false";
