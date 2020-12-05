@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-11-25 14:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-12-05 21:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -65,7 +65,7 @@
   ❖ 𝗿𝗲𝘄𝗿𝗶𝘁𝗲/𝗳𝗶𝗹𝘁𝗲𝗿 默认“开启”通知提示, 以防规则误删除
   ❖ 𝘀𝗲𝗿𝘃𝗲𝗿 资源解析则默认”关闭“通知提示
 ⦿ 类型参数 type=domain-set/rule/module/list
-  ❖ 当解析器未能正确识别类型时, 可使用此参数强制指定
+  ❖ 当解析器未能正确识别类型时, 可尝试使用此参数强制指定
 ----------------------------------------------------------
 */
 
@@ -142,15 +142,13 @@ var pfo = Pout0 ? "out=" + Pout0.join(", ") : ""
 var pfihn = Phin0 ? "inhn=" + Phin0.join(", ") + ",  " : ""
 var pfohn = Phout0 ? "outhn=" + Phout0.join(", ") : ""
 var Pcnt =  para1.indexOf("cnt=") != -1 ? para1.split("cnt=")[1].split("&")[0] : 0;
-var flow = "";
-var exptime = "";
+let [flow, exptime, errornode, total] = "";
 
 var typeU = para1.indexOf("type=") != -1 ? para1.split("type=")[1].split("&")[0] : "";
 var type0 = Type_Check(content0); //  类型判断
 //$notify(type0,"hh",content0)
 
 //flag=1,2,3分别为 server、rewrite、rule 类型
-let [errornode, total] = ""
 var flag = 1
 
 try {
@@ -169,7 +167,7 @@ $done({ content: total });
 */
 
 function ResourceParse() {
-  //预处理
+  //预处理，分流/重写等处理完成
   if (type0 == "Subs-B64Encode") {
     total = Subs2QX(Base64.decode(content0), Pudp0, Ptfo0, Pcert0, PTls13);
   } else if (type0 == "Subs") {
@@ -186,7 +184,7 @@ function ResourceParse() {
     total = total.join("\n")
   } else if (type0 == "rewrite") { // rewrite 类型
     flag = 2;
-    total = Rewrite_Filter(content0.split("\n"), Pin0, Pout0);
+    total = Rewrite_Filter(isQuanXRewrite(content0.split("\n")), Pin0, Pout0);
     if (Preplace) { total = ReplaceReg(total, Preplace) }
     total = total.join("\n")
   } else if (type0 == "Rule") {  // rule 类型, 已处理完毕
@@ -203,7 +201,7 @@ function ResourceParse() {
   } else if (type0 == "unknown") {
     $notify("😭 未能解析, 可能是 bug ⁉️  " + "⟦" + subtag + "⟧", "👻 本解析器 暂未支持/未能识别 该订阅格式", "⚠️ 将直接导入Quantumult X \n 如认为是 BUG, 请点通知跳转反馈", bug_link);
     flag = -1;
-  } else { flag = 0 }
+  }
   
   //开始处理
   if (flag == 1) { //server 类型统一处理
@@ -245,10 +243,10 @@ function ResourceParse() {
       total = errornode
       //$done({ content: errornode })
     }
-  } else if (flag == 0){
+  } else if (flag == 0){ //空/错误类型
     total = errornode
     //$done({ content: errornode })
-  } else if (flag == -1){
+  } else if (flag == -1){ //未知类型
     total = content0
     //$done({ content: content0 })
   } 
@@ -328,8 +326,8 @@ function Type_Check(subs) {
       content0 = Clash2QX(subs)
     } else if ( ((ModuleK.some(RewriteCheck) || para1.indexOf("dst=rewrite") != -1) && (para1.indexOf("dst=filter") == -1) && subs.indexOf("[Proxy]") == -1) || typeU == "module") { // Surge 类型 module /rule-set(含url-regex) 类型
       type = "sgmodule"
-    } else if ((subi.indexOf("hostname=") != -1 || RewriteK.some(RewriteCheck)) && subs.indexOf("[Proxy]") == -1 && subs.indexOf("[server_local]") == -1 && subs.indexOf("\nhttp-r") == -1 && para1.indexOf("dst=filter")==-1 && subi.indexOf("securehostname") == -1) {
-      type = "rewrite" //Quantumult X 类型 rewrite
+    } else if ((subi.indexOf("hostname=") != -1 || RewriteK.some(RewriteCheck)) && subs.indexOf("[Proxy]") == -1 && subs.indexOf("[server_local]") == -1 && subs.indexOf("\nhttp-r") == -1 && para1.indexOf("dst=filter")==-1 && subi.indexOf("securehostname") == -1 || subi.indexOf("pattern=") != -1) {
+      type = "rewrite" //Quantumult X 类型 rewrite/ Surge Script/
     } else if ((RuleK.some(RuleCheck) && subs.indexOf(html) == -1 && subs.indexOf("[Proxy]") == -1 && subs.indexOf("[server_local]") == -1) || typeU == "rule") {
       type = "Rule";
     } else if ((DomainK.some(RuleCheck) || typeU == "domain-set") && subs.indexOf("[Proxy]") == -1 ) {
@@ -1171,6 +1169,23 @@ function isQuanX(content) {
         }
     }
     return nlist
+}
+
+//surge script - > quanx
+function isQuanXRewrite(content) {
+  cnt = content
+  cnt0=[]
+  for (var i = 0; i< cnt.length; i++){
+    var cnti = cnt[i]
+    if (cnti.indexOf("pattern")!=-1 && cnti.indexOf("type")!=-1) {
+      cnti=SGMD2QX(cnti)[0]
+      //console.log(cnti)
+      cnt0.push(cnti)
+    }else {
+      cnt0.push(cnti)}
+  } 
+  //console.log(cnt0)
+  return cnt0
 }
 
 //根据节点名排序(不含emoji 部分)
