@@ -1171,7 +1171,7 @@ function isQuanX(content) {
     return nlist
 }
 
-//surge script - > quanx
+//surge script/rewrite - > quanx
 function isQuanXRewrite(content) {
   cnt = content
   cnt0=[]
@@ -1180,10 +1180,15 @@ function isQuanXRewrite(content) {
     if (cnti.indexOf("pattern")!=-1 && cnti.indexOf("type")!=-1) {
       cnti=SGMD2QX(cnti)[0]
       //console.log(cnti)
-      cnt0.push(cnti)
-    }else {
-      cnt0.push(cnti)}
-  } 
+    }else if ((cnti.indexOf(" 302")!=-1 || cnti.indexOf(" 307")!=-1) && cnti.indexOf(" url ")==-1){
+      
+      cnti=SGMD2QX(cnti)[0]? SGMD2QX(cnti)[0]:""
+      //console.log("sss",cnti)
+    }else if(cnti.indexOf("URL_REGEX")!=-1){
+      cnti=SGMD2QX(cnti)[0]? SGMD2QX(cnti)[0]:""
+    }
+    cnt0.push(cnti)
+  }
   //console.log(cnt0)
   return cnt0
 }
