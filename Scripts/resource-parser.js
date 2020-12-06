@@ -1178,7 +1178,7 @@ function isQuanXRewrite(content) {
   for (var i = 0; i< cnt.length; i++){
     var cnti = cnt[i]
     if (cnti.indexOf("pattern")!=-1 && cnti.indexOf("type")!=-1) {
-      cnti=SGMD2QX(cnti)[0]
+      cnti=SGMD2QX(cnti)[0]? SGMD2QX(cnti)[0]:""
       //console.log(cnti)
     }else if ((cnti.indexOf(" 302")!=-1 || cnti.indexOf(" 307")!=-1) && cnti.indexOf(" url ")==-1){
       
