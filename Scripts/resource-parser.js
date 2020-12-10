@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-12-10 20:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-12-11 07:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1176,22 +1176,27 @@ function isQuanXRewrite(content) {
   cnt = content
   cnt0=[]
   for (var i = 0; i< cnt.length; i++){
-    var cnti = cnt[i]
-    if ((cnti.indexOf("pattern")!=-1 && cnti.indexOf("type")!=-1) || cnti.indexOf("http-r")!=-1) {
-      cnti=SGMD2QX(cnti)[0]? SGMD2QX(cnti)[0]:""
-      //console.log(cnti)
-    }else if ((cnti.indexOf(" 302")!=-1 || cnti.indexOf(" 307")!=-1) && cnti.indexOf(" url ")==-1){
-      
-      cnti=SGMD2QX(cnti)[0]? SGMD2QX(cnti)[0]:""
-      //console.log("sss",cnti)
-    }else if(cnti.indexOf("URL_REGEX")!=-1){
-      cnti=SGMD2QX(cnti)[0]? SGMD2QX(cnti)[0]:""
+    if(cnt[i]){
+      var cnti = cnt[i]
+      if (cnti.indexOf("pattern")!=-1 && cnti.indexOf("type")!=-1 || cnti.indexOf("http-r")!=-1) {
+        cnti=SGMD2QX(cnti)[0]? SGMD2QX(cnti)[0]:""
+        //console.log(cnti)
+      }else if ((cnti.indexOf(" 302")!=-1 || cnti.indexOf(" 307")!=-1) && cnti.indexOf(" url ")==-1){
+        
+        cnti=SGMD2QX(cnti)[0]? SGMD2QX(cnti)[0]:""
+        //console.log("sss",cnti)
+      }else if(cnti.indexOf("URL_REGEX")!=-1 || cnti.indexOf(" header")!=-1){
+        cnti=SGMD2QX(cnti)[0]? SGMD2QX(cnti)[0]:""
+      }
+      if (cnti[0].trim()!="[") {
+        cnt0.push(cnti)
+      }
     }
-    cnt0.push(cnti)
   }
   //console.log(cnt0)
   return cnt0
 }
+
 
 //根据节点名排序(不含emoji 部分)
 function QXSort(content, para) {
