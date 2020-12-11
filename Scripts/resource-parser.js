@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-12-11 11:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-12-11 13:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1182,13 +1182,14 @@ function isQuanXRewrite(content) {
         cnti=SGMD2QX(cnti)[0]? SGMD2QX(cnti)[0]:""
         //console.log(cnti)
       }else if ((cnti.indexOf(" 302")!=-1 || cnti.indexOf(" 307")!=-1) && cnti.indexOf(" url ")==-1){
-        
         cnti=SGMD2QX(cnti)[0]? SGMD2QX(cnti)[0]:""
         //console.log("sss",cnti)
-      }else if(cnti.indexOf("URL_REGEX")!=-1 || cnti.indexOf(" header")!=-1){
+      }else if(cnti.indexOf("URL-REGEX")!=-1 || cnti.indexOf(" header")!=-1 || cnti.replace(/ /g,"").indexOf("hostname=")!=-1){
         cnti=SGMD2QX(cnti)[0]? SGMD2QX(cnti)[0]:""
+      }else if(cnti.indexOf(" data=")!=-1){
+        cnti=cnti.replace(/ /g, "").split("data=")[0] + " url " + "reject-dict"
       }
-      if (cnti.trim()[0]!="[") {
+      if (cnti.trim()[0]!="[" && cnti.indexOf("RULE-SET")==-1) {
         cnt0.push(cnti)
       }
     }
