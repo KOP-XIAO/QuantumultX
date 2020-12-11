@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-12-11 07:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-12-11 11:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1188,7 +1188,7 @@ function isQuanXRewrite(content) {
       }else if(cnti.indexOf("URL_REGEX")!=-1 || cnti.indexOf(" header")!=-1){
         cnti=SGMD2QX(cnti)[0]? SGMD2QX(cnti)[0]:""
       }
-      if (cnti[0].trim()!="[") {
+      if (cnti.trim()[0]!="[") {
         cnt0.push(cnti)
       }
     }
