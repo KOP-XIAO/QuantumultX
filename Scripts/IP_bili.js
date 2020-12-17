@@ -1,5 +1,3 @@
-//geo_location_checker= http://api.live.bilibili.com/ip_service/v1/ip_service/get_ip_addr? , https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/IP_bili.js
-
 if ($response.statusCode != 200) {
   $done(null);
 }
@@ -13,7 +11,12 @@ function getRandomInt(max) {
 
 function City_ValidCheck(para) {
   if(para) {
-  return para
+    if (para.length<6) {
+      return para
+    } else {
+      return para.slice(0,5)
+    }
+  
   } else
   {
   return city0
@@ -47,7 +50,7 @@ var emoji = flags.get(obj['country'])? flags.get(obj['country']):"🏴‍☠️"
 emoji=City_ValidCheck(obj['province']) == "香港"? "🇭🇰️":emoji
 emoji=City_ValidCheck(obj['province']) == "澳门"? "️🇲🇴️":emoji
 emoji=City_ValidCheck(obj['province']) == "台湾"? "️️🇹🇼":emoji
-var title =  emoji +'「'+ City_ValidCheck(obj['province'])+'」';//+Area_check(obj['country']);
+var title =  emoji +'『'+ City_ValidCheck(obj['province'])+'』';//+Area_check(obj['country']);
 var subtitle =  "💋 "+ ISP_ValidCheck(obj['isp']) + " ➠ "+ obj['country'];
 var ip = obj['addr']; 
 var description = '服务商:'+obj['isp'] + '\n'+'定位: [' +obj["latitude"]+","+obj["longitude"]+"]"+ '\n' + 'IP:'+ obj['addr'] + '\n' +'时区:'+ obj['timezone'];
