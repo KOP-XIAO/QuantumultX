@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-12-19 10:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-12-21 20:29⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -274,6 +274,9 @@ function SubFlow() {
     ntf_flow = 1;
     $notify("流量信息: ⟦" + subtag + "⟧", epr, message, subinfo_link)
   }
+//  } else if (Pinfo ==1){
+//    $notify("流量信息: ⟦" + subtag + "⟧", "", "⚠️ 该订阅链接未返回任何流量信息", subinfo_link)
+//  }
 }
 
 //flowcheck-fake-server
@@ -288,6 +291,8 @@ function flowcheck(cnt) {
             exptime = nm
         }
     }
+  flow = flow? flow:"⚠️ 该订阅未返回任何流量信息"
+  exptime = exptime? exptime:"⚠️ 该订阅未返回套餐时间信息"
     if (flow != "") { $notify("流量信息: ⟦" + subtag + "⟧", flow, exptime, subinfo_link1) }
 }
 
