@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-12-26 09:49⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-12-26 18:49⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -460,13 +460,14 @@ function SCP2QX(subs) {
             ptn = subs[i].replace(/\s/gi,"").split("pattern=")[1].split(",")[0]
             js = subs[i].replace(/\s/gi,"").split("script-path=")[1].split(",")[0]
             type = subs[i].replace(/\s/gi,"").split("type=")[1].split(",")[0].trim()
-            if (type == "http-response" && subs[i].indexOf("requires-body=1") != -1) {
+            subsi = subs[i].replace(/ /g,"").replace(/\=true/g,"=1")
+            if (type == "http-response" && subsi.indexOf("requires-body=1") != -1) {
               type = "script-response-body "
-            } else if (type == "http-response" && subs[i].indexOf("requires-body=1") == -1) {
+            } else if (type == "http-response" && subsi.indexOf("requires-body=1") == -1) {
               type = "script-response-header "
-            } else if (type == "http-request" && subs[i].indexOf("requires-body=1") != -1) {
+            } else if (type == "http-request" && subsi.indexOf("requires-body=1") != -1) {
               type = "script-request-body "
-            } else if (type == "http-request" && subs[i].indexOf("requires-body=1") == -1) {
+            } else if (type == "http-request" && subsi.indexOf("requires-body=1") == -1) {
               type = "script-request-header "
             } else {type = "" }
             if (type != "") {
@@ -490,13 +491,13 @@ function SCP2QX(subs) {
             type = subs[i].replace(/\s+/g," ").split(" ")[0]
             js = subs[i].split("script-path")[1].split("=")[1].split(",")[0]
             ptn = subs[i].replace(/\s+/g," ").split(" ")[1]
-            if (type == "http-response" && subs[i].indexOf("requires-body=1") != -1) {
+            if (type == "http-response" && subsi.indexOf("requires-body=1") != -1) {
               type = "script-response-body "
-            } else if (type == "http-response" && subs[i].indexOf("requires-body=1") == -1) {
+            } else if (type == "http-response" && subsi.indexOf("requires-body=1") == -1) {
               type = "script-response-header "
-            } else if (type == "http-request" && subs[i].indexOf("requires-body=1") != -1) {
+            } else if (type == "http-request" && subsi.indexOf("requires-body=1") != -1) {
               type = "script-request-body "
-            } else if (type == "http-request" && subs[i].indexOf("requires-body=1") == -1) {
+            } else if (type == "http-request" && subsi.indexOf("requires-body=1") == -1) {
               type = "script-request-header "
             } else {type = "" }
             if (type != "") {
@@ -1603,10 +1604,10 @@ function YAMLFix(cnt){
     cnt = cnt.replace(/\[/g,"yaml@bug1")
       cnt = cnt.replace(/(^|\n)- /g, "$1  - ").replace(/    - /g,"  - ").replace(/:(?!\s)/g,": ").replace(/\,\"/g,", \"").replace(/: {/g, ": {,     ").replace(/, (host|path|tls|mux|skip)/g,",     $1")
       //console.log(cnt)
-      cnt = cnt.replace(/{name: /g,"{name: \"").replace(/, server:/g,"\", server:")
+      cnt = cnt.replace(/{\s*name: /g,"{name: \"").replace(/, server:/g,"\", server:")
       cnt = cnt.replace(/{|}/g,"").replace(/,/g,"\n   ")
     }
-    cnt = cnt.replace(/  -\n.*name/g,"  - name").replace(/\$|\`/g,"").split("proxy-providers:")[0].split("proxy-groups:")[0].replace(/\"(name|type|server|port|cipher|password|)\"/g,"$1")
+    cnt = cnt.replace(/  -\n.*name/g,"  - name").replace(/\$|\`/g,"").split("proxy-providers:")[0].split("proxy-groups:")[0].replace(/\"(name|type|server|port|cipher|password|)(\"*)/g,"$1")
     //console.log(cnt)
     cnt = cnt.indexOf("proxies:") == -1? "proxies:\n" + cnt :"proxies:"+cnt.split("proxies:")[1]
     return cnt
