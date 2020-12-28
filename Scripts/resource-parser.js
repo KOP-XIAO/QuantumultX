@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-12-27 13:49⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-12-28 21:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -82,17 +82,16 @@ resource_parser_url = https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/mas
 ------------------------------
 */
 
+
+
+// 解析器正常使用，調試註釋此部分
+
 let [link0, content0, subinfo] = [$resource.link, $resource.content, $resource.info]
-
-
 const subtag = $resource.tag != undefined ? $resource.tag : "";
-// 非 raw 链接的沙雕情形
+////// 非 raw 链接的沙雕情形
 content0 = content0.indexOf("DOCTYPE html") != -1 && link0.indexOf("github.com") != -1 ? ToRaw(content0) : content0 ;
 
-//debug
-//const $resource={}
-//const $done=function(snt){return snt}
-//parameters
+//正常使用部分，調試註釋此部分
 
 var para = (link0.indexOf("http") != -1 && link0.indexOf("://") != -1) ? link0 : link0 + content0.split("\n")[0];
 var para1 = para.slice(para.indexOf("#") + 1) //防止参数中其它位置也存在"#"
@@ -148,22 +147,30 @@ var Pcnt =  para1.indexOf("cnt=") != -1 ? para1.split("cnt=")[1].split("&")[0] :
 let [flow, exptime, errornode, total] = "";
 
 var typeU = para1.indexOf("type=") != -1 ? para1.split("type=")[1].split("&")[0] : "";
-var type0 = Type_Check(content0); //  类型判断
+
 //$notify(type0,"hh")
 
+var type0=""
 //flag=1,2,3分别为 server、rewrite、rule 类型
 var flag = 1
 
-try {
-  total = ResourceParse();
-  
-} catch (err) {
+function Parser() {
+  try {
+    type0 = Type_Check(content0); //  类型判断
+    //$notify(type0,"hh")
+    total = ResourceParse();
+    
+  } catch (err) {
     $notify("❌ 解析出现错误", "⚠️ 请点击发送链接反馈", err, bug_link);
+  }
+  //$notify("","",total)
+  //$done({ content: total });
 }
 
-//$notify("",total.split("\n")[0].split(" "),total.split("\n")[0])
-
-$done({ content: total });
+if (typeof($resource)!=="undefined") {
+  Parser()
+  $done({ content: total })
+}
 
 
 /**
@@ -445,7 +452,7 @@ function URX2QX(subs) {
 function SCP2QX(subs) {
     var nrw = []
     var rw = ""
-    subs = subs.split("\n")
+    subs = subs.split("\n").map(x => x.trim().replace(/\s+/g," "))
     for (var i = 0; i < subs.length; i++) {
         if (subs[i].slice(0, 8) == "hostname") {
             hn = subs[i].replace(/\%.*\%/g, "")
@@ -475,8 +482,8 @@ function SCP2QX(subs) {
               nrw.push(rw)
             }
           } else if (subs[i].indexOf(" 302") != -1 || subs[i].indexOf(" 307") != -1) { //rewrite 302&307 复写
-            tpe = subs[i].indexOf(" 302") != -1? "302":"307"
-            rw = subs[i].split(" ")[0] + " url " + tpe + " " + subs[i].split(" ")[1].trim()
+            //tpe = subs[i].indexOf(" 302") != -1? "302":"307"
+            rw = subs[i].split(" ")[0] + " url " + subs[i].split(" ")[2] + " " + subs[i].split(" ")[1].trim()
             //if(rw.indexOf("307")!=-1) {$notify("XX",subs[i],rw.split(" "))}
             nrw.push(rw)
           } else if(subs[i].split(" ")[2] == "header") { // rewrite header 类型
@@ -491,7 +498,7 @@ function SCP2QX(subs) {
             type = subs[i].replace(/\s+/g," ").split(" ")[0]
             js = subs[i].split("script-path")[1].split("=")[1].split(",")[0]
             ptn = subs[i].replace(/\s+/g," ").split(" ")[1]
-            subsi = subs[i].replace(/ /g,"").replace(/\=true/g,"=1")
+    subsi = subs[i].replace(/ /g,"").replace(/\=true/g,"=1")
             if (type == "http-response" && subsi.indexOf("requires-body=1") != -1) {
               type = "script-response-body "
             } else if (type == "http-response" && subsi.indexOf("requires-body=1") == -1) {
