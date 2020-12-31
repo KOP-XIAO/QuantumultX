@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-12-29 22:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2020-12-31 11:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -32,6 +32,7 @@
   ❖ 删除字段: "字段1.字段2☠️", 想删除 "." 时用 "\." 替代
   ❖ 示范: "𝐫𝐞𝐧𝐚𝐦𝐞=香港@𝐇𝐊+[𝐒𝐒]@+@[1𝐗]+流量.0\.2☠️"
   ❖ 默认 emoji 先生效, 如想调换顺序, 请用 𝗿𝗿𝗻𝗮𝗺𝗲 参数
+⦿ 𝘀𝘂𝗳𝗳𝗶𝘅=-1/1 将节点类型做为前缀/后缀 添加在节点名中, 如 「𝗌𝗌」 「𝖵𝗆𝖾𝗌𝗌」
 ⦿ 𝗱𝗲𝗹𝗿𝗲𝗴, 利用正则表达式来删除 "节点名" 中的字段(⚠️ 慎用)
 ⦿ 𝗿𝗲𝗽𝗹𝗮𝗰𝗲 参数, 正则替换节点中内容, 可用于重命名/更改加密方式等
   ❖ 𝗿𝗲𝗽𝗹𝗮𝗰𝗲=𝗿𝗲𝗴𝗲𝘅1@𝘀𝘁𝗿1+𝗿𝗲𝗴𝗲𝘅2@𝘀𝘁𝗿2
@@ -131,6 +132,7 @@ var Ptfo0 = mark0 && para1.indexOf("tfo=") != -1 ? para1.split("tfo=")[1].split(
 var Prname = mark0 && para1.indexOf("rename=") != -1 ? para1.split("rename=")[1].split("&")[0].split("+") : null;
 var Psrename = mark0 && para1.indexOf("srename=") != -1 ? Base64.decode(para1.split("srename=")[1].split("&")[0]) : null; // script rename
 var Prrname = mark0 && para1.indexOf("rrname=") != -1 ? para1.split("rrname=")[1].split("&")[0].split("+") : null;
+var Psuffix = mark0 && para1.indexOf("suffix=") != -1 ? para1.split("suffix=")[1].split("&")[0] : 0;
 var Ppolicy = mark0 && para1.indexOf("policy=") != -1 ? decodeURIComponent(para1.split("policy=")[1].split("&")[0]) : "Shawn";
 var Pcert0 = mark0 && para1.indexOf("cert=") != -1 ? para1.split("cert=")[1].split("&")[0] : 0;
 var Psort0 = mark0 && para1.indexOf("sort=") != -1 ? para1.split("sort=")[1].split("&")[0] : 0;
@@ -247,9 +249,11 @@ function ResourceParse() {
       total = QXSort(total, Psort0);
     }
     if (total.length > 0){
-      if (Pcnt == 1) {$notify("Final Content" , "Nodes: " +total.length, total)}
+      if (Psuffix==1 || Psuffix==-1) {total = Psuffix == 1? total.map(type_suffix):total.map(type_prefix)
+      }
       total = TagCheck_QX(total).join("\n") //节点名检查
-      total = Base64.encode(total) //强制节点类型 base64 加密后再导入 Quantumult X
+      if (Pcnt == 1) {$notify("解析后最终返回内容" , "节点数量: " +total.split("\n").length, total)}
+            total = Base64.encode(total) //强制节点类型 base64 加密后再导入 Quantumult X
       //$done({ content: total });
     } else {
       $notify("❓❓ 友情提示", "⚠️⚠️ 解析后无有效内容", "🚥🚥 请自行检查相关参数, 或者点击通知跳转反馈", bug_link)
@@ -342,7 +346,8 @@ function Type_Check(subs) {
     }  else if (ClashK.some(NodeCheck) || typeU == "clash"){ // Clash 类型节点转换
       type = "Clash";
       content0 = Clash2QX(subs)
-    } else if ((subi.indexOf("hostname=") != -1 || RewriteK.some(RewriteCheck) || subi.indexOf("pattern=") != -1) && !/\[(Proxy|filter_local)\]/.test(subs) && para1.indexOf("dst=filter")==-1 && subi.indexOf("securehostname") == -1 && typeU != "module" && typeU != "nodes") {
+    } else if ((
+    /hostname\=|pattern\=/.test(subs) || RewriteK.some(RewriteCheck)) && !/\[(Proxy|filter_local)\]/.test(subs) && para1.indexOf("dst=filter")==-1 && subi.indexOf("securehostname") == -1 && !/module|nodes/.test(typeU)) {
       type = "rewrite" //Quantumult X 类型 rewrite/ Surge Script/
     } else if ( (((ModuleK.some(RewriteCheck) || para1.indexOf("dst=rewrite") != -1) && (para1.indexOf("dst=filter") == -1) && subs.indexOf("[Proxy]") == -1) || typeU == "module") && typeU != "nodes") { // Surge 类型 module /rule-set(含url-regex) 类型
       type = "sgmodule"
@@ -414,6 +419,23 @@ function TagCheck_QX(content) {
 
 function Trim(item) {
     return item.trim()
+}
+
+// 类型前缀/后缀
+function type_prefix(item) {
+  if(item.trim()!="") {
+    typefix = {"shadowsocks":"「ss」","vmess":"「vmess」","trojan":"「trojan」","http":"「http」"}
+    tp = typefix[item.split("=")[0].trim()]
+    return [[item.split("tag=")[0]+
+      "tag=", tp, item.split("tag=")[1]].join(" ")].join(" ")
+  }
+}
+function type_suffix(item) {
+  if(item.trim()!=""){
+    typefix={"shadowsocks":"「ss」","vmess":"「vmess」","trojan":"「trojan」","http":"「http」"}
+    tp = typefix[item.split("=")[0].trim()]
+    return [item, tp].join(" ")
+  }
 }
 
 // 用于某些奇葩用户不使用 raw 链接的问题
