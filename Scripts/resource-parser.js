@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-01-04 20:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-01-04 22:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -247,16 +247,16 @@ function ResourceParse() {
       total = total.map(Rename);
     }
     if (Pemoji) { total = emoji_handle(total, Pemoji); }
-    if (Prname) {
-      Prn = Prname;
-      total = total.map(Rename);
-    }
     if (Pregdel) {
       delreg = Pregdel
       total = total.map(DelReg)
     }
     if (Preplace) { // server 类型也可用 replace 参数进行重命名操作
       total = ReplaceReg(total, Preplace)
+    }
+    if (Prname) {
+      Prn = Prname;
+      total = total.map(Rename);
     }
     if (Psrename) { total = RenameScript(total, Psrename) }
     if (Psort0) {
@@ -1411,7 +1411,10 @@ function Rename(str) {
             }
             nserver = hd + "tag=" + name + tail
         }
-    } return nserver
+      return nserver
+    } else {
+      return server
+    }
 }
 
 function RenameScript(servers, script) {
