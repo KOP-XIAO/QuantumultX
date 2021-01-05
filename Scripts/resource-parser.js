@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-01-05 12:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-01-05 16:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -395,9 +395,10 @@ function Type_Check(subs) {
     return type
 }
 
-// 检查节点名字(重复以及空名)等QuanX 不允许的情形
+// 检查节点名字(重复以及空名)等QuanX 不允许的情形，以及多个空格等“不规范”方式
 function TagCheck_QX(content) {
-    var Olist = content
+    var Olist = content.map(item =>item.trim().replace(/\s{2,}/g," "))
+    //$notify("","",Olist)
     var [Nlist, nmlist] = [ [], [] ]
     var [nulllist,duplist] = [ [], [] ]; //记录空名字节点&重名节点
     var no = 0;
@@ -1402,9 +1403,9 @@ function Rename(str) {
                 var nemoji = emoji_del(name)
                 if ((Pemoji == 1 || Pemoji == 2) && Prname ) { //判断是否有重复 emoji，有则删除旧有
                     name = name.replace(name.split(" ")[0] + " ", name.split(" ")[0] + " " + oname)
-                } else { name = oname + name }
+                } else { name = oname + name.trim() }
             } else if (nname && oname == "") {//后缀
-                name = name + nname
+                name = name.trim() + nname
             } else if (oname && oname.indexOf("☠️") != -1) { //删除特定字符，多字符用.连接
                 hh = Dot2(oname.slice(0, oname.length - 2)).split(".") //符号.的特殊处理
                 for (j = 0; j < hh.length; j++) {
