@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-01-04 22:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-01-05 12:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -69,6 +69,7 @@
   ❖ 𝘀𝗲𝗿𝘃𝗲𝗿 资源解析则默认”关闭“通知提示
 ⦿ 类型参数 𝐭𝐲𝐩𝐞=𝐝𝐨𝐦𝐚𝐢𝐧-𝐬𝐞𝐭/𝐫𝐮𝐥𝐞/𝐦𝐨𝐝𝐮𝐥𝐞/𝐥𝐢𝐬𝐭/𝐧𝐨𝐝𝐞𝐬
   ❖ 当解析器未能正确识别类型时, 可尝试使用此参数强制指定
+⦿ 隐藏参数 hide=1, 隐藏筛除的分流/重写，默认方式为禁用
 ----------------------------------------------------------
 */
 
@@ -140,6 +141,7 @@ var Psort0 = mark0 && para1.indexOf("sort=") != -1 ? para1.split("sort=")[1].spl
 var PsortX = mark0 && para1.indexOf("sortx=") != -1 ? para1.split("sortx=")[1].split("&")[0] : 0;
 var PTls13 = mark0 && para1.indexOf("tls13=") != -1 ? para1.split("tls13=")[1].split("&")[0] : 0;
 var Pntf0 = mark0 && para1.indexOf("ntf=") != -1 ? para1.split("ntf=")[1].split("&")[0] : 2;
+var Phide = mark0 && para1.indexOf("hide=") != -1 ? para1.split("hide=")[1].split("&")[0] : 0;
 var Pb64 = mark0 && para1.indexOf("b64=") != -1 ? para1.split("b64=")[1].split("&")[0] : 0;
 var emojino = [" 0️⃣ ", " 1⃣️ ", " 2⃣️ ", " 3⃣️ ", " 4⃣️ ", " 5⃣️ ", " 6⃣️ ", " 7⃣️ ", " 8⃣️ ", " 9⃣️ ", " 🔟 "]
 var pfi = Pin0 ? "in=" + Pin0.join(", ") + ",  " : ""
@@ -609,7 +611,7 @@ function Rewrite_Filter(subs, Pin, Pout) {
                 var inflag = Rcheck(subi, Pin);
                 var outflag = Rcheck(subi, Pout);
                 if (outflag == 1 || inflag == 0) {
-                    dwrite.push(subi); //out 命中
+                    dwrite.push(subi.replace(" url "," - ")); //out 命中
                 } else if (outflag == 0 && inflag != 0) { //out 未命中 && in 未排除
                     Nlist.push(subi);
                 } else if (outflag == 2 && inflag != 0) { //无 out 参数 && in 未排除
@@ -631,6 +633,7 @@ function Rewrite_Filter(subs, Pin, Pout) {
     if(Preg){ Nlist = Nlist.map(Regex).filter(Boolean) // regex to filter rewrites
     	RegCheck(Nlist, "重写引用", Preg) }
     if (hostname != "") { Nlist.push(hostname) }
+    Nlist =Phide ==1? Nlist : [...dwrite,...Nlist]
     return Nlist
 }
 
@@ -741,7 +744,8 @@ function Rule_Handle(subs, Pout, Pin) {
                 $notify("🤖 " + "分流引用  ➟ " + "⟦" + subtag + "⟧", "⛔️ 禁用: " + Tout, "⚠️ 筛选后剩余规则数为 0️⃣ 条, 请检查参数及原始链接", nan_link)
             }
         }
-        return [...dlist, ...nlist];
+      nlist =Phide ==1? nlist : [...dlist,...nlist]
+        return nlist;
     } else if (Tin != "" && Tin != null) { //if Tout
         var dlist = [];
         for (var i = 0; i < cnt.length; i++) {
@@ -761,7 +765,8 @@ function Rule_Handle(subs, Pout, Pin) {
                 $notify("🤖 " + "分流引用  ➟ " + "⟦" + subtag + "⟧", "✅ 保留:" + Tin, "🎯 已保留以下 " + noin + "条匹配规则:" + "\n ⨁ " + nlist.join("\n ⨁ "), rule_link)
             }
         } else { $notify("🤖 " + "分流引用  ➟ " + "⟦" + subtag + "⟧", "✅ 保留:" + Tin, "⚠️ 筛选后剩余规则数为 0️⃣ 条, 请检查参数及原始链接", nan_link) }
-        return [...dlist, ...nlist];
+      nlist =Phide ==1? nlist : [...dlist,...nlist]
+      return nlist;
     } else {  //if Tin
         return cnt.map(Rule_Policy)
     }
@@ -819,15 +824,18 @@ function Domain2Rule(content) {
 // 正则替换 filter/rewrite 的部分
 // 用途：如 tiktok 换区: JP -> KR ，如淘宝比价脚本 -> lite 横幅通知版本
 function ReplaceReg(cnt, para) {
-    var cnt0 = cnt.join("\n")
+    var cnt0 = cnt//.join("\n")
+    //$notify("0","",cnt0)
     var pp = para.split("+")
     for (var i = 0; i < pp.length; i++) {
         var p1 = pp[i].split("@")[0]
         var p2 = pp[i].split("@")[1]
         p1 = new RegExp(p1, "gmi")
-        cnt0 = cnt0.replace(p1, p2)
+        cnt0 = cnt0.map(item => item.replace(p1, p2))
+        //$notify(p1,p2,cnt0)
     }
-    return cnt0.split("\n")
+  //$notify("1","",cnt0)
+    return cnt0//.split("\n")
 }
 
 //混合订阅类型，用于未整体进行 base64 encode 的类型
