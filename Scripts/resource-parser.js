@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-01-05 16:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-01-06 19:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1816,7 +1816,7 @@ function CH2QX(cnt){
     tag = "tag="+cnt.name.replace(/\\U.+?\s{1}/gi," ")
     ipt = cnt.server+":"+cnt.port
     uname = cnt.username ? "username=" + cnt.username : ""
-    pwd = cnt.password ? "password=" + cnt.password : ""
+    pwd = cnt.password && typeof(cnt.password) == "string" ? "password=" + cnt.password : ""
     tls = cnt.tls ? "over-tls=true" : ""
     cert = cnt["skip-cert-verify"] && cnt.tls ? "tls-verification=false" : ""
     if (Pcert0 == 0 && cnt.tls) { cert = "tls-verification=false" }
