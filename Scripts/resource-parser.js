@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-01-08 20:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-01-11 20:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -32,8 +32,9 @@
   ❖ 删除字段: "字段1.字段2☠️", 想删除 "." 时用 "\." 替代
   ❖ 示范: "𝐫𝐞𝐧𝐚𝐦𝐞=香港@𝐇𝐊+[𝐒𝐒]@+@[1𝐗]+流量.0\.2☠️"
   ❖ 默认 emoji 先生效, 如想调换顺序, 请用 𝗿𝗿𝗻𝗮𝗺𝗲 参数
-  ❖ $type0/1/2/3 ，将节点类型(ss/ssr/vmess 等)作为可操作参数，如
-    ∎ 𝐫𝐞𝐧𝐚𝐦𝐞=香港@𝐇𝐊|$type2
+  ❖ $type0/1/2/3/4/5 占位符，将节点类型(ss/ssr/vmess 等)作为可操作参数，如
+    ∎ 𝐫𝐞𝐧𝐚𝐦𝐞=@|$type2
+    ∎ 样式分别为 "𝐬𝐬","𝐒𝐒","🅢🅢","🆂🆂","ⓢⓢ","🅂🅂"
 ⦿ 𝘀𝘂𝗳𝗳𝗶𝘅=-1/1 将节点类型做为前缀/后缀 添加在节点名中, 如 「𝗌𝗌」 「𝖵𝗆𝖾𝗌𝗌」
 ⦿ 𝗱𝗲𝗹𝗿𝗲𝗴, 利用正则表达式来删除 "节点名" 中的字段(⚠️ 慎用)
 ⦿ 𝗿𝗲𝗽𝗹𝗮𝗰𝗲 参数, 正则替换节点中内容, 可用于重命名/更改加密方式等
@@ -43,7 +44,7 @@
   ❖ 指定规则是正则表达式或简单关键词, 用"<" 或 ">" 连接
   ❖ 𝘀𝗼𝗿𝘁=🇭🇰>🇸🇬>🇯🇵>🇺🇸 , 靠前排序
   ❖ 𝘀𝗼𝗿𝘁=IEPL<IPLC<BGP , 靠后排序
-⦿ ⟦进阶参数⟧: 𝘀𝗳𝗶𝗹𝘁𝗲𝗿/𝘀𝗿𝗲𝗻𝗮𝗺𝗲, 传入一段 base64 编码的脚本, 可用于过滤/重命名订阅节点
+⦿ ⟦进阶参数⟧: 𝘀𝗳𝗶𝗹𝘁𝗲𝗿/𝘀𝗿𝗲𝗻𝗮𝗺𝗲, 传入一段 base64 编码的脚本, 可用于更为复杂的[过滤/重命名] 需求
   ❖ 说明: https://github.com/KOP-XIAO/QuantumultX/pull/9
 
 2⃣️ ⟦𝐫𝐞𝐰𝐫𝐢𝐭𝐞 重写⟧/⟦𝐟𝐢𝐥𝐭𝐞𝐫 分流⟧ ➠ 参数说明:
@@ -360,7 +361,9 @@ function Type_Check(subs) {
     if (subs.indexOf(html) != -1 && link0.indexOf("github.com" == -1)) {
       $notify("‼️ 该链接返回内容有误", "⁉️ 点通知跳转以确认链接是否失效", link0, nan_link);
       type = "web";
-    }  else if (ClashK.some(NodeCheck) || typeU == "clash"){ // Clash 类型节点转换
+    } else if (typeU == "nodes") {
+      type = "Subs-B64Encode"
+    } else if (ClashK.some(NodeCheck) || typeU == "clash"){ // Clash 类型节点转换
       type = "Clash";
       content0 = Clash2QX(subs)
     } else if ((
@@ -385,9 +388,10 @@ function Type_Check(subs) {
       type = "Subs" // Surge proxy list
     } else if (subs.indexOf("[server_local]") != -1) {
       type = "QuanX"  // QuanX Profile
-    } else if(typeU == "nodes") {
-      type = "Subs-B64Encode"
-    }
+    } else if (content0.indexOf("server") !=-1 && content0.indexOf("server_port") !=-1) { //SIP008
+      type = "QuanX"
+      content0 = SIP2QuanX(content0)
+    } 
   // 用于通知判断类型，debug
   if(typeU == "X"){
     $notify(type,"",content0)
@@ -898,6 +902,26 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
         }
     }
     return QXlist
+}
+
+//将sip008格式的订阅转换成quanx格式
+function SIP2QuanX (cnt) {
+  cnt = JSON.parse(cnt)
+  ll =cnt.length
+  nodes =[]
+  for (i=0; i<ll; i++) {
+    node = "shadowsocks= "
+    cnti = cnt[i]
+    ip = cnti.server + ":" + cnti.server_port
+    mtd = "method=" + cnti.method
+    pwd = "password=" + cnti.password
+    obfs = cnti.plugin_opts? cnti.plugin_opts.replace(";", ", "):""
+    tag = "tag="+cnti.remarks
+    node = node +[ip,pwd, mtd, obfs, tag].filter(Boolean).join(", ")
+    nodes.push(node)
+  }
+  return nodes.join("\n")
+  //console.log(nodes)
 }
 
 //http=example.com:443, username=name, password=pwd, over-tls=true, tls-host=example.com, tls-verification=true, tls13=true, fast-open=false, udp-relay=false, tag=http-tls-02
