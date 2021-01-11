@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-01-11 20:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-01-11 20:39⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -366,8 +366,7 @@ function Type_Check(subs) {
     } else if (ClashK.some(NodeCheck) || typeU == "clash"){ // Clash 类型节点转换
       type = "Clash";
       content0 = Clash2QX(subs)
-    } else if ((
-    /hostname\=|pattern\=/.test(subs) || RewriteK.some(RewriteCheck)) && !/\[(Proxy|filter_local)\]/.test(subs) && para1.indexOf("dst=filter")==-1 && subi.indexOf("securehostname") == -1 && !/module|nodes/.test(typeU)) {
+    } else if ((/hostname\=|pattern\=/.test(subs) || RewriteK.some(RewriteCheck)) && !/\[(Proxy|filter_local)\]/.test(subs) && para1.indexOf("dst=filter")==-1 && subi.indexOf("securehostname") == -1 && !/module|nodes/.test(typeU)) {
       type = "rewrite" //Quantumult X 类型 rewrite/ Surge Script/
     } else if ( (((ModuleK.some(RewriteCheck) || para1.indexOf("dst=rewrite") != -1) && (para1.indexOf("dst=filter") == -1) && subs.indexOf("[Proxy]") == -1) || typeU == "module") && typeU != "nodes") { // Surge 类型 module /rule-set(含url-regex) 类型
       type = "sgmodule"
@@ -387,9 +386,11 @@ function Type_Check(subs) {
     } else if ((SurgeK.some(NodeCheck)  && !/\[(Proxy|filter_local)\]/.test(subs)) || typeU == "list") {
       type = "Subs" // Surge proxy list
     } else if (subs.indexOf("[server_local]") != -1) {
-      type = "QuanX"  // QuanX Profile
+      //type = "QuanX"  // QuanX Profile
+      type = "Subs"
     } else if (content0.indexOf("server") !=-1 && content0.indexOf("server_port") !=-1) { //SIP008
-      type = "QuanX"
+      //type = "QuanX"
+      type = "Subs"
       content0 = SIP2QuanX(content0)
     } 
   // 用于通知判断类型，debug
