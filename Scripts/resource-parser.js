@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-01-13 21:39⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-01-13 22:15⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1187,7 +1187,11 @@ function TJ2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
     pcert = cnt.indexOf("allowInsecure=0") != -1 ? "tls-verification=true" : "tls-verification=false";
     thost = cnt.indexOf("sni=") != -1? "tls-host="+cnt.split("sni=")[1].split("&")[0]:""
     ptls13 = Ptls13 == 1 ? "tls13=true" : "tls13=false"
-    if (Pcert == 0) { pcert = "tls-verification=false" }
+    if (Pcert == 0) { 
+      pcert = "tls-verification=false" 
+    } else if (Pcert == 1) {
+      pcert = "tls-verification=true"
+    }
     pudp = Pudp == 1 ? "udp-relay=true" : "udp-relay=false";
     ptfo = Ptfo == 1 ? "fast-open=true" : "fast-open=false";
     tag = cnt.indexOf("#") != -1 ? "tag=" + decodeURIComponent(cnt.split("#")[1]) : "tag= [trojan]" + ip
