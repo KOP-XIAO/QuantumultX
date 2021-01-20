@@ -130,7 +130,7 @@ var Preg = mark0 && para1.indexOf("regex=") != -1 ? decodeURIComponent(para1.spl
 var Pregdel = mark0 && para1.indexOf("delreg=") != -1 ? decodeURIComponent(para1.split("delreg=")[1].split("&")[0]) : null; // 正则删除参数
 var Phin0 = mark0 && para1.indexOf("inhn=") != -1 ? (para1.split("inhn=")[1].split("&")[0].split("+")).map(decodeURIComponent) : null; //hostname 
 var Phout0 = mark0 && para1.indexOf("outhn=") != -1 ? (para1.split("outhn=")[1].split("&")[0].split("+")).map(decodeURIComponent) : null; //hostname
-var Preplace = mark0 && para1.indexOf("replace=") != -1 ? decodeURIComponent(para1.split("replace=")[1].split("&")[0]) : null; //filter/rewrite 正则替换
+var Preplace = mark0 && para1.indexOf("replace=") != -1 ? para1.split("replace=")[1].split("&")[0] : null; //filter/rewrite 正则替换
 var Pemoji = mark0 && para1.indexOf("emoji=") != -1 ? para1.split("emoji=")[1].split("&")[0] : null;
 var Pudp0 = mark0 && para1.indexOf("udp=") != -1 ? para1.split("udp=")[1].split("&")[0] : 0;
 var Ptfo0 = mark0 && para1.indexOf("tfo=") != -1 ? para1.split("tfo=")[1].split("&")[0] : 0;
@@ -853,12 +853,12 @@ function Domain2Rule(content) {
 function ReplaceReg(cnt, para) {
     var cnt0 = cnt//.join("\n")
     //$notify("0","",cnt0)
-    var pp = para.split("+")
+    var pp = para.split("+");
     for (var i = 0; i < pp.length; i++) {
-        var p1 = pp[i].split("@")[0]
-        var p2 = pp[i].split("@")[1]
-        p1 = new RegExp(p1, "gmi")
-        cnt0 = cnt0.map(item => item.replace(p1, p2))
+        var p1 = decodeURIComponent(pp[i].split("@")[0]);
+        var p2 = decodeURIComponent(pp[i].split("@")[1]);
+        p1 = new RegExp(p1, "gmi");
+        cnt0 = cnt0.map(item => item.replace(p1, p2));
         //$notify(p1,p2,cnt0)
     }
   //$notify("1","",cnt0)
