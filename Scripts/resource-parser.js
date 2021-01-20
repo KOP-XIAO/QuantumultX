@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-01-14 22:45⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-01-20 11:45⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -853,10 +853,10 @@ function Domain2Rule(content) {
 function ReplaceReg(cnt, para) {
     var cnt0 = cnt//.join("\n")
     //$notify("0","",cnt0)
-    var pp = para.split("+");
+    var pp = para.replace(/\\\@/g,"atsymbol").replace(/\\\+/g,"plussymbol").split("+");
     for (var i = 0; i < pp.length; i++) {
-        var p1 = decodeURIComponent(pp[i].split("@")[0]);
-        var p2 = decodeURIComponent(pp[i].split("@")[1]);
+        var p1 = decodeURIComponent(pp[i].split("@")[0]).replace(/atsymbol/g,"\@").replace(/plussymbol/g,"\\\+");
+        var p2 = decodeURIComponent(pp[i].split("@")[1]).replace(/atsymbol/g,"@").replace(/plussymbol/g,"+");
         p1 = new RegExp(p1, "gmi");
         cnt0 = cnt0.map(item => item.replace(p1, p2));
         //$notify(p1,p2,cnt0)
