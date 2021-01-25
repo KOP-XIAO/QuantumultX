@@ -877,43 +877,48 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
     var SurgeK = ["=ss", "=vmess", "=trojan", "=http", "=custom"];
     var LoonK = ["=shadowsocks", "=shadowsocksr"]
     var QXlist = [];
+    var failedList = [];
     for (var i = 0; i < list0.length; i++) {
         var node = ""
         if (list0[i].trim().length > 3) {
             var type = list0[i].split("://")[0].trim()
             var listi = list0[i].replace(/ /g, "")
             const NodeCheck = (item) => listi.toLowerCase().indexOf(item) != -1;
-            if (type == "vmess" && list0[i].indexOf("remarks=") == -1) {
-                var bnode = Base64.decode(list0[i].split("vmess://")[1])
-                if (bnode.indexOf("over-tls=") == -1) { //v2rayN
-                    node = V2QX(list0[i], Pudp, Ptfo, Pcert, Ptls13)
-                } else { //quantumult 类型
-                    node = VQ2QX(list0[i], Pudp, Ptfo, Pcert, Ptls13)
+            try {
+                if (type == "vmess" && list0[i].indexOf("remarks=") == -1) {
+                    var bnode = Base64.decode(list0[i].split("vmess://")[1])
+                    if (bnode.indexOf("over-tls=") == -1) { //v2rayN
+                        node = V2QX(list0[i], Pudp, Ptfo, Pcert, Ptls13)
+                    } else { //quantumult 类型
+                        node = VQ2QX(list0[i], Pudp, Ptfo, Pcert, Ptls13)
+                    }
+                } else if (type == "vmess" && list0[i].indexOf("remarks=") != -1) { //shadowrocket 类型
+                    node = VR2QX(list0[i], Pudp, Ptfo, Pcert, Ptls13)
+                } else if (type == "ssr") {
+                    node = SSR2QX(list0[i], Pudp, Ptfo)
+                } else if (type == "ss") {
+                    node = SS2QX(list0[i], Pudp, Ptfo)
+                } else if (type == "ssd") {
+                    node = SSD2QX(list0[i], Pudp, Ptfo)
+                } else if (type == "trojan") {
+                    node = TJ2QX(list0[i], Pudp, Ptfo, Pcert, Ptls13)
+                } else if (type == "https" && list0[i].indexOf(",") == -1) {
+                    if (listi.indexOf("@") != -1) {
+                        node = HPS2QX(list0[i], Ptfo, Pcert, Ptls13)
+                    } else {
+                        var listh = Base64.decode(listi.split("https://")[1].split("#")[0])
+                        listh = "https://" + listh + "#" + listi.split("https://")[1].split("#")[1]
+                        node = HPS2QX(listh, Ptfo, Pcert, Ptls13)
+                    }
+                } else if (QuanXK.some(NodeCheck)) {
+                    node = isQuanX(list0[i])[0]
+                } else if (SurgeK.some(NodeCheck)) {
+                    node = Surge2QX(list0[i])[0]
+                } else if (LoonK.some(NodeCheck)) {
+                    node = Loon2QX(list0[i])
                 }
-            } else if (type == "vmess" && list0[i].indexOf("remarks=") != -1) { //shadowrocket 类型
-                node = VR2QX(list0[i], Pudp, Ptfo, Pcert, Ptls13)
-            } else if (type == "ssr") {
-                node = SSR2QX(list0[i], Pudp, Ptfo)
-            } else if (type == "ss") {
-                node = SS2QX(list0[i], Pudp, Ptfo)
-            } else if (type == "ssd") {
-                node = SSD2QX(list0[i], Pudp, Ptfo)
-            } else if (type == "trojan") {
-                node = TJ2QX(list0[i], Pudp, Ptfo, Pcert, Ptls13)
-            } else if (type == "https" && list0[i].indexOf(",") == -1) {
-                if (listi.indexOf("@") != -1) {
-                  node = HPS2QX(list0[i], Ptfo, Pcert, Ptls13)
-            } else {
-                var listh = Base64.decode(listi.split("https://")[1].split("#")[0])
-                listh = "https://" + listh + "#" + listi.split("https://")[1].split("#")[1]
-                node = HPS2QX(listh, Ptfo, Pcert, Ptls13)
-                }
-            } else if (QuanXK.some(NodeCheck)) {
-                node = isQuanX(list0[i])[0]
-            } else if (SurgeK.some(NodeCheck)) {
-                node = Surge2QX(list0[i])[0]
-            } else if (LoonK.some(NodeCheck)) {
-                node = Loon2QX(list0[i])
+            } catch (e) {
+                failedList.push(`<<<\nContent: ${list0[i]}\nError: ${e}`)
             }
             if (node instanceof Array) {
                 for (var j in node) {
@@ -928,7 +933,10 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
             }
         }
     }
-    return QXlist
+    if (failedList.length > 0 && Pntf0 != 0) {
+        $notify(`⚠️ 有 ${failedList.length} 条数据解析出错, 已跳过`, "出错内容", failedList.join("\n"));
+    }
+    return QXlist;
 }
 
 //将sip008格式的订阅转换成quanx格式
