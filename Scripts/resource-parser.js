@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-01-22 20:29⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-02-08 14:29⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -207,8 +207,7 @@ function ResourceParse() {
   } else if (type0 == "Subs") {
     total = Subs2QX(content0, Pudp0, Ptfo0, Pcert0, PTls13);
   } else if (type0 == "QuanX" || type0 == "Clash" || type0 == "Surge") {
-    total = isQuanX(content0);
-    total = Subs2QX(total.join("\n"), Pudp0, Ptfo0, Pcert0, PTls13);
+    total = Subs2QX(isQuanX(content0).join("\n"), Pudp0, Ptfo0, Pcert0, PTls13);
   } else if (type0 == "sgmodule") { // surge module 模块/含 url-regex 的 rule-set
     flag = 2 
     total = SGMD2QX(content0) // 转换 
@@ -323,7 +322,7 @@ function flowcheck(cnt) {
         var nm = nl.slice(nl.indexOf("=") + 1)
         if (item.indexOf("剩余流量") != -1) {
             flow = nm
-        } else if (item.indexOf("过期时间") != -1) {
+        } else if (item.indexOf("期时间") != -1) {
             exptime = nm
         }
     }
