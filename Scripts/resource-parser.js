@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-03-01 18:29⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-03-11 22:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -916,9 +916,9 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
                         node = HPS2QX(listh, Ptfo, Pcert, Ptls13)
                     }
                 } else if (QuanXK.some(NodeCheck)) {
-                    node = isQuanX(list0[i])[0]
+                    node = QX_TLS(isQuanX(list0[i])[0])
                 } else if (SurgeK.some(NodeCheck)) {
-                    node = Surge2QX(list0[i])[0]
+                    node = QX_TLS(Surge2QX(list0[i])[0])
                 } else if (LoonK.some(NodeCheck)) {
                     node = Loon2QX(list0[i])
                 }
@@ -942,6 +942,17 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
         $notify(`⚠️ 有 ${failedList.length} 条数据解析出错, 已跳过`, "出错内容", failedList.join("\n"));
     }
     return QXlist;
+}
+
+// qx 类型 tls 验证问题
+function QX_TLS(cnt,Pcert,Ptls13) {
+  var cert0 = Pcert == 1? "tls-verification=true, " : "tls-verification=false, "
+  if(cnt.indexOf("tls-verification") != -1){
+    cnt = cnt.replace(RegExp("tls\-verification.*?\,", "gmi"), cert0)
+  }else if(cnt.indexOf("obfs=over-tls")!=-1 || cnt.indexOf("obfs=wss")!=-1){
+    cnt = cnt.replace(new RegExp("tag.*?\=", "gmi"), cert0+"tag=")
+  }
+  return cnt
 }
 
 //将sip008格式的订阅转换成quanx格式
