@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-03-11 22:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-03-13 17:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -152,6 +152,7 @@ var pfo = Pout0 ? "out=" + Pout0.join(", ") : ""
 var pfihn = Phin0 ? "inhn=" + Phin0.join(", ") + ",  " : ""
 var pfohn = Phout0 ? "outhn=" + Phout0.join(", ") : ""
 var Pcnt =  para1.indexOf("cnt=") != -1 ? para1.split("cnt=")[1].split("&")[0] : 0;
+var Pcap = para1.indexOf("cap=") != -1 ? para1.split("cap=")[1].split("&")[0] : "";
 let [flow, exptime, errornode, total] = "";
 var Pdel = mark0 && para1.indexOf("del=") != -1 ? para1.split("del=")[1].split("&")[0] : 1; //删除重复节点
 var typeU = para1.indexOf("type=") != -1 ? para1.split("type=")[1].split("&")[0] : "";
@@ -427,6 +428,10 @@ function TagCheck_QX(content) {
             }
             if (ni != 0) { duplist.push(nm) }
             nmlist.push(nm)
+          if (Pcap) { 
+            item = Capitalize(item,Pcap)
+            console.log(item)
+          }
             ni = 0
             if (item) {
             Nlist.push(item)
@@ -448,9 +453,24 @@ function TagCheck_QX(content) {
     return Nlist
 }
 
-function Trim(item) {
-    return item.trim()
+function Capitalize(cnt,para) {
+  if (para == 1) {
+    cnt = cnt.split("tag=")[0] +"tag="+ cnt.split("tag=")[1].toUpperCase()
+  } else if (para == -1) {
+    cnt = cnt.split("tag=")[0] +"tag="+ cnt.split("tag=")[1].toLowerCase()
+  } else if (para == 0) {
+    cnt =cnt.split("tag=")[0] +"tag="+titleCase(cnt.split("tag=")[1])
+  }
+  return cnt
 }
+
+function titleCase(str) {
+  var newStr = str.split(" ");
+  for(var i = 0; i<newStr.length; i++){
+    newStr[i] = newStr[i].slice(0,1).toUpperCase() + newStr[i].slice(1).toLowerCase();
+  }    return newStr.join(" ");
+}
+
 
 // 类型前缀/后缀
 function type_prefix(item) {
@@ -551,74 +571,80 @@ function URX2QX(subs) {
 
 //script&rewrite 转换成 Quantumult X
 function SCP2QX(subs) {
-    var nrw = []
-    var rw = ""
-    subs = subs.split("\n").map(x => x.trim().replace(/\s+/g," "))
-    for (var i = 0; i < subs.length; i++) {
-        if (subs[i].slice(0, 8) == "hostname") {
-            hn = subs[i].replace(/\%.*\%/g, "")
-            nrw.push(hn)
-        }
-        var SC = ["type=", ".js", "pattern=", "script-path="]
-        var NoteK = ["//", "#", ";"]; //排除注释项
-        const sccheck = (item) => subs[i].indexOf(item) != -1
-        const notecheck = (item) => subs[i].indexOf(item) == 0
-        if (!NoteK.some(notecheck)){
-          if (SC.every(sccheck)) { // surge js 新格式
-            ptn = subs[i].replace(/\s/gi,"").split("pattern=")[1].split(",")[0]
-            js = subs[i].replace(/\s/gi,"").split("script-path=")[1].split(",")[0]
-            type = subs[i].replace(/\s/gi,"").split("type=")[1].split(",")[0].trim()
-            subsi = subs[i].replace(/ /g,"").replace(/\=true/g,"=1")
-            if (type == "http-response" && subsi.indexOf("requires-body=1") != -1) {
-              type = "script-response-body "
-            } else if (type == "http-response" && subsi.indexOf("requires-body=1") == -1) {
-              type = "script-response-header "
-            } else if (type == "http-request" && subsi.indexOf("requires-body=1") != -1) {
-              type = "script-request-body "
-            } else if (type == "http-request" && subsi.indexOf("requires-body=1") == -1) {
-              type = "script-request-header "
-            } else {type = "" }
-            if (type != "") {
-              rw = ptn + " url " + type + js
-              nrw.push(rw)
-            }
-          } else if (subs[i].indexOf(" 302") != -1 || subs[i].indexOf(" 307") != -1) { //rewrite 302&307 复写
-            //tpe = subs[i].indexOf(" 302") != -1? "302":"307"
-            rw = subs[i].split(" ")[0] + " url " + subs[i].split(" ")[2] + " " + subs[i].split(" ")[1].trim()
-            //if(rw.indexOf("307")!=-1) {$notify("XX",subs[i],rw.split(" "))}
-            nrw.push(rw)
-          } else if(subs[i].split(" ")[2] == "header") { // rewrite header 类型
-            var pget = subs[i].split(" ")[0].split(".com")[1]
-            var pgetn = subs[i].split(" ")[1].split(".com")[1]
-            rw = subs[i].split(" ")[0] + " url request-header ^GET " + pget +"(.+\\r\\n)Host:.+(\\r\\n) request-header GET " + pgetn + "$1Host: " + subs[i].split(" ")[1].split("://")[1].split(".com")[0] + ".com$2"
-            nrw.push(rw)
-          } else if(subs[i].indexOf(" - reject") != -1) { // rewrite reject 类型
-            rw = subs[i].split(" ")[0] + " url reject-200"
-            nrw.push(rw)
-          } else if (subs[i].indexOf("script-path") != -1) { //surge js 旧写法
-            type = subs[i].replace(/\s+/g," ").split(" ")[0]
-            js = subs[i].split("script-path")[1].split("=")[1].split(",")[0]
-            ptn = subs[i].replace(/\s+/g," ").split(" ")[1]
-    subsi = subs[i].replace(/ /g,"").replace(/\=true/g,"=1")
-            if (type == "http-response" && subsi.indexOf("requires-body=1") != -1) {
-              type = "script-response-body "
-            } else if (type == "http-response" && subsi.indexOf("requires-body=1") == -1) {
-              type = "script-response-header "
-            } else if (type == "http-request" && subsi.indexOf("requires-body=1") != -1) {
-              type = "script-request-body "
-            } else if (type == "http-request" && subsi.indexOf("requires-body=1") == -1) {
-              type = "script-request-header "
-            } else {type = "" }
-            if (type != "") {
-              rw = ptn + " url " + type + js
-              nrw.push(rw)
-            }
-            
-          }
-        }
-
+  var nrw = []
+  var rw = ""
+  subs = subs.split("\n").map(x => x.trim().replace(/\s+/g," "))
+  for (var i = 0; i < subs.length; i++) {
+    if (subs[i].slice(0, 8) == "hostname") {
+      hn = subs[i].replace(/\%.*\%/g, "")
+      nrw.push(hn)
     }
-    return nrw
+    var SC = ["type=", ".js", "pattern=", "script-path="]
+    var NoteK = ["//", "#", ";"]; //排除注释项
+    const sccheck = (item) => subs[i].indexOf(item) != -1
+    const notecheck = (item) => subs[i].indexOf(item) == 0
+    if (!NoteK.some(notecheck)){
+      if (SC.every(sccheck)) { // surge js 新格式
+        ptn = subs[i].replace(/\s/gi,"").split("pattern=")[1].split(",")[0]
+        js = subs[i].replace(/\s/gi,"").split("script-path=")[1].split(",")[0]
+        type = subs[i].replace(/\s/gi,"").split("type=")[1].split(",")[0].trim()
+        subsi = subs[i].replace(/ /g,"").replace(/\=true/g,"=1")
+        if (type == "http-response" && subsi.indexOf("requires-body=1") != -1) {
+          type = "script-response-body "
+        } else if (type == "http-response" && subsi.indexOf("requires-body=1") == -1) {
+          type = "script-response-header "
+        } else if (type == "http-request" && subsi.indexOf("requires-body=1") != -1) {
+          type = "script-request-body "
+        } else if (type == "http-request" && subsi.indexOf("requires-body=1") == -1) {
+          type = "script-request-header "
+        } else {type = "" }
+        if (type != "") {
+          rw = ptn + " url " + type + js
+          nrw.push(rw)
+        }
+      } else if (subs[i].indexOf(" 302") != -1 || subs[i].indexOf(" 307") != -1) { //rewrite 302&307 复写
+        //tpe = subs[i].indexOf(" 302") != -1? "302":"307"
+        rw = subs[i].split(" ")[0] + " url " + subs[i].split(" ")[2] + " " + subs[i].split(" ")[1].trim()
+        //if(rw.indexOf("307")!=-1) {$notify("XX",subs[i],rw.split(" "))}
+        nrw.push(rw)
+      } else if(subs[i].split(" ")[2] == "header") { // rewrite header 类型
+        var pget = subs[i].split(" ")[0].split(".com")[1]
+        var pgetn = subs[i].split(" ")[1].split(".com")[1]
+        rw = subs[i].split(" ")[0] + " url request-header ^GET " + pget +"(.+\\r\\n)Host:.+(\\r\\n) request-header GET " + pgetn + "$1Host: " + subs[i].split(" ")[1].split("://")[1].split(".com")[0] + ".com$2"
+        nrw.push(rw)
+      } else if(subs[i].split(" ")[1] == "header-replace") { // rewrite header-replace 类型
+        console.log(subs[i])
+        var pget = subs[i].split("header-replace")[1].split(":")[0].trim()
+        var pgetn = subs[i].split("header-replace")[1].trim()
+        rw = subs[i].split(" ")[0] + " url request-header " +"(.+\\r\\n)"+pget+":.+(\\r\\n) request-header " + "$1" + pgetn + "$2"
+        nrw.push(rw)
+      } else if(subs[i].indexOf(" - reject") != -1) { // rewrite reject 类型
+        rw = subs[i].split(" ")[0] + " url reject-200"
+        nrw.push(rw)
+      } else if (subs[i].indexOf("script-path") != -1) { //surge js 旧写法
+        type = subs[i].replace(/\s+/g," ").split(" ")[0]
+        js = subs[i].split("script-path")[1].split("=")[1].split(",")[0]
+        ptn = subs[i].replace(/\s+/g," ").split(" ")[1]
+        subsi = subs[i].replace(/ /g,"").replace(/\=true/g,"=1")
+        if (type == "http-response" && subsi.indexOf("requires-body=1") != -1) {
+          type = "script-response-body "
+        } else if (type == "http-response" && subsi.indexOf("requires-body=1") == -1) {
+          type = "script-response-header "
+        } else if (type == "http-request" && subsi.indexOf("requires-body=1") != -1) {
+          type = "script-request-body "
+        } else if (type == "http-request" && subsi.indexOf("requires-body=1") == -1) {
+          type = "script-request-header "
+        } else {type = "" }
+        if (type != "") {
+          rw = ptn + " url " + type + js
+          nrw.push(rw)
+        }
+        
+      }
+    }
+    
+  }
+  return nrw
 }
 // 如果 URL-Regex 跟 rewrite/script 都需要
 function SGMD2QX(subs) {
