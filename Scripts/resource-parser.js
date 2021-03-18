@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-03-14 13:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-03-18 19:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -222,12 +222,12 @@ function ResourceParse() {
   } else if (type0 == "sgmodule") { // surge module 模块/含 url-regex 的 rule-set
     flag = 2 
     total = SGMD2QX(content0) // 转换 
-    total = Rewrite_Filter(total, Pin0, Pout0); // 筛选过滤
+    total = Rewrite_Filter(total, Pin0, Pout0,Preg); // 筛选过滤
     if (Preplace) { total = ReplaceReg(total, Preplace) }
     total = total.join("\n")
   } else if (type0 == "rewrite") { // rewrite 类型
     flag = 2;
-    total = Rewrite_Filter(isQuanXRewrite(content0.split("\n")), Pin0, Pout0);
+    total = Rewrite_Filter(isQuanXRewrite(content0.split("\n")), Pin0, Pout0,Preg);
     if (Preplace) { total = ReplaceReg(total, Preplace) }
     total = total.join("\n")
   } else if (type0 == "Rule") {  // rule 类型, 已处理完毕
@@ -688,7 +688,7 @@ function SGMD2QX(subs) {
 }
 
 //Rewrite过滤，使用+连接多个关键词(逻辑"或"):in 为保留，out 为排除
-function Rewrite_Filter(subs, Pin, Pout) {
+function Rewrite_Filter(subs, Pin, Pout,Preg) {
     var Nlist = [];
     var noteK = ["//", "#", ";"];
     var hnc = 0;
@@ -697,7 +697,7 @@ function Rewrite_Filter(subs, Pin, Pout) {
     for (var i = 0; i < subs.length; i++) {
         subi = subs[i].trim();
         var subii = subi.replace(/ /g, "")
-        if (subi != "") {
+        if (subi != "" && subi.indexOf(" url ")!=-1) {
             const notecheck = (item) => subi.indexOf(item) == 0
             if (noteK.some(notecheck)) { // 注释项跳过 
                 continue;
@@ -1165,6 +1165,8 @@ function Pobfs(jsonl, Pcert, Ptls13) {
         obfsi.push(obfs0 + host0)
         return obfsi.join(", ")
     } else if(jsonl.net !="tcp"){ // 过滤掉 h2/http 等类型
+      return "NOT-SUPPORTTED"
+    } else if(jsonl.net =="tcp" && jsonl.type != "none") {
       return "NOT-SUPPORTTED"
     } else {return ""}
 }
