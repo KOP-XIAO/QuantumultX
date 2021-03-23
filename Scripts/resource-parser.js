@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-03-21 10:59⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-03-23 21:29⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1866,22 +1866,26 @@ function Clash2QX(cnt) {
   var nodelist=[]
   var node=""
   for (i=0; i<nl; i++){
-    node=bb[i]
-    typec = node.type
-    if (typec == "ss") {
-      node = CSS2QX(node)
-    } else if (typec == "ssr"){
-      node = CSSR2QX(node)
-    } else if (typec == "vmess"){
-      node = CV2QX(node)
-    } else if (typec == "trojan"){
-      node = CT2QX(node)
-    } else if (typec == "http"){
-      node = CH2QX(node)
+    try{
+      node=bb[i]
+      typec = node.type
+      if (typec == "ss") {
+        node = CSS2QX(node)
+      } else if (typec == "ssr"){
+        node = CSSR2QX(node)
+      } else if (typec == "vmess"){
+        node = CV2QX(node)
+      } else if (typec == "trojan"){
+        node = CT2QX(node)
+      } else if (typec == "http"){
+        node = CH2QX(node)
+      } 
+      node = Pudp0 != 0 ? XUDP(node,Pudp0) : node
+      node = Ptfo0 != 0 ? XTFO(node,Ptfo0) : node
+      nodelist.push(node)
+    }catch (e) {
+      $notify(`⚠️该节点解析错误, 暂时已忽略处理`,`可点击通知反馈至 bot`,node,bug_link )
     }
-    node = Pudp0 != 0 ? XUDP(node,Pudp0) : node
-    node = Ptfo0 != 0 ? XTFO(node,Ptfo0) : node
-    nodelist.push(node)
   }
   return nodelist.join("\n")
 }
