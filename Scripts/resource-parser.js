@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-03-28 11:39⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-03-28 14:20⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1322,7 +1322,7 @@ function TJ2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
     pwd = "password=" + cnt.split("@")[0];
     obfs = "over-tls=true";
     pcert = cnt.indexOf("allowInsecure=0") != -1 ? "tls-verification=true" : "tls-verification=false";
-    thost = cnt.indexOf("sni=") != -1? "tls-host="+cnt.split("sni=")[1].split("&")[0]:""
+    thost = cnt.indexOf("sni=") != -1? "tls-host="+cnt.split("sni=")[1].split(/&|#/)[0]:""
     ptls13 = Ptls13 == 1 ? "tls13=true" : "tls13=false"
     if (Pcert == 0) { 
       pcert = "tls-verification=false" 
