@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-03-30 09:20⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-03-31 12:20⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1140,27 +1140,32 @@ function VR2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
 
 //V2RayN uri转换成 QUANX 格式
 function V2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
-    var cert = Pcert
-    var tls13 = Ptls13
-    var server = String(Base64.decode(subs.replace("vmess://", "")).trim()).split("\u0000")[0];
-    var nss = [];
-    if (server != "") {
-        ss = JSON.parse(server);
-        ip = "vmess=" + ss.add + ":" + ss.port;
-        pwd = "password=" + ss.id;
-        mtd = "method=aes-128-gcm"
-        tag = "tag=" + decodeURIComponent(ss.ps);
-        udp = Pudp == 1 ? "udp-relay=true" : "udp-relay=false";
-        tfo = Ptfo == 1 ? "fast-open=true" : "fast-open=false";
-        obfs = Pobfs(ss, cert, tls13);
-        if (obfs == "" || obfs == undefined) {
-            nss.push(ip, mtd, pwd, tfo, udp, tag)
-        } else if(obfs != "NOT-SUPPORTTED"){
-            nss.push(ip, mtd, pwd, obfs, tfo, udp, tag);
-        }
-        QX = nss.join(", ");
+  var cert = Pcert
+  var tls13 = Ptls13
+  var server = String(Base64.decode(subs.replace("vmess://", "")).trim()).split("\u0000")[0];
+  var nss = [];
+  if (server != "") {
+    ss = JSON.parse(server);
+    ip = "vmess=" + ss.add + ":" + ss.port;
+    pwd = "password=" + ss.id;
+    
+    mtd = "method=aes-128-gcm"
+    try {
+      tag = "tag=" + decodeURIComponent(ss.ps);
+    } catch (e) {
+      tag = "tag=" + ss.ps;
     }
-    return QX
+    udp = Pudp == 1 ? "udp-relay=true" : "udp-relay=false";
+    tfo = Ptfo == 1 ? "fast-open=true" : "fast-open=false";
+    obfs = Pobfs(ss, cert, tls13);
+    if (obfs == "" || obfs == undefined) {
+      nss.push(ip, mtd, pwd, tfo, udp, tag)
+    } else if(obfs != "NOT-SUPPORTTED"){
+      nss.push(ip, mtd, pwd, obfs, tfo, udp, tag);
+    }
+    QX = nss.join(", ");
+  }
+  return QX
 }
 
 // Vmess obfs 参数
