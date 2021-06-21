@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-06-09 22:40⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-06-21 09:55⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1147,30 +1147,34 @@ function VQ2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
 
 //Shadowrocket 格式的 vmess URI 转换
 function VR2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
-    var server = String(Base64.decode(subs.replace("vmess://", "").split("?remarks")[0]).trim()).split("\u0000")[0]
-    var node = ""
-    var ip = "vmess=" + server.split("@")[1] + ", " + "method=aes-128-gcm, " + "password=" + server.split("@")[0].split(":")[1] + ", "
-    var tag = "tag=" + decodeURIComponent(subs.split("remarks=")[1].split("&")[0])
-    var tfo = subs.indexOf("tfo=1") != -1 ? "fast-open=true, " : "fast-open=false, "
-    var udp = Pudp == 1 ? "udp-relay=true, " : "udp-relay=false, ";
-    node = ip + tfo + udp
-    var obfs = subs.split("obfs=")[1].split("&")[0]
-    if (obfs == "none") { //
-        obfs = subs.indexOf("tls=1") != -1 ? "obfs=over-tls, " : "" //over-tls
-    } else if (obfs == "websocket") {
-        obfs = subs.indexOf("tls=1") != -1 ? "obfs=wss, " : "obfs=ws," //ws,wss 类型
-        var ouri = subs.indexOf("&path=") != -1 ? subs.split("&path=")[1].split("&")[0] : "/" //ws,wss 类型
-        obfs = obfs + "obfs-uri=" + ouri + ", "
-        var host = subs.indexOf("&obfsParam=") != -1 ? "obfs-host=" + subs.split("&obfsParam=")[1].split("&")[0] + ", " : ""
-        obfs = obfs + host
+  var server = String(Base64.decode(subs.replace("vmess://", "").split("?remarks")[0]).trim()).split("\u0000")[0]
+  var node = ""
+  var ip = "vmess=" + server.split("@")[1] + ", " + "method=aes-128-gcm, " + "password=" + server.split("@")[0].split(":")[1] + ", "
+  var tag = "tag=" + decodeURIComponent(subs.split("remarks=")[1].split("&")[0])
+  var tfo = subs.indexOf("tfo=1") != -1 ? "fast-open=true, " : "fast-open=false, "
+  var udp = Pudp == 1 ? "udp-relay=true, " : "udp-relay=false, ";
+  node = ip + tfo + udp
+  var obfs = subs.split("obfs=")[1].split("&")[0]
+  if (obfs == "none") { //
+    obfs = subs.indexOf("tls=1") != -1 ? "obfs=over-tls, " : "" //over-tls
+  } else if (obfs == "websocket") {
+    obfs = subs.indexOf("tls=1") != -1 ? "obfs=wss, " : "obfs=ws, " //ws,wss 类型
+    var ouri = subs.indexOf("&path=") != -1 ? subs.split("&path=")[1].split("&")[0] : "/" //ws,wss 类型
+    obfs = obfs + "obfs-uri=" + ouri + ", "
+    var host = subs.indexOf("&obfsParam=") != -1 ? decodeURIComponent(subs.split("&obfsParam=")[1].split("&")[0]) : ""
+    if (host.indexOf("\"Host\"")!=-1 && host.indexOf("{")!=-1) {
+      host = JSON.parse(host)["Host"]
     }
-    if (obfs.indexOf("obfs=over-tls") != -1 || obfs.indexOf("obfs=wss") != -1) {
-        var cert = Pcert != 0 || subs.indexOf("allowInsecure=1") != -1 ? "tls-verification=false, " : "tls-verification=true, "
-        var tls13 = Ptls13 == 1 ? "tls13=true, " : ""
-        obfs = obfs + cert + tls13
-    }
-    node = node + obfs + tag
-    return node
+    host = "obfs-host=" + host + ", "
+    obfs = obfs + host
+  }
+  if (obfs.indexOf("obfs=over-tls") != -1 || obfs.indexOf("obfs=wss") != -1) {
+    var cert = Pcert != 0 || subs.indexOf("allowInsecure=1") != -1 ? "tls-verification=false, " : "tls-verification=true, "
+    var tls13 = Ptls13 == 1 ? "tls13=true, " : ""
+    obfs = obfs + cert + tls13
+  }
+  node = node + obfs + tag
+  return node
 }
 
 //V2RayN uri转换成 QUANX 格式
