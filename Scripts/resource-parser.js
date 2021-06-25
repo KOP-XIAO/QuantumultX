@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-06-21 09:55⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-06-25 10:55⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1387,7 +1387,8 @@ function SS2QX(subs, Pudp, Ptfo) {
     var cnt = subs.split("ss://")[1]
     if (cnt.split(":").length <= 6) { //排除难搞的 ipv6 节点
         type = "shadowsocks=";
-        if (cnt.indexOf("@") != -1) {
+      let cntt = cnt.split("#")[0]
+      if (cntt.indexOf("@") != -1 && cntt.indexOf(":") != -1) {
             ip = cnt.split("@")[1].split("#")[0].split("/")[0];
             pwdmtd = Base64.decode(cnt.split("@")[0].replace(/-/g, "+").replace(/_/g, "/")).split("\u0000")[0].split(":")
         } else {
