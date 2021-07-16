@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-07-01 12:25⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-07-16 22:25⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1916,25 +1916,42 @@ function YAMLFix(cnt){
   
   if (cnt.indexOf("{") != -1){
     cnt = cnt.replace(/\[/g,"yaml@bug1")
-    cnt = cnt.replace(/(^|\n)- /g, "$1  - ").replace(/    - /g,"  - ").replace(/:(?!\s)/g,": ").replace(/\,\"/g,", \"").replace(/: {/g, ": {,     ")
-    //.replace(/, (host|path|tls|mux|skip)/g,",     $1")
+    cnt = cnt.replace(/(^|\n)- /g, "$1  - ").replace(/    - /g,"  - ").replace(/:(?!\s)/g,": ").replace(/\,\"/g,", \"").replace(/: {/g, ": {,     ").replace(/, (Host|host|path|tls|mux|skip)/g,", $1")
     //console.log(cnt)
     cnt = cnt.replace(/{\s*name: /g,"{name: \"").replace(/, server:/g,"\", server:")
     cnt = cnt.replace(/{|}/g,"").replace(/,/g,"\n   ")
-    console.log(cnt)
   }
   cnt = cnt.replace(/  -\n.*name/g,"  - name").replace(/\$|\`/g,"").split("proxy-providers:")[0].split("proxy-groups:")[0].replace(/\"(name|type|server|port|cipher|password|)(\"*)/g,"$1")
-  //console.log(cnt)
+  console.log(cnt)
   cnt = cnt.indexOf("proxies:") == -1? "proxies:\n" + cnt :"proxies:"+cnt.split("proxies:")[1]
-  cnt = cnt.replace(/name\:(.*?)\:(.*?)\n/gmi,"name:$1冒号$2\n") //罕见bug情况 修复
+  cnt = cnt.replace(/name\:(.*?)\:(.*?)\n/gmi,"name:$1冒号$2\n").replace(/\s{6}Host\:/g,"    Host:") //罕见bug情况 修复
+  items=cnt.split("\n").map(yamlcheck)
+  cnt=items.join("\n")
   //console.log(cnt.replace(/name\:(.*?)\:(.*?)\n/gmi,"name:$1冒号$2"))
+  console.log("after-fix"+cnt)
   return cnt
+}
+
+
+function yamlcheck(cnt){
+  if (cnt.indexOf("name") !=-1){ //名字以某些数字结尾时，解析有 bug
+    for (var i=0;i<10;i++) {
+      cnt = cnt.replace(new RegExp(patn[0][i], "gmi"),patn[4][i])
+    }
+    
+  }
+  if (cnt.indexOf(":")!=-1) {
+    return cnt
+  }
 }
 
 // Clash parser
 function Clash2QX(cnt) {
   const yaml = new YAML()
   var aa = JSON.stringify(yaml.parse(YAMLFix(cnt))).replace(/yaml@bug1/g,"[").replace(/冒号/gmi,":")
+  for (var i=0;i<10;i++) {
+    aa = aa.replace(new RegExp(patn[4][i], "gmi"),patn[0][i])
+  }
   var bb = JSON.parse(aa).proxies
   //$notify("YAML Parse", "content", JSON.stringify(bb))
   //console.log(bb)
