@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-07-16 22:25⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-07-18 22:25⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -63,6 +63,7 @@
   ❖ 可与 in(hn)/out(hn) 一起使用，in(hn)/out(hn) 会优先执行;
   ❖ 对 𝒉𝒐𝒔𝒕𝒏𝒂𝒎𝒆 & 𝐫𝐞𝐰𝐫𝐢𝐭𝐞/𝐟𝐢𝐥𝐭𝐞𝐫 同时生效(⚠️ 慎用)
 ⦿ policy 参数, 用于直接指定策略组，或为 𝐒𝐮𝐫𝐠𝐞 类型 𝗿𝘂𝗹𝗲-𝘀𝗲𝘁 生成策略组(默认"𝐒𝐡𝐚𝐰𝐧"策略组);
+⦿ pset=regex1@policy1+regex2@policy2, 为同一分流规则中不同关键词(允许正则表达式)指定不同策略组;
 ⦿ replace 参数, 正则替换 𝐟𝐢𝐥𝐭𝐞𝐫/𝐫𝐞𝐰𝐫𝐢𝐭𝐞 内容, regex@newregex;
   ❖ 将淘宝比价中脚本替换成 lite 版本, tiktok 中 JP 换成 KR
     ∎ replace=(price)(.*)@$1_lite$2+jp@kr 
@@ -145,6 +146,7 @@ var Psrename = mark0 && para1.indexOf("srename=") != -1 ? Base64.decode(para1.sp
 var Prrname = mark0 && para1.indexOf("rrname=") != -1 ? para1.split("rrname=")[1].split("&")[0].split("+") : null;
 var Psuffix = mark0 && para1.indexOf("suffix=") != -1 ? para1.split("suffix=")[1].split("&")[0] : 0;
 var Ppolicy = mark0 && para1.indexOf("policy=") != -1 ? decodeURIComponent(para1.split("policy=")[1].split("&")[0]) : "Shawn";
+var Ppolicyset = mark0 && para1.indexOf("pset=") != -1 ? decodeURIComponent(para1.split("pset=")[1].split("&")[0]) : "";
 var Pcert0 = mark0 && para1.indexOf("cert=") != -1 ? para1.split("cert=")[1].split("&")[0] : 0;
 var Psort0 = mark0 && para1.indexOf("sort=") != -1 ? para1.split("sort=")[1].split("&")[0] : 0;
 var PsortX = mark0 && para1.indexOf("sortx=") != -1 ? para1.split("sortx=")[1].split("&")[0] : 0;
@@ -256,6 +258,7 @@ function ResourceParse() {
     total = total.map(Regex).filter(Boolean).join("\n") 
     RegCheck(total, "分流引用", Preg)} 
     if (Preplace) { total = ReplaceReg(total, Preplace) }
+    if (Ppolicyset) {total = policy_sets(total, Ppolicyset)}
     total = total.join("\n")
   } else if (content0.trim() == "") {
     $notify("‼️ 引用" + "⟦" + subtag + "⟧" + " 返回內容为空", "⁉️ 点通知跳转以确认链接是否失效", para.split("#")[0], nan_link);
@@ -979,6 +982,37 @@ function Domain2Rule(content) {
     }
     return nlist.join("\n")
 }
+// filter 正则指定替换 regex1@policy1+regex2@policy2
+function policy_sets(cnt,para) {
+  pcnt = para.split("+")
+  cnt=cnt//.split("\n")
+  for (i=0;i<pcnt.length;i++){
+    console.log(pcnt[i])
+    if (pcnt[i].indexOf("@")!=-1){
+      cnt = cnt.map(item => filter_set(item, pcnt[i]))
+    }
+  }
+  cnt=cnt.filter(Boolean)//.join("\n")
+  return cnt
+  console.log(cnt)
+}
+
+function filter_set(cnt,para){
+  if (cnt){
+    paras=[para.split("@")[0],para.slice(para.split("@")[0].length+"@".length)]
+    console.log(para.split("@")[0].length+"@".length,paras)
+    cnt = cnt.split(",")
+    reg = RegExp(paras[0])
+    console.log(paras,cnt)
+    if(cnt.length == 3){
+      if (reg.test(cnt[1]) || reg.test(cnt[2])) {
+        cnt[2] = paras[1]
+      }
+    }
+    return cnt.join(",")
+  }
+}
+
 
 // 正则替换 filter/rewrite 的部分
 // 用途：如 tiktok 换区: JP -> KR ，如淘宝比价脚本 -> lite 横幅通知版本
