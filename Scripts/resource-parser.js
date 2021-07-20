@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-07-18 22:25⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-07-20 11:05⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1109,7 +1109,7 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
     return QXlist;
 }
 
-// qx 类型 tls 验证问题
+// qx 类型 tls/udp 验证问题
 function QX_TLS(cnt,Pcert,Ptls13) {
   var cert0 = Pcert == 1? "tls-verification=true, " : "tls-verification=false, "
   if(cnt.indexOf("tls-verification") != -1){
@@ -1117,6 +1117,14 @@ function QX_TLS(cnt,Pcert,Ptls13) {
   }else if(cnt.indexOf("obfs=over-tls")!=-1 || cnt.indexOf("obfs=wss")!=-1){
     cnt = cnt.replace(new RegExp("tag.*?\=", "gmi"), cert0+"tag=")
   }
+  if (cnt.trim().indexOf("shadowsocks")!=0) { //关闭非 ss/ssr 类型的 udp
+    udp =  "udp-relay=false, "
+    if(cnt.indexOf("udp-relay") != -1){
+      var cnt = cnt.replace(RegExp("udp\-relay.*?\,", "gmi"), udp)
+    }else{
+      var cnt = cnt.replace(new RegExp("tag.*?\=", "gmi"), udp+"tag=")
+    }
+  }   
   return cnt
 }
 
@@ -1167,7 +1175,7 @@ function VQ2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
     var ip = "vmess=" + server.split(",")[1].trim() + ":" + server.split(",")[2].trim() + ", " + "method=aes-128-gcm, " + "password=" + server.split(",")[4].split("\"")[1] + ", "
     var tag = "tag=" + server.split("=")[0]
     var tfo = subs.indexOf("tfo=1") != -1 ? "fast-open=true, " : "fast-open=false, "
-    var udp = Pudp == 1 ? "udp-relay=true, " : "udp-relay=false, ";
+    var udp = Pudp == 1 ? "udp-relay=false, " : "udp-relay=false, ";
     node = ip + tfo + udp
     var obfs = ""
     if (server.indexOf("obfs=") == -1) { // 非 ws 类型
@@ -1197,7 +1205,7 @@ function VR2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
   var ip = "vmess=" + server.split("@")[1] + ", " + "method=aes-128-gcm, " + "password=" + server.split("@")[0].split(":")[1] + ", "
   var tag = "tag=" + decodeURIComponent(subs.split("remarks=")[1].split("&")[0])
   var tfo = subs.indexOf("tfo=1") != -1 ? "fast-open=true, " : "fast-open=false, "
-  var udp = Pudp == 1 ? "udp-relay=true, " : "udp-relay=false, ";
+  var udp = Pudp == 1 ? "udp-relay=false, " : "udp-relay=false, ";
   node = ip + tfo + udp
   var obfs = subs.split("obfs=")[1].split("&")[0]
   if (obfs == "none") { //
@@ -1239,7 +1247,7 @@ function V2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
     } catch (e) {
       tag = "tag=" + ss.ps;
     }
-    udp = Pudp == 1 ? "udp-relay=true" : "udp-relay=false";
+    udp = Pudp == 1 ? "udp-relay=false" : "udp-relay=false";
     tfo = Ptfo == 1 ? "fast-open=true" : "fast-open=false";
     obfs = Pobfs(ss, cert, tls13);
     if (obfs == "" || obfs == undefined) {
@@ -1418,7 +1426,7 @@ function TJ2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
     } else if (Pcert == 1) {
       pcert = "tls-verification=true"
     }
-    pudp = Pudp == 1 ? "udp-relay=true" : "udp-relay=false";
+    pudp = Pudp == 1 ? "udp-relay=false" : "udp-relay=false";
     ptfo = Ptfo == 1 ? "fast-open=true" : "fast-open=false";
     tag = cnt.indexOf("#") != -1 ? "tag=" + decodeURIComponent(cnt.split("#")[1]) : "tag= [trojan]" + ip
     ntrojan.push(type + ip, pwd, obfs, pcert, thost, ptls13, pudp, ptfo, tag)
@@ -2063,7 +2071,7 @@ function CV2QX(cnt) {
 	ipt = cnt.server+":"+cnt.port
 	pwd = "password=" + cnt.uuid
 	mtd = "method="+ "aes-128-gcm" //cnt.cipher
-  udp = cnt.udp ? "udp-relay=true" : "udp-relay=false"
+  udp = cnt.udp ? "udp-relay=false" : "udp-relay=false"
   tfo = cnt.tfo ? "fast-open=true" : "fast-open=false"
   obfs = ""
   if (cnt.network == "ws" && cnt.tls) {
@@ -2095,7 +2103,7 @@ function CT2QX(cnt) {
   otls = "over-tls=true"
   cert = cnt["skip-cert-verify"] ? "tls-verification=false" : "tls-verification=true"
   cert = Pcert0 == 1 ? "tls-verification=true" : "tls-verification=false" 
-  udp = cnt.udp ? "udp-relay=true" : "udp-relay=false"
+  udp = cnt.udp ? "udp-relay=false" : "udp-relay=false"
   tfo = cnt.tfo ? "fast-open=true" : "fast-open=false"
   node = "trojan="+[ipt, pwd, otls, cert, udp, tfo, tag].filter(Boolean).join(", ")
   //console.log(node)
@@ -2123,7 +2131,7 @@ function CH2QX(cnt){
 
 // UDP/TFO 参数 (强制 surge/quanx 类型转换)
 function XUDP(cnt,pudp) {
-    var udp = pudp == 1? "udp-relay=true, " : "udp-relay=false, "
+    var udp = pudp == 1 && cnt.trim().indexOf("shadowsocks")==0 ? "udp-relay=true, " : "udp-relay=false, "
     if(cnt.indexOf("udp-relay") != -1){
         var cnt0 = cnt.replace(RegExp("udp\-relay.*?\,", "gmi"), udp)
     }else{
