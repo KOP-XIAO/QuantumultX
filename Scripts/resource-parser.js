@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-07-25 17:05⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-07-26 13:58⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -193,16 +193,20 @@ var type0=""
 var flag = 1
 
 function Parser() {
-  try {
-    type0 = Type_Check(content0); //  类型判断
-    //$notify(type0,"hh")
-    total = ResourceParse();
-    
-  } catch (err) {
-    $notify("❌ 解析出现错误", "⚠️ 请点击发送链接反馈", err, bug_link);
+  type0 = Type_Check(content0); //  类型判断
+  if (type0 != "web"){
+    try {
+      //$notify(type0,"hh")
+      total = ResourceParse();
+      
+    } catch (err) {
+      $notify("❌ 解析出现错误", "⚠️ 请点击发送链接反馈", err, bug_link);
+    }
+  } else {
+    total=""
   }
-  //$notify("","",total)
-  $done({ content: total });
+    //$notify("","",total)
+    $done({ content: total });
 }
 
 if (typeof($resource)!=="undefined") {
@@ -216,7 +220,7 @@ if (typeof($resource)!=="undefined") {
 
 */
 
-function ParseUnkown(cnt){
+function ParseUnknown(cnt){
   try {
     cnt = JSON.parse(cnt)
     if(cnt) {
@@ -264,7 +268,7 @@ function ResourceParse() {
     $notify("‼️ 引用" + "⟦" + subtag + "⟧" + " 返回內容为空", "⁉️ 点通知跳转以确认链接是否失效", para.split("#")[0], nan_link);
     flag = 0;
   } else if (type0 == "unknown") {
-    ParseUnkown(content0)
+    ParseUnknown(content0)
     flag = -1;
   }
   
@@ -392,7 +396,7 @@ function Type_Check(subs) {
     const RewriteCheck = (item) => subs.indexOf(item) != -1;
     var subsn = subs.split("\n")
     if (subs.indexOf(html) != -1 && link0.indexOf("github.com" == -1)) {
-      $notify("‼️ 该链接返回内容有误", "⁉️ 点通知跳转以确认链接是否失效", link0, nan_link);
+      $notify("‼️ 该链接返回网页内容,无有效订阅"+ " ➟ " + "⟦" + subtag + "⟧", "⁉️ 点通知跳转以确认链接是否失效\n"+link0, subs, nan_link);
       type = "web";
     } else if (typeU == "nodes") {
       type = "Subs-B64Encode"
