@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-07-26 13:58⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-07-26 21:28⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -139,6 +139,7 @@ var Phin0 = mark0 && para1.indexOf("inhn=") != -1 ? (para1.split("inhn=")[1].spl
 var Phout0 = mark0 && para1.indexOf("outhn=") != -1 ? (para1.split("outhn=")[1].split("&")[0].split("+")).map(decodeURIComponent) : null; //hostname
 var Preplace = mark0 && para1.indexOf("replace=") != -1 ? para1.split("replace=")[1].split("&")[0] : null; //filter/rewrite 正则替换
 var Pemoji = mark0 && para1.indexOf("emoji=") != -1 ? para1.split("emoji=")[1].split("&")[0] : null;
+var Pdbg = mark0 && para1.indexOf("dbg=") != -1 ? para1.split("dbg=")[1].split("&")[0] : null;
 var Pudp0 = mark0 && para1.indexOf("udp=") != -1 ? para1.split("udp=")[1].split("&")[0] : 0;
 var Ptfo0 = mark0 && para1.indexOf("tfo=") != -1 ? para1.split("tfo=")[1].split("&")[0] : 0;
 var Prname = mark0 && para1.indexOf("rename=") != -1 ? para1.split("rename=")[1].split("&")[0].split("+") : null;
@@ -197,6 +198,9 @@ function Parser() {
   if (type0 != "web"){
     try {
       //$notify(type0,"hh")
+      if (Pdbg){
+        $notify(link0,type0,content0)
+      }
       total = ResourceParse();
       
     } catch (err) {
@@ -1178,33 +1182,40 @@ function HPS2QX(subs, Ptfo, Pcert, Ptls13) {
 
 //quantumult 格式的 vmess URI 转换
 function VQ2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
-    var server = String(Base64.decode(subs.replace("vmess://", "").trim()).split("\u0000")[0])
-    var node = ""
-    var ip = "vmess=" + server.split(",")[1].trim() + ":" + server.split(",")[2].trim() + ", " + "method=aes-128-gcm, " + "password=" + server.split(",")[4].split("\"")[1] + ", "
-    var tag = "tag=" + server.split("=")[0]
-    var tfo = subs.indexOf("tfo=1") != -1 ? "fast-open=true, " : "fast-open=false, "
-    var udp = Pudp == 1 ? "udp-relay=false, " : "udp-relay=false, ";
-    node = ip + tfo + udp
-    var obfs = ""
-    if (server.indexOf("obfs=") == -1) { // 非 ws 类型
-        obfs = server.indexOf("over-tls=true") != -1 ? "obfs=over-tls, " : "" //over-tls
-        var host = server.indexOf("tls-host") != -1 ? "obfs-host=" + server.split("tls-host=")[1].split(",")[0] + ", " : ""
-        obfs = obfs + host
-    } else if (server.indexOf("obfs=ws") != -1) {
-        obfs = server.indexOf("over-tls=true") != -1 ? "obfs=wss, " : "obfs=ws, " //ws,wss 类型
-        var uri = server.indexOf("obfs-path=") != -1 ? "obfs-uri=" + server.split("obfs-path=")[1].split("\"")[1] + ", " : "obfs-uri=/, "
-        obfs = obfs + uri
-        var host = server.indexOf("obfs-header=") != -1 ? "obfs-host=" + server.split("obfs-header=\"Host:")[1].split("[")[0].trim() + ", " : ""
-        obfs = obfs + host
-    }
-    if (obfs.indexOf("obfs=over-tls") != -1 || obfs.indexOf("obfs=wss") != -1) {
-        var cert = Pcert != 0 || subs.indexOf("allowInsecure=1") != -1 ? "tls-verification=false, " : "tls-verification=true, "
-        var tls13 = Ptls13 == 1 ? "tls13=true, " : ""
-        obfs = obfs + cert + tls13
-    }
-    node = node + obfs + tag
-    return node
+  var server = String(Base64.decode(subs.replace("vmess://", "").trim()).split("\u0000")[0])
+  var node = ""
+  var ip = "vmess=" + server.split(",")[1].trim() + ":" + server.split(",")[2].trim() + ", " + "method=aes-128-gcm, " + "password=" + server.split(",")[4].split("\"")[1] + ", "
+  var tag = "tag=" + server.split("=")[0]
+  var tfo = subs.indexOf("tfo=1") != -1 ? "fast-open=true, " : "fast-open=false, "
+  var udp = Pudp == 1 ? "udp-relay=false, " : "udp-relay=false, "; // 不支持 vmess 类型 udp
+  node = ip + tfo + udp
+  var obfs = ""
+  if (server.indexOf("obfs=") == -1) { // 非 ws/http 类型
+    obfs = server.indexOf("over-tls=true") != -1 ? "obfs=over-tls, " : "" //over-tls
+    var host = server.indexOf("tls-host") != -1 ? "obfs-host=" + server.split("tls-host=")[1].split(",")[0] + ", " : ""
+    obfs = obfs + host
+  } else if (server.indexOf("obfs=ws") != -1) {
+    obfs = server.indexOf("over-tls=true") != -1 ? "obfs=wss, " : "obfs=ws, " //ws,wss 类型
+    var uri = server.indexOf("obfs-path=") != -1 ? "obfs-uri=" + server.split("obfs-path=")[1].split("\"")[1] + ", " : "obfs-uri=/, "
+    obfs = obfs + uri
+    var host = server.indexOf("obfs-header=") != -1 ? "obfs-host=" + server.split("obfs-header=\"Host:")[1].split("[")[0].trim() + ", " : ""
+    obfs = obfs + host
+  } else if (server.indexOf("obfs=http") != -1) {
+    obfs = "obfs=http, "
+    var uri = server.indexOf("obfs-path=") != -1 ? "obfs-uri=" + server.split("obfs-path=")[1].split("\"")[1] + ", " : "obfs-uri=/, "
+    obfs = obfs + uri
+    var host = server.indexOf("obfs-header=") != -1 ? "obfs-host=" + server.split("obfs-header=\"Host:")[1].split("[")[0].trim() + ", " : ""
+    obfs = obfs + host
+  }
+  if (obfs.indexOf("obfs=over-tls") != -1 || obfs.indexOf("obfs=wss") != -1) {
+    var cert = Pcert != 0 || subs.indexOf("allowInsecure=1") != -1 ? "tls-verification=false, " : "tls-verification=true, "
+    var tls13 = Ptls13 == 1 ? "tls13=true, " : ""
+    obfs = obfs + cert + tls13
+  }
+  node = node + obfs + tag
+  return node
 }
+
 
 //Shadowrocket 格式的 vmess URI 转换
 function VR2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
@@ -1218,8 +1229,10 @@ function VR2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
   var obfs = subs.split("obfs=")[1].split("&")[0]
   if (obfs == "none") { //
     obfs = subs.indexOf("tls=1") != -1 ? "obfs=over-tls, " : "" //over-tls
-  } else if (obfs == "websocket") {
-    obfs = subs.indexOf("tls=1") != -1 ? "obfs=wss, " : "obfs=ws, " //ws,wss 类型
+  } else if (obfs == "websocket" || obfs == "http") {
+    console.log(obfs)
+    obfs = obfs == "http" ? "obfs=http, " : "obfs=ws, " // http 类型
+    obfs = subs.indexOf("tls=1") != -1 ? "obfs=wss, " : obfs //ws,wss 类型
     var ouri = subs.indexOf("&path=") != -1 ? subs.split("&path=")[1].split("&")[0] : "/" //ws,wss 类型
     obfs = obfs + "obfs-uri=" + ouri + ", "
     var host = subs.indexOf("&obfsParam=") != -1 ? decodeURIComponent(subs.split("&obfsParam=")[1].split("&")[0]) : ""
@@ -1238,8 +1251,10 @@ function VR2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
   return node
 }
 
+
 //V2RayN uri转换成 QUANX 格式
 function V2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
+  //console.log("v2 type",subs)
   var cert = Pcert
   var tls13 = Ptls13
   var server = String(Base64.decode(subs.replace("vmess://", "")).trim()).split("\u0000")[0];
@@ -1270,36 +1285,42 @@ function V2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
 
 // Vmess obfs 参数
 function Pobfs(jsonl, Pcert, Ptls13) {
-    var obfsi = [];
-    var cert = Pcert;
-    tcert = cert == 0 ? "tls-verification=false" : "tls-verification=true";
-    tls13 = Ptls13 == 1 ? "tls13=true" : "tls13=false"
-    if (jsonl.net == "ws" && jsonl.tls == "tls") {
-        obfs0 = "obfs=wss, " + tcert + ", " + tls13 + ", ";
-        uri0 = jsonl.path && jsonl.path != "" ? "obfs-uri=" + jsonl.path : "obfs-uri=/";
-        uri0 = uri0.indexOf("uri=/")!=-1 ? uri0:uri0.replace("uri=","uri=/")
-        host0 = jsonl.host && jsonl.host != "" ? "obfs-host=" + jsonl.host + ", " : "";
-        obfsi.push(obfs0 + host0 + uri0)
-        return obfsi.join(", ")
-    } else if (jsonl.net == "ws") {
-        obfs0 = "obfs=ws";
-        uri0 = jsonl.path && jsonl.path != "" ? "obfs-uri=" + jsonl.path : "obfs-uri=/";
-        uri0 = uri0.indexOf("uri=/")!=-1 ? uri0:uri0.replace("uri=","uri=/")
-        host0 = jsonl.host && jsonl.host != "" ? "obfs-host=" + jsonl.host + ", " : "";
-        obfsi.push(obfs0, host0 + uri0);
-        return obfsi.join(", ")
-    } else if (jsonl.tls == "tls" && jsonl.net == "tcp") { // 过滤掉 h2/http 等类型 
-        obfs0 = "obfs=over-tls, " + tcert + ", " + tls13;
-        uri0 = jsonl.path && jsonl.path != "" ? "obfs-uri=" + jsonl.path : "";
-        uri0 = uri0.indexOf("uri=/")!=-1 ? uri0:uri0.replace("uri=","uri=/")
-        host0 = jsonl.host && jsonl.host != "" ? ", obfs-host=" + jsonl.host : "";
-        obfsi.push(obfs0 + host0)
-        return obfsi.join(", ")
-    } else if(jsonl.net !="tcp"){ // 过滤掉 h2/http 等类型
-      return "NOT-SUPPORTTED"
-    } else if(jsonl.net =="tcp" && jsonl.type != "none") {
-      return "NOT-SUPPORTTED"
-    } else {return ""}
+  var obfsi = [];
+  var cert = Pcert;
+  tcert = cert == 0 ? "tls-verification=false" : "tls-verification=true";
+  tls13 = Ptls13 == 1 ? "tls13=true" : "tls13=false"
+  if (jsonl.net == "ws" && jsonl.tls == "tls") {
+    obfs0 = "obfs=wss, " + tcert + ", " + tls13 + ", ";
+    uri0 = jsonl.path && jsonl.path != "" ? "obfs-uri=" + jsonl.path : "obfs-uri=/";
+    uri0 = uri0.indexOf("uri=/")!=-1 ? uri0:uri0.replace("uri=","uri=/")
+    host0 = jsonl.host && jsonl.host != "" ? "obfs-host=" + jsonl.host + ", " : "";
+    obfsi.push(obfs0 + host0 + uri0)
+    return obfsi.join(", ")
+  } else if (jsonl.net == "ws") {
+    obfs0 = "obfs=ws";
+    uri0 = jsonl.path && jsonl.path != "" ? "obfs-uri=" + jsonl.path : "obfs-uri=/";
+    uri0 = uri0.indexOf("uri=/")!=-1 ? uri0:uri0.replace("uri=","uri=/")
+    host0 = jsonl.host && jsonl.host != "" ? "obfs-host=" + jsonl.host + ", " : "";
+    obfsi.push(obfs0, host0 + uri0);
+    return obfsi.join(", ")
+  } else if (jsonl.tls == "tls" && jsonl.net == "tcp") { // 过滤掉 h2/http 等类型 
+    obfs0 = "obfs=over-tls, " + tcert + ", " + tls13;
+    uri0 = jsonl.path && jsonl.path != "" ? "obfs-uri=" + jsonl.path : "";
+    uri0 = uri0.indexOf("uri=/")!=-1 ? uri0:uri0.replace("uri=","uri=/")
+    host0 = jsonl.host && jsonl.host != "" ? ", obfs-host=" + jsonl.host : "";
+    obfsi.push(obfs0 + host0)
+    return obfsi.join(", ")
+  } else if (jsonl.tls == "http"){
+    obfs0 = "obfs=http";
+    uri0 = jsonl.path && jsonl.path != "" ? "obfs-uri=" + jsonl.path : "obfs-uri=/";
+    uri0 = uri0.indexOf("uri=/")!=-1 ? uri0:uri0.replace("uri=","uri=/")
+    host0 = jsonl.host && jsonl.host != "" ? "obfs-host=" + jsonl.host + ", " : "";
+    obfsi.push(obfs0, host0 + uri0);
+  } else if (jsonl.net !="tcp"){ // 过滤掉 h2/http 等类型
+    return "NOT-SUPPORTTED"
+  } else if (jsonl.net =="tcp" && jsonl.type != "none") {
+    return "NOT-SUPPORTTED"
+  } else {return ""}
 }
 
 //对.的特殊处理(in/out & rename中)
@@ -2075,19 +2096,21 @@ function CSSR2QX(cnt) {
 
 //Clash vmess type server
 function CV2QX(cnt) {
-	tag = "tag="+cnt.name.replace(/\\U.+?\s{1}/gi," ")
-	ipt = cnt.server+":"+cnt.port
-	pwd = "password=" + cnt.uuid
-	mtd = "method="+ "aes-128-gcm" //cnt.cipher
-  udp = cnt.udp ? "udp-relay=false" : "udp-relay=false"
+  tag = "tag="+cnt.name.replace(/\\U.+?\s{1}/gi," ")
+  ipt = cnt.server+":"+cnt.port
+  pwd = "password=" + cnt.uuid
+  mtd = "method="+ "aes-128-gcm" //cnt.cipher
+  udp = cnt.udp ? "udp-relay=false" : "udp-relay=false" //暂不支持
   tfo = cnt.tfo ? "fast-open=true" : "fast-open=false"
   obfs = ""
   if (cnt.network == "ws" && cnt.tls) {
-      obfs = "obfs=wss"
+    obfs = "obfs=wss"
   } else if (cnt.network == "ws"){
-      obfs = "obfs=ws"
+    obfs = "obfs=ws"
+  } else if (cnt.network == "http"){
+    obfs = "obfs=http"
   } else if (cnt.tls){
-      obfs = "obfs=over-tls"
+    obfs = "obfs=over-tls"
   }
   ohost = cnt["ws-headers"]? "obfs-host=" + cnt["ws-headers"]["Host"] : ""
   ouri = cnt["ws-path"]? "obfs-uri="+cnt["ws-path"] : ""
@@ -2102,6 +2125,7 @@ function CV2QX(cnt) {
   //console.log(node)
   return node
 }
+
 
 //Clash Trojan
 function CT2QX(cnt) {
