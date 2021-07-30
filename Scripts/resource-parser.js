@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-07-28 12:45⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-07-30 17:45⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1984,9 +1984,8 @@ function LoonSSR2QX(cnt) {
 
 // fix yaml parse mistakes
 function YAMLFix(cnt){
-  
+  cnt = cnt.replace(/\[/g,"yaml@bug1")
   if (cnt.indexOf("{") != -1){
-    cnt = cnt.replace(/\[/g,"yaml@bug1")
     cnt = cnt.replace(/(^|\n)- /g, "$1  - ").replace(/    - /g,"  - ").replace(/:(?!\s)/g,": ").replace(/\,\"/g,", \"").replace(/: {/g, ": {,     ").replace(/, (Host|host|path|tls|mux|skip)/g,", $1")
     //console.log(cnt)
     cnt = cnt.replace(/{\s*name: /g,"{name: \"").replace(/, server:/g,"\", server:")
@@ -2019,7 +2018,7 @@ function yamlcheck(cnt){
 // Clash parser
 function Clash2QX(cnt) {
   const yaml = new YAML()
-  var aa = JSON.stringify(yaml.parse(YAMLFix(cnt))).replace(/yaml@bug1/g,"[").replace(/冒号/gmi,":")
+  var aa = JSON.stringify(yaml.parse(YAMLFix(cnt))).replace(/yaml@bug𝟙/g,"[").replace(/冒号/gmi,":")
   for (var i=0;i<10;i++) {
     aa = aa.replace(new RegExp(patn[4][i], "gmi"),patn[0][i])
   }
