@@ -1044,7 +1044,7 @@ function ReplaceReg(cnt, para) {
 }
 
 //混合订阅类型，用于未整体进行 base64 encode 的类型
-function Subs2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
+function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
     var list0 = subs.split("\n");
     var QuanXK = ["shadowsocks=", "trojan=", "vmess=", "http="];
     var SurgeK = ["=ss,", "=vmess,", "=trojan,", "=http,", "=custom,"];
@@ -1063,13 +1063,13 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
                 if (type == "vmess" && list0[i].indexOf("remarks=") == -1) {
                     var bnode = Base64.decode(list0[i].split("vmess://")[1])
                     if (bnode.indexOf("over-tls=") == -1) { //v2rayN
-                        node = V2QX(list0[i], Pudp, Ptfo, Pcert, Ptls13)
+                        node = V2QX(list0[i], Pudp, Ptfo, Pcert0, PTls13)
                     } else { //quantumult 类型
-                        node = VQ2QX(list0[i], Pudp, Ptfo, Pcert, Ptls13)
+                        node = VQ2QX(list0[i], Pudp, Ptfo, Pcert0, PTls13)
                     }
                   node = tag0 != "" ? URI_TAG(node, tag0) : node
                 } else if (type == "vmess" && list0[i].indexOf("remarks=") != -1) { //shadowrocket 类型
-                    node = VR2QX(list0[i], Pudp, Ptfo, Pcert, Ptls13)
+                    node = VR2QX(list0[i], Pudp, Ptfo, Pcert0, PTls13)
                     node = tag0 != "" ? URI_TAG(node, tag0) : node
                 } else if (type == "ssr") {
                     node = SSR2QX(list0[i], Pudp, Ptfo)
@@ -1080,22 +1080,22 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
                 } else if (type == "ssd") {
                     node = SSD2QX(list0[i], Pudp, Ptfo)
                 } else if (type == "trojan") {
-                    node = TJ2QX(list0[i], Pudp, Ptfo, Pcert, Ptls13)
+                    node = TJ2QX(list0[i], Pudp, Ptfo, Pcert0, PTls13)
                     node = tag0 != "" ? URI_TAG(node, tag0) : node
                 } else if (type == "https" && list0[i].indexOf(",") == -1) {
                     if (listi.indexOf("@") != -1) {
-                        node = HPS2QX(list0[i], Ptfo, Pcert, Ptls13)
+                        node = HPS2QX(list0[i], Ptfo, Pcert0, PTls13)
                         node = tag0 != "" ? URI_TAG(node, tag0) : node
                     } else {
                         var listh = Base64.decode(listi.split("https://")[1].split("#")[0])
                         listh = "https://" + listh + "#" + listi.split("https://")[1].split("#")[1]
-                        node = HPS2QX(listh, Ptfo, Pcert, Ptls13)
+                        node = HPS2QX(listh, Ptfo, Pcert0, PTls13)
                         node = tag0 != "" ? URI_TAG(node, tag0) : node
                     }
                 } else if (QuanXK.some(NodeCheck)) {
-                    node = QX_TLS(isQuanX(list0[i])[0])
+                    node = QX_TLS(isQuanX(list0[i])[0], Pcert0, PTls13)
                 } else if (SurgeK.some(NodeCheck)) {
-                    node = QX_TLS(Surge2QX(list0[i])[0])
+                    node = QX_TLS(Surge2QX(list0[i])[0], Pcert0, PTls13)
                 } else if (LoonK.some(NodeCheck)) {
                     node = Loon2QX(list0[i])
                 }
@@ -1122,8 +1122,8 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
 }
 
 // qx 类型 tls/udp 验证问题
-function QX_TLS(cnt,Pcert,Ptls13) {
-  var cert0 = Pcert == 1? "tls-verification=true, " : "tls-verification=false, "
+function QX_TLS(cnt,Pcert0,PTls13) {
+  var cert0 = Pcert0 == 1? "tls-verification=true, " : "tls-verification=false, "
   if(cnt.indexOf("tls-verification") != -1){
     cnt = cnt.replace(RegExp("tls\-verification.*?\,", "gmi"), cert0)
   }else if(cnt.indexOf("obfs=over-tls")!=-1 || cnt.indexOf("obfs=wss")!=-1){
@@ -1162,7 +1162,7 @@ function SIP2QuanX (cnt) {
 
 //http=example.com:443, username=name, password=pwd, over-tls=true, tls-host=example.com, tls-verification=true, tls13=true, fast-open=false, udp-relay=false, tag=http-tls-02
 //HTTPS 类型 URI 转换成 QUANX 格式
-function HPS2QX(subs, Ptfo, Pcert, Ptls13) {
+function HPS2QX(subs, Ptfo, Pcert0, PTls13) {
     var server = subs.replace("https://", "").trim()//Base64.decode(subs.replace("https://", "")).trim().split("\u0000")[0];
     var nss = []
     if (server != "") {
@@ -1171,9 +1171,9 @@ function HPS2QX(subs, Ptfo, Pcert, Ptls13) {
         var pwd = "password=" + server.split("@")[0].split(":")[1];
         var tag = "tag=" + server.split("#")[1];
         var tls = "over-tls=true";
-        var cert = Pcert != 0 ? "tls-verification=true" : "tls-verification=false";
+        var cert = Pcert0 != 0 ? "tls-verification=true" : "tls-verification=false";
         var tfo = Ptfo == 1 ? "fast-open=true" : "fast-open=false";
-        var tls13 = Ptls13 == 1 ? "tls13=true" : "tls13=false";
+        var tls13 = PTls13 == 1 ? "tls13=true" : "tls13=false";
         nss.push(ipport, uname, pwd, tls, cert, tfo, tls13, tag)
     }
     var QX = nss.join(",");
@@ -1181,7 +1181,7 @@ function HPS2QX(subs, Ptfo, Pcert, Ptls13) {
 }
 
 //quantumult 格式的 vmess URI 转换
-function VQ2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
+function VQ2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
   var server = String(Base64.decode(subs.replace("vmess://", "").trim()).split("\u0000")[0])
   var node = ""
   var ip = "vmess=" + server.split(",")[1].trim() + ":" + server.split(",")[2].trim() + ", " + "method=aes-128-gcm, " + "password=" + server.split(",")[4].split("\"")[1] + ", "
@@ -1208,8 +1208,8 @@ function VQ2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
     obfs = obfs + host
   }
   if (obfs.indexOf("obfs=over-tls") != -1 || obfs.indexOf("obfs=wss") != -1) {
-    var cert = Pcert != 0 || subs.indexOf("allowInsecure=1") != -1 ? "tls-verification=false, " : "tls-verification=true, "
-    var tls13 = Ptls13 == 1 ? "tls13=true, " : ""
+    var cert = Pcert0 != 0 || subs.indexOf("allowInsecure=1") != -1 ? "tls-verification=false, " : "tls-verification=true, "
+    var tls13 = PTls13 == 1 ? "tls13=true, " : ""
     obfs = obfs + cert + tls13
   }
   node = node + obfs + tag
@@ -1218,7 +1218,7 @@ function VQ2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
 
 
 //Shadowrocket 格式的 vmess URI 转换
-function VR2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
+function VR2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
   var server = String(Base64.decode(subs.replace("vmess://", "").split("?remarks")[0]).trim()).split("\u0000")[0]
   var node = ""
   var ip = "vmess=" + server.split("@")[1] + ", " + "method=aes-128-gcm, " + "password=" + server.split("@")[0].split(":")[1] + ", "
@@ -1243,8 +1243,8 @@ function VR2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
     obfs = obfs + host
   }
   if (obfs.indexOf("obfs=over-tls") != -1 || obfs.indexOf("obfs=wss") != -1) {
-    var cert = Pcert != 0 || subs.indexOf("allowInsecure=1") != -1 ? "tls-verification=false, " : "tls-verification=true, "
-    var tls13 = Ptls13 == 1 ? "tls13=true, " : ""
+    var cert = Pcert0 != 0 || subs.indexOf("allowInsecure=1") != -1 ? "tls-verification=false, " : "tls-verification=true, "
+    var tls13 = PTls13 == 1 ? "tls13=true, " : ""
     obfs = obfs + cert + tls13
   }
   node = node + obfs + tag
@@ -1253,10 +1253,10 @@ function VR2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
 
 
 //V2RayN uri转换成 QUANX 格式
-function V2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
+function V2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
   //console.log("v2 type",subs)
-  var cert = Pcert
-  var tls13 = Ptls13
+  var cert = Pcert0
+  var tls13 = PTls13
   var server = String(Base64.decode(subs.replace("vmess://", "")).trim()).split("\u0000")[0];
   var nss = [];
   if (server != "") {
@@ -1284,11 +1284,11 @@ function V2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
 }
 
 // Vmess obfs 参数
-function Pobfs(jsonl, Pcert, Ptls13) {
+function Pobfs(jsonl, Pcert0, PTls13) {
   var obfsi = [];
-  var cert = Pcert;
+  var cert = Pcert0;
   tcert = cert == 0 ? "tls-verification=false" : "tls-verification=true";
-  tls13 = Ptls13 == 1 ? "tls13=true" : "tls13=false"
+  tls13 = PTls13 == 1 ? "tls13=true" : "tls13=false"
   if (jsonl.net == "ws" && jsonl.tls == "tls") {
     obfs0 = "obfs=wss, " + tcert + ", " + tls13 + ", ";
     uri0 = jsonl.path && jsonl.path != "" ? "obfs-uri=" + jsonl.path : "obfs-uri=/";
@@ -1436,7 +1436,7 @@ function SSR2QX(subs, Pudp, Ptfo) {
 }
 
 //Trojan 类型 URI 转换成 QX
-function TJ2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
+function TJ2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
     var ntrojan = []
     var cnt = subs.split("trojan://")[1]
     type = "trojan=";
@@ -1449,10 +1449,10 @@ function TJ2QX(subs, Pudp, Ptfo, Pcert, Ptls13) {
     obfs = "over-tls=true";
     pcert = cnt.indexOf("allowInsecure=0") != -1 ? "tls-verification=true" : "tls-verification=false";
     thost = cnt.indexOf("sni=") != -1? "tls-host="+cnt.split("sni=")[1].split(/&|#/)[0]:""
-    ptls13 = Ptls13 == 1 ? "tls13=true" : "tls13=false"
-    if (Pcert == 0) { 
+    ptls13 = PTls13 == 1 ? "tls13=true" : "tls13=false"
+    if (Pcert0 == 0) { 
       pcert = "tls-verification=false" 
-    } else if (Pcert == 1) {
+    } else if (Pcert0 == 1) {
       pcert = "tls-verification=true"
     }
     pudp = Pudp == 1 ? "udp-relay=false" : "udp-relay=false";
@@ -2118,7 +2118,7 @@ function CV2QX(cnt) {
   //$notify(cert)
   if (Pcert0 == 1 && cnt.tls) {
     cert = "tls-verification=true"
-  } else if (Pcert0 == 1 && cnt.tls) {
+  } else if (Pcert0 != 1 && cnt.tls) {
     cert = "tls-verification=false"
   }
   node = "vmess="+[ipt, pwd, mtd, udp, tfo, obfs, ohost, ouri, cert, tag].filter(Boolean).join(", ")
@@ -2134,10 +2134,11 @@ function CT2QX(cnt) {
   pwd = "password=" + cnt.password
   otls = "over-tls=true"
   cert = cnt["skip-cert-verify"] ? "tls-verification=false" : "tls-verification=true"
-  cert = Pcert0 == 1 ? "tls-verification=true" : "tls-verification=false" 
+  cert = Pcert0 == 1 ? "tls-verification=true" : "tls-verification=false"
+  tls13 = PTls13 == 1 ? "tls13=true" : "tls13=false"
   udp = cnt.udp ? "udp-relay=false" : "udp-relay=false"
   tfo = cnt.tfo ? "fast-open=true" : "fast-open=false"
-  node = "trojan="+[ipt, pwd, otls, cert, udp, tfo, tag].filter(Boolean).join(", ")
+  node = "trojan="+[ipt, pwd, otls, cert, tls13, udp, tfo, tag].filter(Boolean).join(", ")
   //console.log(node)
   return node
 
