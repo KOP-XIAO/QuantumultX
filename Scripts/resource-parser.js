@@ -1,7 +1,7 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-08-22 19:25⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-08-24 11:45⟧
 ----------------------------------------------------------
-🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_KOP_bot
+🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
 🗣 🆃🄷🄰🄽🄺🅂 🆃🄾  @Jamie CHIEN, @M**F**, @c0lada, @Peng-YM
 
@@ -35,10 +35,14 @@
   ❖ $type0/1/2/3/4/5 占位符，将节点类型(ss/ssr/vmess 等)作为可操作参数，如
     ∎ rename=@|$type2
     ∎ 样式分别为 "𝐬𝐬","𝐒𝐒","🅢🅢","🆂🆂","ⓢⓢ","🅂🅂"
+  ❖ $index0/1/2/3/4/5/6 占位符，将节点的序号作为可操作参数，如
+    ∎ rename=@「$index1」
+    ∎ 样式分别为 1\①\❶\⓵\𝟙\¹\₁
   ❖ $emoji1/2 占位符，将节点地区emoji(🇭🇰 🇯🇵 等)作为可操作参数，如
     ∎ rename=@「$emoji1」
   ❖ $tag 占位符，将订阅的 tag 作为可操作参数，如
     ∎ rename=@「$tag」
+
 ⦿ suffix=-1/1 将节点类型做为前缀/后缀 添加在节点名中, 如 「𝗌𝗌」 「𝖵𝗆𝖾𝗌𝗌」
 ⦿ ptn=1-6, 分别将节点名中的英文替换成花样字 ⇒ 🅰/🄰/𝐀/𝗮/𝔸/𝕒
 ⦿ npt=1-6, 分别将节点名中的数字替换成花样数字 ⇒ ①\❶\⓵\𝟙\¹\₁
@@ -107,7 +111,7 @@ content0 = content0.indexOf("DOCTYPE html") != -1 && link0.indexOf("github.com")
 
 
 var para = /^(http|https)\:\/\//.test(link0) ? link0 : content0.split("\n")[0];
-var para1 = para.slice(para.indexOf("#") + 1).replace(/\$type/g,"node_type_para_prefix").replace(/\$emoji/g,"node_emoji_flag_prefix").replace(/\$tag/g,"node_tag_prefix") //防止参数中其它位置也存在"#"
+var para1 = para.slice(para.indexOf("#") + 1).replace(/\$type/g,"node_type_para_prefix").replace(/\$emoji/g,"node_emoji_flag_prefix").replace(/\$tag/g,"node_tag_prefix").replace(/\$index/g,"node_index_prefix") //防止参数中其它位置也存在"#"
 var mark0 = para.indexOf("#") != -1 ? true : false; //是否有參數需要解析
 var Pinfo = mark0 && para1.indexOf("info=") != -1 ? para1.split("info=")[1].split("&")[0] : 0;
 var ntf_flow = 0;
@@ -310,6 +314,7 @@ function ResourceParse() {
       if (Psuffix==1 || Psuffix==-1) {total = Psuffix == 1? total.map(type_suffix):total.map(type_prefix)
       }
       total = total.map(type_handle).map(emoji_prefix_handle).map(tag_handle)
+      total = para1.indexOf("node_index_prefix")!=-1 ?index_handle(total):total
       total = TagCheck_QX(total).join("\n") //节点名检查
       if (Pcnt == 1) {$notify("解析后最终返回内容" , "节点数量: " +total.split("\n").length, total)}
       total = Base64.encode(total) //强制节点类型 base64 加密后再导入 Quantumult X
@@ -589,6 +594,7 @@ function getnode_type(item,ind) {
   }
 }
 
+
 // 操作節點類型佔位符
 function type_handle(item) {
   if(item.indexOf("node_type_para_prefix")!=-1) {
@@ -596,6 +602,22 @@ function type_handle(item) {
   }
   return item
 }
+
+// 节点序号占位符处理
+function index_handle(item) {
+  items = item.map(item=>item.trim()).filter(Boolean)
+  let b=Array.from(new Array(items.length),(val,index)=>index+1);
+  //console.log(b[0])
+  for (var i=0; i< items.length;i++){
+    ind = items[i].split("node_index_prefix")[1][0]
+    ind = !/^(0|1|2|3|4|5)$/.test(ind) ? 0 : ind
+    console.log("handle index"+ind)
+    items[i] = items[i].replace(/node_index_prefix(\d{0,1})/g,PatternN((i+1).toString(),"",ind))
+  }
+  console.log(items)
+  return items
+}
+
 
 // 操作emoji占位符
 function emoji_prefix_handle(item) {
