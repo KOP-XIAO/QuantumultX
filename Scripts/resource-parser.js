@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-08-24 11:45⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-08-27 11:45⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -2185,8 +2185,13 @@ function CSSR2QX(cnt) {
   mtd = "method="+ cnt.cipher
   udp = cnt.udp ? "udp-relay=true" : "udp-relay=false"
   tfo = cnt.tfo ? "fast-open=true" : "fast-open=false"
-  prot = "ssr-protocol=" + cnt.protocol 
-  ppara = "ssr-protocol-param=" + cnt["protocol-param"]
+  prot = "ssr-protocol=" + cnt.protocol
+  if (typeof(cnt["protocol-param"]) == "string") {
+    ppara = "ssr-protocol-param=" + cnt["protocol-param"]
+  } else if (typeof(cnt["protocol-param"]) == "object") {
+    console.log(typeof(cnt["protocol-param"]))
+    ppara = "ssr-protocol-param=" + JSON.stringify(cnt["protocol-param"]).replace(/{|}|\s|"/g,"")
+  }
   obfs = "obfs=" + cnt.obfs
   ohost = "obfs-host=" + cnt["obfs-param"]
   node = "shadowsocks="+[ipt, pwd, mtd, udp, tfo, prot, ppara, obfs, ohost, tag].filter(Boolean).join(", ")
