@@ -1151,7 +1151,7 @@ function QX_TLS(cnt,Pcert0,PTls13) {
   }else if(cnt.indexOf("obfs=over-tls")!=-1 || cnt.indexOf("obfs=wss")!=-1){
     cnt = cnt.replace(new RegExp("tag.*?\=", "gmi"), cert0+"tag=")
   }
-  if (cnt.trim().indexOf("shadowsocks")!=0) { //关闭非 ss/ssr 类型的 udp
+  if (cnt.trim().indexOf("shadowsocks")!=0 || cnt.trim().indexOf("trojan")!=0) { //关闭非 ss/ssr 类型的 udp
     udp =  "udp-relay=false, "
     if(cnt.indexOf("udp-relay") != -1){
       var cnt = cnt.replace(RegExp("udp\-relay.*?\,", "gmi"), udp)
@@ -2236,7 +2236,7 @@ function CT2QX(cnt) {
   cert = cnt["skip-cert-verify"] ? "tls-verification=false" : "tls-verification=true"
   cert = Pcert0 == 1 ? "tls-verification=true" : "tls-verification=false"
   tls13 = PTls13 == 1 ? "tls13=true" : "tls13=false"
-  udp = cnt.udp ? "udp-relay=false" : "udp-relay=false"
+  udp = cnt.udp ? "udp-relay=true" : "udp-relay=false"
   tfo = cnt.tfo ? "fast-open=true" : "fast-open=false"
   node = "trojan="+[ipt, pwd, otls, cert, tls13, udp, tfo, tag].filter(Boolean).join(", ")
   //console.log(node)
@@ -2264,7 +2264,7 @@ function CH2QX(cnt){
 
 // UDP/TFO 参数 (强制 surge/quanx 类型转换)
 function XUDP(cnt,pudp) {
-    var udp = pudp == 1 && cnt.trim().indexOf("shadowsocks")==0 ? "udp-relay=true, " : "udp-relay=false, "
+    var udp = pudp == 1 && (cnt.trim().indexOf("shadowsocks")==0 || cnt.trim().indexOf("trojan")==0) ? "udp-relay=true, " : "udp-relay=false, "
     if(cnt.indexOf("udp-relay") != -1){
         var cnt0 = cnt.replace(RegExp("udp\-relay.*?\,", "gmi"), udp)
     }else{
