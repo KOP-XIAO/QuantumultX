@@ -1478,7 +1478,7 @@ function TJ2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
     } else if (Pcert0 == 1) {
       pcert = "tls-verification=true"
     }
-    pudp = Pudp == 1 ? "udp-relay=false" : "udp-relay=false";
+    pudp = Pudp == 1 ? "udp-relay=true" : "udp-relay=false";
     ptfo = Ptfo == 1 ? "fast-open=true" : "fast-open=false";
     tag = cnt.indexOf("#") != -1 ? "tag=" + decodeURIComponent(cnt.split("#")[1]) : "tag= [trojan]" + ip
     ntrojan.push(type + ip, pwd, obfs, pcert, thost, ptls13, pudp, ptfo, tag)
