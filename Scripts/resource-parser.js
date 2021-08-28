@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-08-27 11:45⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-08-28 11:45⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -307,14 +307,14 @@ function ResourceParse() {
       total = total.map(Rename);
     }
     if (Psrename) { total = RenameScript(total, Psrename) }
-    if (Psort0) {
-      total = QXSort(total, Psort0);
-    }
     if (total.length > 0){
       if (Psuffix==1 || Psuffix==-1) {total = Psuffix == 1? total.map(type_suffix):total.map(type_prefix)
       }
-      total = total.map(type_handle).map(emoji_prefix_handle).map(tag_handle)
-      total = para1.indexOf("node_index_prefix")!=-1 ?index_handle(total):total
+      total = total.map(type_handle).map(emoji_prefix_handle).map(tag_handle) //各类节点名操作
+      if (Psort0) { //排序操作
+        total = QXSort(total, Psort0);
+      }
+      total = para1.indexOf("node_index_prefix")!=-1 ?index_handle(total):total // 节点序号操作
       total = TagCheck_QX(total).join("\n") //节点名检查
       if (Pcnt == 1) {$notify("解析后最终返回内容" , "节点数量: " +total.split("\n").length, total)}
       total = Base64.encode(total) //强制节点类型 base64 加密后再导入 Quantumult X
