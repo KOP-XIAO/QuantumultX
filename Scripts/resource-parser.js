@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-08-29 22:25⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-08-29 23:15⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1555,16 +1555,6 @@ function SSD2QX(subs, Pudp, Ptfo) {
 
 // 纠正部分不规范的写法(没有把 tag 写在最后)
 function QXFix(cntf) {
-  var cnti = cntf.replace(/tag\s+\=/,"tag=").replace("chacha20-poly","chacha20-ietf-poly")
-  var hd = cnti.split("tag=")[0]
-  var tag = "tag="+cnti.split("tag=")[1].split(",")[0]
-  var tail = cnti.split(tag+",")
-  cnti = tail.length<=1?  cntf : cntf //String(hd + tail[1] +"," + tag)
-  return cnti
-}
-
-// 纠正部分不规范的写法(没有把 tag 写在最后)
-function QXFix(cntf) {
   //console.log("hh"+cntf)
   var cnti = cntf.replace(/tag\s+\=/,"tag=").replace("chacha20-poly","chacha20-ietf-poly")
   var hd = cnti.split("tag=")[0]
@@ -1572,6 +1562,22 @@ function QXFix(cntf) {
   var tail = cnti.split(tag+",")
   cnti = tail.length<=1?  cntf : String(hd + tail[1].split("\r")[0] +"," + tag)
   return cnti
+}
+
+// 用于过滤非节点部分（比如整份配置中其它内容）,同时纠正部分不规范的写法(没有把 tag 写在最后)
+function isQuanX(content) {
+    var cnts = content.split("\n");
+    var nlist = []
+    for (var i = 0; i < cnts.length; i++) {
+        var cnti = cnts[i];
+        if (cnti.indexOf("=") != -1 && cnti.indexOf("tag") != -1) {
+            var cnt = cnti.split("=")[0].trim()
+            if (cnt == "http" || cnt == "shadowsocks" || cnt == "trojan" || cnt == "vmess") {
+                nlist.push(QXFix(cnti))
+            }
+        }
+    }
+    return nlist
 }
 
 //surge script/rewrite - > quanx
