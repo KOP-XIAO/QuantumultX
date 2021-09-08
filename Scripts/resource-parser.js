@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-09-05 22:45⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-09-08 17:45⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -263,7 +263,7 @@ function ResourceParse() {
     flag = 3;
     total = Rule_Handle(content0.split("\n"), Pout0, Pin0).filter(Boolean);
     if (Preg && total.length!=0) { // 正则筛选规则 filter
-    total = total.map(Regex).filter(Boolean).join("\n") 
+    total = total.map(Regex).filter(Boolean) 
     RegCheck(total, "分流引用", Preg)} 
     if (Preplace) { total = ReplaceReg(total, Preplace) }
     if (Ppolicyset) {total = policy_sets(total, Ppolicyset)}
@@ -889,7 +889,7 @@ function Rcheck(content, param) {
     } //无参数
 }
 
-//分流规则转换及过滤，可用于 surge 及 quanx 的 rule-list
+//分流规则转换及过滤(in&out)，可用于 surge 及 quanx 的 rule-list
 function Rule_Handle(subs, Pout, Pin) {
     cnt = subs //.split("\n");
     Tin = Pin; //保留参数
@@ -1027,6 +1027,7 @@ function policy_sets(cnt,para) {
   console.log(cnt)
 }
 
+//策略指定
 function filter_set(cnt,para){
   if (cnt){
     paras=[para.split("@")[0],para.slice(para.split("@")[0].length+"@".length)]
@@ -1844,6 +1845,7 @@ function get_emoji(emojip, sname) {
     "🇨🇾": ["CY","塞浦路斯"],
     "🇨🇷": ["哥斯达黎加"],
     "🇹🇳": ["突尼斯"],
+    "🇵🇦": ["巴拿马","巴拿馬"],
     "🇨🇳": ["CN", "China", "回国", "中国","中國", "江苏", "北京", "上海", "广州", "深圳", "杭州", "徐州", "青岛", "宁波", "镇江", "back"],
   }
     str1 = JSON.stringify(Lmoji)
