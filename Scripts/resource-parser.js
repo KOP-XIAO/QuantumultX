@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-09-10 20:45⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-09-11 09:45⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -7,15 +7,15 @@
 
 🤖 主要功能: 
 ❶ 将其它格式的⟦服务器订阅⟧解析成 𝐐𝐮𝐚𝐧𝐭𝐮𝐦𝐮𝐥𝐭 𝐗 格式
-☑︎ 支持 𝐕2𝐫𝐚𝐲𝐍/𝗦𝗦(𝗥/𝗗)/𝗛𝗧𝗧𝗣(𝗦)/𝗧𝗿𝗼𝗷𝗮𝗻/𝗤𝘂𝗮𝗻𝘁𝘂𝗺𝘂𝗹𝘁(𝗫)/𝗦𝘂𝗿𝗴𝗲/𝐂𝐥𝐚𝐬𝐡/𝐒𝐡𝐚𝐝𝐨𝐰𝐫𝐨𝐜𝐤𝐞𝐭/𝐋𝐨𝐨𝐧 格式 
+☑︎ 支持 𝐕2𝐫𝐚𝐲𝐍/𝗦𝗦(𝗥/𝗗)/𝗛𝗧𝗧𝗣(𝗦)/𝗧𝗿𝗼𝗷𝗮𝗻/𝗤𝘂𝗮𝗻𝘁𝘂𝗺𝘂𝗹𝘁(𝗫)/𝗦𝘂𝗿𝗴𝗲/𝐂𝐥𝐚𝐬𝐡/𝐒𝐡𝐚𝐝𝐨𝐰𝐫𝐨𝐜𝐤𝐞𝐭/𝐋𝐨𝐨𝐧 格式
 ☑︎ 提供说明 1⃣️ 中的可选个性化参数(筛选、重命名 等)
 ❷ 𝗿𝗲𝘄𝗿𝗶𝘁𝗲(重写) & 𝗳𝗶𝗹𝘁𝗲𝗿(分流) 的 转换 & 筛选 
 ☑︎ 用于禁用/修改远程引用中某(几)项 𝗿𝗲𝘄𝗿𝗶𝘁𝗲/𝗵𝗼𝘀𝘁𝗻𝗮𝗺𝗲/𝗳𝗶𝗹𝘁𝗲𝗿
 ☑︎ 𝐒𝐮𝐫𝐠𝐞/𝐂𝐥𝐚𝐬𝐡 类型规则 𝗹𝗶𝘀𝘁 与 模块 𝐦𝐨𝐝𝐮𝐥𝐞 的解析使用
 ----------------------------------------------------------
-0️⃣ ⟦原始链接⟧ 后加 "#" 使用, 不同参数用 "&" 连接: 
+0️⃣ 在 ⟦订阅链接⟧ 后加 "#" 使用, 不同参数用 "&" 连接: 
 ⚠️ ☞ https://mysub.com#emoji=1&tfo=1&in=香港+台湾
-❖ 本地资源片段引用, 请将参数 "#𝗶𝗻=𝘅𝘅𝘅." 填入文件第 ① 行 ❖
+❖ 本地资源片段引用, 请将参数如 "#𝗶𝗻=𝘅𝘅𝘅." 填入文件第 ① 行 ❖
 ❖ 🚦 支持中文, "操作" 以下特殊字符时请先替换 🚦
   ∎ "+"⇒"%2B", 空格⇒"%20", "@"⇒"%40", "&"⇒"%26", "."⇒"\."
 
@@ -24,7 +24,7 @@
 ⦿ emoji=1(国行设备用2)/-1, 添加/删除节点名内地区旗帜;
 ⦿ udp=1/-1, tfo=1/-1, 分别强制开启(关闭) 𝐮𝐝𝐩-𝐫𝐞𝐥𝐚𝐲/𝐟𝐚𝐬𝐭-𝐨𝐩𝐞𝐧;
 ⦿ tls13=1, cert=1, 分别开启 𝐭𝐥𝐬1.3 及 𝐭𝐥𝐬 证书验证(默认关闭);
-⦿ in, out, regex, regexout 分别为 保留、删除、正则保留、正则删除 节点;
+⦿ in, out, regex, regout 分别为 保留、删除、正则保留、正则删除 节点;
   ❖ in, out 中多参数(逻辑"或")用 "+", 逻辑"与"用 "." 表示;
   ❖ in/out/regex/regout 均对节点的完整信息进行匹配(类型、端口、加密等);
   ❖ 示范: "in=香港.0\.2倍率+台湾&out=香港%20BGP&regex=(?i)iplc"
@@ -265,8 +265,12 @@ function ResourceParse() {
     total = Rule_Handle(content0.split("\n"), Pout0, Pin0).filter(Boolean);
     if (Preg && total.length!=0) { // 正则筛选规则 filter
     total = total.map(Regex).filter(Boolean) 
+    RegCheck(total, "分流引用", "regex", Preg)
+  } 
+    if (Pregout && total.length!=0) { // 正则删除规则 filter
     total = total.map(RegexOut).filter(Boolean)
-    RegCheck(total, "分流引用", Preg)} 
+    RegCheck(total, "分流引用", "regout", Pregout)
+  }
     if (Preplace) { total = ReplaceReg(total, Preplace) }
     if (Ppolicyset) {total = policy_sets(total, Ppolicyset)}
     total = total.join("\n")
@@ -286,9 +290,9 @@ function ResourceParse() {
     }
     if (Pin0 || Pout0) { total = Filter(total, Pin0, Pout0) } // in & out 
     if (Preg) { total = total.map(Regex).filter(Boolean)  // regex
-      RegCheck(total, "节点订阅", Preg)} 
-    if (Pregout) { total = total.map(RegexOut).filter(Boolean)  // regex
-      RegCheck(total, "节点订阅", Preg)} 
+      RegCheck(total, "节点订阅", "regex", Preg)} 
+    if (Pregout) { total = total.map(RegexOut).filter(Boolean)  // regex out
+      RegCheck(total, "节点订阅", "regout", Pregout)} 
     if (Psfilter) { total = FilterScript(total, Psfilter) }
     if (Prrname) {
       Prn = Prrname;
@@ -378,12 +382,12 @@ function flowcheck(cnt) {
 }
 
 // regex 后的检查
-function RegCheck(total, typen, regpara) {
+function RegCheck(total, typen, paraname,regpara) {
 	if(total.length == 0){ 
-		$notify("‼️ " + typen + "  ➟ " + "⟦" + subtag + "⟧", "⛔️ 筛选正则: regex=" + regpara, "⚠️ 筛选后剩余项为 0️⃣ , 请检查正则参数及原始链接", nan_link)
+		$notify("‼️ " + typen + "  ➟ " + "⟦" + subtag + "⟧", "⛔️ 筛选正则: " + paraname + "=" + regpara, "⚠️ 筛选后剩余项为 0️⃣ , 请检查正则参数及原始链接", nan_link)
 	}else if((typen != "节点订阅" && Pntf0 !=0) || (typen == "节点订阅" && Pntf0 ==1)){
 		var nolist = total.length <= 10 ? emojino[total.length] : total.length
-		$notify("🤖 " + typen + "  ➟ " + "⟦" + subtag + "⟧", "⛔️ 筛选正则: regex=" + regpara, "⚠️ 筛选后剩余以下" + nolist + "个匹配项 \n ⨷ " + total.join("\n ⨷ "), sub_link)
+		$notify("🤖 " + typen + "  ➟ " + "⟦" + subtag + "⟧", "⛔️ 筛选正则: " + paraname + "=" + regpara, "⚠️ 筛选后剩余以下" + nolist + "个匹配项 \n ⨷ " + total.join("\n ⨷ "), sub_link)
 	}
 }
 //判断订阅类型
@@ -826,9 +830,9 @@ function Rewrite_Filter(subs, Pin, Pout,Preg,Pregout) {
     }
     if (Nlist.length == 0) { $notify("🤖 " + "重写引用  ➟ " + "⟦" + subtag + "⟧", "⛔️ 筛选参数: " + pfi + pfo, "⚠️ 筛选后剩余rewrite规则数为 0️⃣ 条, 请检查参数及原始链接", nan_link) }
     if(Preg){ Nlist = Nlist.map(Regex).filter(Boolean) // regex to filter rewrites
-    	RegCheck(Nlist, "重写引用", Preg) }
+    	RegCheck(Nlist, "重写引用", "regex", Preg) }
     if(Pregout){ Nlist = Nlist.map(RegexOut).filter(Boolean) // regex to delete rewrites
-      RegCheck(Nlist, "重写引用", Preg) }
+      RegCheck(Nlist, "重写引用", "regout", Pregout) }
     if (hostname != "") { Nlist.push(hostname) }
     Nlist =Phide ==1? Nlist : [...dwrite,...Nlist]
     return Nlist
@@ -875,7 +879,9 @@ function HostNamecheck(content, parain, paraout) {
         $notify("🤖 " + "重写引用  ➟ " + "⟦" + subtag + "⟧", "⛔️ 筛选参数: " + pfihn + pfohn, "⚠️ 主机名 hostname 中剩余 0️⃣ 项, 请检查参数及原始链接", nan_link)
     }
     if(Preg){ nname = nname.map(Regex).filter(Boolean)
-    	RegCheck(nname, "主机名hostname", Preg) }
+    	RegCheck(nname, "主机名hostname","regex", Preg) }
+    if(Pregout){ nname = nname.map(RegexOut).filter(Boolean)
+      RegCheck(nname, "主机名hostname", "regout", Pregout) }
     hname = "hostname=" + nname.join(", ");
     return hname
 }
