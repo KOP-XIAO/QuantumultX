@@ -101,7 +101,7 @@ function test() {
         return
       }
 
-      if (data.indexOf('premium is not available in your country') !== -1) {
+      if (data.indexOf('Premium is not available in your country') !== -1) {
         resolve('Not Available')
         return
       }
