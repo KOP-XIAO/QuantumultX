@@ -6,7 +6,7 @@ For Quantumult-X /
 
 [task_local]
 
-event-interaction https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/nf_ytb_ui-check.js, tag=YTB/NF 解锁查询, img-url=checkmark.seal.system, enabled=true
+event-interaction https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/nf_ytb_ui-check.js, tag=YouTube/Netflix 解锁查询, img-url=checkmark.seal.system, enabled=true
 
 
 
@@ -34,7 +34,7 @@ var flags = new Map([[ "AC" , "🇦🇨" ] , [ "AF" , "🇦🇫" ] , [ "AI" , "�
 
 !(async () => {
   let result = {
-    title: '📺 NF/YTB 解锁查询',
+    title: '📺 Netflix/YouTube 解锁查询',
     content: '检测失败，请重试',
     content1: '检测失败，请重试'
   }
@@ -142,7 +142,7 @@ function testYTB() {
         return
       }
       
-      if (data.indexOf('premium is not available in your country') !== -1) {
+      if (data.indexOf('Premium is not available in your country') !== -1) {
         resolve('Not Available')
         return
       }
