@@ -44,16 +44,16 @@ var flags = new Map([[ "AC" , "🇦🇨" ] , [ "AF" , "🇦🇫" ] , [ "AI" , "�
     console.log(code)
     
     if (code === 'Not Available') {
-      result['content'] = '----------------------\n\n🛑 该节点未支持 Netflix'
+      result['content'] = '----------------------\n\n🛑 未支持 Netflix'
       //return 
       //console.log(result)
     } else if (code === 'Not Found') {
-      result['content'] = '----------------------\n\n⚠️ 该节点仅支持 Netflix 自制剧'
+      result['content'] = '----------------------\n\n⚠️ 仅支持 Netflix 自制剧'
       //return
     } else if (code === "timeout") {
       result['content'] = "----------------------\n\n测试超时"
     } else {
-      result['content'] = '----------------------\n\n✅ 该节点完整支持 Netflix ➟ ⟦'+flags.get(code.toUpperCase())+code.toUpperCase()+"⟧"
+      result['content'] = '----------------------\n\n✅ 完整支持 Netflix ➟ ⟦'+flags.get(code.toUpperCase())+code.toUpperCase()+"⟧"
     }
     
     return testYTB()
@@ -64,12 +64,12 @@ var flags = new Map([[ "AC" , "🇦🇨" ] , [ "AF" , "🇦🇫" ] , [ "AI" , "�
     
     console.log(code)
     if (code === 'Not Available') {
-      result['content1'] = '⚠️ 该节点未支持 YouTube Premium'
+      result['content1'] = '⚠️ 未支持 YouTube Premium'
       //return
     } else if (code === "timeout") {
       result['content1'] = "🛑 测试超时"
     } else {
-      result['content1'] = "✅ 该节点支持 YouTube Premium"
+      result['content1'] = "✅ 支持 YouTube Premium ➟ ⟦"+flags.get(code.toUpperCase())+code.toUpperCase()+"⟧"
     }
     $done({"title":result["title"],"message":result["content"]+"\n\n"+result["content1"]})
     
@@ -149,7 +149,7 @@ function testYTB() {
       }
       //console.log(data.split("countryCode")[1])
       let region = ''
-      let re = new RegExp('"countryCode":"(.*?)"', 'gm')
+      let re = new RegExp('"GL":"(.*?)"', 'gm')
       let result = re.exec(data)
       if (result != null && result.length === 2) {
         region = result[1]

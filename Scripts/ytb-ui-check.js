@@ -38,12 +38,12 @@ var flags = new Map([[ "AC" , "🇦🇨" ] , [ "AF" , "🇦🇫" ] , [ "AI" , "�
     console.log(code)
     
     if (code === 'Not Available') {
-      result['content'] = '----------------------\n\n🛑 该节点未支持 YouTube Premium'
+      result['content'] = '----------------------\n\n🛑 未支持 YouTube Premium'
       //return
     } else if (code === "timeout") {
       result['content'] = "----------------------\n\n🚦 测试超时"
     } else {
-      result['content'] = '----------------------\n\n✅ 该节点支持 YouTube Premium '
+      result['content'] = '----------------------\n\n✅ 支持 YouTube Premium ➟ ⟦'+flags.get(code.toUpperCase())+code.toUpperCase()+"⟧"
     }
     //$notify(result["title"], output, result["content"], link)
     
@@ -88,7 +88,7 @@ function test() {
       }
       console.log(data)
       let region = ''
-      let re = new RegExp('"countryCode":"(.*?)"', 'gm')
+      let re = new RegExp('"GL":"(.*?)"', 'gm')
       let result = re.exec(data)
       if (result != null && result.length === 2) {
         region = result[1]
