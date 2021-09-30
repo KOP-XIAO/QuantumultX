@@ -29,7 +29,7 @@
 
 
 function json2info(cnt,paras) {
-  var res = "----------------------\n"
+  var res = "----------------------\n\n"
   cnt =JSON.parse(cnt)
   for (i=0;i<paras.length;i++) {
     res = cnt[paras[i]]? res + paran[i] + " : " + cnt[paras[i]] : res
