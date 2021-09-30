@@ -33,23 +33,23 @@ var flags = new Map([[ "AC" , "🇦🇨" ] , [ "AF" , "🇦🇫" ] , [ "AI" , "�
   let result = {
     title: 'Netflix 解锁检测',
     subtitle: output,
-    content: '----------------------\n\n检测失败，请重试',
+    content: '检测失败，请重试',
   }
   await Promise.race([test(FILM_ID),timeOut(5000)])
   .then((code) => {
     console.log(code)
     
     if (code === 'Not Available') {
-      result['content'] = '----------------------\n\n该节点未支持 Netflix'
+      result['content'] = '该节点未解锁 Netflix'
       //return 
       //console.log(result)
     } else if (code === 'Not Found') {
-      result['content'] = '----------------------\n\n该节点仅支持 Netflix 自制剧'
+      result['content'] = '该节点仅支持解锁 Netflix 自制剧'
       //return
     } else if (code === "timeout") {
-      result['content'] = "----------------------\n\n测试超时"
+      result['content'] = "测试超时"
     } else {
-      result['content'] = '----------------------\n\n该节点完整支持 Netflix ➟ ⟦'+flags.get(code.toUpperCase())+code.toUpperCase()+"⟧"
+      result['content'] = '该节点完整解锁 Netflix ➟ ⟦'+flags.get(code.toUpperCase())+" 地区⟧"
     }
     
     //$notify(result["title"], output, result["content"], link)

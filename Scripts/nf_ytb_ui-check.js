@@ -51,7 +51,7 @@ var flags = new Map([[ "AC" , "🇦🇨" ] , [ "AF" , "🇦🇫" ] , [ "AI" , "�
       result['content'] = '----------------------\n\n⚠️ 仅支持 Netflix 自制剧'
       //return
     } else if (code === "timeout") {
-      result['content'] = "----------------------\n\n测试超时"
+      result['content'] = "----------------------\n\n🛑 测试超时"
     } else {
       result['content'] = '----------------------\n\n✅ 完整支持 Netflix ➟ ⟦'+flags.get(code.toUpperCase())+code.toUpperCase()+"⟧"
     }
@@ -93,6 +93,7 @@ function test(filmId) {
     let option = {
       url: BASE_URL + filmId,
       opts: opts,
+      timeout: 4000,
       headers: {
         'User-Agent':
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36',
@@ -121,7 +122,11 @@ function test(filmId) {
         return
       }
       reject('Error')
-    })
+    }, reason => {
+      resolve("timeout")
+      return
+    }
+    )
   })
 }
 
@@ -130,6 +135,7 @@ function testYTB() {
     let option = {
       url: BASE_URL_YTB,
       opts: opts,
+      timeout: 4000,
       headers: {
         'User-Agent':
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36'
@@ -159,6 +165,8 @@ function testYTB() {
         region = 'US'
       }
       resolve(region)
+    }, reason => {
+      resolve("timeout")
     })
   })
 }
