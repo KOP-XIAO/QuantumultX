@@ -6,21 +6,17 @@ For Quantumult-X 598+
 
 [task_local]
 
-event-interaction https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/nf_ytb_ui-check.js, tag=YouTube/Netflix 解锁查询, img-url=checkmark.seal.system, enabled=true
-
-
+event-interaction https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/ytb-ui-check.js, tag=YouTube 查询, img-url=text.magnifyingglass.system, enabled=true
 
 @XIAO_KOP
 
 **/
 
 
-const BASE_URL = 'https://www.netflix.com/title/'
-const BASE_URL_YTB = "https://www.youtube.com/premium"
+const BASE_URL = 'https://www.youtube.com/premium'
 
 const FILM_ID = 81215567
 const link = { "media-url": "https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/img/southpark/7.png" } 
-const policy_name = "Netflix" //填入你的 netflix 策略组名
 
 const arrow = "➟"
 var output = ""
@@ -34,47 +30,26 @@ var flags = new Map([[ "AC" , "🇦🇨" ] , [ "AF" , "🇦🇫" ] , [ "AI" , "�
 
 !(async () => {
   let result = {
-    title: '📺 Netflix/YouTube 解锁查询',
+    title: '📺 YouTube Premium 检测',
     content: '----------------------\n\n检测失败，请重试',
-    content1: '检测失败，请重试'
   }
-
   await Promise.race([test(FILM_ID),timeOut(5000)])
   .then((code) => {
     console.log(code)
     
     if (code === 'Not Available') {
-      result['content'] = '----------------------\n\n🛑 该节点未支持 Netflix'
-      //return 
-      //console.log(result)
-    } else if (code === 'Not Found') {
-      result['content'] = '----------------------\n\n⚠️ 该节点仅支持 Netflix 自制剧'
+      result['content'] = '----------------------\n\n🛑 该节点未支持 YouTube Premium'
       //return
     } else if (code === "timeout") {
-      result['content'] = "----------------------\n\n测试超时"
+      result['content'] = "----------------------\n\n🚦 测试超时"
     } else {
-      result['content'] = '----------------------\n\n✅ 该节点完整支持 Netflix ➟ ⟦'+flags.get(code.toUpperCase())+code.toUpperCase()+"⟧"
+      result['content'] = '----------------------\n\n✅ 该节点支持 YouTube Premium '
     }
+    //$notify(result["title"], output, result["content"], link)
     
-    return testYTB()
-//    $notify(result["title"], output, result["content"]+"\n"+result["content1"], link)
-//    $done({"title":result["title"],"message":result["content"]+"\n"+result["content1"]})
+    //console.log(result)
+    $done({"title":result["title"],"message":result["content"]})
   })
-  .then((code) => {
-    
-    console.log(code)
-    if (code === 'Not Available') {
-      result['content1'] = '⚠️ 该节点未支持 YouTube Premium'
-      //return
-    } else if (code === "timeout") {
-      result['content1'] = "🛑 测试超时"
-    } else {
-      result['content1'] = "✅ 该节点支持 YouTube Premium"
-    }
-    $done({"title":result["title"],"message":result["content"]+"\n\n"+result["content1"]})
-    
-  })
-//  )
 })()
 .finally(() => $done());
 
@@ -88,51 +63,15 @@ function timeOut(delay) {
 }
 
 
-function test(filmId) {
+function test() {
   return new Promise((resolve, reject) => {
     let option = {
-      url: BASE_URL + filmId,
+      url: BASE_URL,
       opts: opts,
       headers: {
         'User-Agent':
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36',
-      },
-    }
-    $task.fetch(option).then (response => {
-      console.log(response.statusCode)
-      if (response.statusCode === 404) {
-        resolve('Not Found')
-        return
-      }
-
-      if (response.statusCode === 403) {
-        resolve('Not Available')
-        return
-      }
-
-      if (response.statusCode === 200) {
-        let url = response.headers['X-Originating-URL']
-        let region = url.split('/')[3]
-        region = region.split('-')[0]
-        if (region == 'title') {
-          region = 'us'
-        }
-        resolve(region)
-        return
-      }
-      reject('Error')
-    })
-  })
-}
-
-function testYTB() {
-  return new Promise((resolve, reject) => {
-    let option = {
-      url: BASE_URL_YTB,
-      opts: opts,
-      headers: {
-        'User-Agent':
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36'
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36',
+        'Accept-Language': 'en',
       },
     }
     $task.fetch(option).then(response=> {
@@ -147,7 +86,7 @@ function testYTB() {
         resolve('Not Available')
         return
       }
-      //console.log(data.split("countryCode")[1])
+      console.log(data)
       let region = ''
       let re = new RegExp('"countryCode":"(.*?)"', 'gm')
       let result = re.exec(data)

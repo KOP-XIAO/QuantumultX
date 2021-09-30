@@ -2,7 +2,7 @@
 
 Thanks to & modified from https://gist.githubusercontent.com/Hyseen/b06e911a41036ebc36acf04ddebe7b9a/raw/nf_check.js
 
-For Quantumult-X / 
+For Quantumult-X 598+
 
 [task-local]
 
@@ -33,23 +33,23 @@ var flags = new Map([[ "AC" , "🇦🇨" ] , [ "AF" , "🇦🇫" ] , [ "AI" , "�
   let result = {
     title: 'Netflix 解锁检测',
     subtitle: output,
-    content: '检测失败，请重试',
+    content: '----------------------\n\n检测失败，请重试',
   }
   await Promise.race([test(FILM_ID),timeOut(5000)])
   .then((code) => {
     console.log(code)
     
     if (code === 'Not Available') {
-      result['content'] = '该节点未解锁 Netflix'
+      result['content'] = '----------------------\n\n该节点未支持 Netflix'
       //return 
       //console.log(result)
     } else if (code === 'Not Found') {
-      result['content'] = '该节点仅支持解锁 Netflix 自制剧'
+      result['content'] = '----------------------\n\n该节点仅支持 Netflix 自制剧'
       //return
     } else if (code === "timeout") {
-      result['content'] = "测试超时"
+      result['content'] = "----------------------\n\n测试超时"
     } else {
-      result['content'] = '该节点完整解锁 Netflix ➟ ⟦'+flags.get(code.toUpperCase())+" 地区⟧"
+      result['content'] = '----------------------\n\n该节点完整支持 Netflix ➟ ⟦'+flags.get(code.toUpperCase())+code.toUpperCase()+"⟧"
     }
     
     //$notify(result["title"], output, result["content"], link)
