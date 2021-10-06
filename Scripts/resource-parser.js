@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-10-04 13:05⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-10-06 10:05⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -76,6 +76,7 @@
   ❖ ⚠️ 把 𝗿𝘂𝗹𝗲-𝘀𝗲𝘁 中 𝐮𝐫𝐥-𝐫𝐞𝐠𝐞𝐱 转成重写时, 必须要加 dst=rewrite;
   ❖ ⚠️ 把 𝐦𝐨𝐝𝐮𝐥𝐞 中的分流规则转换时, 必须要加 dst=filter
 ⦿ cdn=1, 将 github 脚本的地址转换成免翻墙cdn.jsdelivr.net
+⦿ fcr=1, 为分流规则添加 force-cellular参数，强制移动数据
 
 3⃣️ 其他参数
 ⦿ 通知参数 ntf=0/1, 用于 关闭/打开 资源解析器的提示通知
@@ -169,6 +170,7 @@ var Pcdn = para1.indexOf("cdn=") != -1 ? para1.split("cdn=")[1].split("&")[0] : 
 let [flow, exptime, errornode, total] = "";
 var Pdel = mark0 && para1.indexOf("del=") != -1 ? para1.split("del=")[1].split("&")[0] : 0; //删除重复节点
 var typeU = para1.indexOf("type=") != -1 ? para1.split("type=")[1].split("&")[0] : "";
+var Pfcr = para1.indexOf("fcr=") != -1 ? para1.split("fcr=")[1].split("&")[0] : ""; // force-cellular 参数
 
 //花漾字 pattern
 var pat=[]
@@ -958,7 +960,7 @@ function Rule_Handle(subs, Pout, Pin) {
             }
         }
       nlist =Phide ==1? nlist : [...dlist,...nlist]
-        return nlist;
+        //return nlist;
     } else if (Tin != "" && Tin != null) { //if Tout
         var dlist = [];
         for (var i = 0; i < cnt.length; i++) {
@@ -979,10 +981,13 @@ function Rule_Handle(subs, Pout, Pin) {
             }
         } else { $notify("🤖 " + "分流引用  ➟ " + "⟦" + subtag + "⟧", "✅ 保留:" + Tin, "⚠️ 筛选后剩余规则数为 0️⃣ 条, 请检查参数及原始链接", nan_link) }
       nlist =Phide ==1? nlist : [...dlist,...nlist]
-      return nlist;
+      //return nlist;
     } else {  //if Tin
-        return cnt.map(Rule_Policy)
+      nlist = cnt.map(Rule_Policy)
+        //return cnt.map(Rule_Policy)
     }
+  nlist = Pfcr == 1? nlist.filter(Boolean).map(item => item+", force-cellular") : nlist.filter(Boolean)
+  return nlist
 }
 
 function Rule_Policy(content) { //增加、替换 policy
