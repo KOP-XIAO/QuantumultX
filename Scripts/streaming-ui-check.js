@@ -77,7 +77,7 @@ function StreamingCheck(){
   testDisney()
   testDazn()
   setTimeout(function(){
-    $done({"title": result["title"],"message": "\n----------------------"+([result["YouTube"],result["Netflix"],result["Disney"],result["Dazn"]]).join("\n\n") +'\n----------------------\n'+ $environment.params})
+    $done({"title": result["title"],"message": "----------------------\n"+([result["YouTube"],result["Netflix"],result["Disney"],result["Dazn"]]).join("\n\n") +'\n----------------------\n'+ $environment.params})
   },6000)
 }
 
