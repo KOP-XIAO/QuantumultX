@@ -71,7 +71,7 @@ var flags = new Map([[ "AC" , "🇦🇨" ] , [ "AF" , "🇦🇫" ] , [ "AI" , "�
     } else {
       result['content1'] = "✅ 支持 YouTube Premium ➟ ⟦"+flags.get(code.toUpperCase())+code.toUpperCase()+"⟧"
     }
-    $done({"title":result["title"],"message":result["content"]+"\n\n"+result["content1"]})
+    $done({"title":result["title"],"message":result["content"]+"\n\n"+result["content1"]+'\n\n----------------------\n'+$environment.params})
     
   })
 //  )

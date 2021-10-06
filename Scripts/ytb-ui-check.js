@@ -48,7 +48,7 @@ var flags = new Map([[ "AC" , "🇦🇨" ] , [ "AF" , "🇦🇫" ] , [ "AI" , "�
     //$notify(result["title"], output, result["content"], link)
     
     //console.log(result)
-    $done({"title":result["title"],"message":result["content"]})
+    $done({"title":result["title"],"message":result["content"]+'\n\n----------------------\n'+$environment.params})
   })
 })()
 .finally(() => $done());
