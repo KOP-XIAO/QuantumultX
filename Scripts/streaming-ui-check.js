@@ -6,7 +6,7 @@ Thanks to & modified from
 3. https://github.com/CoiaPrant/MediaUnlock_Test/blob/main/check.sh
 
 
-For Quantumult-X 598+
+For Quantumult-X 598+ ONLY!!!
 
 [task_local]
 
@@ -35,7 +35,7 @@ const FILM_ID = 81215567
 const link = { "media-url": "https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/img/southpark/7.png" } 
 const policy_name = "Netflix" //填入你的 netflix 策略组名
 
-const arrow = "➟"
+const arrow = " ➟ "
 var output = ""
 
 var opts = {
@@ -64,7 +64,7 @@ let result = {
   "YouTube": 'YouTube: 检测失败，请重试',
   "Netflix": 'Netflix: 检测失败，请重试',
   "Dazn": "Dazn: 检测失败，请重试",
-  "Disney": "Disney: 检测失败，请重试",
+  "Disney": "Disney+: 检测失败，请重试",
   //"Google": "Google 定位: 检测失败，请重试"
 
 }
@@ -78,14 +78,14 @@ function StreamingCheck(){
   testDazn()
   setTimeout(function(){
     $done({"title": result["title"],"message": "----------------------\n"+([result["YouTube"],result["Netflix"],result["Disney"],result["Dazn"]]).join("\n\n") +'\n----------------------\n'+ $environment.params})
-  },6000)
+  },3600)
 }
 
 function test(filmId) {
     let option = {
       url: BASE_URL + filmId,
       opts: opts,
-      timeout: 5000,
+      timeout: 3500,
       headers: {
         'User-Agent':
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36',
@@ -123,7 +123,7 @@ function testYTB() {
     let option = {
       url: BASE_URL_YTB,
       opts: opts,
-      timeout: 4000,
+      timeout: 3500,
       headers: {
         'User-Agent':
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36'
@@ -164,6 +164,7 @@ function testDisney(){
     let option = {
       url: BASE_URL_DISNEY,
       opts: opts,
+      timeout: 3500,
       headers: {
         'User-Agent':
         'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36'
@@ -217,7 +218,7 @@ function testDazn() {
     url: BASE_URL_Dazn,
     method: "POST",
     opts: opts,
-    timeout: 4000,
+    timeout: 3500,
     headers: {
       'User-Agent':
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36',
