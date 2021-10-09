@@ -1,6 +1,6 @@
 {
     "name":"HotKids",
-    "description":"Crontab Task Gallery",
+    "description":"UI-Interaction Script Gallery",
     "task":[
         "event-interaction https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/ytb-ui-check.js, tag=YouTube 查询, img-url=text.magnifyingglass.system, enabled=true",
         "event-interaction https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/nf-ui-check.js, tag=Netflix 查询, img-url=text.magnifyingglass.system, enabled=true",
