@@ -1,5 +1,5 @@
 {
-    "name":"HotKids",
+    "name":"UI操作脚本合集-Shawn",
     "description":"UI-Interaction Script Gallery",
     "task":[
         "event-interaction https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/ytb-ui-check.js, tag=YouTube 查询, img-url=text.magnifyingglass.system, enabled=true",
