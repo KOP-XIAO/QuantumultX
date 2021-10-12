@@ -6,12 +6,11 @@ For Quantumult-X 598+
 
 [task-local]
 
-event-interaction https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/nf-ui-check.js, tag=Netflix 查询, img-url=text.magnifyingglass.system, enabled=true
+event-interaction https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/nf-ui-check.js, tag=Netflix 查询, img-url=https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Disney.png, enabled=true
 
 @XIAO_KOP
 
 **/
-
 
 const BASE_URL = 'https://www.netflix.com/title/'
 
@@ -31,7 +30,7 @@ var flags = new Map([[ "AC" , "🇦🇨" ] , [ "AF" , "🇦🇫" ] , [ "AI" , "�
 
 !(async () => {
   let result = {
-    title: 'Netflix 解锁检测',
+    title: '  Netflix 解锁检测',
     subtitle: output,
     content: '检测失败，请重试',
   }
@@ -55,7 +54,10 @@ var flags = new Map([[ "AC" , "🇦🇨" ] , [ "AF" , "🇦🇫" ] , [ "AI" , "�
     //$notify(result["title"], output, result["content"], link)
     
     //console.log(result)
-    $done({"title":"Netflix 解锁检测","message":result["content"]})
+    let content = "------------------------------"+"</br></br>"+result["content"]
+    content = content + "</br></br>------------------------------</br>"+"<font color=#6959CD>"+"<b>节点</b> ➟ " + $environment.params+ "</font>"
+    content =`<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + content + `</p>`
+    $done({"title":"Netflix 解锁检测","htmlMessage":content})
   })
 })()
 .finally(() => $done());
@@ -77,7 +79,7 @@ function test(filmId) {
       opts: opts,
       headers: {
         'User-Agent':
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36',
       },
     }
     $task.fetch(option).then (response => {
@@ -86,12 +88,12 @@ function test(filmId) {
         resolve('Not Found')
         return
       }
-
+      
       if (response.statusCode === 403) {
         resolve('Not Available')
         return
       }
-
+      
       if (response.statusCode === 200) {
         let url = response.headers['X-Originating-URL']
         let region = url.split('/')[3]
