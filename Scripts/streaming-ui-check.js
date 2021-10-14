@@ -28,7 +28,6 @@ const link = { "media-url": "https://raw.githubusercontent.com/KOP-XIAO/Quantumu
 const policy_name = "Netflix" //填入你的 netflix 策略组名
 
 const arrow = " ➟ "
-var output = ""
 
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36'
 
@@ -47,15 +46,10 @@ var opts = {
   policy: $environment.params
 };
 
-var opts = {
-  policy: $environment.params
-};
-
 var opts1 = {
   policy: $environment.params,
   redirection: false
 };
-
 
 
 var flags = new Map([[ "AC" , "🇦🇨" ] ,["AE","🇦🇪"], [ "AF" , "🇦🇫" ] , [ "AI" , "🇦🇮" ] , [ "AL" , "🇦🇱" ] , [ "AM" , "🇦🇲" ] , [ "AQ" , "🇦🇶" ] , [ "AR" , "🇦🇷" ] , [ "AS" , "🇦🇸" ] , [ "AT" , "🇦🇹" ] , [ "AU" , "🇦🇺" ] , [ "AW" , "🇦🇼" ] , [ "AX" , "🇦🇽" ] , [ "AZ" , "🇦🇿" ] , ["BA", "🇧🇦"], [ "BB" , "🇧🇧" ] , [ "BD" , "🇧🇩" ] , [ "BE" , "🇧🇪" ] , [ "BF" , "🇧🇫" ] , [ "BG" , "🇧🇬" ] , [ "BH" , "🇧🇭" ] , [ "BI" , "🇧🇮" ] , [ "BJ" , "🇧🇯" ] , [ "BM" , "🇧🇲" ] , [ "BN" , "🇧🇳" ] , [ "BO" , "🇧🇴" ] , [ "BR" , "🇧🇷" ] , [ "BS" , "🇧🇸" ] , [ "BT" , "🇧🇹" ] , [ "BV" , "🇧🇻" ] , [ "BW" , "🇧🇼" ] , [ "BY" , "🇧🇾" ] , [ "BZ" , "🇧🇿" ] , [ "CA" , "🇨🇦" ] , [ "CF" , "🇨🇫" ] , [ "CH" , "🇨🇭" ] , [ "CK" , "🇨🇰" ] , [ "CL" , "🇨🇱" ] , [ "CM" , "🇨🇲" ] , [ "CN" , "🇨🇳" ] , [ "CO" , "🇨🇴" ] , [ "CP" , "🇨🇵" ] , [ "CR" , "🇨🇷" ] , [ "CU" , "🇨🇺" ] , [ "CV" , "🇨🇻" ] , [ "CW" , "🇨🇼" ] , [ "CX" , "🇨🇽" ] , [ "CY" , "🇨🇾" ] , [ "CZ" , "🇨🇿" ] , [ "DE" , "🇩🇪" ] , [ "DG" , "🇩🇬" ] , [ "DJ" , "🇩🇯" ] , [ "DK" , "🇩🇰" ] , [ "DM" , "🇩🇲" ] , [ "DO" , "🇩🇴" ] , [ "DZ" , "🇩🇿" ] , [ "EA" , "🇪🇦" ] , [ "EC" , "🇪🇨" ] , [ "EE" , "🇪🇪" ] , [ "EG" , "🇪🇬" ] , [ "EH" , "🇪🇭" ] , [ "ER" , "🇪🇷" ] , [ "ES" , "🇪🇸" ] , [ "ET" , "🇪🇹" ] , [ "EU" , "🇪🇺" ] , [ "FI" , "🇫🇮" ] , [ "FJ" , "🇫🇯" ] , [ "FK" , "🇫🇰" ] , [ "FM" , "🇫🇲" ] , [ "FO" , "🇫🇴" ] , [ "FR" , "🇫🇷" ] , [ "GA" , "🇬🇦" ] , [ "GB" , "🇬🇧" ] , [ "HK" , "🇭🇰" ] ,["HU","🇭🇺"], [ "ID" , "🇮🇩" ] , [ "IE" , "🇮🇪" ] , [ "IL" , "🇮🇱" ] , [ "IM" , "🇮🇲" ] , [ "IN" , "🇮🇳" ] , [ "IS" , "🇮🇸" ] , [ "IT" , "🇮🇹" ] , [ "JP" , "🇯🇵" ] , [ "KR" , "🇰🇷" ] , [ "LU" , "🇱🇺" ] , [ "MO" , "🇲🇴" ] , [ "MX" , "🇲🇽" ] , [ "MY" , "🇲🇾" ] , [ "NL" , "🇳🇱" ] , [ "PH" , "🇵🇭" ] , [ "RO" , "🇷🇴" ] , [ "RS" , "🇷🇸" ] , [ "RU" , "🇷🇺" ] , [ "RW" , "🇷🇼" ] , [ "SA" , "🇸🇦" ] , [ "SB" , "🇸🇧" ] , [ "SC" , "🇸🇨" ] , [ "SD" , "🇸🇩" ] , [ "SE" , "🇸🇪" ] , [ "SG" , "🇸🇬" ] , [ "TH" , "🇹🇭" ] , [ "TN" , "🇹🇳" ] , [ "TO" , "🇹🇴" ] , [ "TR" , "🇹🇷" ] , [ "TV" , "🇹🇻" ] , [ "TW" , "🇨🇳" ] , [ "UK" , "🇬🇧" ] , [ "UM" , "🇺🇲" ] , [ "US" , "🇺🇸" ] , [ "UY" , "🇺🇾" ] , [ "UZ" , "🇺🇿" ] , [ "VA" , "🇻🇦" ] , [ "VE" , "🇻🇪" ] , [ "VG" , "🇻🇬" ] , [ "VI" , "🇻🇮" ] , [ "VN" , "🇻🇳" ] , [ "ZA" , "🇿🇦"]])
@@ -69,27 +63,16 @@ let result = {
   //"Google": "Google 定位: 检测失败，请重试"
 
 }
-
-//StreamingCheck()
-//
-//function StreamingCheck(){
-//  testYTB()
-//  test(FILM_ID)
-//  //testDisney()
-//  testDazn()
-//  setTimeout(function(){
-//    let content = "------------------------------"+"</br>"+([result["YouTube"],result["Netflix"],result["Dazn"]]).join("</br></br>")
-//    content = content + "</br>------------------------------</br>"+"<font color=#6959CD>"+"<b>节点</b> ➟ " + $environment.params+ "</font>"
-//    content =`<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + content + `</p>`
-//    $done({"title": result["title"], "htmlMessage": content})
-//  },3000)
-//}
+const message = {
+  action: "get_policy_state",
+  content: $environment.params
+};
 
 ;(async () => {
   testYTB()
-  test(FILM_ID)
   testDazn()
-  let { region, status } = await testDisneyPlus()
+  let [{ region, status }] = await Promise.all([testDisneyPlus(),testNf(FILM_ID)])
+  console.log(result["Netflix"])
   console.log(`testDisneyPlus: region=${region}, status=${status}`)
   if (status==STATUS_COMING) {
     //console.log(1)
@@ -104,13 +87,64 @@ let result = {
   } else if (status==STATUS_TIMEOUT) {
     result["Disney"] = "<b>Disney⁺:</b> 测试超时 "
   }
+  
   let content = "------------------------------"+"</br>"+([result["YouTube"],result["Netflix"],result["Disney"],result["Dazn"]]).join("</br></br>")
   content = content + "</br>------------------------------</br>"+"<font color=#6959CD>"+"<b>节点</b> ➟ " + $environment.params+ "</font>"
   content =`<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + content + `</p>`
+  
+  
 //  cnt = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` +'----------------------</br></br>'+result["Disney"]+'</br></br>----------------------</br>'+$environment.params + `</p>`
-  $done({"title":result["title"],"htmlMessage":content})
+
+  
+$configuration.sendMessage(message).then(resolve => {
+    if (resolve.error) {
+      console.log(resolve.error);
+      $done()
+    }
+    if (resolve.ret) {
+      let output=JSON.stringify(resolve.ret[message.content])? JSON.stringify(resolve.ret[message.content]).replace(/\"|\[|\]/g,"").replace(/\,/g," ➟ ") : $environment.params
+      let content = "------------------------------"+"</br>"+([result["YouTube"],result["Netflix"],result["Disney"],result["Dazn"]]).join("</br></br>")
+      content = content + "</br>------------------------------</br>"+"<font color=#6959CD>"+"<b>节点</b> ➟ " + output+ "</font>"
+      content =`<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + content + `</p>`
+      //$notify(typeof(output),output)
+      console.log(output);
+      $done({"title":result["title"],"htmlMessage":content})
+      
+    }
+    //$done();|
+  }, reject => {
+    // Normally will never happen.
+    $done();
+  });  
+  
+  //$done({"title":result["title"],"htmlMessage":content})
 })()
-.finally(() => $done({"title":result["title"],"htmlMessage":`<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">`+'----------------------</br></br>'+"🚥 检测异常"+'</br></br>----------------------</br>'+$environment.params + `</p>`}));
+.finally(() => {
+  
+  $configuration.sendMessage(message).then(resolve => {
+    if (resolve.error) {
+      console.log(resolve.error);
+      $done()
+    }
+    if (resolve.ret) {
+      let output=JSON.stringify(resolve.ret[message.content])? JSON.stringify(resolve.ret[message.content]).replace(/\"|\[|\]/g,"").replace(/\,/g," ➟ ") : $environment.params
+      let content = "------------------------------"+"</br>"+([result["YouTube"],result["Netflix"],result["Disney"],result["Dazn"]]).join("</br></br>")
+      content = content + "</br>------------------------------</br>"+"<font color=#6959CD>"+"<b>节点</b> ➟ " + output+ "</font>"
+      content =`<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + content + `</p>`
+      //$notify(typeof(output),output)
+      console.log(output);
+      $done({"title":result["title"],"htmlMessage":content})
+      
+    }
+    //$done();|
+  }, reject => {
+    // Normally will never happen.
+    $done();
+  }); 
+  
+    $done({"title":result["title"],"htmlMessage":`<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">`+'----------------------</br></br>'+"🚥 检测异常"+'</br></br>----------------------</br>'+ output + `</p>`})
+}
+  );
 
 
 async function testDisneyPlus() {
@@ -219,7 +253,7 @@ function testHomePage() {
     }
     $task.fetch(opts0).then(response => {
       let data = response.body
-      //console.log("homepage"+response.statusCode)
+      console.log("homepage"+response.statusCode)
       if (response.statusCode !== 200 || data.indexOf('unavailable') !== -1) {
         reject('Not Available')
         return
@@ -250,25 +284,35 @@ function timeout(delay = 5000) {
   })
 }
 
-function test(filmId) {
+
+function testNf(filmId) {
+  return new Promise((resolve, reject) =>{
     let option = {
       url: BASE_URL + filmId,
       opts: opts,
       timeout: 3200,
       headers: {
         'User-Agent':
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36',
       },
     }
     $task.fetch(option).then(response => {
+      //$notify("nf:"+response.statusCode)
       console.log("nf:"+response.statusCode)
       if (response.statusCode === 404) {
-        //resolve('Not Found')
+        
         result["Netflix"] = "<b>Netflix: </b>支持自制剧集"
+        console.log("nf:"+result["Netflix"])
+        resolve('Not Found')
+        return 
       } else if (response.statusCode === 403) {
-        //resolve('Not Available')
+        
         //console.log("nfnf")
         result["Netflix"] = "<b>Netflix: </b>未支持"
+        console.log("nf:"+result["Netflix"])
+        $notify("nf:"+result["Netflix"])
+        resolve('Not Available')
+        return
       } else if (response.statusCode === 200) {
         let url = response.headers['X-Originating-URL']
         let region = url.split('/')[3]
@@ -277,15 +321,19 @@ function test(filmId) {
           region = 'us'
         }
         console.log("nf:"+region)
-        //resolve(region)
         result["Netflix"] = "<b>Netflix: </b>完整支持"+ "⟦"+flags.get(region.toUpperCase())+"⟧"
+        //$notify("nf:"+result["Netflix"])
+        resolve("nf:"+result["Netflix"])
+        return 
       }
-      //reject('Error')
     }, reason => {
-      //resolve("timeout")
       result["Netflix"] = "<b>Netflix: </b>检测超时"
+      console.log(result["Netflix"])
+      resolve("timeout")
     }
     )
+  }
+  )
 }
 
 function testYTB() { 
@@ -362,7 +410,7 @@ function testDazn() {
       //reject('Error')
       result["Dazn"] = "<b>Dazn: </b>检测失败"
     } else if (response.statusCode == 200) {//console.log(data.split("countryCode")[1])
-      console.log(data)
+      //console.log(data)
       let region = ''
       let re = new RegExp('"GeolocatedCountry":"(.*?)"', 'gm')
       let ret = re.exec(data)
