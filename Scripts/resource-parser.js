@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-10-13 21:05⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-10-16 14:05⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -76,7 +76,7 @@
   ❖ ⚠️ 把 𝗿𝘂𝗹𝗲-𝘀𝗲𝘁 中 𝐮𝐫𝐥-𝐫𝐞𝐠𝐞𝐱 转成重写时, 必须要加 dst=rewrite;
   ❖ ⚠️ 把 𝐦𝐨𝐝𝐮𝐥𝐞 中的分流规则转换时, 必须要加 dst=filter
 ⦿ cdn=1, 将 github 脚本的地址转换成免翻墙cdn.jsdelivr.net
-⦿ fcr=1, 为分流规则添加 force-cellular参数，强制移动数据
+⦿ fcr=1/2, 为分流规则添加 force-cellular/multi-interface 参数，强制移动数据/混合数据
 
 3⃣️ 其他参数
 ⦿ 通知参数 ntf=0/1, 用于 关闭/打开 资源解析器的提示通知
@@ -987,6 +987,8 @@ function Rule_Handle(subs, Pout, Pin) {
         //return cnt.map(Rule_Policy)
     }
   nlist = Pfcr == 1? nlist.filter(Boolean).map(item => item+", force-cellular") : nlist.filter(Boolean)
+  nlist = Pfcr == 2? nlist.filter(Boolean).map(item => item+", multi-interface") : nlist.filter(Boolean)
+
   return nlist
 }
 
@@ -1005,10 +1007,10 @@ function Rule_Policy(content) { //增加、替换 policy
             nn = cnt[0] + ", " + cnt[1] + ", " + ply0
         } else if (cnt.length == 3 && cnt[2].indexOf("no-resolve") != -1) {
             ply0 = Ppolicy != "Shawn" ? Ppolicy : "Shawn"
-            nn = cnt[0] + ", " + cnt[1] + ", " + ply0 + ", " + cnt[2]
+            nn = cnt[0] + ", " + cnt[1] + ", " + ply0 //+ ", " + cnt[2]
         } else if (cnt.length == 4 && cnt[3].indexOf("no-resolve") != -1) {
             ply0 = Ppolicy != "Shawn" ? Ppolicy : cnt[2]
-            nn = cnt[0] + ", " + cnt[1] + ", " + ply0 + ", " + cnt[3]
+            nn = cnt[0] + ", " + cnt[1] + ", " + ply0 //+ ", " + cnt[3]
         } else if (!RuleK.some(RuleCheck) && content) {
             //$notify("未能解析" + "⟦" + subtag + "⟧" + "其中部分规则:", content, nan_link);
             return ""
