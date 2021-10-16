@@ -310,7 +310,7 @@ function testNf(filmId) {
         //console.log("nfnf")
         result["Netflix"] = "<b>Netflix: </b>未支持"
         console.log("nf:"+result["Netflix"])
-        $notify("nf:"+result["Netflix"])
+       // $notify("nf:"+result["Netflix"])
         resolve('Not Available')
         return
       } else if (response.statusCode === 200) {
