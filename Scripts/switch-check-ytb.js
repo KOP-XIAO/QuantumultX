@@ -2,6 +2,9 @@
 
 Thanks to & modified from 
 1. https://gist.githubusercontent.com/Hyseen/b06e911a41036ebc36acf04ddebe7b9a/raw/nf_check.js
+2. https://github.com/AtlantisGawrGura/Quantumult-X-Scripts/blob/main/media.js
+3. https://github.com/CoiaPrant/MediaUnlock_Test/blob/main/check.sh
+
 
 For Quantumult-X 598+ ONLY!!
 
@@ -37,7 +40,7 @@ $configuration.sendMessage(message).then(resolve => {
     }
     if (resolve.ret) {
         //$notify(JSON.stringify(resolve.ret))
-        output=JSON.stringify(resolve.ret[message.content])? JSON.stringify(resolve.ret[message.content]["candidates"]).replace(/\"|\[|\]/g,"").replace(/\,/g," ➟ ").split(" ➟ ") : $environment.params
+        output=JSON.stringify(resolve.ret[message.content])? JSON.stringify(resolve.ret[message.content]["candidates"]).replace(/\"|\[|\]/g,"").replace(/\,/g," ➟ ").split(" ➟ ") : [$environment.params]
         //$notify(typeof(output),output)
         Check()
         //$done({"title":"策略内容","message":output})
@@ -74,13 +77,13 @@ function Check() {
         $configuration.sendMessage(mes1).then(resolve => {
             if (resolve.error) {
                 console.log(resolve.error);
-                content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br>❌ <b>⟦"+$environment.params+ "⟧ </b>切换失败，未找到支持 <b>YouTube Premium</b> 的节点" + `</p>`
-                $done({"title":"Netflix 切换", "htmlMessage": content})
+                content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br>❌  <b>⟦ "+$environment.params+ " ⟧ </b>切换失败<br>未找到支持 <b>YouTube Premium</b> 的节点" + `</p>`
+                $done({"title":"          YouTube 切换", "htmlMessage": content})
             }
             if (resolve.ret) {
                 console.log("已经切换至支持 <b>Premium</b> 的路线 ➟ "+OKList[2])
-                content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦"+$environment.params+ "⟧ </b>已切换至支持<b>Premium</b> 的路线<br><br> 👇<br><br> ⟦"+OKList[2]+ "⟧" + "<br><br>-------------------<br><b>Shawn 大善人自用</b><br>-------------------"+`</p>`
-                $done({"title":"YouTube 切换", "htmlMessage": content })
+                content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b>已切换至支持<b>Premium</b> 的路线<br><br> 👇<br><br> ⟦ "+OKList[2]+ " ⟧" + "<br><br>-----------------------------<br><b>检测详情请查看JS脚本记录</b><br>-----------------------------"+`</p>`
+                $done({"title":"          YouTube 切换", "htmlMessage": content })
             }
     }, reject => {
             $done();
