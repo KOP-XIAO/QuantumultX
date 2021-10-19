@@ -32,6 +32,7 @@ var OKList=["完整解锁节点 ➟ "]
 var ResList=["仅支持自制剧节点 ➟ "]
 var NoList=["不支持节点 ➟ "]
 var timeoutList=["检测超时节点 ➟ "]
+var pflag=1 //是否是策略，或者简单节点
 
 $configuration.sendMessage(message).then(resolve => {
     if (resolve.error) {
@@ -41,6 +42,9 @@ $configuration.sendMessage(message).then(resolve => {
     if (resolve.ret) {
         //$notify(JSON.stringify(resolve.ret))
         output=JSON.stringify(resolve.ret[message.content])? JSON.stringify(resolve.ret[message.content]["candidates"]).replace(/\"|\[|\]/g,"").replace(/\,/g," ➟ ").split(" ➟ ") : [$environment.params]
+        pflag = JSON.stringify(resolve.ret[message.content])? pflag:0
+        console.log("Netflix 支持检测")
+        console.log("节点or策略组："+pflag)
         //$notify(typeof(output),output)
         Check()
         //$done({"title":"策略内容","message":output})
@@ -56,20 +60,27 @@ function Check() {
     for ( var i=0;i < output.length;i++) {
         testNF(output[i])
     }
-    if (output.length<=5) {
-        relay = 2000
+    if (output.length<=3) {
+        relay = 3500
+    } else if (output.length<=5) {
+        relay = 4000
     } else if (output.length<10) {
-        relay =4000
+        relay =4500
     } else if (output.length<15) {
-        relay =6000
+        relay =6500
     } else if (output.length<20) {
-        relay =8000
+        relay =8500
+    } else if (output.length<50){
+        relay =11000
     } else {
-        relay =10000
+        relay =13000
     }
     console.log(output.length+":"+relay)
     setTimeout(() => {
-        const dict = { [policy] : OKList[2]};
+        const dict = { [policy] : OKList[1]};
+         if(OKList[1]) {
+            console.log("选定支持节点："+OKList[1])
+        }
         const mes1 = {
             action: "set_policy_state",
             content: dict
@@ -77,13 +88,15 @@ function Check() {
         $configuration.sendMessage(mes1).then(resolve => {
             if (resolve.error) {
                 console.log(resolve.error);
-                content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br>❌   <b>⟦ "+$environment.params+ " ⟧ </b>切换失败<br>未找到完整支持 Netflix 的节点" + `</p>`
-                $done({"title":"          Netflix 切换", "htmlMessage": content})
+                content =pflag==0 && OKList[1]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>该节点完整支持 Netflix" + `</p>` : `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>该节点不支持 Netflix" + `</p>`
+                
+                content = pflag!=0 && !OKList[1]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br>❌   <b>⟦ "+$environment.params+ " ⟧ </b>切换失败<br><br>该策略组内未找到完整支持 Netflix 的节点" + "<br><br>-----------------------------<br><b>检测详情请查看JS脚本记录</b><br>-----------------------------"+`</p>` : content
+                $done({"title":"Netflix 检测&切换", "htmlMessage": content})
             }
             if (resolve.ret) {
-                console.log("已经切换至完整支持的路线 ➟ "+OKList[2])
-                content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br> <b>⟦ "+$environment.params+ " ⟧</b> 已切换至完整支持的路线<br> <br>👇<br><br> ⟦ "+OKList[2]+ " ⟧" + "<br><br>-----------------------------<br><b>检测详情请查看JS脚本记录</b><br>-----------------------------"+`</p>`
-                $done({"title":"          Netflix 切换", "htmlMessage": content })
+                console.log("已经切换至完整支持的路线 ➟ "+OKList[1])
+                content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br> <b>⟦ "+$environment.params+ " ⟧</b> 已切换至完整支持的路线<br> <br>👇<br><br> ⟦ "+OKList[1]+ " ⟧" + "<br><br>-----------------------------<br><b>检测详情请查看JS脚本记录</b><br>-----------------------------"+`</p>`
+                $done({"title":"Netflix 检测&切换", "htmlMessage": content })
             }
     }, reject => {
             $done();

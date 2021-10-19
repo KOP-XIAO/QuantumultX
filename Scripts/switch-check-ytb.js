@@ -32,6 +32,7 @@ var output=[]
 var OKList=["支持节点 ➟ "]
 var NoList=["不支持节点 ➟ "]
 var ErrorList=["检测出错节点 ➟ "]
+var pflag=1 //是否是策略，或者简单节点
 
 $configuration.sendMessage(message).then(resolve => {
     if (resolve.error) {
@@ -41,6 +42,9 @@ $configuration.sendMessage(message).then(resolve => {
     if (resolve.ret) {
         //$notify(JSON.stringify(resolve.ret))
         output=JSON.stringify(resolve.ret[message.content])? JSON.stringify(resolve.ret[message.content]["candidates"]).replace(/\"|\[|\]/g,"").replace(/\,/g," ➟ ").split(" ➟ ") : [$environment.params]
+        pflag = JSON.stringify(resolve.ret[message.content])? pflag:0
+        console.log("YouTube Premium 检测")
+        console.log("节点or策略组："+pflag)
         //$notify(typeof(output),output)
         Check()
         //$done({"title":"策略内容","message":output})
@@ -69,7 +73,10 @@ function Check() {
     }
     console.log(output.length+":"+relay)
     setTimeout(() => {
-        const dict = { [policy] : OKList[2]};
+        const dict = { [policy] : OKList[1]};
+        if(OKList[1]) {
+            console.log("选定支持节点："+OKList[1])
+        }
         const mes1 = {
             action: "set_policy_state",
             content: dict
@@ -77,13 +84,14 @@ function Check() {
         $configuration.sendMessage(mes1).then(resolve => {
             if (resolve.error) {
                 console.log(resolve.error);
-                content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br>❌  <b>⟦ "+$environment.params+ " ⟧ </b>切换失败<br>未找到支持 <b>YouTube Premium</b> 的节点" + `</p>`
-                $done({"title":"          YouTube 切换", "htmlMessage": content})
+                content =pflag==0 && OKList[1]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>该节点支持 YouTube Premium" + `</p>` : `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>该节点不支持 YouTube Premium" + `</p>`
+                content = pflag!=0 && !OKList[1]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br>❌  <b>⟦ "+$environment.params+ " ⟧ </b>切换失败<br><br>该策略组内未找到支持 <b>YouTube Premium</b> 的节点" + "<br><br>-----------------------------<br><b>检测详情请查看JS脚本记录</b><br>-----------------------------"+`</p>` : content
+                $done({"title":"YouTube 检测&切换", "htmlMessage": content})
             }
             if (resolve.ret) {
-                console.log("已经切换至支持 <b>Premium</b> 的路线 ➟ "+OKList[2])
-                content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b>已切换至支持<b>Premium</b> 的路线<br><br> 👇<br><br> ⟦ "+OKList[2]+ " ⟧" + "<br><br>-----------------------------<br><b>检测详情请查看JS脚本记录</b><br>-----------------------------"+`</p>`
-                $done({"title":"          YouTube 切换", "htmlMessage": content })
+                console.log("已经切换至支持 <b>Premium</b> 的路线 ➟ "+OKList[1])
+                content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b>已切换至支持<b>Premium</b> 的路线<br><br> 👇<br><br> ⟦ "+OKList[1]+ " ⟧" + "<br><br>-----------------------------<br><b>检测详情请查看JS脚本记录</b><br>-----------------------------"+`</p>`
+                $done({"title":"YouTube 检测&切换", "htmlMessage": content })
             }
     }, reject => {
             $done();
