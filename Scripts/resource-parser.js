@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-10-16 14:05⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-10-19 17:05⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -997,7 +997,7 @@ function Rule_Policy(content) { //增加、替换 policy
     var RuleK = ["//", "#", ";","[","/"];
     var RuleK1 = ["host", "domain", "ip-cidr", "geoip", "user-agent", "ip6-cidr"];
     const RuleCheck = (item) => cnt[0].trim().toLowerCase().indexOf(item) == 0; //无视注释行
-    const RuleCheck1 = (item) => cnt[0].trim().toLowerCase().indexOf(item) != -1; //无视 quanx 不支持的规则类别
+    const RuleCheck1 = (item) => cnt[0].trim().toLowerCase().indexOf(item) == 0; //无视 quanx 不支持的规则类别
     if (RuleK1.some(RuleCheck1) && !RuleK.some(RuleCheck)) {
         if (cnt.length == 3 && cnt.indexOf("no-resolve") == -1) {
             ply0 = Ppolicy != "Shawn" ? Ppolicy : cnt[2]
@@ -1026,17 +1026,18 @@ function Rule_Policy(content) { //增加、替换 policy
 
 // 处理纯列表
 function rule_list_handle(cnt) {
-  if(cnt.indexOf(":")!=-1 && cnt.indexOf("/")!=-1) { // ip-v6?
-    cnt = "ip6-cidr, " + cnt
-    cnt = Ppolicy == "Shawn" ? cnt+", Shawn" : cnt+", "+Ppolicy
-  } else if (cnt.split("/").length == 2) {//ip-cide
-    cnt = "ip-cidr, " + cnt
-    cnt = Ppolicy == "Shawn" ? cnt+", Shawn" : cnt+", "+Ppolicy
-  } else if (cnt) { //host - suffix
-    cnt = "host-suffix, " + cnt
-    cnt = Ppolicy == "Shawn" ? cnt+", Shawn" : cnt+", "+Ppolicy
-  }
-  return cnt
+  if(cnt.trim().indexOf(" ")==-1){
+    if(cnt.indexOf("::")!=-1 && cnt.indexOf("/")!=-1) { // ip-v6?
+      cnt = "ip6-cidr, " + cnt
+      cnt = Ppolicy == "Shawn" ? cnt+", Shawn" : cnt+", "+Ppolicy
+    } else if (cnt.split("/").length == 2) {//ip-cid
+      cnt = "ip-cidr, " + cnt
+      cnt = Ppolicy == "Shawn" ? cnt+", Shawn" : cnt+", "+Ppolicy
+    } else if (cnt) { //host - suffix
+      cnt = "host-suffix, " + cnt
+      cnt = Ppolicy == "Shawn" ? cnt+", Shawn" : cnt+", "+Ppolicy
+    }
+    return cnt}
 }
 
 // Domain-Set
