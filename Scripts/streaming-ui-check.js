@@ -22,6 +22,7 @@ const BASE_URL = 'https://www.netflix.com/title/';
 const BASE_URL_YTB = "https://www.youtube.com/premium";
 const BASE_URL_DISNEY = 'https://www.disneyplus.com';
 const BASE_URL_Dazn = "https://startup.core.indazn.com/misl/v5/Startup";
+const BASE_URL_Param = "https://www.paramountplus.com/"
 
 const FILM_ID = 81215567
 const link = { "media-url": "https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/img/southpark/7.png" } 
@@ -60,6 +61,7 @@ let result = {
   "Netflix": '<b>Netflix: </b>检测失败，请重试',
   "Dazn": "<b>Dazn: </b>检测失败，请重试",
   "Disney": "<b>Disney⁺: </b>检测失败，请重试",
+  "Paramount" : "<b>Paramount⁺: </b>检测失败，请重试",
   //"Google": "Google 定位: 检测失败，请重试"
 
 }
@@ -71,6 +73,7 @@ const message = {
 ;(async () => {
   testYTB()
   testDazn()
+  testParam()
   let [{ region, status }] = await Promise.all([testDisneyPlus(),testNf(FILM_ID)])
   console.log(result["Netflix"])
   console.log(`testDisneyPlus: region=${region}, status=${status}`)
@@ -103,7 +106,7 @@ $configuration.sendMessage(message).then(resolve => {
     }
     if (resolve.ret) {
       let output=JSON.stringify(resolve.ret[message.content])? JSON.stringify(resolve.ret[message.content]).replace(/\"|\[|\]/g,"").replace(/\,/g," ➟ ") : $environment.params
-      let content = "------------------------------"+"</br>"+([result["YouTube"],result["Netflix"],result["Disney"],result["Dazn"]]).join("</br></br>")
+      let content = "------------------------------"+"</br>"+([result["YouTube"],result["Netflix"],result["Disney"],result["Dazn"],result["Paramount"]]).join("</br></br>")
       content = content + "</br>------------------------------</br>"+"<font color=#6959CD>"+"<b>节点</b> ➟ " + output+ "</font>"
       content =`<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + content + `</p>`
       //$notify(typeof(output),output)
@@ -128,7 +131,7 @@ $configuration.sendMessage(message).then(resolve => {
     }
     if (resolve.ret) {
       let output=JSON.stringify(resolve.ret[message.content])? JSON.stringify(resolve.ret[message.content]).replace(/\"|\[|\]/g,"").replace(/\,/g," ➟ ") : $environment.params
-      let content = "------------------------------"+"</br>"+([result["YouTube"],result["Netflix"],result["Disney"],result["Dazn"]]).join("</br></br>")
+      let content = "------------------------------"+"</br>"+([result["YouTube"],result["Netflix"],result["Disney"],result["Dazn"],,result["Paramount"]]).join("</br></br>")
       content = content + "</br>------------------------------</br>"+"<font color=#6959CD>"+"<b>节点</b> ➟ " + output+ "</font>"
       content =`<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + content + `</p>`
       //$notify(typeof(output),output)
@@ -310,7 +313,7 @@ function testNf(filmId) {
         //console.log("nfnf")
         result["Netflix"] = "<b>Netflix: </b>未支持"
         console.log("nf:"+result["Netflix"])
-       // $notify("nf:"+result["Netflix"])
+        //$notify("nf:"+result["Netflix"])
         resolve('Not Available')
         return
       } else if (response.statusCode === 200) {
@@ -321,7 +324,7 @@ function testNf(filmId) {
           region = 'us'
         }
         console.log("nf:"+region)
-        result["Netflix"] = "<b>Netflix: </b>完整支持"+ "⟦"+flags.get(region.toUpperCase())+"⟧"
+        result["Netflix"] = "<b>Netflix: </b>完整支持"+arrow+ "⟦"+flags.get(region.toUpperCase())+"⟧"
         //$notify("nf:"+result["Netflix"])
         resolve("nf:"+result["Netflix"])
         return 
@@ -367,7 +370,7 @@ function testYTB() {
         region = 'US'
       }
       //resolve(region)
-      result["YouTube"] = "<b>YouTube Premium: </b>支持"+ "⟦"+flags.get(region.toUpperCase())+"⟧"
+      result["YouTube"] = "<b>YouTube Premium: </b>支持"+arrow+ "⟦"+flags.get(region.toUpperCase())+"⟧"
       console.log("ytb:"+region+ result["YouTube"])
       }
     }, reason => {
@@ -416,7 +419,7 @@ function testDazn() {
       let ret = re.exec(data)
       if (ret != null && ret.length === 2) {
         region = ret[1]
-        result["Dazn"] = "<b>Dazn: </b>支持"+ "⟦"+flags.get(region.toUpperCase())+"⟧"
+        result["Dazn"] = "<b>Dazn: </b>支持"+arrow+ "⟦"+flags.get(region.toUpperCase())+"⟧"
       } else {
         result["Dazn"] = "<b>Dazn: </b>未支持"
 
@@ -430,3 +433,29 @@ function testDazn() {
   })
 }
 
+function testParam() { 
+  let option = {
+    url: BASE_URL_Param,
+    opts: opts1,
+    timeout: 2800,
+    headers: {
+      'User-Agent':
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36'
+    },
+  }
+  $task.fetch(option).then(response=> {
+    //let data = response.body
+    console.log("Paramount⁺:"+response.statusCode)
+    if (response.statusCode == 200) {
+      //reject('Error')
+      result["Paramount"] = "<b>Paramount⁺: </b>支持"
+    } else if (response.statusCode == 302) {
+      //resolve('Not Available')
+      result["Paramount"] = "<b>Pramount⁺: </b>未支持"
+    } 
+      console.log("Paramount⁺:"+ result["Paramount"])
+  }, reason => {
+    result["Paramount"] = "<b>Paramount⁺: </b>检测超时"
+    //resolve("timeout")
+  })
+}
