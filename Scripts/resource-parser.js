@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-10-22 17:05⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-10-22 21:35⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -930,7 +930,7 @@ function Rule_Handle(subs, Pout, Pin) {
             const exclude = (item) => cc.indexOf(item) != -1; // 删除项
             const RuleCheck = (item) => cc.toLowerCase().indexOf(item) != -1; //无视注释行
             if (Tout.some(exclude) && !RuleK.some(RuleCheck) && RuleK2.some(RuleCheck)) {
-                dlist.push("-" + cc)
+                dlist.push("-" + Rule_Policy(cc))
             } else if (!RuleK.some(RuleCheck) && cc) { //if Pout.some, 不操作注释项
                 dd = Rule_Policy(cc);
                 if (Tin != "" && Tin != null) {
@@ -1021,7 +1021,7 @@ function Rule_Policy(content) { //增加、替换 policy
             nn = ""
         } else { nn = nn.replace("IP-CIDR6", "ip6-cidr") }
         return nn
-    } else if (cnt.length == 1 && !RuleK.some(RuleCheck)) { // 纯域名/ip 列表
+    } else if  (cnt.length == 1 && !RuleK.some(RuleCheck) && cnt[0]!="" && cnt[0].indexOf("payload:")==-1) { // 纯域名/ip 列表
       return rule_list_handle(cnt[0])
     } else { return "" }//if RuleK1 check	
 }
