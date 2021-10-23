@@ -1514,30 +1514,30 @@ function SSR2QX(subs, Pudp, Ptfo) {
 
 //Trojan 类型 URI 转换成 QX
 function TJ2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
-    var ntrojan = []
-    var cnt = subs.split("trojan://")[1]
-    type = "trojan=";
-    if (cnt.indexOf(":443") != -1) {
-        ip = cnt.split("@")[1].split(":443")[0] + ":443";
-    } else {
-        ip = cnt.split("@")[1].split("?")[0].split("\n")[0].trim(); //非 443 端口的奇葩机场？
-    }
-    pwd = "password=" + cnt.split("@")[0];
-    obfs = "over-tls=true";
-    pcert = cnt.indexOf("allowInsecure=0") != -1 ? "tls-verification=true" : "tls-verification=false";
-    thost = cnt.indexOf("sni=") != -1? "tls-host="+cnt.split("sni=")[1].split(/&|#/)[0]:""
-    ptls13 = PTls13 == 1 ? "tls13=true" : "tls13=false"
-    if (Pcert0 == 0) { 
-      pcert = "tls-verification=false" 
-    } else if (Pcert0 == 1) {
-      pcert = "tls-verification=true"
-    }
-    pudp = Pudp == 1 ? "udp-relay=false" : "udp-relay=false";
-    ptfo = Ptfo == 1 ? "fast-open=true" : "fast-open=false";
-    tag = cnt.indexOf("#") != -1 ? "tag=" + decodeURIComponent(cnt.split("#")[1]) : "tag= [trojan]" + ip
-    ntrojan.push(type + ip, pwd, obfs, pcert, thost, ptls13, pudp, ptfo, tag)
-    QX = ntrojan.filter(Boolean).join(", ");
-    return QX;
+  var ntrojan = []
+  var cnt = subs.split("trojan://")[1]
+  type = "trojan=";
+  if (cnt.indexOf(":443") != -1) {
+    ip = cnt.split("@")[1].split(":443")[0] + ":443";
+  } else {
+    ip = cnt.split("@")[1].split("?")[0].split("\n")[0].split("#")[0].trim(); //非 443 端口的奇葩机场？
+  }
+  pwd = cnt.split("@")[0]? "password=" + decodeURIComponent(cnt.split("@")[0]):"";
+  obfs = "over-tls=true";
+  pcert = cnt.indexOf("allowInsecure=0") != -1 ? "tls-verification=true" : "tls-verification=false";
+  thost = cnt.indexOf("sni=") != -1? "tls-host="+cnt.split("sni=")[1].split(/&|#/)[0]:""
+  ptls13 = PTls13 == 1 ? "tls13=true" : "tls13=false"
+  if (Pcert0 == 0) { 
+    pcert = "tls-verification=false" 
+  } else if (Pcert0 == 1) {
+    pcert = "tls-verification=true"
+  }
+  pudp = Pudp == 1 ? "udp-relay=false" : "udp-relay=false";
+  ptfo = Ptfo == 1 ? "fast-open=true" : "fast-open=false";
+  tag = cnt.indexOf("#") != -1 ? "tag=" + decodeURIComponent(cnt.split("#")[1]) : "tag= [trojan]" + ip
+  ntrojan.push(type + ip, pwd, obfs, pcert, thost, ptls13, pudp, ptfo, tag)
+  QX = ntrojan.filter(Boolean).join(", ");
+  return QX;
 }
 
 //SS 类型 URI 转换 quanx 格式
