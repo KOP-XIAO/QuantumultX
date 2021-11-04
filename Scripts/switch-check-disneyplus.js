@@ -42,7 +42,7 @@ const message = {
 
 var output=[]
 var OKList=["完整解锁节点 ➟ "]
-var ResList=["仅支持自制剧节点 ➟ "]
+var ResList=["即将登陆节点 ➟ "]
 var NoList=["不支持节点 ➟ "]
 var timeoutList=["检测超时节点 ➟ "]
 var pflag=1 //是否是策略，或者简单节点
@@ -90,7 +90,7 @@ function Check() {
     }
     console.log(output.length+":"+relay)
     setTimeout(() => {
-        const dict = { [policy] : OKList[1]};
+        const dict = { [policy] : OKList[1].split(": 支持 ")[0]};
          if(OKList[1]) {
             console.log("选定支持节点："+OKList[1])
         }
@@ -101,14 +101,16 @@ function Check() {
         $configuration.sendMessage(mes1).then(resolve => {
             if (resolve.error) {
                 console.log(resolve.error);
-                content =pflag==0 && OKList[1]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>🎉 该节点完整支持 <b>Disneyᐩ </b>" + `</p>` : `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>⚠️ 该节点不支持 <b>Disneyᐩ </b>" + `</p>`
+                content =pflag==0 && OKList[1]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>🎉 该节点支持 <b>Disneyᐩ ➟" + OKList[1].split(": 支持 ")[1]+ `</b></p>` : `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>⚠️ 该节点不支持 <b>Disneyᐩ </b>" + `</p>`
                 
-                content = pflag!=0 && !OKList[1]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br>❌   <b>⟦ "+$environment.params+ " ⟧ </b> 切换失败<br><br>该策略组内未找到完整支持 Disneyᐩ 的节点" + "<br><br>-----------------------------<br><b><font color=#FF5733>检测详情请查看JS脚本记录</font></b><br>-----------------------------"+`</p>` : content
+                content =pflag==0 && ResList[1]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>🚦 即将登陆节点所在地区<b>" + ResList[1].split("登陆 ")[1]+`</b> </p>` : content
+                
+                content = pflag!=0 && !OKList[1]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br>❌   <b>⟦ "+$environment.params+ " ⟧ </b>⚠️ 切换失败<br><br>该策略组内未找到支持 <b>Disneyᐩ </b>的节点" + "<br><br>-----------------------------<br><b><font color=#FF5733>检测详情请查看JS脚本记录</font></b><br>-----------------------------"+`</p>` : content
                 $done({"title":"Disneyᐩ 检测&切换", "htmlMessage": content})
             }
             if (resolve.ret) {
-                console.log("已经切换至完整支持的路线 ➟ "+OKList[1])
-                content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br> <b>⟦ "+$environment.params+ " ⟧</b> 已切换至完整支持的路线<br> <br>👇<br><br> ⟦ "+OKList[1]+ " ⟧" + "<br><br>-----------------------------<br><b><font color=#FF5733>检测详情请查看JS脚本记录</font></b><br>-----------------------------"+`</p>`
+                console.log("已经切换至支持Disneyᐩ"+OKList[1].split(": 支持 ")[1]+"的路线 ➟ "+OKList[1].split(": 支持 ")[0])
+                content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br> <b>⟦ "+$environment.params+ " ⟧</b> 已切换至支持<b>"+OKList[1].split(": 支持 ")[1]+"</b>的路线<br> <br>👇<br><br> ⟦ "+OKList[1].split(": 支持 ")[0]+ " ⟧" + "<br><br>-----------------------------<br><b><font color=#FF5733>检测详情请查看JS脚本记录</font></b><br>-----------------------------"+`</p>`
                 $done({"title":"Disneyᐩ 检测&切换", "htmlMessage": content })
             }
     }, reject => {
@@ -130,8 +132,8 @@ async function testDisneyPlus(pname) {
         //console.log(`homepage: region=${region}, cnbl=${cnbl}`)
         // 即将登陆
 //      if (cnbl == 2) {
-//          ResList.push(pname) //coming
-//          console.log(pname+": 即将登陆"+region)
+//          ResList.push(pname+": 即将登陆 「"+region+"」") //coming
+//          console.log(pname+"22: 即将登陆"+region)
 //          return { region, status: STATUS_COMING }
 //      }
         let { countryCode, inSupportedLocation } = await Promise.race([getLocationInfo(pname), timeout(7000)])
@@ -140,13 +142,13 @@ async function testDisneyPlus(pname) {
         region = countryCode ?? region
         // 即将登陆
         if (inSupportedLocation === false || inSupportedLocation === 'false') {
-            ResList.push(pname) //coming
-            console.log(pname+": 即将登陆"+region)
+            ResList.push(pname+": 即将登陆 「"+region+"」") //coming
+            console.log(pname+": 即将登陆 「"+region+"」")
             return { region, status: STATUS_COMING }
         } else {
             // 支持解锁
-            OKList.push(pname)
-            console.log(pname+": 支持"+region)
+            OKList.push(pname+": 支持 「"+region+"」")
+            console.log(pname+": 支持 「"+region+"」")
             return { region, status: STATUS_AVAILABLE }
         }
         
