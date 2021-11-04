@@ -66,9 +66,9 @@ async function testDisneyPlus() {
 		let { region, cnbl } = await Promise.race([testHomePage(), timeout(7000)])
 		console.log(`homepage: region=${region}, cnbl=${cnbl}`)
 		// 即将登陆
-		if (cnbl == 2) {
-			return { region, status: STATUS_COMING }
-		}
+//		if (cnbl == 2) {
+//			return { region, status: STATUS_COMING }
+//		}
 		let { countryCode, inSupportedLocation } = await Promise.race([getLocationInfo(), timeout(7000)])
 		console.log(`getLocationInfo: countryCode=${countryCode}, inSupportedLocation=${inSupportedLocation}`)
 		
