@@ -103,7 +103,7 @@ function Check() {
                 console.log(resolve.error);
                 content =pflag==0 && OKList[1]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>🎉 该节点支持 <b>Disneyᐩ ➟" + OKList[1].split(": 支持 ")[1]+ `</b></p>` : `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>⚠️ 该节点不支持 <b>Disneyᐩ </b>" + `</p>`
                 
-                content =pflag==0 && ResList[1]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>🚦 即将登陆节点所在地区<b>" + ResList[1].split("登陆 ")[1]+`</b> </p>` : content
+                content =pflag==0 && ResList[1]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>🚦 即将登陆节点所在地区 ➟<b>" + ResList[1].split("登陆 ")[1]+`</b> </p>` : content
                 
                 content = pflag!=0 && !OKList[1]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br>❌   <b>⟦ "+$environment.params+ " ⟧ </b>⚠️ 切换失败<br><br>该策略组内未找到支持 <b>Disneyᐩ </b>的节点" + "<br><br>-----------------------------<br><b><font color=#FF5733>检测详情请查看JS脚本记录</font></b><br>-----------------------------"+`</p>` : content
                 $done({"title":"Disneyᐩ 检测&切换", "htmlMessage": content})
