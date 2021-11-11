@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-11-01 11:15⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-11-11 16:15⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -77,6 +77,7 @@
   ❖ ⚠️ 把 𝐦𝐨𝐝𝐮𝐥𝐞 中的分流规则转换时, 必须要加 dst=filter
 ⦿ cdn=1, 将 github 脚本的地址转换成免翻墙cdn.jsdelivr.net
 ⦿ fcr=1/2, 为分流规则添加 force-cellular/multi-interface 参数，强制移动数据/混合数据
+⦿ via=接口, 为分流规则添加 via-interface 参数, 0 表示 via-interface=%TUN%
 
 3⃣️ 其他参数
 ⦿ 通知参数 ntf=0/1, 用于 关闭/打开 资源解析器的提示通知
@@ -171,6 +172,7 @@ let [flow, exptime, errornode, total] = "";
 var Pdel = mark0 && para1.indexOf("del=") != -1 ? para1.split("del=")[1].split("&")[0] : 0; //删除重复节点
 var typeU = para1.indexOf("type=") != -1 ? para1.split("type=")[1].split("&")[0] : "";
 var Pfcr = para1.indexOf("fcr=") != -1 ? para1.split("fcr=")[1].split("&")[0] : ""; // force-cellular 参数
+var Pvia = para1.indexOf("via=") != -1 ? para1.split("via=")[1].split("&")[0] : ""; // via-interface 参数
 
 var typeQ = $resource.type? $resource.type:"unsupported"   //返回 field 类型参数
 
@@ -998,6 +1000,9 @@ function Rule_Handle(subs, Pout, Pin) {
     }
   nlist = Pfcr == 1? nlist.filter(Boolean).map(item => item+", force-cellular") : nlist.filter(Boolean)
   nlist = Pfcr == 2? nlist.filter(Boolean).map(item => item+", multi-interface") : nlist.filter(Boolean)
+  if (Pvia!="") {
+  	nlist = Pvia ==0? nlist.filter(Boolean).map(item => item+", via-interface=%TUN%") : nlist.filter(Boolean).map(item => item+", via-interface="+Pvia)
+  }
 
   return nlist
 }
@@ -1917,6 +1922,7 @@ function get_emoji(emojip, sname) {
     "🇺🇾": ["乌拉圭"],
     "🇰🇪": ["肯尼亚"],
     "🇰🇬": ["吉尔吉斯坦","吉尔吉斯斯坦"],
+    "🇳🇵": ["尼泊尔"],
     "🇨🇳": ["CN", "China", "回国", "中国","中國", "江苏", "北京", "上海", "广州", "深圳", "杭州", "徐州", "青岛", "宁波", "镇江", "back"],
   }
     str1 = JSON.stringify(Lmoji)
