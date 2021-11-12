@@ -20,8 +20,8 @@ const message = {
 };
 
 var output=[]
-var OKList=["送中节点 ➟ "]
-var NoList=["未送中节点 ➟ "]
+var OKList=["未被送中节点 ➟ "]
+var NoList=["已被送中节点 ➟ "]
 var ErrorList=["检测出错节点 ➟ "]
 var pflag=1 //是否是策略，或者简单节点
 
