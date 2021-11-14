@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-11-12 10:15⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-11-14 10:15⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -280,7 +280,7 @@ function ResourceParse() {
     } else {total = total.join("\n")}
   } else if (type0 == "Rule") {  // rule 类型, 已处理完毕
     flag = 3;
-    total = Rule_Handle(content0.split("\n"), Pout0, Pin0).filter(Boolean);
+    total = Rule_Handle(content0.split("\n").map(item=>item.trim()).filter(Boolean), Pout0, Pin0).filter(Boolean);
     if (Preg && total.length!=0) { // 正则筛选规则 filter
     total = total.map(Regex).filter(Boolean) 
     RegCheck(total, "分流引用", "regex", Preg)
@@ -1019,7 +1019,7 @@ function Rule_Policy(content) { //增加、替换 policy
             nn = cnt[0] + ", " + cnt[1] + ", " + ply0
         } else if (cnt.length == 2) { //Surge rule-set
             ply0 = Ppolicy != "Shawn" ? Ppolicy : "Shawn"
-            nn = cnt[0] + ", " + cnt[1] + ", " + ply0
+            nn = cnt[1].trim() !=""? cnt[0] + ", " + cnt[1] + ", " + ply0 : ""
         } else if (cnt.length == 3 && cnt[2].indexOf("no-resolve") != -1) {
             ply0 = Ppolicy != "Shawn" ? Ppolicy : "Shawn"
             nn = cnt[0] + ", " + cnt[1] + ", " + ply0 //+ ", " + cnt[2]
