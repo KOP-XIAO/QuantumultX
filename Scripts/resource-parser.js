@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-11-22 13:15⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2021-12-02 13:15⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -470,6 +470,7 @@ function Type_Check(subs) {
   if(typeU == "X"){
     $notify(type,"",content0)
   }
+  //$notify(type)
     return type
 }
 
@@ -1559,30 +1560,41 @@ function TJ2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
 
 //SS 类型 URI 转换 quanx 格式
 function SS2QX(subs, Pudp, Ptfo) {
-    var nssr = []
-    var cnt = subs.split("ss://")[1]
-    if (cnt.split(":").length <= 6) { //排除难搞的 ipv6 节点
-        type = "shadowsocks=";
-      let cntt = cnt.split("#")[0]
-      if (cntt.indexOf("@") != -1 && cntt.indexOf(":") != -1) {
-            ip = cnt.split("@")[1].split("#")[0].split("/")[0];
-            pwdmtd = Base64.decode(cnt.split("@")[0].replace(/-/g, "+").replace(/_/g, "/")).split("\u0000")[0].split(":")
-        } else {
-            var cnt0 = Base64.decode(cnt.split("#")[0].replace(/-/g, "+").replace(/_/g, "/").split("\u0000")[0]);
-            ip = cnt0.split("@")[1].split("#")[0].split("/")[0];
-            pwdmtd = cnt0.split("@")[0].split(":")
-        }
-        pwd = "password=" + pwdmtd[1];
-        mtd = "method=" + pwdmtd[0];
-        obfs = cnt.split("obfs%3D")[1] != null ? ", obfs=" + cnt.split("obfs%3D")[1].split("%3B")[0].split("#")[0] : "";
-        obfshost = cnt.split("obfs-host%3D")[1] != null ? ", obfs-host=" + cnt.split("obfs-host%3D")[1].split("&")[0].split("#")[0] : "";
-        tag = "tag=" + decodeURIComponent(cnt.split("#")[1])
-        pudp = Pudp == 1 ? "udp-relay=true" : "udp-relay=false";
-        ptfo = Ptfo == 1 ? "fast-open=true" : "fast-open=false";
-        nssr.push(type + ip, pwd, mtd + obfs + obfshost, pudp, ptfo, tag)
-        QX = nssr.join(", ")
-        return QX;
+  var nssr = []
+  var cnt = subs.split("ss://")[1]
+  if (cnt.split(":").length <= 6) { //排除难搞的 ipv6 节点
+    type = "shadowsocks=";
+    let cntt = cnt.split("#")[0]
+    if (cntt.indexOf("@") != -1 && cntt.indexOf(":") != -1) {
+      ip = cnt.split("@")[1].split("#")[0].split("/")[0];
+      pwdmtd = Base64.decode(cnt.split("@")[0].replace(/-/g, "+").replace(/_/g, "/")).split("\u0000")[0].split(":")
+    } else if (cntt.indexOf("?")==-1) { // 后部 b64 encode 类型
+      var cnt0 = Base64.decode(cnt.split("#")[0].replace(/-/g, "+").replace(/_/g, "/").split("\u0000")[0]);
+      ip = cnt0.split("@")[1].split("#")[0].split("/")[0];
+      pwdmtd = cnt0.split("@")[0].split(":")
+    } else if (cntt.indexOf("?") !=-1) { // 火箭类型？
+      var cnt0 = Base64.decode(cnt.split("#")[0].split("?")[0].replace(/-/g, "+").replace(/_/g, "/").split("\u0000")[0]);
+      var cnt1 = Base64.decode(cnt.split("#")[0].split("?")[1].split("=")[1].replace(/-/g, "+").replace(/_/g, "/").split("\u0000")[0]);
+      ip = cnt0.split("@")[1].split("#")[0].split("/")[0];
+      pwdmtd = cnt0.split("@")[0].split(":")
     }
+    pwd = "password=" + pwdmtd[1];
+    mtd = "method=" + pwdmtd[0];
+    if (cntt.indexOf("v2ray-plugin")==-1) { //Shadowrocket style v2-plugin
+      obfs = cnt.split("obfs%3D")[1] != null ? ", obfs=" + cnt.split("obfs%3D")[1].split("%3B")[0].split("#")[0] : "";
+      obfshost = cnt.split("obfs-host%3D")[1] != null ? ", obfs-host=" + cnt.split("obfs-host%3D")[1].split("&")[0].split("#")[0] : "";
+    } else {
+      cnt1 = JSON.parse(cnt1)
+      obfs= cnt1.tls? ", obfs=wss" : ", obfs=ws"
+      obfshost = cnt1.host? ", obfs-host="+cnt1.host+", tls-verification=false" : ""
+    }
+    tag = "tag=" + decodeURIComponent(cnt.split("#")[1])
+    pudp = Pudp == 1 ? "udp-relay=true" : "udp-relay=false";
+    ptfo = Ptfo == 1 ? "fast-open=true" : "fast-open=false";
+    nssr.push(type + ip, pwd, mtd + obfs + obfshost, pudp, ptfo, tag)
+    QX = nssr.join(", ")
+    return QX;
+  }
 }
 
 //SSD 类型 URI 转换 quanx 格式
@@ -1928,6 +1940,7 @@ function get_emoji(emojip, sname) {
     "🇰🇪": ["肯尼亚"],
     "🇰🇬": ["吉尔吉斯坦","吉尔吉斯斯坦"],
     "🇳🇵": ["尼泊尔"],
+    "🇽🇰": ["科索沃"],
     "🇨🇳": ["CN", "China", "回国", "中国","中國", "江苏", "北京", "上海", "广州", "深圳", "杭州", "徐州", "青岛", "宁波", "镇江", "back"],
   }
     str1 = JSON.stringify(Lmoji)
