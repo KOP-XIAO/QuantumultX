@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-01-03 19:15⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-01-04 21:45⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -2370,13 +2370,13 @@ function CH2QX(cnt){
 
 // UDP/TFO 参数 (强制 surge/quanx 类型转换)
 function XUDP(cnt,pudp) {
-    var udp = pudp == 1 && cnt.trim().indexOf("shadowsocks")==0 ? "udp-relay=true, " : "udp-relay=false, "
-    if(cnt.indexOf("udp-relay") != -1){
-        var cnt0 = cnt.replace(RegExp("udp\-relay.*?\,", "gmi"), udp)
-    }else{
-        var cnt0 = cnt.replace(new RegExp("tag.*?\=", "gmi"), udp+"tag=")
-    }
-    return cnt0
+  var udp = pudp == 1 && /^(shadowsocks|trojan)/.test(cnt.trim()) ? "udp-relay=true, " : "udp-relay=false, "
+  if(cnt.indexOf("udp-relay") != -1){
+    var cnt0 = cnt.replace(RegExp("udp\-relay.*?\,", "gmi"), udp)
+  }else{
+    var cnt0 = cnt.replace(new RegExp("tag.*?\=", "gmi"), udp+"tag=")
+  }
+  return cnt0
 }
 
 function XTFO(cnt,ptfo) {
