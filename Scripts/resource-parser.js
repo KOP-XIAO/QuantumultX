@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-01-04 21:45⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-01-04 22:45⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1206,15 +1206,21 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
     return QXlist;
 }
 
-// qx 类型 tls/udp 验证问题
+// qx 类型 tls/udp 验证问题t
 function QX_TLS(cnt,Pcert0,PTls13) {
   var cert0 = Pcert0 == 1? "tls-verification=true, " : "tls-verification=false, "
+  var tls13 = Ptls13 == 1? "tls13=true, " : ""
   if(cnt.indexOf("tls-verification") != -1){
     cnt = cnt.replace(RegExp("tls\-verification.*?\,", "gmi"), cert0)
   }else if(cnt.indexOf("obfs=over-tls")!=-1 || cnt.indexOf("obfs=wss")!=-1){
     cnt = cnt.replace(new RegExp("tag.*?\=", "gmi"), cert0+"tag=")
   }
-  if (cnt.trim().indexOf("shadowsocks")!=0) { //关闭非 ss/ssr 类型的 udp
+  if(cnt.indexOf("tls13") != -1){
+    cnt = cnt.replace(RegExp("tls13.*?\,", "gmi"), tls13)
+  }else if(cnt.indexOf("obfs=over-tls")!=-1 || cnt.indexOf("obfs=wss")!=-1){
+    cnt = cnt.replace(new RegExp("tag.*?\=", "gmi"), tls13+"tag=")
+  }
+  if (!/^(shadowsocks|trojan)/.test(cnt.trim())) { //关闭非 ss/ssr/trojan 类型的 udp
     udp =  "udp-relay=false, "
     if(cnt.indexOf("udp-relay") != -1){
       var cnt = cnt.replace(RegExp("udp\-relay.*?\,", "gmi"), udp)
@@ -1829,7 +1835,7 @@ function Rename(str) {
 }
 
 function RenameScript(servers, script) {
-    $notify("🤖 启用脚本进行重命名", "", script);
+    $notify("  启用脚本进行重命名", "", script);
     try {
         const $ = Tools().rename;
         // extract server tags
@@ -1847,7 +1853,7 @@ function RenameScript(servers, script) {
 
 //删除 emoji 
 function emoji_del(str) {
-    return str.replace(/[\uD83C][\uDDE6-\uDDFF][\uD83C][\uDDE6-\uDDFF]/g, "").trim();//unescape(escape(str).replace(/\%uD.{3}/g, ''));
+    return str.replace(/[\uD83C][\uDDE6-\uDDFF][\uD83C][\u DDE6-\uDDFF]/g, "").trim();//unescape(escape(str).replace(/\%uD.{3}/g, ''));
 }
 
 //为节点名添加 emoji
@@ -1903,14 +1909,14 @@ function get_emoji(emojip, sname) {
     "🇸🇪": ["SE", "Sweden","瑞典"],
     "🇸🇬": ["SG", "Singapore","SINGAPORE", "新加坡", "狮城", "沪新", "京新", "泉新", "穗新", "深新", "杭新", "广新","廣新","滬新"],
     "🇹🇭": ["TH", "Thailand", "泰国", "泰國", "曼谷"],
-    "🇹🇷": ["TR", "Turkey", "土耳其", "伊斯坦布尔"],
+    " 🇷": ["TR", "Turkey", "土耳其", "伊斯坦布尔"],
     "🇹🇼": ["TW", "Taiwan","TAIWAN", "台湾", "台北", "台中", "新北", "彰化", "CHT", "台", "HINET"],
     "🇺🇸": ["US", "USA", "America", "United States", "美国", "美", "京美", "波特兰", "达拉斯", "俄勒冈", "凤凰城", "费利蒙", "硅谷", "矽谷", "拉斯维加斯", "洛杉矶", "圣何塞", "圣克拉拉", "西雅图", "芝加哥", "沪美", "哥伦布", "纽约"],
     "🇻🇳": ["VN", "越南", "胡志明市"],
     "🇮🇹": ["Italy", "IT", "Nachash", "意大利", "米兰", "義大利"],
     "🇿🇦": ["South Africa", "南非"],
     "🇦🇪": ["United Arab Emirates", "阿联酋","AE "],
-    "🇧🇷": ["BR", "Brazil", "巴西", "圣保罗"],
+    "🇧🇷": ["BR",  "Brazil", "巴西", "圣保罗"],
     "🇯🇵": ["JP", "Japan","JAPAN", "日本", "东京", "大阪", "埼玉", "沪日", "穗日", "川日", "中日", "泉日", "杭日", "深日", "辽日", "广日"],
     "🇦🇷": ["AR", "Argentina", "阿根廷"],
     "🇳🇴": ["Norway", "挪威", "NO"],
