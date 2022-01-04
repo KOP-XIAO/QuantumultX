@@ -1209,7 +1209,7 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
 // qx 类型 tls/udp 验证问题t
 function QX_TLS(cnt,Pcert0,PTls13) {
   var cert0 = Pcert0 == 1? "tls-verification=true, " : "tls-verification=false, "
-  var tls13 = Ptls13 == 1? "tls13=true, " : ""
+  var tls13 = PTls13 == 1? "tls13=true, " : ""
   if(cnt.indexOf("tls-verification") != -1){
     cnt = cnt.replace(RegExp("tls\-verification.*?\,", "gmi"), cert0)
   }else if(cnt.indexOf("obfs=over-tls")!=-1 || cnt.indexOf("obfs=wss")!=-1){
