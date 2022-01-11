@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-01-11 22:25⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-01-11 22:35⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -403,12 +403,12 @@ function flowcheck(cnt) {
 
 // regex 后的检查
 function RegCheck(total, typen, paraname,regpara) {
-	if(total.length == 0){ 
-		$notify("‼️ " + typen + "  ➟ " + "⟦" + subtag + "⟧", "⛔️ 筛选正则: " + paraname + "=" + regpara, "⚠️ 筛选后剩余项为 0️⃣ , 请检查正则参数及原始链接", nan_link)
-	}else if((typen != "节点订阅" && Pntf0 !=0) || (typen == "节点订阅" && Pntf0 ==1)){
-		var nolist = total.length <= 10 ? emojino[total.length] : total.length
-		$notify("🤖 " + typen + "  ➟ " + "⟦" + subtag + "⟧", "⛔️ 筛选正则: " + paraname + "=" + regpara, "⚠️ 筛选后剩余以下" + nolist + "个匹配项 \n ⨷ " + total.join("\n ⨷ "), sub_link)
-	}
+  if(total.length == 0){ 
+    $notify("‼️ " + typen + "  ➟ " + "⟦" + subtag + "⟧", "⛔️ 筛选正则: " + paraname + "=" + regpara, "⚠️ 筛选后剩余项为 0️⃣ , 请检查正则参数及原始链接", nan_link)
+  }else if((typen != "节点订阅" && Pntf0 !=0) || (typen == "节点订阅" && Pntf0 ==1)){
+    var nolist = total.length <= 10 ? emojino[total.length] : total.length
+    $notify("🤖 " + typen + "  ➟ " + "⟦" + subtag + "⟧", "⛔️ 筛选正则: " + paraname + "=" + regpara, "⚠️ 筛选后剩余以下" + nolist + "个匹配项 \n ⨷ " + total.join("\n ⨷ "), sub_link)
+  }
 }
 //判断订阅类型
 function Type_Check(subs) {
@@ -486,7 +486,7 @@ function TagCheck_QX(content) {
     var no=0 ;
     for (var i = 0; i < Olist.length; i++) {
         var item = Olist[i] ? Olist[i] : ""
-      typefix["shadowsocks"]=item.indexOf("ssr-protocol")!=-1? typefix["shadowsocksr"] : typefix["shadowsocks"]
+        typefix["shadowsocks"]=item.indexOf("ssr-protocol")!=-1? typefix["shadowsocksr"] : typefix["shadowsocks"]
         if (item.replace(/ /gm, "").indexOf("tag=") != -1) {
             var nl = item.slice(item.indexOf("tag"))
             var nm = nl.slice(nl.indexOf("=") + 1)
@@ -615,7 +615,7 @@ function type_suffix(item) {
 function getnode_type(item,ind) {
   if(item.trim()!="" && item.indexOf("tag=")!=-1) {
     ind = !/^(0|1|2|3|4|5|6|7)$/.test(ind) ? 8 : ind
-    typefix = {"shadowsocks":["𝐬𝐬","𝐒𝐒","🅢🅢","🆂🆂","ⓢⓢ","🅂🅂","𝕊𝕊","ˢˢ","SS"],"shadowsocksr":["𝐬𝐬𝐫","𝐒𝐒𝐑","🅢🅢🅡","🆂🆂🆁","ⓢⓢⓡ","🅂🅂🅁","𝕊𝕊ℝ","ˢˢʳ","SSR"],"vmess":["𝐯𝐦𝐞𝐬𝐬","𝐕𝐌𝐄𝐒𝐒","🅥🅜🅔🅢🅢","🆅🅼🅴🆂🆂","ⓥⓜⓔⓢⓢ","🅅🄼🄴🅂🅂","𝕍𝕞𝕖𝕤𝕤","ᵛᵐᵉˢˢ","VMESS"],"trojan":["𝐭𝐫𝐨𝐣𝐚𝐧","𝐓𝐑𝐎𝐉𝐀𝐍","🅣🅡🅞🅙🅐🅝","🆃🆁🅾🅹🅰🅽","ⓣⓡⓞⓙⓐⓝ"," 🅁🄾🄹🄰🄽","𝕋𝕣𝕠𝕛𝕒𝕟","ᵀʳᵒʲᵃⁿ","TROJAN"],"http":["𝐡𝐭𝐭𝐩","𝐇𝐓𝐓𝐏","🅗🅣🅣🅟","🅷🆃🆃🅿","ⓗⓣⓣⓟ","🄷🅃🅃🄿","𝕙𝕥𝕥𝕡","ʰᵗᵗᵖ","HTTP"]}
+    typefix = {"shadowsocks":["𝐬𝐬","𝐒𝐒","🅢🅢","🆂🆂","ⓢⓢ","🅂🅂","𝕊𝕊","ˢˢ","SS"],"shadowsocksr":["𝐬𝐬𝐫","𝐒𝐒𝐑","🅢🅢🅡","🆂🆂🆁","ⓢⓢⓡ","🅂🅂🅁","𝕊𝕊ℝ","ˢˢʳ","SSR"],"vmess":["𝐯𝐦𝐞𝐬𝐬","𝐕𝐌𝐄𝐒𝐒","🅥🅜🅔🅢🅢","🆅🅼🅴🆂🆂","ⓥⓜⓔⓢⓢ","🅅🄼🄴🅂🅂","𝕍𝕞𝕖𝕤𝕤","ᵛᵐᵉˢˢ","VMESS"],"trojan":["𝐭𝐫𝐨𝐣𝐚𝐧","𝐓𝐑𝐎𝐉𝐀𝐍","🅣🅡🅞🅙🅐🅝","🆃🆁🅾🅹🅰🅽","ⓣⓡⓞⓙⓐⓝ","🅃🅁🄾🄹🄰🄽","𝕋𝕣𝕠𝕛𝕒𝕟","ᵀʳᵒʲᵃⁿ","TROJAN"],"http":["𝐡𝐭𝐭𝐩","𝐇𝐓𝐓𝐏","🅗🅣🅣🅟","🅷🆃🆃🅿","ⓗⓣⓣⓟ","🄷🅃🅃🄿","𝕙𝕥𝕥𝕡","ʰᵗᵗᵖ","HTTP"]}
     typefix["shadowsocks"]=item.indexOf("ssr-protocol")!=-1? typefix["shadowsocksr"] : typefix["shadowsocks"]
     tp = typefix[item.split("=")[0].trim()][ind]
     return tp
@@ -626,7 +626,7 @@ function getnode_type(item,ind) {
 // 操作節點類型佔位符
 function type_handle(item) {
   if(item.indexOf("node_type_para_prefix")!=-1) {
-    item = item.replace(/node_type_para_prefix(\d{0,1})/g,getnode_type(item,item.split("node_ty pe_para_prefix")[1][0]))
+    item = item.replace(/node_type_para_prefix(\d{0,1})/g,getnode_type(item,item.split("node_type_para_prefix")[1][0]))
   }
   return item
 }
@@ -858,7 +858,7 @@ function Rewrite_Filter(subs, Pin, Pout,Preg,Pregout) {
     }
     if (Nlist.length == 0) { $notify("🤖 " + "重写引用  ➟ " + "⟦" + subtag + "⟧", "⛔️ 筛选参数: " + pfi + pfo, "⚠️ 筛选后剩余rewrite规则数为 0️⃣ 条, 请检查参数及原始链接", nan_link) }
     if(Preg){ Nlist = Nlist.map(Regex).filter(Boolean) // regex to filter rewrites
-    	RegCheck(Nlist, "重写引用", "regex", Preg) }
+      RegCheck(Nlist, "重写引用", "regex", Preg) }
     if(Pregout){ Nlist = Nlist.map(RegexOut).filter(Boolean) // regex to delete rewrites
       RegCheck(Nlist, "重写引用", "regout", Pregout) }
     if (hostname != "") { Nlist.push(hostname) }
@@ -882,7 +882,7 @@ function HostNamecheck(content, parain, paraout) {
                     } else {
                         dname.push(hname[i])
                     } //Pin 未命中🎯️的记录
-                } else { nname.push(hname[i]) }	//无in 参数		
+                } else { nname.push(hname[i]) } //无in 参数    
             } else { dname.push(hname[i]) } //out 参数命中
         } else if (parain && parain != "") { //不存在 out，但有 in 参数时
             if (parain.some(excludehn)) { //Pin 命中🎯️
@@ -907,7 +907,7 @@ function HostNamecheck(content, parain, paraout) {
         $notify("🤖 " + "重写引用  ➟ " + "⟦" + subtag + "⟧", "⛔️ 筛选参数: " + pfihn + pfohn, "⚠️ 主机名 hostname 中剩余 0️⃣ 项, 请检查参数及原始链接", nan_link)
     }
     if(Preg){ nname = nname.map(Regex).filter(Boolean)
-    	RegCheck(nname, "主机名hostname","regex", Preg) }
+      RegCheck(nname, "主机名hostname","regex", Preg) }
     if(Pregout){ nname = nname.map(RegexOut).filter(Boolean)
       RegCheck(nname, "主机名hostname", "regout", Pregout) }
     hname = "hostname=" + nname.join(", ");
@@ -1006,7 +1006,7 @@ function Rule_Handle(subs, Pout, Pin) {
   nlist = Pfcr == 1? nlist.filter(Boolean).map(item => item+", force-cellular") : nlist.filter(Boolean)
   nlist = Pfcr == 2? nlist.filter(Boolean).map(item => item+", multi-interface") : nlist.filter(Boolean)
   if (Pvia!="") {
-  	nlist = Pvia ==0? nlist.filter(Boolean).map(item => item+", via-interface=%TUN%") : nlist.filter(Boolean).map(item => item+", via-interface="+Pvia)
+    nlist = Pvia ==0? nlist.filter(Boolean).map(item => item+", via-interface=%TUN%") : nlist.filter(Boolean).map(item => item+", via-interface="+Pvia)
   }
 
   return nlist
@@ -1041,7 +1041,7 @@ function Rule_Policy(content) { //增加、替换 policy
         return nn
     } else if (cnt.length == 1 && !RuleK.some(RuleCheck) && cnt[0]!="" && cnt[0].indexOf("payload:")==-1) { // 纯域名/ip 列表
       return rule_list_handle(cnt[0])
-    } else { return "" }//if RuleK1 check	
+    } else { return "" }//if RuleK1 check 
 }
 
 // 处理纯列表
@@ -1236,7 +1236,7 @@ function QX_TLS(cnt,Pcert0,PTls13) {
     cnt = cnt.replace(new RegExp("tag.*?\=", "gmi"), tls13+"tag=")
   }
   }
-  if (!/^(shadowsocks|trojan)/.test(cnt.trim())) { //关闭非 ss/ssr/trojan 类型的 udp
+  if (!/^(shadowsocks|trojan|vmess)/.test(cnt.trim())) { //关闭非 ss/ssr/trojan/vmess 类型的 udp
     udp =  "udp-relay=false, "
     if(cnt.indexOf("udp-relay") != -1){
       var cnt = cnt.replace(RegExp("udp\-relay.*?\,", "gmi"), udp)
@@ -1851,7 +1851,7 @@ function Rename(str) {
 }
 
 function RenameScript(servers, script) {
-    $notify("  启用脚本进行重命名", "", script);
+    $notify("🤖 启用脚本进行重命名", "", script);
     try {
         const $ = Tools().rename;
         // extract server tags
@@ -1869,7 +1869,7 @@ function RenameScript(servers, script) {
 
 //删除 emoji 
 function emoji_del(str) {
-    return str.replace(/[\uD83C][\uDDE6-\uDDFF][\uD83C][\u DDE6-\uDDFF]/g, "").trim();//unescape(escape(str).replace(/\%uD.{3}/g, ''));
+    return str.replace(/[\uD83C][\uDDE6-\uDDFF][\uD83C][\uDDE6-\uDDFF]/g, "").trim();//unescape(escape(str).replace(/\%uD.{3}/g, ''));
 }
 
 //为节点名添加 emoji
@@ -1925,14 +1925,14 @@ function get_emoji(emojip, sname) {
     "🇸🇪": ["SE", "Sweden","瑞典"],
     "🇸🇬": ["SG", "Singapore","SINGAPORE", "新加坡", "狮城", "沪新", "京新", "泉新", "穗新", "深新", "杭新", "广新","廣新","滬新"],
     "🇹🇭": ["TH", "Thailand", "泰国", "泰國", "曼谷"],
-    " 🇷": ["TR", "Turkey", "土耳其", "伊斯坦布尔"],
+    "🇹🇷": ["TR", "Turkey", "土耳其", "伊斯坦布尔"],
     "🇹🇼": ["TW", "Taiwan","TAIWAN", "台湾", "台北", "台中", "新北", "彰化", "CHT", "台", "HINET"],
     "🇺🇸": ["US", "USA", "America", "United States", "美国", "美", "京美", "波特兰", "达拉斯", "俄勒冈", "凤凰城", "费利蒙", "硅谷", "矽谷", "拉斯维加斯", "洛杉矶", "圣何塞", "圣克拉拉", "西雅图", "芝加哥", "沪美", "哥伦布", "纽约"],
     "🇻🇳": ["VN", "越南", "胡志明市"],
     "🇮🇹": ["Italy", "IT", "Nachash", "意大利", "米兰", "義大利"],
     "🇿🇦": ["South Africa", "南非"],
     "🇦🇪": ["United Arab Emirates", "阿联酋","AE "],
-    "🇧🇷": ["BR",  "Brazil", "巴西", "圣保罗"],
+    "🇧🇷": ["BR", "Brazil", "巴西", "圣保罗"],
     "🇯🇵": ["JP", "Japan","JAPAN", "日本", "东京", "大阪", "埼玉", "沪日", "穗日", "川日", "中日", "泉日", "杭日", "深日", "辽日", "广日"],
     "🇦🇷": ["AR", "Argentina", "阿根廷"],
     "🇳🇴": ["Norway", "挪威", "NO"],
@@ -2392,7 +2392,7 @@ function CH2QX(cnt){
 
 // UDP/TFO 参数 (强制 surge/quanx 类型转换)
 function XUDP(cnt,pudp) {
-  var udp = pudp == 1 && /^(shadowsocks|trojan)/.test(cnt.trim()) ? "udp-relay=true, " : "udp-relay=false, "
+  var udp = pudp == 1 && /^(shadowsocks|trojan|vmess)/.test(cnt.trim()) ? "udp-relay=true, " : "udp-relay=false, "
   if(cnt.indexOf("udp-relay") != -1){
     var cnt0 = cnt.replace(RegExp("udp\-relay.*?\,", "gmi"), udp)
   }else{
@@ -2473,9 +2473,9 @@ function Base64Code() {
         return b.replace(/[\s\S]{1,3}/g, cb_encode);
     };
     // var _encode = function(u) {
-    // 	var isUint8Array = Object.prototype.toString.call(u) === '[object Uint8Array]';
-    // 	return isUint8Array ? u.toString('base64')
-    // 		: btoa(utob(String(u)));
+    //  var isUint8Array = Object.prototype.toString.call(u) === '[object Uint8Array]';
+    //  return isUint8Array ? u.toString('base64')
+    //    : btoa(utob(String(u)));
     // }
     this.encode = function (u) {
         var isUint8Array = Object.prototype.toString.call(u) === '[object Uint8Array]';
@@ -2540,16 +2540,16 @@ function Base64Code() {
         return _atob(String(a).replace(/[^A-Za-z0-9\+\/]/g, ''));
     };
     // var _decode = buffer ?
-    // 	buffer.from && Uint8Array && buffer.from !== Uint8Array.from
-    // 	? function(a) {
-    // 		return (a.constructor === buffer.constructor
-    // 				? a : buffer.from(a, 'base64')).toString();
-    // 	}
-    // 	: function(a) {
-    // 		return (a.constructor === buffer.constructor
-    // 				? a : new buffer(a, 'base64')).toString();
-    // 	}
-    // 	: function(a) { return btou(_atob(a)) };
+    //  buffer.from && Uint8Array && buffer.from !== Uint8Array.from
+    //  ? function(a) {
+    //    return (a.constructor === buffer.constructor
+    //        ? a : buffer.from(a, 'base64')).toString();
+    //  }
+    //  : function(a) {
+    //    return (a.constructor === buffer.constructor
+    //        ? a : new buffer(a, 'base64')).toString();
+    //  }
+    //  : function(a) { return btou(_atob(a)) };
     var _decode = function (u) {
         return btou(_atob(u))
     }
