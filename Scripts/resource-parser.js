@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-01-16 13:35⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-01-16 13:45⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1463,7 +1463,7 @@ function RegexOut(content) {
 
 // 判断节点过滤的函数
 function Scheck(content, param) {
-    name = content.replace(/ /g,"").split("tag=")[1].toUpperCase()
+    name = content.replace(/tag\s*\=/g,"tag=").split("tag=")[1].toUpperCase()
     param = param ? param.map(Dot2) : param // 对符号.的特殊处理
     if (param) {
         var flag = 0;
