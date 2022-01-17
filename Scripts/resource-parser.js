@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-01-16 13:45⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-01-17 21:15⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1223,6 +1223,7 @@ function AeadVmess(cnt) {
 
 // qx 类型 tls/udp 验证问题t
 function QX_TLS(cnt,Pcert0,PTls13) {
+  cnt =cnt.replace(/tag\s*\=/gm,"tag=") //
   var cert0 = Pcert0 == 1? "tls-verification=true, " : "tls-verification=false, "
   var tls13 = PTls13 == 1? "tls13=true, " : ""
   if(cnt.indexOf("tls-verification") != -1){
@@ -1427,7 +1428,7 @@ function Pobfs(jsonl, Pcert0, PTls13) {
     return obfsi.join(", ")
   } else if (jsonl.net !="tcp"){ // 过滤掉 h2/http 等类型
     return "NOT-SUPPORTTED"
-  } else if (jsonl.net =="tcp" && jsonl.type != "none") {
+  } else if (jsonl.net =="tcp" && jsonl.type != "none" && jsonl.type != "") {
     return "NOT-SUPPORTTED"
   } else {return ""}
 }
