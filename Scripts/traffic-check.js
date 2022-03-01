@@ -104,7 +104,7 @@ function Rank(){
     console.log(checkedtraffic.map(item => item.toFixed(1)))
     let rst =  checked.map((name, i) => ([i+1,name,CUnit(checkedtraffic[i])].join(": ")))
     console.log(rst.join("\n"))
-    let msg = "无使用节点"
+    let msg = ""
     if (checked.length>=3) {
         msg = "</br>🥇 "+checked[0]+" ☞ "+CUnit(checkedtraffic[0])+"</br></br>🥈 "+checked[1]+" ☞ "+CUnit(checkedtraffic[1])+"</br></br>🥉 "+checked[2]+" ☞ "+CUnit(checkedtraffic[2])
     } else if (checked.length==2) {
@@ -113,7 +113,7 @@ function Rank(){
         msg = "</br>🥇 "+checked[0]+" ☞ "+CUnit(checkedtraffic[0])
     }
     //msg = `<p style="text-align: center; font-family: -apple-system; font-size: small;font-weight: thib">` + msg + `</p>`
-    msg = "<font size=2 color=#16A085>"+msg+"</font>"
+    msg = msg!=""? "<font size=2 color=#16A085>"+msg+"</font>" :"<font size=3 color=#CD5C5C> </br></br>无使用节点流量记录</font>"
     return msg
 }
 
