@@ -41,6 +41,7 @@ $configuration.sendMessage(message).then(resolve => {
     }
     if (resolve.ret) {
         output=JSON.stringify(resolve.ret[message.content])? JSON.parse(JSON.stringify(resolve.ret[message.content]["candidates"])) : [$environment.params]
+        console.log("start")
         pflag = JSON.stringify(resolve.ret[message.content])? pflag:0
         console.log("节点or策略组："+pflag)
         DisplayNodeTraffic(output,pflag)
@@ -74,12 +75,12 @@ function getServerTraffic(data,nodes){
     if (nodes.indexOf(nname) != -1) {
         if (type == "tcp") {
             //console.log(typeof(Tdatad),typeof(Tdatau))
-            Tdatad=(Number(Tdatad)+data.rx_transfer/1024/1024).toFixed(1)
-            Tdatau=(Number(Tdatau)+data.tx_transfer/1024/1024).toFixed(1)
+            Tdatad=(Number(Tdatad)+data.rx_transfer/1024/1024)
+            Tdatau=(Number(Tdatau)+data.tx_transfer/1024/1024)
             //console.log(Tdatad,Tdatau)
         } else if (type == "udp") {
-            Udatad=(Number(Udatad)+data.rx_transfer/1024/1024).toFixed(1)
-            Udatau=(Number(Udatau)+data.tx_transfer/1024/1024).toFixed(1)
+            Udatad=(Number(Udatad)+data.rx_transfer/1024/1024)
+            Udatau=(Number(Udatau)+data.tx_transfer/1024/1024)
         }
         let total = (data.rx_transfer+data.tx_transfer)/1024/1024
         if (checked.indexOf(nname)==-1) {
@@ -101,15 +102,18 @@ function Rank(){
         return next-prev
     })
     console.log(checkedtraffic.map(item => item.toFixed(1)))
-    let rst =  checked.map((name, i) => ([i+1,name,checkedtraffic[i].toFixed(1) +"MB"].join(": ")))
+    let rst =  checked.map((name, i) => ([i+1,name,CUnit(checkedtraffic[i])].join(": ")))
     console.log(rst.join("\n"))
-    let msg = "</br>🥇 "+checked[0]+" ☞ "+checkedtraffic[0].toFixed(0) +" MB"
+    let msg = "无使用节点"
     if (checked.length>=3) {
-        msg = "</br>🥇 "+checked[0]+" ☞ "+checkedtraffic[0].toFixed(0) +" MB"+"</br>🥈 "+checked[1]+" ☞ "+checkedtraffic[1].toFixed(0) +" MB"+"</br>🥉 "+checked[2]+" ☞ "+checkedtraffic[2].toFixed(0) +" MB"
+        msg = "</br>🥇 "+checked[0]+" ☞ "+CUnit(checkedtraffic[0])+"</br></br>🥈 "+checked[1]+" ☞ "+CUnit(checkedtraffic[1])+"</br></br>🥉 "+checked[2]+" ☞ "+CUnit(checkedtraffic[2])
     } else if (checked.length==2) {
-        msg = "</br>🥇 "+checked[0]+" ☞ "+checkedtraffic[0].toFixed(0) +" MB"+"</br>🥈 "+checked[1]+" ☞ "+checkedtraffic[1].toFixed(0) +" MB"
+        msg = "</br>🥇 "+checked[0]+" ☞ "+CUnit(checkedtraffic[0])+"</br></br>🥈 "+checked[1]+" ☞ "+CUnit(checkedtraffic[1])
+    } else if (checked.length==1) {
+        msg = "</br>🥇 "+checked[0]+" ☞ "+CUnit(checkedtraffic[0])
     }
-    msg = `<p style="text-align: center; font-family: -apple-system; font-size: small">` + msg + `</p>`
+    //msg = `<p style="text-align: center; font-family: -apple-system; font-size: small;font-weight: thib">` + msg + `</p>`
+    msg = "<font size=2 color=#16A085>"+msg+"</font>"
     return msg
 }
 
@@ -137,14 +141,20 @@ $configuration.sendMessage(messageTraffic).then(resolve => {
 });
 }
 
+//单位展示
+function CUnit(cnt) {
+    cnt = Number(cnt)>=1024? (cnt/1024).toFixed(2)+" GB " : cnt.toFixed(0)+" MB "
+    return cnt
+}
+
 function NodeData(nodes,pflag){
-    datad = "<b>TCP : </b>"+" <font color=#2874A6 > "+Tdatad+" MB ⟱ </font>|  <font color=#9B59B6>"+Tdatau+" MB ⟰ </font> "
-    datau = "<b>UDP : </b>"+" <font color=#2874A6 > "+Udatad+" MB ⟱ </font>|  <font color=#9B59B6>"+Udatau+" MB ⟰ </font> "
+    datad = "<b>TCP : </b>"+" <font color=#2874A6 > "+CUnit(Tdatad)+"⟱ </font>|  <font color=#9B59B6>"+CUnit(Tdatau)+"⟰ </font> "
+    datau = "<b>UDP : </b>"+" <font color=#2874A6 > "+CUnit(Udatad)+"⟱ </font>|  <font color=#9B59B6>"+CUnit(Udatau)+"⟰ </font> "
+    total = CUnit(Tdatad+Tdatau+Udatad+Udatau)
     Ncontent = "--------------------------------------</br></br>"+[datad,datau].join("</br></br>")+ "</br></br>--------------------------------------</br></br>"
-    Ncontent = pflag == 0? Ncontent +"<font color=#CD5C5C>"+"<b>节点</b> ➟ " + policy+ "</font>" : Ncontent +"<font color=#CD5C5C>"+"<b> 策略组</b> ➟ " + policy+ " </br> 共 『"+checked.length+"/"+nodes.length+"』 个节点有使用记录 </font></br></br> <font color=#16A085>♔ 排行榜 ☟</font>"
-    //console.log(Ncontent)
-    Ncontent = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + Ncontent + `</p>`
+    Ncontent = pflag == 0? Ncontent+"<font color=#CD5C5C>"+"<b>节点</b> ➟ " + policy+ " ☞ "+total+" 流量 </font></br>" : "<font color=#CD5C5C>"+"<b> 策略</b> ➟ " + policy+ " </br></br> 共 『"+checked.length+"/"+nodes.length+"』 个节点  ☞ "+total+" 流量 </font>"+Ncontent+" <font size=5 color=#16A085><b>🏆 排行榜 </b></br></font>"
     Ncontent = pflag == 0? Ncontent : Ncontent +Rank()
+    Ncontent = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + Ncontent + `</p>`
     //console.log(Ncontent)
     return Ncontent
 }
