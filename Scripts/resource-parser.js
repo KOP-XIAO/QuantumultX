@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-03-01 16:25⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-03-01 20:35⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -960,13 +960,13 @@ function Rule_Handle(subs, Pout, Pin) {
         }//for cnt
         var no = dlist.length <= 10 ? emojino[dlist.length] : dlist.length
         if (dlist.length > 0) {
-            if (Pntf0 != 0) { $notify("🤖 " + "分流引用  ➟ " + "⟦" + subtag + "⟧", "⛔️ 禁用: " + Tout, "☠️ 已禁用以下" + no + "条匹配规则:" + "\n ⨷ " + dlist.join("\n ⨷ "), rule_link) }
+            if (Pntf0 != 0) { $notify("  " + "分流引用  ➟ " + "⟦" + subtag + "⟧", "⛔️ 禁用: " + Tout, "☠️ 已禁用以下" + no + "条匹配规则:" + "\n ⨷ " + dlist.join("\n ⨷ "), rule_link) }
         } else { $notify("🤖 " + "分流引用  ➟ " + "⟦" + subtag + "⟧", "⛔️ 禁用: " + Tout, "⚠️ 未发现任何匹配项, 请检查参数或原始链接", nan_link) }
         if (Tin != "" && Tin != null) {  //有 in 跟 out 参数时
             if (nlist.length > 0) {
                 var noin0 = nlist.length <= 10 ? emojino[nlist.length] : nlist.length
                 if (Pntf0 != 0) {
-                    $notify("🤖 " + "分流引用  ➟ " + "⟦" + subtag + "⟧", "✅ 保留:" + Tin, "🎯 已保留以下 " + noin0 + "条匹配规则:" + "\n ⨁ " + nlist.join("\n ⨁ "), rule_link)
+                    $notify("🤖 " + "分流引用  ➟  " + "⟦" + subtag + "⟧", "✅ 保留:" + Tin, "🎯 已保留以下 " + noin0 + "条匹配规则:" + "\n ⨁ " + nlist.join("\n ⨁ "), rule_link)
                 }
             } else {
                 $notify("🤖 " + "分流引用  ➟ " + "⟦" + subtag + "⟧", "✅ 保留:" + Tin + ",⛔️ 禁用: " + Tout, "⚠️ 筛选后剩余规则数为 0️⃣ 条, 请检查参数及原始链接", nan_link)
@@ -1214,10 +1214,15 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
 function AeadVmess(cnt) {
   let paead = "aead=false"
   if (/^vmess\s*\=/.test(cnt)) {
-    cnts = cnt.split(",")
-    cnts.push(paead)
-    //console.log(cnts)
-    cnt=cnts.join(", ")
+    if (/aead\s*\=/.test(cnt)) {
+      cnt = cnt.replace(/aead\s*\=.*\,/,"aead=false,")
+    } else {
+      cnts = cnt.split(",")
+      cnts.push(paead)
+      //console.log(cnts)
+      cnt=cnts.join(", ")
+    }
+
   }
   return cnt
 }
@@ -1900,7 +1905,7 @@ function get_emoji(emojip, sname) {
     "🇩🇪": ["DE", "German", "GERMAN", "德国", "德國", "法兰克福","京德","滬德","廣德","沪德","广德"],
     "🇩🇰": ["DK","DNK","丹麦","丹麥"],
     "🇪🇸": ["ES", "西班牙", "Spain"],
-    "🇪🇺": ["EU", "欧盟", "欧罗巴"],
+    "🇪🇺": ["EU", "欧盟", "欧罗巴 "],
     "🇫🇮": ["Finland", "芬兰","芬蘭","赫尔辛基"],
     "🇫🇷": ["FR", "France", "法国", "法國", "巴黎"],
     "🇬🇧": ["UK", "GB", "England", "United Kingdom", "英国", "伦敦", "英"],
@@ -2214,7 +2219,7 @@ function LoonSSR2QX(cnt) {
 // fix yaml parse mistakes
 function YAMLFix(cnt){
   cnt = cnt.replace(/\[/g,"yaml@bug1")
-  if (cnt.indexOf("{") != -1){
+  if (cnt.indexOf("{") != -1 && /\{\s*name/.test(cnt)){
     cnt = cnt.replace(/(^|\n)- /g, "$1  - ").replace(/    - /g,"  - ").replace(/:(?!\s)/g,": ").replace(/\,\"/g,", \"").replace(/: {/g, ": {,   ").replace(/, (Host|host|path|tls|mux|skip)/g,",   $1")
     //console.log(cnt)
     cnt = cnt.replace(/{\s*name: /g,"{name: \"").replace(/, server:/g,"\", server:")
@@ -2345,16 +2350,24 @@ function CV2QX(cnt) {
   } else if (cnt.tls){
     obfs = "obfs=over-tls"
   }
+  console.log(obfs)
   ohost = cnt["ws-headers"]? "obfs-host=" + cnt["ws-headers"]["Host"] : ""
+  ohost = cnt["servername"]? "obfs-host=" + cnt["servername"] : ""
+  console.log(ohost)
   ouri = cnt["ws-path"]? "obfs-uri="+cnt["ws-path"] : ""
+  ouri = cnt["ws-opts"]? "obfs-uri="+cnt["ws-opts"]["path"] : ""
   cert = cnt["skip-cert-verify"] && cnt.tls ? "tls-verification=false" : ""
+  caead = cnt["alterId"] && cnt["alterId"]!=0? "aead=false" : "" // aead 选项
+  //caead = cnt["alterId"] == 0? "aead=true" : caead // aead 选项
+  console.log(caead)
+  //caead=""
   //$notify(cert)
   if (Pcert0 == 1 && cnt.tls) {
     cert = "tls-verification=true"
   } else if (Pcert0 != 1 && cnt.tls) {
     cert = "tls-verification=false"
   }
-  node = "vmess="+[ipt, pwd, mtd, udp, tfo, obfs, ohost, ouri, cert, tag].filter(Boolean).join(", ")
+  node = "vmess="+[ipt, pwd, mtd, udp, tfo, obfs, ohost, ouri, cert, caead, tag].filter(Boolean).join(", ")
   //console.log(node)
   return node
 }
