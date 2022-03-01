@@ -16,6 +16,8 @@ const messageTraffic = {
     action: "get_traffic_statistics"
 };
 
+let version = Number($environment.version.split("build")[1])
+
 let result = {
     "title" : "策略流量查詢"
 }
@@ -41,10 +43,16 @@ $configuration.sendMessage(message).then(resolve => {
     }
     if (resolve.ret) {
         output=JSON.stringify(resolve.ret[message.content])? JSON.parse(JSON.stringify(resolve.ret[message.content]["candidates"])) : [$environment.params]
-        console.log("start")
         pflag = JSON.stringify(resolve.ret[message.content])? pflag:0
         console.log("节点or策略组："+pflag)
-        DisplayNodeTraffic(output,pflag)
+        if (version >=631) {
+            console.log("Build "+version)
+            DisplayNodeTraffic(output,pflag)
+        } else {
+            console.log("Build "+version)
+            $done({"title":result["title"],"message":"🚫 你的 APP 版本不支持使用此脚本\n\n💡 需要版本 1.0.28（631+）"})
+        }
+        
     }
     //$done();|
 }, reject => {
