@@ -95,7 +95,7 @@ function getServerTraffic(data,nodes){
             checked.push(nname)
             checkedtraffic.push(total)
         } else {
-            checkedtraffic.push(checkedtraffic[checked.indexOf(nname)]+total)
+            checkedtraffic[checked.indexOf(nname)]=checkedtraffic[checked.indexOf(nname)]+total
         }
     } else {
     }      
@@ -103,6 +103,8 @@ function getServerTraffic(data,nodes){
 
 //流量排序
 function Rank(){
+console.log(checked)
+console.log(checkedtraffic)
     checked.sort((prev,next)=> {
         return checkedtraffic[checked.indexOf(next)]-checkedtraffic[checked.indexOf(prev)]
     })
@@ -151,7 +153,7 @@ $configuration.sendMessage(messageTraffic).then(resolve => {
 
 //单位展示
 function CUnit(cnt) {
-    cnt = Number(cnt)>=1024? (cnt/1024).toFixed(2)+" GB " : cnt.toFixed(0)+" MB "
+    cnt = Number(cnt)>=1024? (cnt/1024).toFixed(2)+" GB " : cnt.toFixed(1)+" MB "
     return cnt
 }
 
