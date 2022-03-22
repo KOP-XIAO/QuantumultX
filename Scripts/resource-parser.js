@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-03-13 20:25⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-03-22 13:32⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -50,6 +50,7 @@
 ⦿ npt=1-8, 将节点名数字替换成样式 ⇒ ①\❶\⓵\𝟙\¹\₁\𝟏\𝟷
 ⦿ delreg, 利用正则表达式来删除 "节点名" 中的字段(⚠️ 慎用)
 ⦿ aead=-1, 关闭Vmess 的AEAD 参数
+⦿ host=xxx , 修改 host 参数（如有）
 ⦿ sort=1/-1/x/参数规则, 按节点名 正/逆/随机/参数规则 排序
   ❖ 参数规则是正则表达式或简单关键词, 用"<" 或 ">" 连接
   ❖ sort=🇭🇰>🇸🇬>🇯🇵>🇺🇸 , 靠前排序
@@ -174,7 +175,7 @@ var typeU = para1.indexOf("type=") != -1 ? para1.split("type=")[1].split("&")[0]
 var Pfcr = para1.indexOf("fcr=") != -1 ? para1.split("fcr=")[1].split("&")[0] : ""; // force-cellular 等参数
 var Pvia = para1.indexOf("via=") != -1 ? para1.split("via=")[1].split("&")[0] : ""; // via-interface 参数
 var Paead = para1.indexOf("aead=") != -1 ? para1.split("aead=")[1].split("&")[0] : ""; // vmess aead 参数
-
+var Phost = para1.indexOf("host=") != -1 ? para1.split("host=")[1].split("&")[0] : ""; // host 混淆参数
 var typeQ = $resource.type? $resource.type:"unsupported"   //返回 field 类型参数
 
 
@@ -185,11 +186,11 @@ pat[0] = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","k","r
 pat[1] = ["🅰","🅱","🅲","🅳","🅴","🅵","🅶","🅷","🅸","🅹","🅺","🅻","🅼","🅽","🅾","🅿","🅺","🆁","🆂","🆃","🆄","🆅","🆆","🆇","🆈","🆉"]
 pat[2] = ["🄰","🄱","🄲","🄳","🄴","🄵","🄶","🄷","🄸","🄹","🄺","🄻","🄼","🄽","🄾","🄿","🄺","🅁","🅂","🅃","🅄","🅅","🅆","🅇","🅈","🅉"]
 pat[3] = ["𝐀","𝐁","𝐂","𝐃","𝐄","𝐅","𝐆","𝐇","𝐈","𝐉","𝐊","𝐋","𝐌","𝐍","𝐎","𝐏","𝐊","𝐑","𝐒","𝐓","𝐔","𝐕","𝐖","𝐗","𝐘","𝐙"]
-pat[4] = ["𝗮","𝗯","𝗰","𝗱","𝗲","𝗳","𝗴","𝗵"," ","𝗷","𝗸","𝗹","𝗺","𝗻","𝗼","𝗽","𝗸","𝗿","𝘀","𝐭","𝘂","𝘃","𝘄","𝘅","𝘆","𝘇"]
+pat[4] = ["𝗮","𝗯","𝗰","𝗱","𝗲","𝗳","𝗴","𝗵","i","𝗷","𝗸","𝗹","𝗺","𝗻","𝗼","𝗽","𝗸","𝗿","𝘀","𝐭","𝘂","𝘃","𝘄","𝘅","𝘆","𝘇"]
 pat[5] = ["𝔸","𝔹","ℂ","𝔻","𝔼","𝔽","𝔾","ℍ","𝕀","𝕁","𝕂","𝕃","𝕄","ℕ","𝕆","ℙ","𝕂","ℝ","𝕊","𝕋","𝕌","𝕍","𝕎","𝕏","𝕐","ℤ"]
 pat[6] = ["𝕒","𝕓","𝕔","𝕕","𝕖","𝕗","𝕘","𝕙","𝕚","𝕛","𝕜","𝕝","𝕞","𝕟","𝕠","𝕡","𝕜","𝕣","𝕤","𝕥","𝕦","𝕧","𝕨","𝕩","𝕪","𝕫"]
 pat[7] = ["ᵃ","ᵇ","ᶜ","ᵈ","ᵉ","ᶠ","ᵍ","ʰ","ⁱ","ʲ","ᵏ","ˡ","ᵐ","ⁿ","ᵒ","ᵖ","ᵒ⃒","ʳ","ˢ","ᵗ","ᵘ","ᵛ","ʷ","ˣ","ʸ","ᙆ"]
-pat[8] = ["ᴬ","ᴮ","ᒼ","ᴰ","ᴱ"," ᶠ","ᴳ","ᴴ","ᴵ","ᴶ","ᴷ","ᴸ","ᴹ","ᴺ","ᴼ","ᴾ","ᴼ̴","ᴿ","ˢ","ᵀ","ᵁ","ᵛ","ᵂ","ˣ","ʸ","ᙆ"]
+pat[8] = ["ᴬ","ᴮ","ᒼ","ᴰ","ᴱ","ᶠ","ᴳ","ᴴ","ᴵ","ᴶ","ᴷ","ᴸ","ᴹ","ᴺ","ᴼ","ᴾ","ᴼ̴","ᴿ","ˢ","ᵀ","ᵁ","ᵛ","ᵂ","ˣ","ʸ","ᙆ"]
 
 // 花式数字
 var patn=[]
@@ -477,7 +478,7 @@ function Type_Check(subs) {
 
 // 检查节点名字(重复以及空名)等QuanX 不允许的情形，以及多个空格等“不规范”方式
 function TagCheck_QX(content) {
-  typefix = {"shadowsocks":["𝐬𝐬","𝐒𝐒","🅢🅢","🆂🆂","ⓢⓢ","🅂🅂","SS"],"shadowsocksr":["𝐬𝐬𝐫","𝐒𝐒𝐑","🅢🅢🅡","🆂🆂🆁","ⓢⓢⓡ","🅂 🅁","SSR"],"vmess":["𝐯𝐦𝐞𝐬𝐬","𝐕𝐌𝐄𝐒𝐒","🅥🅜🅔🅢🅢","🆅🅼🅴🆂🆂","ⓥⓜⓔⓢⓢ","🅅🄼🄴🅂🅂","VMESS"],"trojan":["𝐭𝐫 𝐣𝐚𝐧","𝐓𝐑𝐎𝐉𝐀𝐍","🅣🅡🅞🅙🅐 ","🆃🆁🅾🅹🅰🅽","ⓣⓡⓞⓙⓐⓝ","🅃🅁🄾🄹🄰🄽","TROJAN"],"http":["𝐡𝐭𝐭𝐩","𝐇𝐓𝐓𝐏","🅗🅣🅣🅟","🅷🆃🆃🅿","ⓗⓣⓣⓟ","🄷🅃🅃🄿","HTTP"]}
+  typefix = {"shadowsocks":["𝐬𝐬","𝐒𝐒","🅢🅢","🆂🆂","ⓢⓢ","🅂🅂","SS"],"shadowsocksr":["𝐬𝐬𝐫","𝐒𝐒𝐑","🅢🅢🅡","🆂🆂🆁","ⓢⓢⓡ","🅂🅂🅁","SSR"],"vmess":["𝐯𝐦𝐞𝐬𝐬","𝐕𝐌𝐄𝐒𝐒","🅥🅜🅔🅢🅢","🆅🅼🅴🆂🆂","ⓥⓜⓔⓢⓢ","🅅🄼🄴🅂🅂","VMESS"],"trojan":["𝐭𝐫𝐨𝐣𝐚𝐧","𝐓𝐑𝐎𝐉𝐀𝐍","🅣🅡🅞🅙🅐🅝","🆃🆁🅾🅹🅰🅽","ⓣⓡⓞⓙⓐⓝ","🅃🅁🄾🄹🄰🄽","TROJAN"],"http":["𝐡𝐭𝐭𝐩","𝐇𝐓𝐓𝐏","🅗🅣🅣🅟","🅷🆃🆃🅿","ⓗⓣⓣⓟ","🄷🅃🅃🄿","HTTP"]}
   console.log(content)
     var Olist = content.map(item =>item.trim().replace(/\s{2,}/g," "))
     //$notify("","",Olist)
@@ -486,11 +487,11 @@ function TagCheck_QX(content) {
     var no=0 ;
     for (var i = 0; i < Olist.length; i++) {
         var item = Olist[i] ? Olist[i] : ""
-        typefix["shadowsocks "]=item.indexOf("ssr-protocol")!=-1? typefix["shadowsocksr"] : typefix["shadowsocks"]
+        typefix["shadowsocks"]=item.indexOf("ssr-protocol")!=-1? typefix["shadowsocksr"] : typefix["shadowsocks"]
         if (item.replace(/ /gm, "").indexOf("tag=") != -1) {
             var nl = item.slice(item.indexOf("tag"))
             var nm = nl.slice(nl.indexOf("=") + 1)
-            if (nm == "") { //空名字
+            if (nm == "") { //空名
                 tp = typefix[item.split("=")[0].trim()][3]
                 nm = tp + " | " + item.split("=")[1].split(",")[0].split(":")[0]
                 item = item.split("tag")[0] + "tag=" + nm.replace("shadowsocks", "ss")
@@ -615,7 +616,7 @@ function type_suffix(item) {
 function getnode_type(item,ind) {
   if(item.trim()!="" && item.indexOf("tag=")!=-1) {
     ind = !/^(0|1|2|3|4|5|6|7)$/.test(ind) ? 8 : ind
-    typefix = {"shadowsocks":["𝐬𝐬","𝐒𝐒","🅢🅢","🆂🆂","ⓢⓢ","🅂🅂","𝕊𝕊","ˢˢ","SS"],"shadowsocksr":["𝐬𝐬𝐫","𝐒𝐒𝐑","🅢🅢🅡","🆂🆂🆁","ⓢⓢⓡ","🅂🅂🅁","𝕊𝕊ℝ","ˢˢʳ","SSR"],"vmess":["𝐯𝐦𝐞𝐬𝐬","𝐕𝐌𝐄𝐒𝐒","🅥🅜🅔🅢🅢","🆅🅼🅴🆂🆂","ⓥⓜⓔⓢⓢ","🅅🄼🄴🅂🅂","𝕍𝕞𝕖𝕤𝕤","ᵛᵐᵉˢˢ","VMESS"],"trojan":["𝐭𝐫𝐨𝐣𝐚𝐧","𝐓𝐑𝐎𝐉𝐀𝐍","🅣 🅞🅙🅐🅝","🆃🆁🅾🅹🅰🅽","ⓣⓡⓞⓙⓐⓝ","🅃🅁🄾🄹🄰🄽","𝕋𝕣𝕠𝕛𝕒𝕟","ᵀʳᵒʲᵃⁿ","TROJAN"],"http":["𝐡𝐭𝐭𝐩","𝐇𝐓𝐓𝐏","🅗🅣🅣🅟","🅷🆃🆃🅿","ⓗⓣⓣⓟ","🄷🅃🅃🄿","𝕙𝕥𝕥𝕡","ʰᵗᵗᵖ","HTTP"]}
+    typefix = {"shadowsocks":["𝐬𝐬","𝐒𝐒","🅢🅢","🆂🆂","ⓢⓢ","🅂🅂","𝕊𝕊","ˢˢ","SS"],"shadowsocksr":["𝐬𝐬𝐫","𝐒𝐒𝐑","🅢🅢🅡","🆂🆂🆁","ⓢⓢⓡ","🅂🅂🅁","𝕊𝕊ℝ","ˢˢʳ","SSR"],"vmess":["𝐯𝐦𝐞𝐬𝐬","𝐕𝐌𝐄𝐒𝐒","🅥🅜🅔🅢🅢","🆅🅼🅴🆂🆂","ⓥⓜⓔⓢⓢ","🅅🄼🄴🅂🅂","𝕍𝕞𝕖𝕤𝕤","ᵛᵐᵉˢˢ","VMESS"],"trojan":["𝐭𝐫𝐨𝐣𝐚𝐧","𝐓𝐑𝐎𝐉𝐀𝐍","🅣🅡🅞🅙🅐🅝","🆃🆁🅾🅹🅰🅽","ⓣⓡⓞⓙⓐⓝ","🅃🅁🄾🄹🄰🄽","𝕋𝕣𝕠𝕛𝕒𝕟","ᵀʳᵒʲᵃⁿ","TROJAN"],"http":["𝐡𝐭𝐭𝐩","𝐇𝐓𝐓𝐏","🅗🅣🅣🅟","🅷🆃🆃🅿","ⓗⓣⓣⓟ","🄷🅃🅃🄿","𝕙𝕥𝕥𝕡","ʰᵗᵗᵖ","HTTP"]}
     typefix["shadowsocks"]=item.indexOf("ssr-protocol")!=-1? typefix["shadowsocksr"] : typefix["shadowsocks"]
     tp = typefix[item.split("=")[0].trim()][ind]
     return tp
@@ -705,6 +706,13 @@ function ToRaw(cnt) {
 function CDN(cnt) {
   console.log("CDN start")
   cnt = cnt.join("\n").replace(/https:\/\/raw.githubusercontent.com\/(.*?)\/(.*?)\/(.*)/gmi,"https://cdn.jsdelivr.net/gh/$1/$2@$3")
+  return cnt
+}
+
+// 指定节点 host 参数
+function HOST_Handle(cnt,phost) {
+  phost="host="+phost+","
+  cnt = cnt.replace(/host\s*\=(.*)\,/,phost)
   return cnt
 }
 
@@ -960,13 +968,13 @@ function Rule_Handle(subs, Pout, Pin) {
         }//for cnt
         var no = dlist.length <= 10 ? emojino[dlist.length] : dlist.length
         if (dlist.length > 0) {
-            if (Pntf0 != 0) { $notify("  " + "分流引用  ➟ " + "⟦" + subtag + "⟧", "⛔️ 禁用: " + Tout, "☠️ 已禁用以下" + no + "条匹配规则:" + "\n ⨷ " + dlist.join("\n ⨷ "), rule_link) }
+            if (Pntf0 != 0) { $notify("🤖 " + "分流引用  ➟ " + "⟦" + subtag + "⟧", "⛔️ 禁用: " + Tout, "☠️ 已禁用以下" + no + "条匹配规则:" + "\n ⨷ " + dlist.join("\n ⨷ "), rule_link) }
         } else { $notify("🤖 " + "分流引用  ➟ " + "⟦" + subtag + "⟧", "⛔️ 禁用: " + Tout, "⚠️ 未发现任何匹配项, 请检查参数或原始链接", nan_link) }
         if (Tin != "" && Tin != null) {  //有 in 跟 out 参数时
             if (nlist.length > 0) {
                 var noin0 = nlist.length <= 10 ? emojino[nlist.length] : nlist.length
                 if (Pntf0 != 0) {
-                    $notify("🤖 " + "分流引用  ➟  " + "⟦" + subtag + "⟧", "✅ 保留:" + Tin, "🎯 已保留以下 " + noin0 + "条匹配规则:" + "\n ⨁ " + nlist.join("\n ⨁ "), rule_link)
+                    $notify("🤖 " + "分流引用  ➟ " + "⟦" + subtag + "⟧", "✅ 保留:" + Tin, "🎯 已保留以下 " + noin0 + "条匹配规则:" + "\n ⨁ " + nlist.join("\n ⨁ "), rule_link)
                 }
             } else {
                 $notify("🤖 " + "分流引用  ➟ " + "⟦" + subtag + "⟧", "✅ 保留:" + Tin + ",⛔️ 禁用: " + Tout, "⚠️ 筛选后剩余规则数为 0️⃣ 条, 请检查参数及原始链接", nan_link)
@@ -1133,7 +1141,7 @@ function ReplaceReg(cnt, para) {
     return cnt0//.split("\n")
 }
 
-//混合订阅类型，用于未整体进行 base64 encode 的类型
+//混合订阅类型，用于未整体进行 base64 encode 以及已经 decode 后的类型
 function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
     var list0 = subs.split("\n");
     var QuanXK = ["shadowsocks=", "trojan=", "vmess=", "http="];
@@ -1193,6 +1201,7 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
                 failedList.push(`<<<\nContent: ${list0[i]}\nError: ${e}`)
             }
             if (Paead == -1) {node = AeadVmess(node)} // vmess 类型 aead 处理
+            if (Phost != "") {node = HOST_Handle(node,Phost)} // host 参数修改
             if (node instanceof Array) {
                 for (var j in node) {
                   node[j] = Pudp != 0 ? XUDP(node[j],Pudp) : node[j]
@@ -1911,7 +1920,7 @@ function get_emoji(emojip, sname) {
     "🇩🇪": ["DE", "German", "GERMAN", "德国", "德國", "法兰克福","京德","滬德","廣德","沪德","广德"],
     "🇩🇰": ["DK","DNK","丹麦","丹麥"],
     "🇪🇸": ["ES", "西班牙", "Spain"],
-    "🇪🇺": ["EU", "欧盟", "欧罗巴 "],
+    "🇪🇺": ["EU", "欧盟", "欧罗巴"],
     "🇫🇮": ["Finland", "芬兰","芬蘭","赫尔辛基"],
     "🇫🇷": ["FR", "France", "法国", "法國", "巴黎"],
     "🇬🇧": ["UK", "GB", "England", "United Kingdom", "英国", "伦敦", "英"],
