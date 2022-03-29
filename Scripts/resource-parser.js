@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-03-22 13:32⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-03-29 21:02⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -22,7 +22,8 @@
 1️⃣ ⟦𝐬𝐞𝐫𝐯𝐞𝐫 节点⟧ ➠ 参数说明:
 ⦿ emoji=1(国行设备用2)/-1, 添加/删除节点名内地区旗帜;
 ⦿ udp=1/-1, tfo=1/-1, 分别强制开启(关闭) 𝐮𝐝𝐩-𝐫𝐞𝐥𝐚𝐲/𝐟𝐚𝐬𝐭-𝐨𝐩𝐞𝐧;
-⦿ tls13=1, cert=1, 分别开启 𝐭𝐥𝐬1.3 及 𝐭𝐥𝐬 证书验证(默认关闭);
+⦿ cert=1/-1, 分别开启/关闭 𝐭𝐥𝐬 证书验证(默认关闭);
+  ❖ csha/psha,  tls-cert-sha256 以及 tls-pubkey-sha256 参数
 ⦿ in, out, regex, regout 分别为 保留、删除、正则保留、正则删除 节点;
   ❖ in, out 中多参数(逻辑"或")用 "+", 逻辑"与"用 "." 表示;
   ❖ in/out/regex/regout 均对节点的完整信息进行匹配(类型、端口、加密等);
@@ -176,6 +177,8 @@ var Pfcr = para1.indexOf("fcr=") != -1 ? para1.split("fcr=")[1].split("&")[0] : 
 var Pvia = para1.indexOf("via=") != -1 ? para1.split("via=")[1].split("&")[0] : ""; // via-interface 参数
 var Paead = para1.indexOf("aead=") != -1 ? para1.split("aead=")[1].split("&")[0] : ""; // vmess aead 参数
 var Phost = para1.indexOf("host=") != -1 ? para1.split("host=")[1].split("&")[0] : ""; // host 混淆参数
+var Pcsha256 = para1.indexOf("csha=") != -1 ? para1.split("csha=")[1].split("&")[0] : ""; // cert-sha256 混淆参数
+var Ppsha256 = para1.indexOf("psha=") != -1 ? para1.split("psha=")[1].split("&")[0] : ""; // pubkey-sha256 混淆参数
 var typeQ = $resource.type? $resource.type:"unsupported"   //返回 field 类型参数
 
 
@@ -716,6 +719,17 @@ function HOST_Handle(cnt,phost) {
   return cnt
 }
 
+// 指定 cert-sha256 pubkey-sha256 参数
+function SHA256_Handle(cnt,pcsha256,ppsha256) {
+  if (cnt.indexOf("over-tls=true")!=-1 || cnt.indexOf("obfs=wss")!=-1) {
+    cnt = cnt.replace(/tls-verification\s*\=\s*false(\s*)\,/,"") //去除 tls-verification=false
+    //$notify("SHA256",cnt,Pcsha256+Ppsha256)
+    cnt = pcsha256!=""? cnt.replace(/tag\s*\=/,"tls-cert-sha256="+pcsha256+", tag=") : cnt
+    cnt = ppsha256!=""? cnt.replace(/tag\s*\=/,"tls-pubkey-sha256="+ppsha256+", tag=") : cnt
+  }
+  return cnt
+}
+
 //url-regex 转换成 Quantumult X
 function URX2QX(subs) {
     var nrw = []
@@ -1202,6 +1216,8 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
             }
             if (Paead == -1) {node = AeadVmess(node)} // vmess 类型 aead 处理
             if (Phost != "") {node = HOST_Handle(node,Phost)} // host 参数修改
+            if (Pcsha256 != "" || Ppsha256 != "") {
+            node = SHA256_Handle(node,Pcsha256,Ppsha256)} // Sha256 参数
             if (node instanceof Array) {
                 for (var j in node) {
                   node[j] = Pudp != 0 ? XUDP(node[j],Pudp) : node[j]
