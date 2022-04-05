@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-03-31 08:02⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-04-05 22:32⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1662,6 +1662,7 @@ function SS2QX(subs, Pudp, Ptfo) {
     ptfo = Ptfo == 1 ? "fast-open=true" : "fast-open=false";
     nssr.push(type + ip, pwd, mtd + obfs + obfshost, pudp, ptfo, tag)
     QX = nssr.join(", ")
+    //$notify(QX)
     return QX;
   }
 }
@@ -1710,10 +1711,22 @@ function QXFix(cntf) {
   //console.log("hh"+cntf)
   var cnti = cntf.replace(/tag\s+\=/,"tag=").replace("chacha20-poly","chacha20-ietf-poly")
   var hd = cnti.split("tag=")[0]
-  var tag = "tag="+cnti.split("tag=")[1].split(",")[0]
+  var tag = "tag="+cnti.split("tag=")[1].split(",")[0].trim()
   var tail = cnti.split(tag+",")
   cnti = tail.length<=1?  cntf : String(hd + tail[1].split("\r")[0] +"," + tag)
-  return cnti
+  console.log(cnti)
+  cntis = cnti.split(",") //防止节点名中有,符号而导致的错误情况
+  tagfix = ""
+  cntii = ""
+  for (i in cntis) {
+    if (cntis[i].indexOf("=") == -1) {
+      //console.log(cntis[i])
+      tagfix += ","+cntis[i].trim()
+    } else {
+      cntis[i].indexOf("tag=") == -1? cntii += cntis[i]+",":cntii += tag+tagfix
+    }
+  }
+  return cntii
 }
 
 // 用于过滤非节点部分（比如整份配置中其它内容）,同时纠正部分不规范的写法(没有把 tag 写在最后)
@@ -2454,6 +2467,7 @@ function XUDP(cnt,pudp) {
   }else{
     var cnt0 = cnt.replace(new RegExp("tag.*?\=", "gmi"), udp+"tag=")
   }
+  //console.log("UDP-Handle","",cnt0)
   return cnt0
 }
 
