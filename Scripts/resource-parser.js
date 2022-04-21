@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-04-13 10:52⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-04-21 18:30⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -81,6 +81,7 @@
 ⦿ cdn=1, 将 github 脚本的地址转换成免翻墙cdn.jsdelivr.net
 ⦿ fcr=1/2/3, 为分流规则添加 force-cellular/multi-interface/multi-interface-balance 参数，强制移动数据/混合数据/负载均衡
 ⦿ via=接口, 为分流规则添加 via-interface 参数, 0 表示 via-interface=%TUN%
+⦿ relay=目标策略名, 批量将节点订阅转换为ip/host规则，用于实现代理链
 
 3⃣️ 其他参数
 ⦿ 通知参数 ntf=0/1, 用于 关闭/打开 资源解析器的提示通知
@@ -180,7 +181,8 @@ var Phost = para1.indexOf("host=") != -1 ? para1.split("host=")[1].split("&")[0]
 var Pcsha256 = para1.indexOf("csha=") != -1 ? para1.split("csha=")[1].split("&")[0] : ""; // cert-sha256 混淆参数
 var Ppsha256 = para1.indexOf("psha=") != -1 ? para1.split("psha=")[1].split("&")[0] : ""; // pubkey-sha256 混淆参数
 var typeQ = $resource.type? $resource.type:"unsupported"   //返回 field 类型参数
-
+var PRelay = para1.indexOf("relay=") != -1 ? decodeURIComponent(para1.split("relay=")[1].split("&")[0]) : ""; // 节点 relay 参数, 用于实现代理链功能
+typeQ = PRelay!=""? "server":typeQ
 
 
 //花漾字 pattern
@@ -344,7 +346,7 @@ function ResourceParse() {
       total = para1.indexOf("node_index_prefix")!=-1 ?index_handle(total):total // 节点序号操作
       total = TagCheck_QX(total).join("\n") //节点名检查
       if (Pcnt == 1) {$notify("解析后最终返回内容" , "节点数量: " +total.split("\n").length, total)}
-      total = Base64.encode(total) //强制节点类型 base64 加密后再导入 Quantumult X
+      total = PRelay==""? Base64.encode(total) : ServerRelay(total.split("\n"),PRelay) //强制节点类型 base64 加密后再导入 Quantumult X, 如果是relay，则转换成分流类型
       $done({ content: total });
     } else {
       $notify("❓❓ 友情提示 ➟ "+ "⟦" + subtag + "⟧", "⚠️⚠️ 解析后无有效内容", "🚥🚥 请自行检查相关参数, 或者点击通知跳转反馈", bug_link)
@@ -685,6 +687,19 @@ function tag_handle(item) {
 function URI_TAG(cnt0,tag0) {
   cnt0 = cnt0.split("tag=")[0] + "tag=" + tag0
   return cnt0
+}
+
+// 方便代理链的实现
+function ServerRelay(src,dst) {
+  var rsts=[]
+  for (var i=0; i<src.length; i++) {
+    serverA = src[i].indexOf("-host")==-1? src[i].split("=")[1].split(":")[0].trim() : src[i].split("-host")[1].split("=")[1].split(",")[0].trim()
+    type = /^[a-z]/.test(serverA) || /[a-z]$/.test(serverA)? "host":"ip"
+    rst = type == "ip"? "ip-cidr,"+serverA+"/32,"+dst : "host-suffix,"+serverA+","+dst 
+    rsts.push(rst)
+  }
+  return rsts.join("\n")
+  
 }
 
 // 用于某些奇葩用户不使用 raw 链接的问题
