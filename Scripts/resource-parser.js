@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-04-22 15:30⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-04-25 16:30⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -16,8 +16,8 @@
 0️⃣ 在 ⟦订阅链接⟧ 后加 "#" 使用, 不同参数用 "&" 连接 
 ⚠️ ☞ “你的订阅连接”#emoji=1&tfo=1&in=香港+台湾
 ❖ 本地资源片段引用, 请将参数如 "#in=xxx&out=yyy" 填入资源片段第 ① 行
-❖ 🚦 支持中文, "操作" 以下特殊字符时请先替换 🚦
-  ∎ "+"⇒"%2B", 空格⇒"%20", "@"⇒"%40", "&"⇒"%26", "."⇒"\."
+❖ 🚦 支持中文, "操作" 以下特殊字符时请先替换(URL-Encode) 🚦
+  ∎ "+"⇒"%2B", 空格⇒"%20", "@"⇒"%40", "&"⇒"%26", "."⇒"\.", ","⇒"%2C"
 
 1️⃣ ⟦𝐬𝐞𝐫𝐯𝐞𝐫 节点⟧ ➠ 参数说明:
 ⦿ emoji=1(国行设备用2)/-1, 添加/删除节点名内地区旗帜;
@@ -344,6 +344,7 @@ function ResourceParse() {
         total = QXSort(total, Psort0);
       }
       total = para1.indexOf("node_index_prefix")!=-1 ?index_handle(total):total // 节点序号操作
+      //$notify("before","haha",total)
       total = TagCheck_QX(total).join("\n") //节点名检查
       if (Pcnt == 1) {$notify("解析后最终返回内容" , "节点数量: " +total.split("\n").length, total)}
       total = PRelay==""? Base64.encode(total) : ServerRelay(total.split("\n"),PRelay) //强制节点类型 base64 加密后再导入 Quantumult X, 如果是relay，则转换成分流类型
@@ -421,8 +422,8 @@ function Type_Check(subs) {
     var type = "unknown"
     var RuleK = ["host,", "-suffix,", "domain,", "-keyword,", "ip-cidr,", "ip-cidr6,",  "geoip,", "user-agent,", "ip6-cidr,"];
     var DomainK = ["domain-set,"]
-    var QuanXK = ["shadowsocks=", "trojan=", "vmess=", "http="];
-    var SurgeK = ["=ss,", "=vmess,", "=trojan,", "=http,", "=custom,", "=https,", "=shadowsocks", "=shadowsocksr", "=sock5"];
+    var QuanXK = ["shadowsocks=", "trojan=", "vmess=", "http=", "socks5="];
+    var SurgeK = ["=ss,", "=vmess,", "=trojan,", "=http,", "=custom,", "=https,", "=shadowsocks", "=shadowsocksr", "=sock5", "=sock5-tls"];
     var ClashK = ["proxies:"]
     var SubK = ["dm1lc3M", "c3NyOi8v", "CnNzOi8", "dHJvamFu", "c3M6Ly", "c3NkOi8v", "c2hhZG93",,"aHR0c", "CnRyb2phbjo"];
     var RewriteK = [" url "]
@@ -475,7 +476,7 @@ function Type_Check(subs) {
     } 
   // 用于通知判断类型，debug
   if(typeU == "X"){
-    $notify(type,"",content0)
+    $notify("该链接判定类型",type,content0)
   }
   //$notify(type)
     return type
@@ -1657,6 +1658,7 @@ function TJ2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
     thost = cnt.indexOf("sni=") != -1? "tls-host="+cnt.split("sni=")[1].split(/&|#/)[0]:""
     thost = cnt.indexOf("peer=") != -1? "tls-host="+cnt.split("peer=")[1].split(/&|#/)[0]:thost
     ptls13 = PTls13 == 1 ? "tls13=true" : "tls13=false"
+    puri = ""
     if (Pcert0 == 0) { 
       pcert = "tls-verification=false" 
     } else if (Pcert0 == 1) {
@@ -1664,9 +1666,16 @@ function TJ2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
     }
     pudp = Pudp == 1 ? "udp-relay=false" : "udp-relay=false";
     ptfo = Ptfo == 1 ? "fast-open=true" : "fast-open=false";
+    ptfo = cnt.indexOf("tfo=1") != -1? "fast-open=true" : ptfo
     tag = cnt.indexOf("#") != -1 ? "tag=" + decodeURIComponent(cnt.split("#")[1]) : "tag= [trojan]" + ip
-    ntrojan.push(type + ip, pwd, obfs, pcert, thost, ptls13, pudp, ptfo, tag)
+    if (cnt.indexOf("&plugin=obfs-local")!=-1) {//小火箭内的websocket写法
+    obfs = cnt.indexOf("obfs=websocket") != -1? "obfs=wss" : obfs 
+    thost=cnt.indexOf("obfs-host=") == -1? thost : "obfs-host=" + cnt.split("obfs-host=")[1].split(";")[0].split("#")[0]
+    puri = cnt.indexOf("obfs-uri=") == -1? puri : ", obfs-uri=" + cnt.split("obfs-uri=")[1].split(";")[0].split("#")[0]
+    }
+    ntrojan.push(type + ip, pwd, obfs, pcert, thost+puri, pudp, ptfo, tag)
     QX = ntrojan.filter(Boolean).join(", ");
+    //$notify("title","subtitle",QX)
     return QX;
 }
 
@@ -1760,7 +1769,7 @@ function QXFix(cntf) {
   tagfix = ""
   cntii = ""
   for (i in cntis) {
-    if (cntis[i].indexOf("=") == -1) {
+    if (cntis[i].indexOf("=") == -1 && cntis[i].trim() !="") {
       tagfix += ","+cntis[i]
     } else {
       cntis[i].indexOf("tag=") == -1? cntii += cntis[i]+", ": cntii
