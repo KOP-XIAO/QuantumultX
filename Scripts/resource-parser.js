@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-04-25 16:30⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-04-26 22:30⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1642,7 +1642,7 @@ function SSR2QX(subs, Pudp, Ptfo) {
     return QX;
 }
 
-//Trojan 类型 URI 转换成 QX
+//Trojan 类型 URI 转换成 QX, 包含小火箭类型
 function TJ2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
     var ntrojan = []
     var cnt = subs.split("trojan://")[1]
@@ -1670,8 +1670,12 @@ function TJ2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
     tag = cnt.indexOf("#") != -1 ? "tag=" + decodeURIComponent(cnt.split("#")[1]) : "tag= [trojan]" + ip
     if (cnt.indexOf("&plugin=obfs-local")!=-1) {//小火箭内的websocket写法
     obfs = cnt.indexOf("obfs=websocket") != -1? "obfs=wss" : obfs 
-    thost=cnt.indexOf("obfs-host=") == -1? thost : "obfs-host=" + cnt.split("obfs-host=")[1].split(";")[0].split("#")[0]
-    puri = cnt.indexOf("obfs-uri=") == -1? puri : ", obfs-uri=" + cnt.split("obfs-uri=")[1].split(";")[0].split("#")[0]
+    thost=cnt.indexOf("obfs-host=") == -1? thost : "obfs-host=" + decodeURIComponent(cnt.split("obfs-host=")[1].split(";")[0].split("#")[0])
+    puri = cnt.indexOf("obfs-uri=") == -1? puri : ", obfs-uri=" + decodeURIComponent(cnt.split("obfs-uri=")[1].split(";")[0].split("#")[0])
+    } else if (cnt.indexOf("&type=ws")!=-1) {//v2rayN uri
+      obfs = cnt.indexOf("security=tls") != -1? "obfs=wss" : obfs 
+      thost=cnt.indexOf("&host=") == -1? thost : "obfs-host=" + decodeURIComponent(cnt.split("&host=")[1].split("&")[0].split("#")[0])
+      puri = cnt.indexOf("&path=") == -1? puri : ", obfs-uri=" + decodeURIComponent(cnt.split("&path=")[1].split("&")[0].split("#")[0])
     }
     ntrojan.push(type + ip, pwd, obfs, pcert, thost+puri, pudp, ptfo, tag)
     QX = ntrojan.filter(Boolean).join(", ");
@@ -2006,7 +2010,7 @@ function get_emoji(emojip, sname) {
     "🇩🇪": ["DE", "German", "GERMAN", "德国", "德國", "法兰克福","京德","滬德","廣德","沪德","广德"],
     "🇩🇰": ["DK","DNK","丹麦","丹麥"],
     "🇪🇸": ["ES", "西班牙", "Spain"],
-    "🇪🇺": ["EU", "欧盟", "欧罗巴"],
+    "🇪🇺": ["EU", "欧盟", "欧罗巴","欧洲"],
     "🇫🇮": ["Finland", "芬兰","芬蘭","赫尔辛基"],
     "🇫🇷": ["FR", "France", "法国", "法國", "巴黎"],
     "🇬🇧": ["UK", "GB", "England", "United Kingdom", "英国", "伦敦", "英"],
@@ -2077,6 +2081,7 @@ function get_emoji(emojip, sname) {
     "🇽🇰": ["科索沃"],
     "🇲🇦": ["摩洛哥"],
     "🇨🇳": ["CN", "China", "回国", "中国","中國", "江苏", "北京", "上海", "广州", "深圳", "杭州", "徐州", "青岛", "宁波", "镇江", "back"],
+    "🌏": ["亚洲"]
   }
     str1 = JSON.stringify(Lmoji)
     aa = JSON.parse(str1)
