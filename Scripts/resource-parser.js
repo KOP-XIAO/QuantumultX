@@ -434,6 +434,7 @@ function Type_Check(subs) {
     const RuleCheck = (item) => subi.toLowerCase().indexOf(item) != -1;
     const NodeCheck = (item) => subi.toLowerCase().indexOf(item.toLowerCase()) != -1;
     const NodeCheck1 = (item) => subi.toLowerCase().indexOf(item.toLowerCase()) != -1; //b64加密的订阅类型
+    const NodeCheck2 = (item) => subi.toLowerCase().indexOf(item.toLowerCase()) == 0; //URI 类型
     const RewriteCheck = (item) => subs.indexOf(item) != -1;
     var subsn = subs.split("\n")
     if (subs.indexOf(html) != -1 && link0.indexOf("github.com" == -1)) {
@@ -455,7 +456,7 @@ function Type_Check(subs) {
       content0 = Domain2Rule(content0) // 转换 domain-set
     } else if (typeQ == "filter") { // 纯 list类型？
       type = "Rule"
-    } else if (subsn.length >= 1 && SubK2.some(NodeCheck) && !/\[(Proxy|filter_local)\]/.test(subs)) { //未b64加密的多行URI 组合订阅
+    } else if (subsn.length >= 1 && SubK2.some(NodeCheck2) && !/\[(Proxy|filter_local)\]/.test(subs)) { //未b64加密的多行URI 组合订阅
       type = (typeQ == "unsupported" || typeQ =="server"||typeQ =="uri") ? "Subs":"wrong-field"
     } else if ((subi.indexOf("tag=") != -1 && QuanXK.some(NodeCheck) && !/\[(Proxy|filter_local)\]/.test(subs)) || typeU =="list") {
       type = (typeQ == "unsupported" || typeQ =="server")? "Subs":"wrong-field" // QuanX list
@@ -1175,7 +1176,7 @@ function ReplaceReg(cnt, para) {
 function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
     var list0 = subs.split("\n");
     var QuanXK = ["shadowsocks=", "trojan=", "vmess=", "http=","socks5="];
-    var SurgeK = ["=ss,", "=vmess,", "=trojan,", "=http,", "=https", "=custom,", "=socks5", "=socks5-tls"];
+    var SurgeK = ["=ss,", "=vmess,", "=trojan,", "=http,", "=https,", "=custom,", "=socks5", "=socks5-tls"];
     var LoonK = ["=shadowsocks", "=shadowsocksr"]
     var QXlist = [];
     var failedList = [];
