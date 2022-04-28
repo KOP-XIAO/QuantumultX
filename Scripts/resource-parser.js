@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-04-27 11:30⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-04-28 11:30⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -52,6 +52,7 @@
 ⦿ delreg, 利用正则表达式来删除 "节点名" 中的字段(⚠️ 慎用)
 ⦿ aead=-1, 关闭Vmess 的AEAD 参数
 ⦿ host=xxx , 修改 host 参数（如有）
+⦿ checkurl=xxx , 指定server_check_url 参数
 ⦿ sort=1/-1/x/参数规则, 按节点名 正/逆/随机/参数规则 排序
   ❖ 参数规则是正则表达式或简单关键词, 用"<" 或 ">" 连接
   ❖ sort=🇭🇰>🇸🇬>🇯🇵>🇺🇸 , 靠前排序
@@ -182,6 +183,7 @@ var Pcsha256 = para1.indexOf("csha=") != -1 ? para1.split("csha=")[1].split("&")
 var Ppsha256 = para1.indexOf("psha=") != -1 ? para1.split("psha=")[1].split("&")[0] : ""; // pubkey-sha256 混淆参数
 var typeQ = $resource.type? $resource.type:"unsupported"   //返回 field 类型参数
 var PRelay = para1.indexOf("relay=") != -1 ? decodeURIComponent(para1.split("relay=")[1].split("&")[0]) : ""; // 节点 relay 参数, 用于实现代理链功能
+var PcheckU = para1.indexOf("checkurl=") != -1 ? decodeURIComponent(para1.split("checkurl=")[1].split("&")[0]) : ""; // 节点 server_check_url 参数
 typeQ = PRelay!=""? "server":typeQ
 
 
@@ -526,6 +528,10 @@ function TagCheck_QX(content) {
           }
         }// if "tag="
     } // for
+    // 增加 server_check_url 参数
+    if (PcheckU != "") {
+      Nlist = Nlist.map(Add_URL)
+    }
     if (nulllist.length >= 1) {
         no = nulllist.length <= 10 ? emojino[nulllist.length] : nulllist.length;
         $notify("⚠️ 引用" + "⟦" + subtag + "⟧" + " 内有" + no + "个空节点名 ", "✅ 已将节点“类型+IP”设为节点名", " ⨁ " + nulllist.join("\n ⨁ "), nan_link)
@@ -539,6 +545,14 @@ function TagCheck_QX(content) {
       }
     }
     return Nlist
+}
+
+// 为节点添加 server-check-url参数
+function Add_URL(cnt) {
+  if (cnt) {
+    cnt = cnt +", server_check_url="+PcheckU
+  }
+  return cnt
 }
 
 //节点名重名时添加数字序号替换
@@ -2406,7 +2420,7 @@ function Clash2QX(cnt) {
     aa = aa.replace(new RegExp(patn[4][i], "gmi"),patn[0][i])
   }
   var bb = JSON.parse(aa).proxies
-  $notify("YAML Parse", "content", JSON.stringify(bb))
+  //$notify("YAML Parse", "content", JSON.stringify(bb))
   //console.log(bb)
   var nl = bb.length
   var nodelist=[]
