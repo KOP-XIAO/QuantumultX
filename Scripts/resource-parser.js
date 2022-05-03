@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-04-28 11:30⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-05-03 14:03⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @ShawnKOP_bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1698,6 +1698,10 @@ function TJ2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
     return QX;
 }
 
+function joinx(total,item) {
+  return total+":"+item
+}
+
 //SS 类型 URI 转换 quanx 格式
 function SS2QX(subs, Pudp, Ptfo) {
   var nssr = []
@@ -1718,8 +1722,9 @@ function SS2QX(subs, Pudp, Ptfo) {
       ip = cnt0.split("@")[1].split("#")[0].split("/")[0];
       pwdmtd = cnt0.split("@")[0].split(":")
     }
-    pwd = "password=" + pwdmtd[1];
     mtd = "method=" + pwdmtd[0];
+    pwdmtd.splice(0,1) 
+    pwd = "password=" + pwdmtd.reduce(joinx);
     if (cntt.indexOf("v2ray-plugin")==-1) { //Shadowrocket style v2-plugin
       obfs = cnt.split("obfs%3D")[1] != null ? ", obfs=" + cnt.split("obfs%3D")[1].split("%3B")[0].split("#")[0] : "";
       obfshost = cnt.split("obfs-host%3D")[1] != null ? ", obfs-host=" + cnt.split("obfs-host%3D")[1].split("&")[0].split("#")[0] : "";
