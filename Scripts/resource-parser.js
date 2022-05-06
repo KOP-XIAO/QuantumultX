@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-05-06 15:03⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-05-06 18:03⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -288,6 +288,8 @@ function ResourceParse() {
     flag = 2;
     total = Rewrite_Filter(isQuanXRewrite(content0.split("\n")), Pin0, Pout0,Preg,Pregout);
     if (Preplace) { total = ReplaceReg(total, Preplace) }
+    // rewrite重复检测
+    total = total.filter( (ele,pos)=>total.indexOf(ele) == pos);
     if (Pcdn) {total = CDN(total)
     } else {total = total.join("\n")}
   } else if (type0 == "Rule") {  // rule 类型, 已处理完毕
@@ -303,6 +305,8 @@ function ResourceParse() {
   }
     if (Preplace) { total = ReplaceReg(total, Preplace) }
     if (Ppolicyset) {total = policy_sets(total, Ppolicyset)}
+      // filter 重复检测
+    total = total.filter( (ele,pos)=>total.indexOf(ele) == pos)
     total = total.join("\n")
   } else if (content0.trim() == "") {
     $notify("‼️ 引用" + "⟦" + subtag + "⟧" + " 返回內容为空", "⁉️ 点通知跳转以确认链接是否失效", para.split("#")[0], nan_link);
@@ -1831,7 +1835,7 @@ function isQuanXRewrite(content) {
   
   for (var i = 0; i< cnt.length; i++){
     if(cnt[i]){
-      var cnti = cnt[i]
+      var cnti = cnt[i].trim()
       const RuleCheck = (item) => cnti.toLowerCase().indexOf(item) != -1;
       
       if (cnti.indexOf("pattern")!=-1 && cnti.indexOf("type")!=-1 || cnti.indexOf("http-r")!=-1) {
@@ -1846,7 +1850,9 @@ function isQuanXRewrite(content) {
         cnti=cnti.replace(/ /g, "").split("data=")[0] + " url " + "reject-dict"
       }
       if (cnti.trim()[0]!="[" && cnti.indexOf("RULE-SET")==-1 && !/cronexp\=|type\=cron/.test(cnti.replace(/ /g,"")) && !RuleK.some(RuleCheck)) {
+        if (!(/\;$/.test(cnti))) { // 某些特殊情形 let url = xxx;
         cnt0.push(cnti) //  排除其它项目后写入
+      }
       }
     }
   }
