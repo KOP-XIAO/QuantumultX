@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-05-06 18:03⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-05-06 23:03⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -107,7 +107,7 @@ resource_parser_url = https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/mas
 //beginning 解析器正常使用，調試註釋此部分
 
 let [link0, content0, subinfo] = [$resource.link, $resource.content, $resource.info]
-let version = $environment.version != undefined ? Number($environment.version.split("build")[1]): 0 // 版本号
+let version = $environment != undefined ? Number($environment.version.split("build")[1]): 0 // 版本号
 
 const subtag = $resource.tag != undefined ? $resource.tag : "";
 ////// 非 raw 链接的沙雕情形
