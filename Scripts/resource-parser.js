@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-05-06 23:03⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-05-07 08:20⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -107,9 +107,9 @@ resource_parser_url = https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/mas
 //beginning 解析器正常使用，調試註釋此部分
 
 let [link0, content0, subinfo] = [$resource.link, $resource.content, $resource.info]
-let version = $environment != undefined ? Number($environment.version.split("build")[1]): 0 // 版本号
+let version = typeof $environment != "undefined" ? Number($environment.version.split("build")[1]): 0 // 版本号
 
-const subtag = $resource.tag != undefined ? $resource.tag : "";
+const subtag = typeof $resource.tag != "undefined" ? $resource.tag : "";
 ////// 非 raw 链接的沙雕情形
 content0 = content0.indexOf("DOCTYPE html") != -1 && link0.indexOf("github.com") != -1 ? ToRaw(content0) : content0 ;
 //ends 正常使用部分，調試註釋此部分
@@ -309,7 +309,7 @@ function ResourceParse() {
     if (Preplace) { total = ReplaceReg(total, Preplace) }
     if (Ppolicyset) {total = policy_sets(total, Ppolicyset)}
       // filter 重复检测
-    total = total.filter( (ele,pos)=>total.indexOf(ele) == pos)
+    //total = total.length<100000? total.filter( (ele,pos)=>total.indexOf(ele) == pos) : total
     total = total.join("\n")
   } else if (content0.trim() == "") {
     $notify("‼️ 引用" + "⟦" + subtag + "⟧" + " 返回內容为空", "⁉️ 点通知跳转以确认链接是否失效", para.split("#")[0], nan_link);
@@ -1074,6 +1074,8 @@ function Rule_Handle(subs, Pout, Pin) {
   if (Pvia!="") {
     nlist = Pvia ==0? nlist.filter(Boolean).map(item => item+", via-interface=%TUN%") : nlist.filter(Boolean).map(item => item+", via-interface="+Pvia)
   }
+
+  nlist=nlist.map(item=>item.replace(/:\d*\s*,/g,",")) //去除端口号部分
 
   return nlist
 }
