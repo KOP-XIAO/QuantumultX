@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-05-10 10:00⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-05-10 10:30⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1692,9 +1692,9 @@ function TJ2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
     } else if (Pcert0 == 1) {
       pcert = "tls-verification=true"
     }
-    pudp = Pudp == 1 ? "udp-relay=false" : "udp-relay=false";
-    ptfo = Ptfo == 1 ? "fast-open=true" : "fast-open=false";
-    ptfo = cnt.indexOf("tfo=1") != -1? "fast-open=true" : ptfo
+    pudp = (Pudp == 1 || cnt.indexOf("udp=1")!=-1) ? "udp-relay=true" : "udp-relay=false";
+    ptfo = (Ptfo == 1 || cnt.indexOf("tfo=1")!=-1)? "fast-open=true" : "fast-open=false";
+    //ptfo = cnt.indexOf("tfo=1") != -1? "fast-open=true" : ptfo
     tag = cnt.indexOf("#") != -1 ? "tag=" + decodeURIComponent(cnt.split("#").slice(-1)[0]) : "tag= [trojan]" + ip
     if (cnt.indexOf("&plugin=obfs-local")!=-1) {//小火箭内的websocket写法
     obfs = cnt.indexOf("obfs=websocket") != -1? "obfs=wss" : obfs 
