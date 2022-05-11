@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-05-10 10:30⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-05-11 13:50⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -78,7 +78,7 @@
     ∎ replace=(price)(.*)@$1_lite$2+jp@kr 
 ⦿ dst=rewrite/filter，分别为将 𝐦𝐨𝐝𝐮𝐥𝐞&𝗿𝘂𝗹𝗲-𝘀𝗲𝘁 转换成 重写/分流;
   ❖ ⚠️ 默认将 𝐦𝐨𝐝𝐮𝐥𝐞 转换到重写, 𝗿𝘂𝗹𝗲-𝘀𝗲𝘁 转成分流
-  ❖ ⚠️ 把 𝗿𝘂𝗹𝗲-𝘀𝗲𝘁 中 𝐮𝐫𝐥-𝐫𝐞𝐠𝐞𝐱 转成重写时, 必须要加 dst=rewrite;
+  ❖ ⚠️ 把 𝗿𝘂𝗹𝗲-𝘀𝗲𝘁 中 url-regex 转成重写时, 必须要加 dst=rewrite;
   ❖ ⚠️ 把 𝐦𝐨𝐝𝐮𝐥𝐞 中的分流规则转换时, 必须要加 dst=filter
 ⦿ cdn=1, 将 github 脚本的地址转换成免翻墙cdn.jsdelivr.net
 ⦿ fcr=1/2/3, 为分流规则添加 force-cellular/multi-interface/multi-interface-balance 参数，强制移动数据/混合数据/负载均衡
@@ -498,7 +498,7 @@ function Type_Check(subs) {
 
 // 检查节点名字(重复以及空名)等QuanX 不允许的情形，以及多个空格等“不规范”方式
 function TagCheck_QX(content) {
-  typefix = {"shadowsocks":["𝐬𝐬","𝐒𝐒","🅢🅢","🆂🆂","ⓢⓢ","🅂🅂","SS"],"shadowsocksr":["𝐬𝐬𝐫","𝐒𝐒𝐑","🅢🅢🅡","🆂🆂🆁","ⓢⓢⓡ","🅂🅂🅁","SSR"],"vmess":["𝐯𝐦𝐞𝐬𝐬","𝐕𝐌𝐄𝐒𝐒","🅥🅜🅔🅢🅢","🆅🅼🅴🆂🆂","ⓥⓜⓔⓢⓢ","🅅🄼🄴🅂🅂","VMESS"],"trojan":["𝐭𝐫𝐨𝐣𝐚𝐧","𝐓𝐑𝐎𝐉𝐀𝐍","🅣🅡🅞🅙🅐🅝","🆃🆁🅾🅹🅰🅽","ⓣⓡⓞⓙⓐⓝ","🅃🅁🄾🄹🄰🄽","TROJAN"],"http":["𝐡𝐭𝐭𝐩","𝐇𝐓𝐓𝐏","🅗🅣🅣🅟","🅷🆃🆃🅿","ⓗⓣⓣⓟ","🄷🅃🅃🄿","HTTP"],"socks5":["𝐬𝐨𝗰𝗸𝐬","𝐒𝐎𝐂𝐊𝐒","🅢🅞🅒🅚🅢","🆂🅾🅲🅺🆂","ⓢⓄⒸⓀⓢ","🅂🄾🄲🄺🅂","SOCKS"]}
+  typefix = {"shadowsocks":["𝐬𝐬","𝐒𝐒","🅢🅢","🆂🆂","ⓢⓢ","🅂🅂","SS"],"shadowsocksr":["𝐬𝐬𝐫","𝐒𝐒𝐑","🅢🅢🅡","🆂🆂🆁","ⓢⓢⓡ","🅂🅂🅁","SSR"],"vmess":["𝐯𝐦𝐞𝐬𝐬","𝐕𝐌𝐄𝐒𝐒","🅥🅜🅔🅢🅢","🆅🅼🅴🆂🆂","ⓥⓜⓔⓢⓢ","🅅🄼🄴🅂🅂","VMESS"],"trojan":["𝐭𝐫𝐨𝐣𝐚𝐧","𝐓𝐑𝐎𝐉𝐀𝐍","🅣🅡🅞🅙🅐🅝","🆃🆁🅾🅹🅰🅽","ⓣⓡⓞⓙⓐⓝ","🅃🅁🄾🄹🄰🄽","TROJAN"],"http":["𝐡𝐭𝐭𝐩","𝐇𝐓𝐓𝐏","🅗🅣🅣🅟","🅷🆃🆃🅿","ⓗⓣⓣⓟ","🄷🅃🅃🄿","HTTP"],"socks5":[" 𝐨𝗰𝗸𝐬","𝐒𝐎𝐂𝐊𝐒","🅢🅞🅒🅚🅢","🆂🅾🅲🅺🆂","ⓢⓄⒸⓀⓢ","🅂🄾🄲🄺🅂","SOCKS"]}
   console.log(content)
     var Olist = content.map(item =>item.trim().replace(/\s{2,}/g," "))
     //$notify("","",Olist)
@@ -507,7 +507,7 @@ function TagCheck_QX(content) {
     var no=0 ;
     for (var i = 0; i < Olist.length; i++) {
         var item = Olist[i] ? Olist[i] : ""
-        typefix["shadowsocks"]=item.indexOf("ssr-protocol")!=-1? typefix["shadowsocksr"] : typefix["shadowsocks"]
+        typefix["shadowsocks"]=item.indexOf("ssr-protocol")!=-1? typefix["shadowsocksr"] : typefix["shadowsocks"] 
         if (item.replace(/ /gm, "").indexOf("tag=") != -1) {
             var nl = item.slice(item.indexOf("tag"))
             var nm = nl.slice(nl.indexOf("=") + 1)
@@ -2404,7 +2404,7 @@ function LoonSSR2QX(cnt) {
 
 function YAMLFix(cnt){
   cnt = cnt.replace(/\[/g,"yaml@bug1")
-  if (cnt.indexOf("{") != -1 && /\{\s*name/.test(cnt)){
+  if (cnt.indexOf("{") != -1 && /\{\s*\"*name/.test(cnt)){
     cnt = cnt.replace(/(^|\n)- /g, "$1  - ").replace(/    - /g,"  - ").replace(/:(?!\s)/g,": ").replace(/\,\"/g,", \"").replace(/: {/g, ": {,   ").replace(/, (Host|host|path|mux)/g,",   $1")
     //2022-04-11 remove tls|skip from replace(/, (Host|host|path|mux)/g,",   $1")
     console.log("1st:\n"+cnt)
@@ -2418,6 +2418,8 @@ function YAMLFix(cnt){
   items=cnt.split("\n").map(yamlcheck)
   cnt=items.join("\n")
   //console.log(cnt.replace(/name\:(.*?)\:(.*?)\n/gmi,"name:$1冒号$2"))
+  //2022-05-11 增加⬇️
+  cnt = cnt.replace(/\n\s{4}headers/g,"\n      headers").replace(/\n\s{6}(H|h)ost/g,"\n        Host").replace(/\t/g,"")
   console.log("after-fix\n"+cnt)
   return cnt
 }
@@ -2540,10 +2542,11 @@ function CV2QX(cnt) {
   }
   console.log(obfs)
   ohost = cnt["ws-headers"]? "obfs-host=" + cnt["ws-headers"]["Host"] : ""
-  ohost = cnt["servername"]? "obfs-host=" + cnt["servername"] : ""
+  ohost= cnt["ws-opts"]? "obfs-host=" + cnt["ws-opts"]["Host"] : ohost
+  ohost = cnt["servername"]? "obfs-host=" + cnt["servername"] : ohost
   console.log(ohost)
   ouri = cnt["ws-path"]? "obfs-uri="+cnt["ws-path"] : ""
-  ouri = cnt["ws-opts"]? "obfs-uri="+cnt["ws-opts"]["path"] : ""
+  ouri = cnt["ws-opts"]? "obfs-uri="+cnt["ws-opts"]["path"] : ouri
   cert = cnt["skip-cert-verify"] && cnt.tls ? "tls-verification=false" : ""
   caead = cnt["alterId"] && cnt["alterId"]!=0? "aead=false" : "" // aead 选项
   //caead = cnt["alterId"] == 0? "aead=true" : caead // aead 选项
