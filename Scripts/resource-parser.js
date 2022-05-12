@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-05-12 11:50⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-05-12 13:50⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1125,7 +1125,9 @@ function rule_list_handle(cnt) {
       cnt = "ip-cidr, " + cnt
       cnt = Ppolicy == "Shawn" ? cnt+", Shawn" : cnt+", "+Ppolicy
     } else if (cnt.indexOf("payload:")==-1) { //host - suffix, clash rule list
-      cnt = "host-suffix, " + cnt.replace(/'|"|\+\./g,"")
+      cnt=cnt.replace(/'|"|\+\.|\*\.|\*\.\*/g,"")
+      cnt = cnt[0]=="." ? cnt.replace(".",""): cnt
+      cnt = "host-suffix, " + cnt
       cnt = Ppolicy == "Shawn" ? cnt+", Shawn" : cnt+", "+Ppolicy
     } 
       return cnt
@@ -1135,7 +1137,7 @@ function rule_list_handle(cnt) {
 // Domain-Set
 function Domain2Rule(content) {
     var cnt = content.split("\n");
-    var RuleK = ["//", "#", ";"]
+    var RuleK = ["//", "#", ";","["]
     var nlist = []
     for (var i = 0; i< cnt.length; i++) {
         cc = cnt[i].trim();
