@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-05-12 13:50⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-05-12 17:50⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1008,10 +1008,11 @@ function Rule_Handle(subs, Pout, Pin) {
         for (var i = 0; i < cnt.length; i++) {
             cc = cnt[i].replace(/^\s*\-\s/g,"").trim()
             const exclude = (item) => cc.indexOf(item) != -1; // 删除项
-            const RuleCheck = (item) => cc.toLowerCase().indexOf(item) != -1; //无视注释行
-            if (Tout.some(exclude) && !RuleK.some(RuleCheck) && RuleK2.some(RuleCheck)) {
+            const RuleCheck = (item) => cc.toLowerCase().indexOf(item) != -1; //规则检查
+            const CommentCheck = (item) => cc.toLowerCase().indexOf(item) == 0; //无视注释行
+            if (Tout.some(exclude) && !RuleK.some(CommentCheck) && RuleK2.some(RuleCheck)) {
                 dlist.push("-" + Rule_Policy(cc)) // 注释掉条目
-            } else if (!RuleK.some(RuleCheck) && cc && RuleK2.some(RuleCheck)) { //if Pout.some, 不操作注释项，不操作不识别规则项目
+            } else if (!RuleK.some(CommentCheck) && cc && RuleK2.some(RuleCheck)) { //if Pout.some, 不操作注释项，不操作不识别规则项目
                 dd = Rule_Policy(cc);
                 if (Tin != "" && Tin != null) {
                     const include = (item) => dd.indexOf(item) != -1; // 保留项
@@ -1048,7 +1049,8 @@ function Rule_Handle(subs, Pout, Pin) {
         for (var i = 0; i < cnt.length; i++) {
             cc = cnt[i].replace(/^\s*\-\s/g,"").trim()
             const RuleCheck = (item) => cc.indexOf(item) != -1; //无视注释行
-            if (!RuleK.some(RuleCheck) && cc) { //if Pout.some, 不操作注释项
+            const CommentCheck = (item) => cc.toLowerCase().indexOf(item) == 0; //无视注释行
+            if (!RuleK.some(CommentCheck) && cc) { //if Pout.some, 不操作注释项
                 dd = Rule_Policy(cc);
                 const include = (item) => dd.indexOf(item) != -1; // 保留项
                 if (Tin.some(include)) {
@@ -1082,7 +1084,7 @@ function Rule_Handle(subs, Pout, Pin) {
 }
 
 function Rule_Policy(content) { //增加、替换 policy
-    var cnt = content.replace(/^\s*\-\s/g,"").replace(/REJECT-TINYGIF/gi,"reject").trim().split("//")[0].split(",");
+    var cnt = content.replace(/^\s*\-\s/g,"").replace(/REJECT-TINYGIF/gi,"reject").trim().split("//")[0].trim().split(",");
     var RuleK = ["//", "#", ";","[","/", "hostname","no-ipv6","no-system"];
     var RuleK1 = ["host", "domain", "ip-cidr", "geoip", "user-agent", "ip6-cidr"];
     const RuleCheck = (item) => cnt[0].trim().toLowerCase().indexOf(item) == 0; //无视注释行
