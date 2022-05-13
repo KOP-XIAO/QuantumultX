@@ -7,7 +7,7 @@ For Quantumult-X 598+ ONLY!!
 
 [task_local]
 
-event-interaction https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/switch-check-nf.js, tag=Netflix 切换, img-url=https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Netflix_Letter.png, enabled=true
+event-interaction https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/sswitch-check-nf.js, tag=Netflix 切换, img-url=https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Netflix_Letter.png, enabled=true
 
 ps. 简单粗暴的 UI-Interaction 版本。无数据持久化、粗暴延迟等待。完美主义建议使用 Helge大佬的boxjs版本 https://t.me/QuanXNews/193
 
@@ -28,11 +28,13 @@ const message = {
 };
 
 var output=[]
-var OKList=["完整解锁节点 ➟ "]
+var OKList=[]
 var ResList=["仅支持自制剧节点 ➟ "]
 var NoList=["不支持节点 ➟ "]
 var timeoutList=["检测超时节点 ➟ "]
 var pflag=1 //是否是策略，或者简单节点
+var sign = 0 // 是否结束标志
+
 
 $configuration.sendMessage(message).then(resolve => {
     if (resolve.error) {
@@ -40,11 +42,16 @@ $configuration.sendMessage(message).then(resolve => {
         $done()
     }
     if (resolve.ret) {
-        //$notify(JSON.stringify(resolve.ret))
         output=JSON.stringify(resolve.ret[message.content])? JSON.parse(JSON.stringify(resolve.ret[message.content]["candidates"])) : [$environment.params]
         pflag = JSON.stringify(resolve.ret[message.content])? pflag:0
         console.log("Netflix 支持检测")
         console.log("节点or策略组："+pflag)
+        if (pflag==1) {
+        console.log("节点数量："+resolve.ret[$environment.params]["candidates"].length)
+        if(resolve.ret[$environment.params]["candidates"].length==0) {
+            $done({"title":"Netflix 检测&切换","htmlMessage":`<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b>😭 无有效节点</b>`});
+        }
+    }
         //$notify(typeof(output),output)
         Check()
         //$done({"title":"策略内容","message":output})
@@ -54,6 +61,10 @@ $configuration.sendMessage(message).then(resolve => {
     // Normally will never happen.
     $done();
 });
+
+function Len(cnt) {
+    return cnt.length-1
+}
 
 function Check() {
     var relay = 2000;
@@ -77,9 +88,57 @@ function Check() {
     }
     console.log(output.length+":"+relay)
     setTimeout(() => {
-        const dict = { [policy] : OKList[1]};
-         if(OKList[1]) {
-            console.log("选定支持节点："+OKList[1])
+        console.log("⛳️ 共计 "+OKList.length+" 个：完整支持节点 ➟"+ OKList)
+        console.log("🏠 共计 "+Len(NoList)+" 个："+NoList)
+        console.log("🕹 共计 "+Len(timeoutList)+" 个："+timeoutList)
+        sign=1
+        if (OKList[0] && pflag==1) {
+            console.log("开始排序")
+            ReOrder(OKList)
+            } else if (!OKList[0]){ //不支持
+                content =pflag==0 ? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b>😭 该节点未完整支持 Netflix </b><br><br>👇<br><br><font color=#FF5733>-------------------------<br><b>⟦ `+$environment.params+` ⟧ </b><br>-------------------------</font>`: `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br>❌  <b>⟦ "+$environment.params+ " ⟧ </b>⚠️ 切换失败<br><br><b>该策略组内未找到完整支持 Netflix</b> 的节点" + "<br><br><font color=#FF5733>-----------------------------<br><b>检测详情请查看JS脚本记录</b><br>-----------------------------</font>"+`</p>`
+                $done({"title":"Netflix 检测&切换", "htmlMessage": content})
+            } else if (OKList[0]){ //支持, 但为节点
+                content =`<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b> 🎉 该节点完整支持 Netflix </b><br><br>👇<br><br><font color=#FF5733>-------------------------<br><b>⟦ `+$environment.params+` ⟧ </b><br>-------------------------</font>`
+            //content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b>🎉 该节点支持 Disneyᐩ  ➟` + OKList[0].split(": 支持 ")[1]+`</b><br><br>👇<br><br><font color=#FF5733>-------------------------<br><b>⟦ `+$environment.params+` ⟧ </b><br>-------------------------</font>`
+            $done({"title":"Netflix 检测&切换", "htmlMessage": content})
+        }
+    }, relay)
+    
+}
+
+//选择最优延迟节点
+function ReOrder(cnt) {
+    const array = cnt;
+    const messageURL = {
+    action: "url_latency_benchmark",
+    content: array
+    };
+    $configuration.sendMessage(messageURL).then(resolve => {
+    if (resolve.error) {
+        console.log(resolve.error);
+    }
+    if (resolve.ret) {
+        let output=JSON.stringify(resolve.ret);
+        console.log("节点延迟："+output);
+        //排序
+        console.log("排序前: "+ array)
+        if(array){
+            try {
+        array.sort(function (a,b) {
+            //console.log(a+" VS "+b)
+        return (resolve.ret[a][1]!=-1 && resolve.ret[b][1] !=-1)? resolve.ret[a][1]-resolve.ret[b][1] : resolve.ret[b][1]
+    })
+    } catch (err) {
+        console.log(err)
+    }
+    }  
+    console.log("排序后: "+array)
+    let Ping =resolve.ret[array[0]]
+        const dict = { [policy] : array[0]};
+        if(array[0]) {
+            console.log("选定完整支持节点："+array[0]+"延迟数据为 👉"+Ping)
+            Ping = " ⚡️ 节点延迟 ➟ 「 "+Ping + " 」 "
         }
         const mes1 = {
             action: "set_policy_state",
@@ -88,26 +147,28 @@ function Check() {
         $configuration.sendMessage(mes1).then(resolve => {
             if (resolve.error) {
                 console.log(resolve.error);
-                content =pflag==0 && OKList[1]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>🎉 该节点完整支持 <b>Netflix</b>" + `</p>` : `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>⚠️ 该节点不支持 <b>Netflix</b>" + `</p>`
+                content =pflag==0 && array[0]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>🎉 该节点完整支持 <b>Netflix</b>" + `</p>` : `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>⚠️ 该节点不支持 <b>Netflix</b>" + `</p>`
+                content =pflag==0 && ResList[1]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>🚦 该节点仅支持 <b>Netflix</b> 自制剧集" + `</p>` : content
                 
-                content = pflag!=0 && !OKList[1]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br>❌   <b>⟦ "+$environment.params+ " ⟧ </b> 切换失败<br><br>该策略组内未找到完整支持 Netflix 的节点" + "<br><br>-----------------------------<br><b><font color=#FF5733>检测详情请查看JS脚本记录</font></b><br>-----------------------------"+`</p>` : content
+                content = pflag!=0 && !array[0]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br>❌   <b>⟦ "+$environment.params+ " ⟧ </b>⚠️ 切换失败<br><br>该策略组内未找到完整支持 Netflix 的节点" + "<br><br>-----------------------------<br><b><font color=#FF5733>检测详情请查看JS脚本记录</font></b><br>-----------------------------"+`</p>` : content
                 $done({"title":"Netflix 检测&切换", "htmlMessage": content})
             }
             if (resolve.ret) {
-                console.log("已经切换至完整支持的路线 ➟ "+OKList[1])
-                content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br> <b>⟦ "+$environment.params+ " ⟧</b> 已切换至完整支持的路线<br> <br>👇<br><br> ⟦ "+OKList[1]+ " ⟧" + "<br><br>-----------------------------<br><b><font color=#FF5733>检测详情请查看JS脚本记录</font></b><br>-----------------------------"+`</p>`
+                console.log("已经切换至完整支持的路线 ➟ "+array[0])
+                content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br> <b>⟦ "+$environment.params+ " ⟧</b> 已切换至完整支持的路线中延迟最优节点<br> <br>👇<br><br> ⟦ "+array[0]+ " ⟧" + "<br><br><font color=#16A085>"+Ping+"</font><br>-----------------------------<br><b><font color=#FF5733>检测详情请查看JS脚本记录</font></b><br>-----------------------------"+`</p>`
                 $done({"title":"Netflix 检测&切换", "htmlMessage": content })
             }
     }, reject => {
             $done();
         });
         
-        
-    }, relay)
-    
+    }
+    //$done();
+}, reject => {
+    // Normally will never happen.
+    $done();
+});
 }
-
-
 
 
 function testNF(pname ) {
@@ -123,7 +184,7 @@ function testNF(pname ) {
             },
         }
         $task.fetch(option).then (response => {
-            
+            if (sign==0) {
             if (response.statusCode === 404) {
                 NoList.push(pname)
                 console.log(pname+": "+"未支持")
@@ -150,6 +211,13 @@ function testNF(pname ) {
                 resolve(region)
                 return
             }
+        } else {
+            console.log(pname+":  检测超时")
+            timeoutList.push(pname)
+            resolve("Erroe")
+            return
+
+        }
             reject('Error')
         })
     })

@@ -41,11 +41,13 @@ const message = {
 };
 
 var output=[]
-var OKList=["完整解锁节点 ➟ "]
+var OKList=[]
 var ResList=["即将登陆节点 ➟ "]
 var NoList=["不支持节点 ➟ "]
 var timeoutList=["检测超时节点 ➟ "]
 var pflag=1 //是否是策略，或者简单节点
+var sign=0 //是否停止
+
 
 $configuration.sendMessage(message).then(resolve => {
     if (resolve.error) {
@@ -53,11 +55,18 @@ $configuration.sendMessage(message).then(resolve => {
         $done()
     }
     if (resolve.ret) {
-        //$notify(JSON.stringify(resolve.ret))
         output=JSON.stringify(resolve.ret[message.content])? JSON.parse(JSON.stringify(resolve.ret[message.content]["candidates"])) : [$environment.params]
         pflag = JSON.stringify(resolve.ret[message.content])? pflag:0
         console.log("Disneyᐩ 检测&切换")
         console.log("节点or策略组："+pflag)
+        console.log(JSON.stringify(resolve.ret))
+        if (pflag==1) {
+        console.log("节点数量："+resolve.ret[$environment.params]["candidates"].length)
+        if(resolve.ret[$environment.params]["candidates"].length==0) {
+            $done({"title":"Disneyᐩ 检测&切换","htmlMessage":`<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b>😭 无有效节点</b>`});
+        }
+    }
+
         //$notify(typeof(output),output)
         Check()
         //$done({"title":"策略内容","message":output})
@@ -67,6 +76,10 @@ $configuration.sendMessage(message).then(resolve => {
     // Normally will never happen.
     $done();
 });
+
+function Len(cnt) {
+    return cnt.length-1
+}
 
 function Check() {
     var relay = 2000;
@@ -90,9 +103,60 @@ function Check() {
     }
     console.log(output.length+":"+relay)
     setTimeout(() => {
-        const dict = { [policy] : OKList[1].split(": 支持 ")[0]};
-         if(OKList[1]) {
-            console.log("选定支持节点："+OKList[1])
+        console.log("⛳️ 共计 "+OKList.length+" 个：支持节点 ➟ "+ OKList)
+        console.log("🏠 共计 "+Len(NoList)+" 个："+NoList)
+        console.log("🕹 共计 "+Len(timeoutList)+" 个："+timeoutList)
+        sign = 1
+        if (OKList[0] && pflag==1) { //有支持节点、且为策略组才操作
+            console.log("开始排序")
+            ReOrder(OKList)
+        } else if (!OKList[0]){ //不支持
+            content = pflag==0 ? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b>😭 该节点不支持Disneyᐩ  </b><br><br>👇<br><br><font color=#FF5733>-------------------------<br><b>⟦ `+$environment.params+` ⟧ </b><br>-------------------------</font>`: `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br>❌  <b>⟦ "+$environment.params+ " ⟧ </b>⚠️ 切换失败<br><br><b>该策略组内未找到支持 Disneyᐩ </b> 的节点" + "<br><br><font color=#FF5733>-----------------------------<br><b>检测详情请查看JS脚本记录</b><br>-----------------------------</font>"+`</p>`
+            $done({"title":"Disneyᐩ 检测&切换", "htmlMessage": content})
+        } else if (OKList[0]){ //支持, 但为节点
+            content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b>🎉 该节点支持 Disneyᐩ  ➟` + OKList[0].split(": 支持 ")[1]+`</b><br><br>👇<br><br><font color=#FF5733>-------------------------<br><b>⟦ `+$environment.params+` ⟧ </b><br>-------------------------</font>`
+            $done({"title":"Disneyᐩ 检测&切换", "htmlMessage": content})
+        }
+    }, relay)
+    
+}
+
+
+
+//选择最优延迟节点
+function ReOrder(cnt) {
+    const array = cnt//;
+    const messageURL = {
+    action: "url_latency_benchmark",
+    content: array.map(item=>item.split(": 支持 ")[0])
+};
+    $configuration.sendMessage(messageURL).then(resolve => {
+    if (resolve.error) {
+        console.log(resolve.error);
+    }
+    if (resolve.ret) {
+        let output=JSON.stringify(resolve.ret);
+        //console.log("节点延迟："+output);
+        //排序
+        //console.log("排序前: "+ array)
+        if(array){
+            try {
+        array.sort(function (a,b) {
+            //console.log(a+" VS "+b)
+            a=a.split(": 支持 ")[0]
+            b=b.split(": 支持 ")[0]
+        return (resolve.ret[a][1]!=-1 && resolve.ret[b][1] !=-1)? resolve.ret[a][1]-resolve.ret[b][1] : resolve.ret[b][1]
+    })
+    } catch (err) {
+        console.log(err)
+    }
+    }  
+    console.log("排序后: "+array)
+    let Ping =resolve.ret[array[0].split(": 支持 ")[0]]
+        const dict = { [policy] : array[0].split(": 支持 ")[0]};
+        if(array[0]) {
+            console.log("选定支持 Disneyᐩ 节点："+array[0].split(": 支持 ")[0]+"延迟数据为 👉"+Ping)
+            Ping = " ⚡️ 节点延迟 ➟ 「 "+Ping + " 」 "
         }
         const mes1 = {
             action: "set_policy_state",
@@ -101,29 +165,29 @@ function Check() {
         $configuration.sendMessage(mes1).then(resolve => {
             if (resolve.error) {
                 console.log(resolve.error);
-                content =pflag==0 && OKList[1]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>🎉 该节点支持 <b>Disneyᐩ ➟" + OKList[1].split(": 支持 ")[1]+ `</b></p>` : `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>⚠️ 该节点不支持 <b>Disneyᐩ </b>" + `</p>`
+                content =pflag==0 && array[0]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>🎉 该节点支持 <b>Disneyᐩ ➟" + array[0].split(": 支持 ")[1]+ `</b></p>` : `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>⚠️ 该节点不支持 <b>Disneyᐩ </b>" + `</p>`
                 
                 content =pflag==0 && ResList[1]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>🚦 即将登陆节点所在地区 ➟<b>" + ResList[1].split("登陆 ")[1]+`</b> </p>` : content
                 
-                content = pflag!=0 && !OKList[1]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br>❌   <b>⟦ "+$environment.params+ " ⟧ </b>⚠️ 切换失败<br><br>该策略组内未找到支持 <b>Disneyᐩ </b>的节点" + "<br><br>-----------------------------<br><b><font color=#FF5733>检测详情请查看JS脚本记录</font></b><br>-----------------------------"+`</p>` : content
+                content = pflag!=0 && !array[0]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br>❌   <b>⟦ "+$environment.params+ " ⟧ </b>⚠️ 切换失败<br><br>该策略组内未找到支持 <b>Disneyᐩ </b>的节点" + "<br><br>-----------------------------<br><b><font color=#FF5733>检测详情请查看JS脚本记录</font></b><br>-----------------------------"+`</p>` : content
+                console.log(content)
                 $done({"title":"Disneyᐩ 检测&切换", "htmlMessage": content})
             }
             if (resolve.ret) {
-                console.log("已经切换至支持Disneyᐩ"+OKList[1].split(": 支持 ")[1]+"的路线 ➟ "+OKList[1].split(": 支持 ")[0])
-                content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br> <b>⟦ "+$environment.params+ " ⟧</b> 已切换至支持<b>"+OKList[1].split(": 支持 ")[1]+"</b>的路线<br> <br>👇<br><br> ⟦ "+OKList[1].split(": 支持 ")[0]+ " ⟧" + "<br><br>-----------------------------<br><b><font color=#FF5733>检测详情请查看JS脚本记录</font></b><br>-----------------------------"+`</p>`
+                console.log("已经切换至支持 Disneyᐩ"+array[0].split(": 支持 ")[1]+"的路线 ➟ "+array[0].split(": 支持 ")[0])
+                content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br> <b>⟦ "+$environment.params+ " ⟧</b> 已切换至支持 <b>Disneyᐩ "+array[0].split(": 支持 ")[1]+"</b>中延迟最优的路线<br> <br>👇<br><br> ⟦ "+array[0].split(": 支持 ")[0]+ " ⟧" + "<br><br><font color=#16A085>"+Ping+"</font><br><font color=#FF5733>-----------------------------<br><b><font color=#FF5733>检测详情请查看JS脚本记录</font></b><br>-----------------------------"+`</p>`
                 $done({"title":"Disneyᐩ 检测&切换", "htmlMessage": content })
             }
     }, reject => {
             $done();
-        });
-        
-        
-    }, relay)
-    
+        });  
+    }
+    //$done();
+}, reject => {
+    // Normally will never happen.
+    $done();
+});
 }
-
-
-
 
 
 async function testDisneyPlus(pname) {
@@ -141,21 +205,23 @@ async function testDisneyPlus(pname) {
         
         region = countryCode ?? region
         // 即将登陆
+        if (sign==0) {
         if (inSupportedLocation === false || inSupportedLocation === 'false') {
             ResList.push(pname+": 即将登陆 「"+region+"」") //coming
             console.log(pname+": 即将登陆 「"+region+"」")
             return { region, status: STATUS_COMING }
         } else {
             // 支持解锁
+
             OKList.push(pname+": 支持 「"+region+"」")
             console.log(pname+": 支持 「"+region+"」")
             return { region, status: STATUS_AVAILABLE }
         }
-        
+    } // sign    
     } catch (error) {
         //console.log(pname+": 检测错误"+error)
         //console.log("error:"+error)
-        
+        if (sign==0) {
         // 不支持解锁
         if (error === 'Not Available') {
             NoList.push(pname)
@@ -171,6 +237,7 @@ async function testDisneyPlus(pname) {
         }
         
         return { status: STATUS_ERROR }
+    }
     } 
     
 }

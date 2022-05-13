@@ -10,7 +10,7 @@ For Quantumult-X 598+ ONLY!!
 
 [task_local]
 
-event-interaction https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/switch-check-ytb.js, tag=YouTube 切换, img-url=https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/YouTube_Letter.png, enabled=true
+event-interaction https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/sswitch-check-ytb.js, tag=YouTube 切换, img-url=https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/YouTube_Letter.png, enabled=true
 
 ps. 简单粗暴的 UI-Interaction 版本。无数据持久化、粗暴延迟等待。完美主义建议使用 Helge大佬的boxjs版本 https://t.me/QuanXNews/193
 
@@ -29,10 +29,11 @@ const message = {
 };
 
 var output=[]
-var OKList=["支持节点 ➟ "]
+var OKList=[]
 var NoList=["不支持节点 ➟ "]
 var ErrorList=["检测出错节点 ➟ "]
 var pflag=1 //是否是策略，或者简单节点
+var sign=0
 
 $configuration.sendMessage(message).then(resolve => {
     if (resolve.error) {
@@ -45,6 +46,13 @@ $configuration.sendMessage(message).then(resolve => {
         pflag = JSON.stringify(resolve.ret[message.content])? pflag:0
         console.log("YouTube Premium 检测")
         console.log("节点or策略组："+pflag)
+        if (pflag==1) {
+        console.log("节点数量："+resolve.ret[$environment.params]["candidates"].length)
+        if(resolve.ret[$environment.params]["candidates"].length==0) {
+            $done({"title":"YouTube Premium 检测","htmlMessage":`<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b>😭 无有效节点</b>`});
+        }
+    }
+
         //$notify(typeof(output),output)
         Check()
         //$done({"title":"策略内容","message":output})
@@ -54,6 +62,10 @@ $configuration.sendMessage(message).then(resolve => {
     // Normally will never happen.
     $done();
 });
+
+function Len(cnt) {
+    return cnt.length-1
+}
 
 function Check() {
     var relay = 2000;
@@ -73,9 +85,56 @@ function Check() {
     }
     console.log(output.length+":"+relay)
     setTimeout(() => {
-        const dict = { [policy] : OKList[1]};
-        if(OKList[1]) {
-            console.log("选定支持节点："+OKList[1])
+        console.log("⛳️ 共计 "+OKList.length+" 个：支持节点 ➟ "+ OKList)
+        console.log("🏠 共计 "+Len(NoList)+" 个："+NoList)
+        console.log("🕹 共计 "+Len(ErrorList)+" 个："+ErrorList)
+        sign = 1
+        if (OKList[0] && pflag==1) { //有支持节点、且为策略组才操作
+            console.log("开始排序")
+            ReOrder(OKList)
+            } else if (!OKList[0]){ //不支持
+                content =pflag==0 ? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b>😭 该节点不支持 YouTube Premium </b><br><br>👇<br><br><font color=#FF5733>-------------------------<br><b>⟦ `+$environment.params+` ⟧ </b><br>-------------------------</font>`: `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br>❌  <b>⟦ "+$environment.params+ " ⟧ </b>⚠️ 切换失败<br><br><b>该策略组内未找到支持 YouTube Premium 的节点" + "<br><br><font color=#FF5733>-----------------------------<br><b>检测详情请查看JS脚本记录</b><br>-----------------------------</font>"+`</p>`
+                $done({"title":"YouTube Premium 检测&切换", "htmlMessage": content})
+            } else if (OKList[0]){ //支持, 但为节点
+                content =`<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b> 🎉 该节点支持 YouTube Premium </b><br><br>👇<br><br><font color=#FF5733>-------------------------<br><b>⟦ `+$environment.params+` ⟧ </b><br>-------------------------</font>`
+                $done({"title":"YouTube Premium 检测&切换", "htmlMessage": content})
+        }
+    }, relay)
+    
+}
+
+//选择最优延迟节点
+function ReOrder(cnt) {
+    const array = cnt;
+    const messageURL = {
+    action: "url_latency_benchmark",
+    content: array
+};
+    $configuration.sendMessage(messageURL).then(resolve => {
+    if (resolve.error) {
+        console.log(resolve.error);
+    }
+    if (resolve.ret) {
+        let output=JSON.stringify(resolve.ret);
+        console.log("节点延迟："+output);
+        //排序
+        console.log("排序前: "+ array)
+        if(array){
+            try {
+        array.sort(function (a,b) {
+            //console.log(a+" VS "+b)
+        return (resolve.ret[a][1]!=-1 && resolve.ret[b][1] !=-1)? resolve.ret[a][1]-resolve.ret[b][1] : resolve.ret[b][1]
+    })
+    } catch (err) {
+        console.log(err)
+    }
+    }  
+    console.log("排序后: "+array)
+    let Ping =resolve.ret[array[0]]
+        const dict = { [policy] : array[0]};
+        if(array[0]) {
+            console.log("选定支持YouTube Premium："+array[0]+"延迟数据为 👉"+Ping)
+            Ping = " ⚡️ 节点延迟 ➟ 「 "+Ping + " 」 "
         }
         const mes1 = {
             action: "set_policy_state",
@@ -84,25 +143,26 @@ function Check() {
         $configuration.sendMessage(mes1).then(resolve => {
             if (resolve.error) {
                 console.log(resolve.error);
-                content =pflag==0 && OKList[1]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>🎉 该节点支持 <b>YouTube Premium</b>" + `</p>` : `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>⚠️ 该节点不支持 <b>YouTube Premium</b>" + `</p>`
-                content = pflag!=0 && !OKList[1]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br>❌  <b>⟦ "+$environment.params+ " ⟧ </b> 切换失败<br><br>该策略组内未找到支持 <b>YouTube Premium</b> 的节点" + "<br><br>-----------------------------<br><b><font color=#FF5733>检测详情请查看JS脚本记录</font></b><br>-----------------------------"+`</p>` : content
+                content =pflag==0 && array[0]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>🎉 该节点支持 <b>YouTube Premium</b>" + `</p>` : `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b><br><br>⚠️ 该节点不支持 <b>YouTube Premium</b>" + `</p>`
+                content = pflag!=0 && !array[0]? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br>❌  <b>⟦ "+$environment.params+ " ⟧ </b>⚠️ 切换失败<br><br>该策略组内未找到支持 <b>YouTube Premium</b> 的节点" + "<br><br>-----------------------------<br><b><font color=#FF5733>检测详情请查看JS脚本记录</font></b><br>-----------------------------"+`</p>` : content
                 $done({"title":"YouTube 检测&切换", "htmlMessage": content})
             }
             if (resolve.ret) {
-                console.log("已经切换至支持 <b>Premium</b> 的路线 ➟ "+OKList[1])
-                content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b>已切换至支持<b>Premium</b> 的路线<br><br> 👇<br><br> ⟦ "+OKList[1]+ " ⟧" + "<br><br>-----------------------------<br><b><font color=#FF5733>检测详情请查看JS脚本记录</font></b><br>-----------------------------"+`</p>`
+                console.log("已经切换至支持 <b>Premium</b> 的路线 ➟ "+array[0])
+                content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+$environment.params+ " ⟧ </b>已切换至支持<b>Premium</b> 的路线中延迟最优节点<br><br> 👇<br><br> ⟦ "+array[0]+ " ⟧" + "<br><br><font color=#16A085>"+Ping+"</font><br>-----------------------------<br><b><font color=#FF5733>检测详情请查看JS脚本记录</font></b><br>-----------------------------"+`</p>`
                 $done({"title":"YouTube 检测&切换", "htmlMessage": content })
             }
     }, reject => {
             $done();
         });
         
-        
-    }, relay)
-    
+    }
+    //$done();
+}, reject => {
+    // Normally will never happen.
+    $done();
+});
 }
-
-
 
 
 function testYTB(pname) {
@@ -120,6 +180,7 @@ function testYTB(pname) {
         $task.fetch(option).then(response=> {
             let data = response.body
             //console.log(response.statusCode)
+            if (sign==0) {
             if (response.statusCode !== 200) {
                 console.log(pname+"：检测出错")
                 ErrorList.push(pname)
@@ -147,6 +208,8 @@ function testYTB(pname) {
             console.log(pname+"：支持"+region)
             OKList.push(pname)
             resolve(region)
+        }
+        reject('Error')
         })
     })
 }
