@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-05-15 08:50⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-05-16 17:30⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -217,6 +217,14 @@ patn[6] = [ '₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉'
 patn[7] = ["𝟎","𝟏","𝟐","𝟑","𝟒","𝟓","𝟔","𝟖","𝟗"]
 patn[8] = ["𝟶","𝟷","𝟸","𝟹","𝟺","𝟻","𝟼","𝟽","𝟾","𝟿"]
 
+//避免json undefined错误的 函数
+const getValue = (fn, defaultVaule) => {
+  try {
+    return fn();
+  } catch (error) {
+    return defaultVaule;
+  }
+};
 
 var type0=""
 //flag=1,2,3分别为 server、rewrite、rule 类型
@@ -2053,7 +2061,7 @@ function get_emoji(emojip, sname) {
     "🇪🇺": ["EU", "欧盟", "欧罗巴","欧洲"],
     "🇫🇮": ["Finland", "芬兰","芬蘭","赫尔辛基"],
     "🇫🇷": ["FR", "France", "法国", "法國", "巴黎"],
-    "🇬🇧": ["UK", "GB", "England", "United Kingdom", "英国", "伦敦", "英"],
+    "🇬🇧": ["UK", "GB ", "England", "United Kingdom", "英国", "伦敦", "英"],
     "🇲🇴": ["MO", "Macao","Macau", "MAC", "澳门", "澳門", "CTM"],
     "🇰🇿": ["哈萨克斯坦"],
     "🇭🇺": ["匈牙利", "Hungary"],
@@ -2529,6 +2537,7 @@ function CSSR2QX(cnt) {
   return node
 }
 
+
 //Clash vmess type server
 function CV2QX(cnt) {
   tag = "tag="+cnt.name.replace(/\\U.+?\s{1}/gi," ")
@@ -2548,8 +2557,10 @@ function CV2QX(cnt) {
     obfs = "obfs=over-tls"
   }
   console.log(obfs)
+  const phost = getValue(()=>cnt["ws-opts"]["headers"]["Host"]) 
   ohost = cnt["ws-headers"]? "obfs-host=" + cnt["ws-headers"]["Host"] : ""
-  ohost= cnt["ws-opts"]? "obfs-host=" + cnt["ws-opts"]["headers"]["Host"] : ohost
+  ohost = phost ? "obfs-host="+phost : ohost
+  //ohost= cnt["ws-opts"]? "obfs-host=" + cnt["ws-opts"]["headers"]["Host"] : ohost
   ohost = cnt["servername"]? "obfs-host=" + cnt["servername"] : ohost
   console.log(ohost)
   ouri = cnt["ws-path"]? "obfs-uri="+cnt["ws-path"] : ""
