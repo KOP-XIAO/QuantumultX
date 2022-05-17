@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-05-16 17:30⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-05-17 13:30⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -2416,8 +2416,8 @@ function LoonSSR2QX(cnt) {
 // }
 
 function YAMLFix(cnt){
-  cnt = cnt.replace(/\[/g,"yaml@bug1")
-  if (cnt.indexOf("{") != -1 && /\{\s*\"*name/.test(cnt)){
+  cnt = cnt.replace(/\[/g,"yaml@bug1").replace(/\\r/g,"")
+  if (cnt.indexOf("{") != -1 && /\{\s*\"*(name|type|server)/.test(cnt)){
     cnt = cnt.replace(/(^|\n)- /g, "$1  - ").replace(/    - /g,"  - ").replace(/:(?!\s)/g,": ").replace(/\,\"/g,", \"").replace(/: {/g, ": {,   ").replace(/, (Host|host|path|mux)/g,",   $1")
     //2022-04-11 remove tls|skip from replace(/, (Host|host|path|mux)/g,",   $1")
     console.log("1st:\n"+cnt)
@@ -2455,12 +2455,13 @@ function yamlcheck(cnt){
 // Clash parser
 function Clash2QX(cnt) {
   const yaml = new YAML()
+  if (Pdbg==1) { $notify(" Before YAML Parse", "content", cnt)}
   var aa = JSON.stringify(yaml.parse(YAMLFix(cnt))).replace(/yaml@bug𝟙/g,"[").replace(/冒号/gmi,":")
   for (var i=0;i<10;i++) {
     aa = aa.replace(new RegExp(patn[4][i], "gmi"),patn[0][i])
   }
   var bb = JSON.parse(aa).proxies
-  //$notify("YAML Parse", "content", JSON.stringify(bb))
+  if (Pdbg==1) { $notify("After YAML Parse", "content", JSON.stringify(bb))}
   //console.log(bb)
   var nl = bb.length
   var nodelist=[]
