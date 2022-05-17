@@ -85,6 +85,8 @@ function Check() {
             ReOrder(OKList)
             } else if (!OKList[0]){ //不支持
                 content =pflag==0 ? `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b>😭 该节点已被 Google 送中 </b><br><br>👇<br><br><font color=#FF5733>-------------------------<br><b>⟦ `+$environment.params+` ⟧ </b><br>-------------------------</font>`: `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br>❌  <b>⟦ "+$environment.params+ " ⟧ </b>⚠️ 切换失败<br><br><b>该策略组内未找到未被 Google 送中</b> 的节点" + "<br><br><font color=#FF5733>-----------------------------<br><b>检测详情请查看JS脚本记录</b><br>-----------------------------</font>"+`</p>`
+                //为节点且检测超时/出错
+                content = pflag==0 && Len(NoList)==0 ? content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b>⚠️ 该节点 Google 送中检测失败 </b><br><br>👇<br><br><font color=#FF5733>-------------------------<br><b>⟦ `+$environment.params+` ⟧ </b><br>-------------------------</font>`: content
                 $done({"title":"Google 送中检测&切换", "htmlMessage": content})
             } else if (OKList[0]){ //支持, 但为节点
             content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin"><br><b> 🎉 该节点未被 Google 送中 </b><br><br>👇<br><br><font color=#FF5733>-------------------------<br><b>⟦ `+$environment.params+` ⟧ </b><br>-------------------------</font>`
