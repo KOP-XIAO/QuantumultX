@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-05-22 08:20⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-05-22 16:20⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -531,7 +531,7 @@ function Type_Check(subs) {
     } 
   // 用于通知判断类型，debug
   if(typeU == "X"){
-    $notify("该链接判定类型",type,content0)
+    $notify("该链接判定类型",type+" : " +typec, content0)
   }
   //$notify(type)
     return type
@@ -2099,7 +2099,7 @@ function get_emoji(emojip, sname) {
     "🇰🇿": ["哈萨克斯坦"],
     "🇭🇺": ["匈牙利", "Hungary"],
     "🇱🇹": ["立陶宛"],
-    "🇷🇺": ["RU ","RU-","RUS", "Russia", "俄罗斯", "毛子", "俄国", "俄羅斯", "伯力", "莫斯科", "圣彼得堡", "西伯利亚", "新西伯利亚", "京俄", "杭俄","廣俄","滬俄","广俄","沪俄"],
+    "🇷🇺": ["RU ","RU-", "RUS", "Russia", "俄罗斯", "毛子", "俄国", "俄羅斯", "伯力", "莫斯科", "圣彼得堡", "西伯利亚", "新西伯利亚", "京俄", "杭俄","廣俄","滬俄","广俄","沪俄"],
     "🇸🇬": ["SG", "Singapore","SINGAPORE", "新加坡", "狮城", "沪新", "京新", "泉新", "穗新", "深新", "杭新", "广新","廣新","滬新"],
     "🇺🇸": ["US", "USA", "America", "United States", "美国", "美", "京美", "波特兰", "达拉斯", "俄勒冈", "凤凰城", "费利蒙", "硅谷", "矽谷", "拉斯维加斯", "洛杉矶", "圣何塞", "圣克拉拉", "西雅图", "芝加哥", "沪美", "哥伦布", "纽约"],
     "🇹🇼": ["TW", "Taiwan","TAIWAN", "台湾", "台北", "台中", "新北", "彰化", "CHT", "台", "HINET"],
@@ -2502,18 +2502,18 @@ function Clash2QX(cnt) {
   for (i=0; i<nl; i++){
     try{
       node=bb[i]
-      typec = node.type
-      if (typec == "ss") {
+      typecc = node.type
+      if (typecc == "ss") {
         node = CSS2QX(node)
-      } else if (typec == "ssr"){
+      } else if (typecc == "ssr"){
         node = CSSR2QX(node)
-      } else if (typec == "vmess"){
+      } else if (typecc == "vmess"){
         node = CV2QX(node)
-      } else if (typec == "trojan"){
+      } else if (typecc == "trojan"){
         node = CT2QX(node)
-      } else if (typec == "http"){
+      } else if (typecc == "http"){
         node = CH2QX(node)
-      } else if (typec == "socks5"){
+      } else if (typecc == "socks5"){
         node = CS52QX(node)
       }
       node = Pudp0 != 0 ? XUDP(node,Pudp0) : node
