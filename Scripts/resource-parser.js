@@ -216,9 +216,11 @@ var Finfo={}
 if (Pflow!=0) {
   Pflow = Pflow.split(":")
   var Bdate=Date.parse(new Date(Pflow[0]))/1000
-  var Btotal=Pflow[1]? Pflow[1]*1024*1024*1024 : ""
-  var Bused=Pflow[2]? Pflow[2]*1024*1024*1024 : ""
-  var BJson={bytes_used: Bused, bytes_remaining: Btotal-Bused, expire_date: Bdate}
+  var Btotal=Pflow[1]? Pflow[1]*1024*1024*1024 : 0
+  var Bused=Pflow[2]? Pflow[2]*1024*1024*1024 : 0
+  var Bremain=Btotal !=0 ? Btotal-Bused : 1
+  var BJson={bytes_used: Bused, bytes_remaining: Bremain, expire_date: Bdate}
+  //$notify("Flow","",JSON.strigify(BJson))
   Finfo = BJson
 }
 
