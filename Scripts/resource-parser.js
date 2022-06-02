@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-06-01 10:10⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-06-02 14:00⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: @Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -60,6 +60,7 @@
   ❖ sort=IEPL<IPLC<BGP , 靠后排序
 ⦿ info=1, 开启通知提示机场 ✈️ 流量信息(如有提供);
 ⦿ del=1, 有重名节点时用此参数删除重复节点(默认改名保留)
+⦿ flow=2022-06-02:1000:54, 订阅到期时间:总流量:已用流量
 ⦿ ⟦进阶参数⟧: 𝘀𝗳𝗶𝗹𝘁𝗲𝗿/𝘀𝗿𝗲𝗻𝗮𝗺𝗲, 传入一段 base64 编码的脚本, 可用于更为复杂的[过滤/重命名] 需求
   ❖ 说明: https://github.com/KOP-XIAO/QuantumultX/pull/9
 
@@ -92,6 +93,7 @@
 ⦿ 类型参数 type=domain-set/rule/module/list/nodes
   ❖ 当解析器未能正确识别类型时, 可尝试使用此参数强制指定
 ⦿ 隐藏参数 hide=0, 禁用筛除的分流/重写，默认方式为删除
+
 ----------------------------------------------------------
 */
 
@@ -149,7 +151,6 @@ const Field = {
   "server" : "server_remote"
 }  
 
-var Finfo={bytes_used: 1073741824, bytes_remaining: 2147483648, expire_date: 1653193966}
 
 SubFlow() //流量通知
 
@@ -206,8 +207,20 @@ var PUOT = mark0 && para1.indexOf("uot=") != -1 && version >= 665? para1.split("
 var PcheckU = mark0 && para1.indexOf("checkurl=") != -1 ? decodeURIComponent(para1.split("checkurl=")[1].split("&")[0]) : ""; // 节点 server_check_url 参数
 typeQ = PRelay!=""? "server":typeQ
 var typec="" //check result type
-var Pflow=mark0 &&para1.indexOf("flow=") != -1 ? decodeURIComponent(para1.split("flow=")[1].split("&")[0]) : ""; // 流量时间等参数
+var Pflow=mark0 && para1.indexOf("flow=") != -1 ? para1.split("flow=")[1].split("&")[0] : 0; // 流量时间等参数
 
+
+//流量信息
+//{bytes_used: 1073741824, bytes_remaining: 2147483648, expire_date: 1653193966}}
+var Finfo={}
+if (Pflow!=0) {
+  Pflow = Pflow.split(":")
+  var Bdate=Date.parse(new Date(Pflow[0]))/1000
+  var Btotal=Pflow[1]? Pflow[1]*1024*1024*1024 : ""
+  var Bused=Pflow[2]? Pflow[2]*1024*1024*1024 : ""
+  var BJson={bytes_used: Bused, bytes_remaining: Btotal-Bused, expire_date: Bdate}
+  Finfo = BJson
+}
 
 //花漾字 pattern
 var pat=[]
@@ -279,7 +292,6 @@ function Parser() {
 
 if (typeof($resource)!=="undefined") {
   Parser()
-  if (Pflow!=1) {Finfo={}}
   $done({ content: total, info: Finfo })
 }
 
