@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-06-13 10:20⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-06-14 21:30⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -168,7 +168,8 @@ var Pemoji = mark0 && para1.indexOf("emoji=") != -1 ? para1.split("emoji=")[1].s
 var Pdbg = mark0 && para1.indexOf("dbg=") != -1 ? para1.split("dbg=")[1].split("&")[0] : null;
 var Pudp0 = mark0 && para1.indexOf("udp=") != -1 ? para1.split("udp=")[1].split("&")[0] : 0;
 var Ptfo0 = mark0 && para1.indexOf("tfo=") != -1 ? para1.split("tfo=")[1].split("&")[0] : 0;
-var Prname = mark0 && para1.indexOf("rename=") != -1 ? para1.split("rename=")[1].split("&")[0].split("+") : null;
+//var Prname = mark0 && para1.indexOf("rename=") != -1 ? para1.split("rename=")[1].split("&")[0].split("+") : null;
+var Prname = mark0 && /(^|\&)rename=/.test(para1) ? para1.split(/(^|\&)rename\=/)[2].split("&")[0].split("+") : null;
 var Psrename = mark0 && para1.indexOf("srename=") != -1 ? Base64.decode(para1.split("srename=")[1].split("&")[0]) : null; // script rename
 var Prrname = mark0 && para1.indexOf("rrname=") != -1 ? para1.split("rrname=")[1].split("&")[0].split("+") : null;
 var Psuffix = mark0 && para1.indexOf("suffix=") != -1 ? para1.split("suffix=")[1].split("&")[0] : 0;
@@ -385,6 +386,8 @@ function ResourceParse() {
       delreg = Pregdel
       total = total.map(DelReg)
     }
+    //script rename 置于其它参数之前
+    if (Psrename) { total = RenameScript(total, Psrename) }
     if (Preplace) { // server 类型也可用 replace 参数进行重命名操作
       total = ReplaceReg(total, Preplace)
     }
@@ -392,7 +395,6 @@ function ResourceParse() {
       Prn = Prname;
       total = total.map(Rename);
     }
-    if (Psrename) { total = RenameScript(total, Psrename) }
     if (total.length > 0){
       if (Psuffix==1 || Psuffix==-1) {total = Psuffix == 1? total.map(type_suffix):total.map(type_prefix)
       }
@@ -732,10 +734,13 @@ function index_handle(item) {
   let b=Array.from(new Array(items.length),(val,index)=>index+1);
   //console.log(b[0])
   for (var i=0; i< items.length;i++){
+    //$notify("rename"+i,Prname,items[i])
+    if (items[i].indexOf("node_index_prefix") != -1) { // 以免占位符被错误地replace
     ind = items[i].split("node_index_prefix")[1][0]
     ind = !/^(0|1|2|3|4|5|6|7|8)$/.test(ind) ? 0 : ind
     console.log("handle index"+ind)
     items[i] = items[i].replace(/node_index_prefix(\d{0,1})/g,PatternN((i+1).toString(),"",ind))
+  }
   }
   console.log(items)
   return items
