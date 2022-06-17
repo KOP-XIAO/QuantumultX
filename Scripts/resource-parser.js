@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-06-14 21:30⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-06-17 16:30⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1288,7 +1288,7 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
             const NodeCheck = (item) => listi.toLowerCase().indexOf(item) != -1;
             const NodeCheck1 = (item) => listi.toLowerCase().indexOf(item) == 0;
             try {
-                if (type == "vmess" && list0[i].indexOf("remarks=") == -1) {
+                if (type == "vmess" && (list0[i].indexOf("remark=") == -1 && list0[i].indexOf("remarks=") == -1)) {
                     var bnode = Base64.decode(list0[i].split("vmess://")[1])
                     if (bnode.indexOf("over-tls=") == -1) { //v2rayN
                         node = V2QX(list0[i], Pudp, Ptfo, Pcert0, PTls13)
@@ -1296,7 +1296,7 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
                         node = VQ2QX(list0[i], Pudp, Ptfo, Pcert0, PTls13)
                     }
                   node = tag0 != "" ? URI_TAG(node, tag0) : node
-                } else if (type == "vmess" && list0[i].indexOf("remarks=") != -1) { //shadowrocket 类型
+                } else if (type == "vmess" && ( list0[i].indexOf("remark=") != -1 || list0[i].indexOf("remarks=") != -1)) { //shadowrocket 类型
                     node = VR2QX(list0[i], Pudp, Ptfo, Pcert0, PTls13)
                     node = tag0 != "" ? URI_TAG(node, tag0) : node
                 } else if (type == "socks" && list0[i].indexOf("remarks=") != -1) { //shadowrocket socks5 类型
@@ -1491,38 +1491,41 @@ function VQ2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
 
 //Shadowrocket 格式的 vmess URI 转换
 function VR2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
-  var server = String(Base64.decode(subs.replace("vmess://", "").split("?remarks")[0]).trim()).split("\u0000")[0]
+  var server = String(Base64.decode(subs.replace("vmess://", "").split("?remark")[0].split("&remark")[0].split("?")[0]).trim()).split("\u0000")[0]
   var node = ""
   var ip = "vmess=" + server.split("@")[1] + ", " + "method=aes-128-gcm, " + "password=" + server.split("@")[0].split(":")[1] + ", "
-  var tag = "tag=" + decodeURIComponent(subs.split("remarks=")[1].split("&")[0])
+  var tag = "tag=" + decodeURIComponent(subs.split(/remarks*=/)[1].split("&")[0])
   var tfo = subs.indexOf("tfo=1") != -1 ? "fast-open=true, " : "fast-open=false, "
   var udp = Pudp == 1 ? "udp-relay=false, " : "udp-relay=false, ";
   node = ip + tfo + udp
-  var obfs = subs.split("obfs=")[1].split("&")[0]
+  var obfs = subs.split("obfs=")[1].split("&")[0].trim()
   if (obfs == "none") { //
     obfs = subs.indexOf("tls=1") != -1 ? "obfs=over-tls, " : "" //over-tls
   } else if (obfs == "websocket" || obfs == "http") {
-    console.log(obfs)
     obfs = obfs == "http" ? "obfs=http, " : "obfs=ws, " // http 类型
     obfs = subs.indexOf("tls=1") != -1 ? "obfs=wss, " : obfs //ws,wss 类型
-    var ouri = subs.indexOf("&path=") != -1 ? subs.split("&path=")[1].split("&")[0] : "/" //ws,wss 类型
+    var ouri = subs.indexOf("&path=") != -1 ? decodeURIComponent(subs.split("&path=")[1].split("&")[0]) : "/" //ws,wss 类型
     obfs = obfs + "obfs-uri=" + ouri + ", "
-    var host = subs.indexOf("&obfsParam=") != -1 ? decodeURIComponent(subs.split("&obfsParam=")[1].split("&")[0]) : ""
+    var host = subs.indexOf("&obfsParam=") != -1 ? decodeURIComponent(subs.split("&obfsParam=")[1].split("&")[0].split("\n")[0]).split("\n")[0].trim() : ""
+    $notify("before","host",host)
     if (host.indexOf("\"Host\"")!=-1 && host.indexOf("{")!=-1) {
       host = JSON.parse(host)["Host"]
     }
-    host = host!="{}"? "obfs-host=" + host + ", " : ""
+    host = host!="{}" && host ? "obfs-host=" + host + ", " : ""
     obfs = obfs + host
   }
+  $notify("XXX","",obfs)
   if (obfs.indexOf("obfs=over-tls") != -1 || obfs.indexOf("obfs=wss") != -1) {
     var cert = Pcert0 != 0 || subs.indexOf("allowInsecure=1") != -1 ? "tls-verification=false, " : "tls-verification=true, "
     var tls13 = PTls13 == 1 ? "tls13=true, " : ""
     obfs = obfs + cert + tls13
   }
+  caead="aead=false, "
   if (subs.indexOf("alterId=") != -1) {
     caead = Number(subs.split("alterId=")[1].split("&")[0]) != 0 ? "aead=false, " : ""
   }
   node = node + obfs +caead+ tag
+  //$notify(node)
   return node
 }
 
