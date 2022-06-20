@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-06-17 16:30⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-06-20 21:30⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -403,7 +403,6 @@ function ResourceParse() {
         total = QXSort(total, Psort0);
       }
       total = para1.indexOf("node_index_prefix")!=-1 ?index_handle(total):total // 节点序号操作
-      //$notify("before","haha",total)
       total = TagCheck_QX(total).join("\n") //节点名检查
       if (PUOT==1) { total = total.split("\n").map(UOT).join("\n")}
       if (Pcnt == 1) {$notify("⟦" + subtag + "⟧"+"解析后最终返回内容" , "节点数量: " +total.split("\n").length, total)}
@@ -1507,14 +1506,12 @@ function VR2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
     var ouri = subs.indexOf("&path=") != -1 ? decodeURIComponent(subs.split("&path=")[1].split("&")[0]) : "/" //ws,wss 类型
     obfs = obfs + "obfs-uri=" + ouri + ", "
     var host = subs.indexOf("&obfsParam=") != -1 ? decodeURIComponent(subs.split("&obfsParam=")[1].split("&")[0].split("\n")[0]).split("\n")[0].trim() : ""
-    $notify("before","host",host)
     if (host.indexOf("\"Host\"")!=-1 && host.indexOf("{")!=-1) {
       host = JSON.parse(host)["Host"]
     }
     host = host!="{}" && host ? "obfs-host=" + host + ", " : ""
     obfs = obfs + host
   }
-  $notify("XXX","",obfs)
   if (obfs.indexOf("obfs=over-tls") != -1 || obfs.indexOf("obfs=wss") != -1) {
     var cert = Pcert0 != 0 || subs.indexOf("allowInsecure=1") != -1 ? "tls-verification=false, " : "tls-verification=true, "
     var tls13 = PTls13 == 1 ? "tls13=true, " : ""
@@ -1525,7 +1522,6 @@ function VR2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
     caead = Number(subs.split("alterId=")[1].split("&")[0]) != 0 ? "aead=false, " : ""
   }
   node = node + obfs +caead+ tag
-  //$notify(node)
   return node
 }
 
