@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-06-24 16:10⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-06-27 14:10⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -92,7 +92,7 @@
 ⦿ 类型参数 type=domain-set/rule/module/list/nodes
   ❖ 当解析器未能正确识别类型时, 可尝试使用此参数强制指定
 ⦿ 隐藏参数 hide=0, 禁用筛除的分流/重写，默认方式为删除
-
+⦿ profile=111 , URL-Scheme 添加配置中远程资源
 ----------------------------------------------------------
 */
 
@@ -208,8 +208,48 @@ var PcheckU = mark0 && para1.indexOf("checkurl=") != -1 ? decodeURIComponent(par
 typeQ = PRelay!=""? "server":typeQ
 var typec="" //check result type
 var Pflow=mark0 && para1.indexOf("flow=") != -1 ? para1.split("flow=")[1].split("&")[0] : 0; // 流量时间等参数
+var PProfile = mark0 && para1.indexOf("profile=") != -1 ? para1.split("profile=")[1].split("&")[0] : 0; // 通过URL-Scheme导入完整配置参数
 
+// URL-Scheme 增加配置
+var ADDres = `quantumult-x:///add-resource?remote-resource=url-encoded-json`
+var RLink = `{
+  "server_remote": [
+    sremoteposition
+  ],
+  "filter_remote": [
+    fremoteposition
+  ],
+  "rewrite_remote": [
+    rremoteposition
+  ]
+}`
 
+var ProfileInfo = {
+  "server":"",
+  "filter":"",
+  "rewrite":""
+}
+
+function VCheck(cnt) {
+  cnts=cnt.split("\n").filter(Boolean).map(item=>item.trim()).filter(item => /^http/.test(item)).map(item=>"\""+item+"\"")
+  cnts=cnts.join(",\n")
+  //console.log(cnts)
+  return  cnts
+  }
+
+function Profile_Handle() {
+  let a = content0
+  PProfile= PProfile==1? "001":PProfile
+  PProfile= PProfile==8? "010": PProfile
+  PProfile= PProfile==9? "011": PProfile
+  srm = a.split("[server_remote]")[1] && String(PProfile)[0]=="1"? VCheck(a.split("[server_remote]")[1].split("[")[0]) : ""
+  frm = a.split("[filter_remote]")[1] && String(PProfile)[1]=="1"? VCheck(a.split("[filter_remote]")[1].split("[")[0]) : ""
+  rrm = a.split("[rewrite_remote]")[1] && String(PProfile)[2]=="1"? VCheck(a.split("[rewrite_remote]")[1].split("[")[0]) : ""
+  RLink=RLink.replace("sremoteposition",srm).replace("fremoteposition",frm).replace("rremoteposition",rrm)
+  ADDres=ADDres.replace("url-encoded-json",encodeURIComponent(RLink))
+}
+
+//
 //流量信息
 //{bytes_used: 1073741824, bytes_remaining: 2147483648, expire_date: 1653193966}}
 var Finfo={}
@@ -292,9 +332,19 @@ function Parser() {
     $done({ content: total });
 }
 
-if (typeof($resource)!=="undefined") {
+if (typeof($resource)!=="undefined" && PProfile == 0) {
   Parser()
   $done({ content: total, info: Finfo })
+} else if (PProfile != 0) {
+  try {
+    Profile_Handle()
+  } catch (err) {
+      $notify("❌ 解析出现错误", "⚠️ 请点击发送链接反馈", err, bug_link);
+    }
+  openlink = {"open-url": ADDres}
+  $notify("⚠️请忽略报错提示, 点击此通知跳转", "添加配置中的有效远程资源👇 ["+ PProfile+"]", ADDres, openlink)
+  total = ProfileInfo[typeQ]
+  $done({content:total})
 }
 
 
