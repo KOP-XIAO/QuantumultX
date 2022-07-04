@@ -5,10 +5,10 @@ For Quantumult-X 598+ ONLY!!
 [task_local]
 
 // UI 查询版本
-event-interaction https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/sswitch-check-ytb.js, tag=YouTube 切换, img-url=https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/YouTube_Letter.png, enabled=true
+event-interaction https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/switch-check-ytb.js, tag=YouTube 切换, img-url=https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/YouTube_Letter.png, enabled=true
 
 // cron task 版本
-0 8 * * * https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/sswitch-check-ytb-url-cron.js#policy=你的策略组, tag=YouTube 切换, img-url=https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/YouTube_Letter.png, enabled=true
+0 8 * * * https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/switch-check-ytb-url-cron.js#policy=你的策略组, tag=YouTube 切换, img-url=https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/YouTube_Letter.png, enabled=true
 
 ps. 简单粗暴的 UI-Interaction 版本。无数据持久化、粗暴延迟等待。完美主义建议使用 Helge大佬的boxjs版本 https://t.me/QuanXNews/193
 
@@ -23,10 +23,12 @@ const BASE_URL = 'https://www.youtube.com/premium'
 const link = { "media-url": "https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/img/southpark/7.png" } 
 var cronsign = $environment.executeType == 0 || $environment.executeType == "0"? "Y" : "N"
 var policy = $environment.executeType == 0 || $environment.executeType == "0" ? GetPolicy($environment.sourcePath) : $environment.params
+console.log($environment)
+console.log("策略组："+policy)
 
 function GetPolicy(cnt) {
     if (cnt && cnt.indexOf("#policy=") !=-1) {
-        return decodeURI(Componentcnt.split("#policy=")[1].trim())
+        return decodeURIComponent(cnt.split("#policy=")[1].trim())
     }else {
         return ""
     }
