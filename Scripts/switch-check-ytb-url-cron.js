@@ -21,8 +21,8 @@ ps. 简单粗暴的 UI-Interaction 版本。无数据持久化、粗暴延迟等
 const BASE_URL = 'https://www.youtube.com/premium'
 
 const link = { "media-url": "https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/img/southpark/7.png" } 
-var cronsign = $environment.executeType == 0 || $environment.executeType == "0"? "Y" : "N"
-var policy = $environment.executeType == 0 || $environment.executeType == "0" ? GetPolicy($environment.sourcePath) : $environment.params
+var cronsign = $environment.executeType == 0 || $environment.executeType == "0" || $environment.executeType == "-1"? "Y" : "N"
+var policy = $environment.executeType == 0 || $environment.executeType == "0" || $environment.executeType == "-1"? GetPolicy($environment.sourcePath) : $environment.params
 console.log(JSON.stringify($environment))
 console.log("策略组："+policy)
 
