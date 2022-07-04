@@ -23,7 +23,7 @@ const BASE_URL = 'https://www.youtube.com/premium'
 const link = { "media-url": "https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/img/southpark/7.png" } 
 var cronsign = $environment.executeType == 0 || $environment.executeType == "0"? "Y" : "N"
 var policy = $environment.executeType == 0 || $environment.executeType == "0" ? GetPolicy($environment.sourcePath) : $environment.params
-console.log($environment)
+console.log(JSON.stringify($environment))
 console.log("策略组："+policy)
 
 function GetPolicy(cnt) {
