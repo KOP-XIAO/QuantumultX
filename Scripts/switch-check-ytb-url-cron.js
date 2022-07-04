@@ -161,7 +161,7 @@ function ReOrder(cnt) {
             }
             if (resolve.ret) {
                 console.log("已经切换至支持 <b>Premium</b> 的路线 ➟ "+array[0])
-                if (cronsign == "Y") { $notify("📺 YouTube 检测&切换", "🎉 已经切换至支持 YouTube Premium 最优延迟线路👇", array[0] +"延迟数据为 👉"+Ping)}
+                if (cronsign == "Y") { $notify("📺 YouTube 检测&切换", "🎉 已经切换至支持 YouTube Premium 最优延迟线路👇", array[0] +"\n 👉 "+Ping)}
                 content = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + "<br><b>⟦ "+policy+ " ⟧ </b>已切换至支持<b>Premium</b> 的路线中延迟最优节点<br><br> 👇<br><br> ⟦ "+array[0]+ " ⟧" + "<br><br><font color=#16A085>"+Ping+"</font><br>-----------------------------<br><b><font color=#FF5733>检测详情请查看JS脚本记录</font></b><br>-----------------------------"+`</p>`
                 $done({"title":"YouTube 检测&切换", "htmlMessage": content })
             }
