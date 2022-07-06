@@ -42,6 +42,14 @@ var policy = $environment.executeType == 0 || $environment.executeType == "0" ||
 console.log(JSON.stringify($environment))
 console.log("策略组："+policy)
 
+function GetPolicy(cnt) {
+    if (cnt && cnt.indexOf("#policy=") !=-1) {
+        return decodeURIComponent(cnt.split("#policy=")[1].trim())
+    }else {
+        return ""
+    }
+}
+
 const message = {
     action: "get_customized_policy",
     content: policy
