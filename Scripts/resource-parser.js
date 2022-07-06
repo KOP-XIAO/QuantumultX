@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-07-06 11:00⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-07-06 11:05⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -876,8 +876,10 @@ function HOST_Handle(cnt,phost) {
   phost="host="+phost+","
   if (phost.indexOf("☠️") == -1) { //只替换已有host类型
     cnt = cnt.replace(/host\s*\=(.*?)\,/,phost)
-  } else { // 增加 obfs-host\tls-host
-    if (/over-tls\s*\=\s*true/.test(cnt)) {
+  } else { // 为已有的替换，为没有的增加 obfs-host\tls-host
+    if (/-host\s*\=/.test(cnt)) {// 如已有host参数
+      cnt = cnt.replace(/host\s*\=(.*?)\,/,phost)
+    } else if (/over-tls\s*\=\s*true/.test(cnt)) { // 如无host，但可以增加
       cnt = cnt+", tls-"+phost
     } else if (/obfs\s*\=/.test(cnt)) {
       cnt = cnt + ", obfs-"+phost
