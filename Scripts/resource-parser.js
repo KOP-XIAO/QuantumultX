@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-07-06 14:05⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-07-07 13:05⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -138,7 +138,7 @@ const update_link = {"open-url" : "https://apps.apple.com/us/app/quantumult-x/id
 if(version == 0) { $notify("⚠️ 请更新 Quantumult X 至最新商店版本\n","🚦 当前版本可能无法正常使用部分功能","\n👉 点击跳转商店链接更新",update_link) }
 
 const ADDRes = `quantumult-x:///add-resource?remote-resource=url-encoded-json`
-var RLink = {
+var RLink0 = {
   "filter_remote": [],
   "rewrite_remote": [],
   "server_remote": [],
@@ -315,10 +315,9 @@ function Parser() {
       $notify("❌ 解析出现错误", "⚠️ 请点击发送链接反馈", err, bug_link);
     }
   } else if (type0 == "wrong-field"){
-    //$notify(type0+"ss")
     if (version >= 670 && typec!="") { //尝试跳转到正确类型
-      RLink[Field[typec]].push($resource.link+", opt-parser=true, tag=下次添加资源🉑️长点❤️8⃣️") //  跳转URI-Scheme
-      var flink = ADDRes.replace(/url-encoded-json/,encodeURIComponent(JSON.stringify(RLink)))
+      RLink0[Field[typec]].push($resource.link+", opt-parser=true, tag=下次添加资源🉑️长点❤️8⃣️") //  跳转URI-Scheme
+      var flink = ADDRes.replace(/url-encoded-json/,encodeURIComponent(JSON.stringify(RLink0)))
       const bug_linkx = { "open-url": flink, "media-url": "https://shrtm.nu/obcB" } // bug linkx
     $notify( "⚠️ 请点击通知跳转尝试添加到正确类型中","❌ 检测类型["+typec+"]"+"与填入类型"+"["+typeQ+"]冲突", "如果跳转添加仍旧失败，请反馈解析器bot\n"+$resource.link, bug_linkx)
     } else {//旧版本
