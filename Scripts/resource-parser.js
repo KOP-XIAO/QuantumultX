@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-07-11 10:25⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-07-11 16:35⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -905,7 +905,7 @@ function SHA256_Handle(cnt,pcsha256,ppsha256) {
 function ALPN_Handle(cnt,palpn) {
   cnti = cnt.replace(/\s/gmi,"") //删掉空格
   if (cnti.indexOf("obfs=over-tls") != -1 || cnti.indexOf("over-tls=true")!=-1) {
-    cnt = cnt + "tls-alpn="+palpn
+    cnt = cnt + ", tls-alpn="+palpn
   }
   return cnt
 }
