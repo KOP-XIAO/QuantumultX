@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-07-10 08:25⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-07-11 10:25⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -26,6 +26,7 @@
 ⦿ uot=1, 开启 udp-over-tcp=true选项（仅限SS(R)）
 ⦿ cert=1/-1, 分别开启/关闭 𝐭𝐥𝐬 证书验证(默认关闭);
   ❖ csha/psha, tls-cert-sha256 以及 tls-pubkey-sha256 参数
+  ❖ alpn, 指定over-tls类型节点的alpn参数
 ⦿ in, out, regex, regout 分别为 保留、删除、正则保留、正则删除 节点;
   ❖ in/out 仅对节点名匹配生效, 多参数(逻辑"或")用 "+", 逻辑"与"用 "." 表示;
   ❖ regex/regout 对节点的完整信息进行匹配(类型、端口、加密等);
@@ -208,6 +209,7 @@ typeQ = PRelay!=""? "server":typeQ
 var typec="" //check result type
 var Pflow=mark0 && para1.indexOf("flow=") != -1 ? para1.split("flow=")[1].split("&")[0] : 0; // 流量时间等参数
 var PProfile = mark0 && para1.indexOf("profile=") != -1 ? para1.split("profile=")[1].split("&")[0] : 0; // 通过URL-Scheme导入完整配置参数
+var Palpn = mark0 && para1.indexOf("alpn=") != -1 ? para1.split("alpn=")[1].split("&")[0] : ""; // over-tls 类型，alpn参数
 
 // URL-Scheme 增加配置
 var ADDres = `quantumult-x:///add-resource?remote-resource=url-encoded-json`
@@ -899,6 +901,15 @@ function SHA256_Handle(cnt,pcsha256,ppsha256) {
   return cnt
 }
 
+// 指定alpn参数,over-tls类型？
+function ALPN_Handle(cnt,palpn) {
+  cnti = cnt.replace(/\s/gmi,"") //删掉空格
+  if (cnti.indexOf("obfs=over-tls") != -1 || cnti.indexOf("over-tls=true")!=-1) {
+    cnt = cnt + "tls-alpn="+palpn
+  }
+  return cnt
+}
+
 //url-regex 转换成 Quantumult X
 function URX2QX(subs) {
     var nrw = []
@@ -1402,6 +1413,7 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
             if (Phost != "") {node = HOST_Handle(node,Phost)} // host 参数修改
             if (Pcsha256 != "" || Ppsha256 != "") {
             node = SHA256_Handle(node,Pcsha256,Ppsha256)} // Sha256 参数
+            if (Palpn !="") { ALPN_Handle(cnt,Palpn)} // alpn 参数
             node = TLS_Check(node)
             if (node instanceof Array) {
                 for (var j in node) {
