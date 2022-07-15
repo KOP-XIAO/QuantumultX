@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-07-11 16:50⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-07-15 09:50⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -414,6 +414,13 @@ function ResourceParse() {
   } else if (type0 == "unknown") {
     ParseUnknown(content0)
     flag = -1;
+  } else if (type0 == "profile") {
+    PProfile = "111" //默认添加所有部分
+    Profile_Handle()
+    openlink = {"open-url": ADDres}
+    $notify("⚠️ 该链接为完整配置文件, 请点击此通知跳转", "添加配置中的有效远程资源👇 ["+ PProfile+"]", ADDres, openlink)
+    flag = -1;
+    total = ""
   }
   
   //开始处理
@@ -544,6 +551,7 @@ function Type_Check(subs) {
     var RewriteK = [" url "]
     var SubK2 = ["ss://", "vmess://", "ssr://", "trojan://", "ssd://", "https://"];
     var ModuleK = ["[Script]", "[Rule]", "[URL Rewrite]", "[Map Local]", "[MITM]", "\nhttp-r"]
+    var QXProfile = ["[filter_local]","[filter_remote]","[server_local]","[server_remote]"]
     var html = "DOCTYPE html"
     var subi = subs.replace(/ /g, "")
     const RuleCheck = (item) => subi.toLowerCase().indexOf(item) != -1;
@@ -551,6 +559,7 @@ function Type_Check(subs) {
     const NodeCheck1 = (item) => subi.toLowerCase().indexOf(item.toLowerCase()) != -1; //b64加密的订阅类型
     const NodeCheck2 = (item) => subi.toLowerCase().indexOf(item.toLowerCase()) != -1; //URI 类型
     const RewriteCheck = (item) => subs.indexOf(item) != -1;
+    const ProfileCheck = (item) => subs.indexOf(item) != -1; //是否为quanx配置文件
     var subsn = subs.split("\n")
     if ( (subs.indexOf(html) != -1 || subs.indexOf("doctype html") != -1) && link0.indexOf("github.com" == -1)) {
       $notify("‼️ 该链接返回为无效网页内容"+ " ➟ " + "⟦" + subtag + "⟧", "⁉️ 点通知跳转以确认链接是否失效\n"+link0, "返回内容如下⬇️：\n"+subs, nan_link);
@@ -602,7 +611,10 @@ function Type_Check(subs) {
     } else if (SubK.some(NodeCheck1)) {  //b64加密的订阅类型
       typec="server"
       type = (typeQ == "unsupported" || typeQ =="server")? "Subs-B64Encode":"wrong-field"
-    } 
+    } else if (QXProfile.every(ProfileCheck)) {
+      typec = "profile"
+      type = "profile"  //默认配置类型
+    }
   // 用于通知判断类型，debug
   if(typeU == "X"){
     $notify("该链接判定类型",type+" : " +typec, subs)
@@ -2178,7 +2190,7 @@ function get_emoji(emojip, sname) {
     "🇦🇺": ["AU", "Australia", "Sydney", "澳大利亚", "澳洲", "墨尔本", "悉尼" ,"土澳", "京澳","廣澳","滬澳","沪澳","广澳"],
     "🇧🇪": ["BE", "比利時","比利时"],
     "🇧🇬": ["保加利亚", "保加利亞","Bulgaria"],
-    "🇵🇰": ["巴基斯坦"],
+    "🇵🇰": ["巴基斯坦","Pakistan", "PAKISTAN"],
     "🇧🇭": ["巴林"],
     "🇵🇾": ["巴拉圭"],
     "🇰🇭": ["柬埔寨"],
@@ -2221,7 +2233,7 @@ function get_emoji(emojip, sname) {
     "🇱🇺": ["卢森堡"],
     "🇱🇻": ["Latvia", "Latvija", "拉脱维亚"],
     "🇧🇩": ["孟加拉"],
-    "🇲🇽️": ["MEX", "MX", "墨西哥"],
+    "🇲🇽️": ["MEX", "MX", "墨西哥", "Mexico", "MEXICO"],
     "🇲🇾": ["MY", "Malaysia","MALAYSIA", "马来西亚", "马来", "馬來", "大马", "大馬", "馬來西亞", "吉隆坡"],
     "🇳🇱": ["NL", "Netherlands", "荷兰", "荷蘭", "尼德蘭", "阿姆斯特丹"],
     "🇵🇭": ["PH", "Philippines", "菲律宾", "菲律賓"],
