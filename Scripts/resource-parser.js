@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-07-20 12:00⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-07-21 15:30⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -929,6 +929,7 @@ function URX2QX(subs) {
     var nrw = []
     var rw = ""
     subs = subs.split("\n")
+    //$notify("URX")
     var NoteK = ["//", "#", ";"];  //排除注释项
     for (var i = 0; i < subs.length; i++) {
         const notecheck = (item) => subs[i].indexOf(item) == 0
@@ -942,6 +943,7 @@ function URX2QX(subs) {
         } 
     }
     }
+    //$notify("URX","",nrw)
     return nrw
 }
 
@@ -2003,7 +2005,6 @@ function isQuanXRewrite(content) {
     if(cnt[i]){
       var cnti = cnt[i].trim()
       const RuleCheck = (item) => cnti.toLowerCase().indexOf(item) != -1;
-      
       if (cnti.indexOf("pattern")!=-1 && cnti.indexOf("type")!=-1 || cnti.indexOf("http-r")!=-1) {
         cnti=SGMD2QX(cnti)[0]? SGMD2QX(cnti)[0]:""
         //console.log(cnti)
@@ -2014,8 +2015,12 @@ function isQuanXRewrite(content) {
         cnti=SGMD2QX(cnti)[0]? SGMD2QX(cnti)[0]:""
       }else if(cnti.indexOf(" data=")!=-1){
         cnti=cnti.replace(/ /g, "").split("data=")[0] + " url " + "reject-dict"
+      } else if (cnti.indexOf(" url ")!=-1 ){
+        cnti= cnti.split(" ")[1] == "url" ? cnti : ""
+      } else {
+        cnti=""
       }
-      if (cnti.trim()[0]!="[" && cnti.indexOf("RULE-SET")==-1 && !/cronexp\=|type\=cron/.test(cnti.replace(/ /g,"")) && !RuleK.some(RuleCheck)) {
+      if (cnti!="" && cnti.trim()[0]!="[" && cnti.indexOf("RULE-SET")==-1 && !/cronexp\=|type\=cron/.test(cnti.replace(/ /g,"")) && !RuleK.some(RuleCheck)) {
         if (!(/\;$/.test(cnti))) { // 某些特殊情形 let url = xxx;
         cnt0.push(cnti) //  排除其它项目后写入
       }
@@ -2023,6 +2028,7 @@ function isQuanXRewrite(content) {
     }
   }
   //console.log(cnt0)
+  //$notify("RWT","",cnt0)
   return cnt0
 }
 
