@@ -7,13 +7,12 @@ Thanks to & modified from
 
 
 For Quantumult-X 598+ ONLY!!
-2022-02-22 - 14:20
+
+2022-07-22
 
 [task_local]
 
 event-interaction https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/streaming-ui-check.js, tag=流媒体-解锁查询, img-url=checkmark.seal.system, enabled=true
-
-
 
 @XIAO_KOP
 
@@ -79,7 +78,7 @@ const message = {
   testDazn()
   testParam()
   let [{ region, status }] = await Promise.all([testDisneyPlus(),testNf(FILM_ID),testDiscovery()])
-  console.log(result["Netflix"])
+  console.log("NetFlix Result:"+result["Netflix"])
   console.log(`testDisneyPlus: region=${region}, status=${status}`)
   if (status==STATUS_COMING) {
     //console.log(1)
@@ -157,7 +156,7 @@ async function testDisneyPlus() {
 //  if (cnbl == 2) {
 //    return { region, status: STATUS_COMING }
 //  }
-    let { countryCode, inSupportedLocation } = await Promise.race([getLocationInfo(), timeout(7000)])
+    let { countryCode, inSupportedLocation, accessToken } = await Promise.race([getLocationInfo(), timeout(7000)])
     console.log(`getLocationInfo: countryCode=${countryCode}, inSupportedLocation=${inSupportedLocation}`)
     
     region = countryCode ?? region
@@ -169,6 +168,13 @@ async function testDisneyPlus() {
       // 支持解锁
       return { region, status: STATUS_AVAILABLE }
     }
+
+   let support = await Promise.race([testPublicGraphqlAPI(accessToken), timeout(7000)])
+      if (!support) {
+      return { status: STATUS_NOT_AVAILABLE }
+    }
+    // 支持解锁
+    return { region, status: STATUS_AVAILABLE }
     
   } catch (error) {
     console.log("error:"+error)
@@ -209,15 +215,15 @@ function getLocationInfo() {
             attributes: {
               browserName: 'chrome',
               browserVersion: '94.0.4606',
-              manufacturer: 'microsoft',
+              manufacturer: 'apple',
               model: null,
-              operatingSystem: 'windows',
-              operatingSystemVersion: '10.0',
+              operatingSystem: 'macintosh',
+              operatingSystemVersion: '10.15.7',
               osDeviceIds: [],
             },
             deviceFamily: 'browser',
             deviceLanguage: 'en',
-            deviceProfile: 'windows',
+            deviceProfile: 'macosx',
           },
         },
       }),
@@ -230,11 +236,15 @@ function getLocationInfo() {
         console.log('getLocationInfo: ' + data)
         reject('Not Available')
         return
-      } else {let {
-        inSupportedLocation,
-        location: { countryCode },
-      } = JSON.parse(data)?.extensions?.sdk?.session
-        resolve({ inSupportedLocation, countryCode })
+      } else {
+        let {
+          token: { accessToken },
+          session: {
+            inSupportedLocation,
+            location: { countryCode },
+      },
+      } = JSON.parse(data)?.extensions?.sdk
+        resolve({ inSupportedLocation, countryCode, accessToken })
       }
     }, reason => {
       reject('Error')
@@ -255,8 +265,8 @@ function testHomePage() {
     }
     $task.fetch(opts0).then(response => {
       let data = response.body
-      console.log("homepage"+response.statusCode)
-      if (response.statusCode !== 200 || data.indexOf('unavailable') !== -1) {
+      console.log("DisneyPlus: homepage"+response.statusCode)
+      if (response.statusCode !== 200 || data.indexOf('not available in your region') !== -1) {
         reject('Not Available')
         return
       } else {
@@ -274,6 +284,33 @@ function testHomePage() {
     }, reason => {
       reject('Error')
       return
+    })
+  })
+}
+
+function testPublicGraphqlAPI(accessToken) {
+  return new Promise((resolve, reject) => {
+    let opts = {
+      url: 'https://disney.api.edge.bamgrid.com/v1/public/graphql',
+      headers: {
+        'Accept-Language': 'en',
+        Authorization: accessToken,
+        'Content-Type': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.71 Safari/537.36',
+      },
+      body: JSON.stringify({
+        query:
+          'query($preferredLanguages: [String!]!, $version: String) {globalization(version: $version) { uiLanguage(preferredLanguages: $preferredLanguages) }}',
+        variables: { version: '1.5.0', preferredLanguages: ['en'] },
+      }),
+    }
+
+    $task.fetch(opts).then( response => {
+
+      resolve(response.status === 200)
+    }, reason => {
+        reject('Error')
+        return
     })
   })
 }
@@ -493,7 +530,7 @@ function testDiscovery() {
         verify: false
       }
       $task.fetch(option1).then(response=> {
-        console.log("Check:"+response.statusCode)
+        console.log("Discovery+ Check:"+response.statusCode)
         let data = JSON.parse(response.body)
         let locationd = data["data"]["attributes"]["currentLocationTerritory"]
         if (locationd == "us") {
