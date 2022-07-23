@@ -5,6 +5,8 @@ Thanks to & modified from
 
 For Quantumult-X 598+ ONLY!!
 
+2022-07-23 
+
 [task_local]
 
 // UI 查询版本
@@ -49,6 +51,7 @@ function GetPolicy(cnt) {
         return ""
     }
 }
+
 
 const message = {
     action: "get_customized_policy",
@@ -217,7 +220,7 @@ async function testDisneyPlus(pname) {
 //          console.log(pname+"22: 即将登陆"+region)
 //          return { region, status: STATUS_COMING }
 //      }
-        let { countryCode, inSupportedLocation } = await Promise.race([getLocationInfo(pname), timeout(7000)])
+        let { countryCode, inSupportedLocation, accessToken } = await Promise.race([getLocationInfo(pname), timeout(7000)])
         //console.log(`getLocationInfo: countryCode=${countryCode}, inSupportedLocation=${inSupportedLocation}`)
         
         region = countryCode ?? region
@@ -234,6 +237,13 @@ async function testDisneyPlus(pname) {
             console.log(pname+": 支持 「"+region+"」")
             return { region, status: STATUS_AVAILABLE }
         }
+        let support = await Promise.race([testPublicGraphqlAPI(accessToken), timeout(7000)])
+      if (!support) {
+      return { status: STATUS_NOT_AVAILABLE }
+    }
+    // 支持解锁
+    return { region, status: STATUS_AVAILABLE }
+
     } // sign    
     } catch (error) {
         //console.log(pname+": 检测错误"+error)
@@ -280,17 +290,17 @@ function getLocationInfo(pname) {
                     input: {
                         applicationRuntime: 'chrome',
                         attributes: {
-                            browserName: 'chrome',
-                            browserVersion: '94.0.4606',
-                            manufacturer: 'microsoft',
-                            model: null,
-                            operatingSystem: 'windows',
-                            operatingSystemVersion: '10.0',
-                            osDeviceIds: [],
+                          browserName: 'chrome',
+                          browserVersion: '94.0.4606',
+                          manufacturer: 'apple',
+                          model: null,
+                          operatingSystem: 'macintosh',
+                          operatingSystemVersion: '10.15.7',
+                          osDeviceIds: [],
                         },
                         deviceFamily: 'browser',
                         deviceLanguage: 'en',
-                        deviceProfile: 'windows',
+                        deviceProfile: 'macosx',
                     },
                 },
             }),
@@ -303,11 +313,15 @@ function getLocationInfo(pname) {
                 //console.log('getLocationInfo: ' + data)
                 reject('Not Available')
                 return
-            } else {let {
-                inSupportedLocation,
-                location: { countryCode },
-            } = JSON.parse(data)?.extensions?.sdk?.session
-                resolve({ inSupportedLocation, countryCode })
+            } else {
+                let {
+                  token: { accessToken },
+                  session: {
+                    inSupportedLocation,
+                    location: { countryCode },
+            },
+            } = JSON.parse(data)?.extensions?.sdk
+                resolve({ inSupportedLocation, countryCode, accessToken })
             }
         }, reason => {
             reject('Error')
@@ -332,7 +346,7 @@ function testHomePage(pname) {
         $task.fetch(opts0).then(response => {
             let data = response.body
             //console.log("homepage"+response.statusCode)
-            if (response.statusCode !== 200 || data.indexOf('unavailable') !== -1) {
+            if (response.statusCode !== 200 || data.indexOf('not available in your') !== -1) {
                 reject('Not Available')
                 return
             } else {
@@ -352,6 +366,33 @@ function testHomePage(pname) {
             return
         })
     })
+}
+
+function testPublicGraphqlAPI(accessToken) {
+  return new Promise((resolve, reject) => {
+    let opts = {
+      url: 'https://disney.api.edge.bamgrid.com/v1/public/graphql',
+      headers: {
+        'Accept-Language': 'en',
+        Authorization: accessToken,
+        'Content-Type': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.71 Safari/537.36',
+      },
+      body: JSON.stringify({
+        query:
+          'query($preferredLanguages: [String!]!, $version: String) {globalization(version: $version) { uiLanguage(preferredLanguages: $preferredLanguages) }}',
+        variables: { version: '1.5.0', preferredLanguages: ['en'] },
+      }),
+    }
+
+    $task.fetch(opts).then( response => {
+
+      resolve(response.status === 200)
+    }, reason => {
+        reject('Error')
+        return
+    })
+  })
 }
 
 function timeout(delay = 5000) {
