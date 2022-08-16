@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-08-11 18:35⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-08-16 13:35⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1872,7 +1872,7 @@ function TJ2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
     obfs = cnt.indexOf("obfs=websocket") != -1? "obfs=wss" : obfs 
     thost=cnt.indexOf("obfs-host=") == -1? thost : "obfs-host=" + decodeURIComponent(cnt.split("obfs-host=")[1].split(";")[0].split("#")[0])
     puri = cnt.indexOf("obfs-uri=") == -1? puri : ", obfs-uri=" + decodeURIComponent(cnt.split("obfs-uri=")[1].split(";")[0].split("#")[0])
-    } else if (cnt.indexOf("&type=ws")!=-1) {//v2rayN uri
+    } else if (cnt.indexOf("&type=ws")!=-1 || cnt.indexOf("?type=ws")!=-1) {//v2rayN uri
       obfs = cnt.indexOf("security=tls") != -1? "obfs=wss" : obfs 
       thost=cnt.indexOf("&host=") == -1? thost : "obfs-host=" + decodeURIComponent(cnt.split("&host=")[1].split("&")[0].split("#")[0])
       puri = cnt.indexOf("&path=") == -1? puri : ", obfs-uri=" + decodeURIComponent(cnt.split("&path=")[1].split("&")[0].split("#")[0])
