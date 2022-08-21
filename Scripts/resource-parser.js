@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-08-19 13:15⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-08-21 16:45⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1814,19 +1814,20 @@ function FilterScript(servers, script) {
     }
 }
 
+//a.c.com:0031:origin:aes-256-gcm:plain:pwdpwd/?obfsparam=&remarks=xxxx
 //SSR 类型 URI 转换 quanx 格式
 function SSR2QX(subs, Pudp, Ptfo) {
     var nssr = []
     var cnt = Base64.decode(subs.split("ssr://")[1].replace(/-/g, "+").replace(/_/g, "/")).split("\u0000")[0]
     var obfshost = '';
     var oparam = '';
-    if (cnt.split(":").length <= 6) { //排除难搞的 ipv6 节点
+    if (cnt.split(":").length <= 8) { //排除难搞的 ipv6 节点
         type = "shadowsocks=";
         ip = cnt.split(":")[0] + ":" + cnt.split(":")[1];
         pwd = "password=" + Base64.decode(cnt.split("/?")[0].split(":")[5].replace(/-/g, "+").replace(/_/g, "/")).split("\u0000")[0];
         mtd = "method=" + cnt.split(":")[3];
-        obfs = "obfs=" + cnt.split(":")[4] + ", ";
-        ssrp = "ssr-protocol=" + cnt.split(":")[2];
+        obfs =cnt.split(":")[4]!= "plain"? "obfs=" + cnt.split(":")[4] + ", " : ""; //plain?
+        ssrp = cnt.split(":")[2] != "origin"? "ssr-protocol=" + cnt.split(":")[2] : ""; //origin?
         if (cnt.indexOf("obfsparam=") != -1) {
             obfshost = cnt.split("obfsparam=")[1].split("&")[0] != "" ? "obfs-host=" + Base64.decode(cnt.split("obfsparam=")[1].split("&")[0].replace(/-/g, "+").replace(/_/g, "/")).split(",")[0].split("\u0000")[0] + ", " : ""
         }
@@ -1837,7 +1838,7 @@ function SSR2QX(subs, Pudp, Ptfo) {
         pudp = Pudp == 1 ? "udp-relay=true" : "udp-relay=false";
         ptfo = Ptfo == 1 ? "fast-open=true" : "fast-open=false";
         nssr.push(type + ip, pwd, mtd, obfs + obfshost + oparam + ssrp, pudp, ptfo, tag)
-        QX = nssr.join(", ")
+        QX = nssr.filter(Boolean).join(", ")
     } else { QX = "" }
     return QX;
 }
