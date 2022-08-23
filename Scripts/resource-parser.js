@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-08-22 11:15⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-08-23 09:15⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -549,7 +549,7 @@ function Type_Check(subs) {
     var ClashK = ["proxies:"]
     var SubK = ["dm1lc3M", "c3NyOi8v", "CnNzOi8", "dHJvamFu", "c3M6Ly", "c3NkOi8v", "c2hhZG93", "aHR0cDovLw", "aHR0cHM6L", "CnRyb2phbjo", "aHR0cD0", "aHR0cCA"];
     var RewriteK = [" url 302", " url 307", " url reject", " url script", " url req", " url res", " url echo"] // quantumult X 类型 rewrite
-    var SubK2 = ["ss://", "vmess://", "ssr://", "trojan://", "ssd://", "https://", "http://"];
+    var SubK2 = ["ss://", "vmess://", "ssr://", "trojan://", "ssd://", "https://", "http://","socks://","ssocks://"];
     var ModuleK = ["[Script]", "[Rule]", "[URL Rewrite]", "[Map Local]", "[MITM]", "\nhttp-r"]
     var QXProfile = ["[filter_local]","[filter_remote]","[server_local]","[server_remote]"]
     var html = "DOCTYPE html"
@@ -1632,7 +1632,7 @@ function VR2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
   return node
 }
 
-//Shadowrocket 格式的 sockst URI 转换
+//Shadowrocket 格式的 socks URI 转换
 function S5R2QX(cnt,tlsp="false") {
   var listh = Base64.decode(cnt.split("socks://")[1].split("#")[0].split("?")[0])
   server=listh+"#"+cnt.split("?")[1]
