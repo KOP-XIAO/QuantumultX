@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-12-09 09:30⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-12-09 14:30⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -2788,6 +2788,7 @@ function CSSR2QX(cnt) {
   tfo = cnt.tfo ? "fast-open=true" : "fast-open=false"
   prot = "ssr-protocol=" + cnt.protocol
   ohost=""
+  ppara=""
   if(cnt["protocolparam"]) {
     cnt["protocol-param"] = cnt["protocolparam"]
   }
