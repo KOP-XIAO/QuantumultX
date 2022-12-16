@@ -2,7 +2,9 @@
 
 Thanks to & modified from https://gist.githubusercontent.com/Hyseen/b06e911a41036ebc36acf04ddebe7b9a/raw/nf_check.js
 
-For Quantumult-X 598+
+For Quantumult-X 598
+
+2022-12-16
 
 [task_local]
 
@@ -18,7 +20,7 @@ event-interaction https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/
 const BASE_URL = 'https://www.netflix.com/title/'
 const BASE_URL_YTB = "https://www.youtube.com/premium"
 
-const FILM_ID = 81215567
+const FILM_ID = 80062035
 const link = { "media-url": "https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/img/southpark/7.png" } 
 const policy_name = "Netflix" //填入你的 netflix 策略组名
 
