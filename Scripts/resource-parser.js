@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-12-15 11:30⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-12-27 12:30⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -376,6 +376,7 @@ function ParseUnknown(cnt){
 function ResourceParse() {
   //预处理，分流/重写等处理完成
   if (type0 == "Subs-B64Encode") { // subs2QX 负责所有节点的转换
+    if (Pdbg) {$notify("original content", "node-b64", content0)}
     total = Subs2QX(Base64.decode(content0), Pudp0, Ptfo0, Pcert0, PTls13);
   } else if (type0 == "Subs") {
     //$notify("subs","",content0+Pudp0+Ptfo0+Pcert0+PTls13)
@@ -624,6 +625,12 @@ function Type_Check(subs) {
     } else if (SubK.some(NodeCheck1)) {  //b64加密的订阅类型
       typec="server"
       type = (typeQ == "unsupported" || typeQ =="server")? "Subs-B64Encode":"wrong-field"
+      if (content0.split("\n").length >= 2) { //  local snippet and first line remarks
+        let tmp = content0.split("\n")[1]
+        if (Pdbg) {$notify("local", "node", "\ntmp:\n"+tmp)}
+        if (SubK.some((item) => tmp.toLowerCase().indexOf(item.toLowerCase()) != -1))
+        content0 = tmp
+      }
     } else if (QXProfile.every(ProfileCheck)) {
       typec = "profile"
       type = "profile"  //默认配置类型
@@ -979,7 +986,13 @@ function URX2QX(subs) {
             rw = subs[i].replace(/ /g, "").split(",REJECT")[0].split("GEX,")[1] + " url " + "reject-200"
             nrw.push(rw)
         } else if (subs[i].indexOf("data=") != -1 && subs.indexOf("[Map Local]") != -1){ // Map Local 类型
-            rw = subs[i].replace(/ /g, "").split("data=")[0].replace(/\"/g,"") + " url echo-response text/html echo-response " + subs[i].replace(/ /g, "").split("data=")[1].replace(/\"/g,"")//"reject-dict"
+            rw = subs[i].replace(/ /g, "").split("data=")[0].replace(/\"/g,"") + " url echo-response text/html echo-response " + subs[i].split("data=")[1].split(" ")[0].replace(/\"/g,"").replace(/ /g, "")//"reject-dict"
+            if (subs[i].indexOf("header=")!=-1) {
+              if (subs[i].indexOf("Content-Type:") !=-1) {
+                let tpe = subs[i].split("header=")[1].split("Content-Type:")[1].split(",")[0].replace(/\"/g,"")
+                rw = rw.replace(/text\/html/g,tpe)
+              }
+            }
             nrw.push(rw)
         } 
     }
@@ -1429,6 +1442,7 @@ function ReplaceReg(cnt, para) {
 
 //混合订阅类型，用于未整体进行 base64 encode 以及已经 decode 后的类型
 function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
+  if (Pdbg) {$notify("subs", "node", subs)}
     var list0 = subs.split("\n");
     var QuanXK = ["shadowsocks=", "trojan=", "vmess=", "http=","socks5="];
     var SurgeK = ["=ss,", "=vmess,", "=trojan,", "=http,", "=https,", "=custom,", "=socks5", "=socks5-tls"];
@@ -1446,6 +1460,7 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
             const NodeCheck = (item) => listi.toLowerCase().indexOf(item) != -1;
             const NodeCheck1 = (item) => listi.toLowerCase().indexOf(item) == 0;
             try {
+              if (Pdbg) {$notify(i, type, list0[i])}
                 if (type == "vmess" && (list0[i].indexOf("remark=") == -1 && list0[i].indexOf("remarks=") == -1)) {
                     var bnode = Base64.decode(list0[i].split("vmess://")[1])
                     if (bnode.indexOf("over-tls=") == -1) { //v2rayN
@@ -1792,6 +1807,7 @@ function Fobfs(jsonl, Pcert0, PTls13) {
     obfsi.push(obfs0, host0 + uri0);
     return obfsi.join(", ")
   } else if (jsonl.net !="tcp"){ // 过滤掉 h2/http 等类型
+    $notify("⚠️ Quantumult X 不支持该类型节点", jsonl.net, JSON.stringify(jsonl))
     return "NOT-SUPPORTTED"
   } else if (jsonl.net =="tcp" && jsonl.type != "none" && jsonl.type != "") {
     return "NOT-SUPPORTTED"
@@ -2406,6 +2422,7 @@ function get_emoji(emojip, sname) {
     "🇪🇨": ["厄瓜多尔","EC", "Ecuador"],
     "🇲🇺": ["毛里求斯", "Mauritius"],
     "🇵🇷": ["波多黎各", "PR", "Puerto Rico"],
+    "🇬🇹": ["危地马拉", " GT "],
     "🇭🇰": ["HK", "Hongkong", "Hong Kong", "HongKong", "HONG KONG","香港", "深港", "沪港", "呼港", "HKT", "HKBN", "HGC", "WTT", "CMI", "穗港", "京港", "港"],
     "🇨🇳": ["CN", "China", "回国", "中国","中國", "江苏", "北京", "上海", "广州", "深圳", "杭州", "徐州", "青岛", "宁波", "镇江", "back"],
     "🇱🇧": ["黎巴嫩","LB", "Lebanon"],
