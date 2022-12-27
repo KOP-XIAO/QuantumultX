@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-12-27 12:30⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-12-27 17:30⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -613,9 +613,9 @@ function Type_Check(subs) {
     } else if ((SurgeK.some(NodeCheck)  && !/\[(Proxy|filter_local)\]/.test(subs)) || typeU == "list") {
       typec="server"
       type = (typeQ == "unsupported" || typeQ =="server" || typeQ =="uri")? "Subs":"wrong-field" // Surge proxy list
-    } else if (subs.indexOf("[server_local]") != -1) {
+    } else if (subs.indexOf("[server_local]") != -1 && QuanXK.some(NodeCheck)) {
       //type = "QuanX"  // QuanX Profile
-      typec="server"
+      typec="server-quanx"
       type = (typeQ == "unsupported" || typeQ =="server"|| typeQ =="uri")? "Subs":"wrong-field"
     } else if (content0.indexOf("server") !=-1 && content0.indexOf("server_port") !=-1) { //SIP008
       //type = "QuanX"
