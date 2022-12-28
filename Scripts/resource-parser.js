@@ -972,6 +972,20 @@ function ALPN_Handle(cnt,palpn) {
   return cnt
 }
 
+function Mock2QXReject(row, filename) {
+    if (/dict/i.test(filename)) {
+        return row.replace(/ /g, "").split("data=")[0] + " url " + "reject-dict"
+    } else if (/array/i.test(filename)) {
+        return row.replace(/ /g, "").split("data=")[0] + " url " + "reject-array"
+    } else if (/(txt|html)/i.test(filename)) {
+        return row.replace(/ /g, "").split("data=")[0] + " url " + "reject-200"
+    } else if (/(png|jpg|gif)/i.test(filename)) {
+        return row.replace(/ /g, "").split("data=")[0] + " url " + "reject-img"
+    } else {
+        return row.replace(/ /g, "").split("data=")[0] + " url " + "reject"
+    }
+}
+
 //url-regex 转换成 Quantumult X
 function URX2QX(subs) {
     var nrw = []
@@ -986,12 +1000,18 @@ function URX2QX(subs) {
             rw = subs[i].replace(/ /g, "").split(",REJECT")[0].split("GEX,")[1] + " url " + "reject-200"
             nrw.push(rw)
         } else if (subs[i].indexOf("data=") != -1 && subs.indexOf("[Map Local]") != -1){ // Map Local 类型
-            rw = subs[i].replace(/ /g, "").split("data=")[0].replace(/\"/g,"") + " url echo-response text/html echo-response " + subs[i].split("data=")[1].split(" ")[0].replace(/\"/g,"").replace(/ /g, "")//"reject-dict"
-            if (subs[i].indexOf("header=")!=-1) {
-              if (subs[i].indexOf("Content-Type:") !=-1) {
-                let tpe = subs[i].split("header=")[1].split("Content-Type:")[1].split(",")[0].replace(/\"/g,"")
-                rw = rw.replace(/text\/html/g,tpe)
-              }
+            // 取subs[i]的文件名
+            let fn = subs[i].match(/data=.+\/(.+)"/) ? subs[i].match(/data=.+\/(.+)"/)[1] : null
+            if (!/header=".*content-type/i.test(subs[i]) && /blank/i.test(fn)) {
+                rw = Mock2QXReject(subs[i], fn)
+            } else {
+                rw = subs[i].replace(/ /g, "").split("data=")[0].replace(/\"/g,"") + " url echo-response text/html echo-response " + subs[i].split("data=")[1].split(" ")[0].replace(/\"/g,"").replace(/ /g, "")//"reject-dict"
+                if (subs[i].indexOf("header=")!=-1) {
+                    if (subs[i].indexOf("Content-Type:") !=-1) {
+                        let tpe = subs[i].split("header=")[1].split("Content-Type:")[1].split(",")[0].replace(/\"/g,"")
+                        rw = rw.replace(/text\/html/g,tpe)
+                    }
+                }
             }
             nrw.push(rw)
         } 
