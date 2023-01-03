@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2022-12-27 17:30⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2023-01-03 16:50⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -348,7 +348,7 @@ if (typeof($resource)!=="undefined" && PProfile == 0) {
       $notify("❌ 解析出现错误", "⚠️ 请点击通知，发送订阅链接进行反馈", err, bug_link);
     }
   openlink = {"open-url": ADDres}
-  $notify("⚠️请忽略报错提示, 点击此通知跳转", "添加配置中的有效远程资源👇 ["+ PProfile+"]", ADDres, openlink)
+  $notify("⚠️请忽略报错提示, 点击此通知跳转", "添加配置中的有效远程资源👇 ["+ PProfile+"]", ADDres,openlink)
   total = ProfileInfo[typeQ]
   $done({content:total})
 }
@@ -418,6 +418,14 @@ function ResourceParse() {
   } else if (content0.trim() == "") {
     $notify("‼️ 引用" + "⟦" + subtag + "⟧" + " 返回內容为空", "⁉️ 点通知跳转以确认链接是否失效", para.split("#")[0], nan_link);
     flag = 0;
+  } else if (type0 == "sub-http") {
+    let url = VCheck(String(Base64.decode(content0.split("sub://")[1].split("#")[0])+", opt-parser=true, tag="+(new Date()).getTime()))
+     RLink = RLink.replace("sremoteposition",url).replace("fremoteposition","").replace("rremoteposition","")
+    let ADDres0 = ADDres.replace("url-encoded-json",encodeURIComponent(RLink))
+    openlink = {"open-url": ADDres0}
+    $notify("⚠️ 该链接为节点订阅, 请点击此通知跳转添加", url, ADDres0,openlink)
+    flag = -1
+    total = ""
   } else if (type0 == "unknown") {
     ParseUnknown(content0)
     flag = -1;
@@ -634,7 +642,10 @@ function Type_Check(subs) {
     } else if (QXProfile.every(ProfileCheck)) {
       typec = "profile"
       type = "profile"  //默认配置类型
-    } //else if (typeQ == "URI")
+    } else if (subi.indexOf("sub://") == 0) { // sub:// 类型
+      typec = "sub-http"
+      type = "sub-http"
+    }//else if (typeQ == "URI")
   // 用于通知判断类型，debug
   if(typeU == "X"){
     $notify("该链接判定类型",type+" : " +typec, subs)
