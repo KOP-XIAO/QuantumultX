@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2023-01-03 16:50⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2023-01-07 18:50⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -563,7 +563,7 @@ function Type_Check(subs) {
     var SurgeK = ["=ss,", "=vmess,", "=trojan,", "=http,", "=custom,", "=https,", "=shadowsocks", "=shadowsocksr", "=sock5", "=sock5-tls"];
     var ClashK = ["proxies:"]
     var SubK = ["dm1lc3M", "c3NyOi8v", "CnNzOi8", "dHJvamFu", "c3M6Ly", "c3NkOi8v", "c2hhZG93", "aHR0cDovLw", "aHR0cHM6L", "CnRyb2phbjo", "aHR0cD0", "aHR0cCA","U1RBVFVT"];
-    var RewriteK = [" url 302", " url 307", " url reject", " url script", " url req", " url res", " url echo"] // quantumult X 类型 rewrite
+    var RewriteK = [" url 302", " url 307", " url reject", " url script", " url req", " url res", " url echo", " url-and-header 302", " url-and-header 307", " url-and-header reject", " url-and-header script", " url-and-header req", " url-and-header res", " url-and-header echo"] // quantumult X 类型 rewrite
     var SubK2 = ["ss://", "vmess://", "ssr://", "trojan://", "ssd://", "https://", "http://","socks://","ssocks://"];
     var ModuleK = ["[Script]", "[Rule]", "[URL Rewrite]", "[Map Local]", "\nhttp-r", "script-path"]
     var QXProfile = ["[filter_local]","[filter_remote]","[server_local]","[server_remote]"]
@@ -997,7 +997,7 @@ function Mock2QXReject(row, filename) {
     }
 }
 
-//url-regex 转换成 Quantumult X
+//url-regex 转换成 Quantumult X 重写
 function URX2QX(subs) {
     var nrw = []
     var rw = ""
@@ -1008,8 +1008,12 @@ function URX2QX(subs) {
         const notecheck = (item) => subs[i].indexOf(item) == 0
         if (!NoteK.some(notecheck)) {
         if (subs[i].slice(0, 9) == "URL-REGEX") {  // regex 类型
+          if (subs[i].indexOf("REJECT") != -1 || subs[i].split(",").length == 2 ) { // 仅处理 reject 类型，或者无指定策略类型
+            if (subs[i].replace(/ /g, "").split(",REJECT")[0].split("GEX,")[1].slice(0,1) != "*") { // 部分 * 开头的不支持 url-regex形式
             rw = subs[i].replace(/ /g, "").split(",REJECT")[0].split("GEX,")[1] + " url " + "reject-200"
             nrw.push(rw)
+          }
+          }
         } else if (subs[i].indexOf("data=") != -1 && subs.indexOf("[Map Local]") != -1){ // Map Local 类型
             // 取subs[i]的文件名
             let fn = subs[i].match(/data=.+\/(.+)"/) ? subs[i].match(/data=.+\/(.+)"/)[1] : null
@@ -1140,7 +1144,7 @@ function Rewrite_Filter(subs, Pin, Pout,Preg,Pregout) {
     for (var i = 0; i < subs.length; i++) {
         subi = subs[i].trim();
         var subii = subi.replace(/ /g, "")
-        if (subi != "" && (subi.indexOf(" url ")!=-1 || /^hostname\=/.test(subii))) {
+        if (subi != "" && (subi.indexOf(" url ")!=-1 || subi.indexOf(" url-and-header ")!=-1 || /^hostname\=/.test(subii))) {
             const notecheck = (item) => subi.indexOf(item) == 0
             if (noteK.some(notecheck)) { // 注释项跳过 
                 continue;
@@ -1150,7 +1154,7 @@ function Rewrite_Filter(subs, Pin, Pout,Preg,Pregout) {
                 var inflag = Rcheck(subi, Pin);
                 var outflag = Rcheck(subi, Pout);
                 if (outflag == 1 || inflag == 0) {
-                    dwrite.push(subi.replace(" url "," - ")); //out 命中
+                    dwrite.push(subi.replace(" url "," - ").replace(" url-and-header "," - ")); //out 命中
                 } else if (outflag == 0 && inflag != 0) { //out 未命中 && in 未排除
                     Nlist.push(subi);
                 } else if (outflag == 2 && inflag != 0) { //无 out 参数 && in 未排除
@@ -2152,7 +2156,7 @@ function isQuanX(content) {
     return nlist
 }
 
-//surge script/rewrite - > quanx
+//surge script/quanx-rewrite - > quanx
 function isQuanXRewrite(content) {
   cnt = content
   cnt0=[]
@@ -2174,6 +2178,8 @@ function isQuanXRewrite(content) {
         cnti=cnti.replace(/ /g, "").split("data=")[0] + " url " + "reject-dict"
       } else if (cnti.indexOf(" url ")!=-1 ){
         cnti= cnti.split(" ")[1] == "url" ? cnti : ""
+      } else if (cnti.indexOf(" url-and-header ")!=-1 ){ // url-and-header : ^https:xxx.com header-content url-and-header type-rule content
+        cnti= cnti //cnti.split(" ")[2] == "url-and-header" ? cnti : ""
       } else {
         cnti=""
       }
