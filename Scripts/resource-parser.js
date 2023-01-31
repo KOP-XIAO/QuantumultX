@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2023-01-11 19:00⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2023-01-31 10:00⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1739,7 +1739,7 @@ function VR2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
     host = host!="{}" && host ? "obfs-host=" + host + ", " : ""
     obfs = obfs + host
   } else if (obfs=="grpc") {
-    $notify("⚠️ 暂不支持 grpc 类型 vmess节点，已忽略此条", "", subs)
+    $notify("⚠️ Quantumult X 暂不支持 grpc 类型 vmess节点，已忽略此条", "", subs)
     pdrop = 1
   }
   if (obfs.indexOf("obfs=over-tls") != -1 || obfs.indexOf("obfs=wss") != -1) {
@@ -1844,7 +1844,7 @@ function Fobfs(jsonl, Pcert0, PTls13) {
     obfsi.push(obfs0, host0 + uri0);
     return obfsi.join(", ")
   } else if (jsonl.net !="tcp"){ // 过滤掉 h2/http 等类型
-    $notify("⚠️ Quantumult X 不支持该类型节点", jsonl.net, JSON.stringify(jsonl))
+    $notify("⚠️ Quantumult X 不支持该类型节点", "vmess + "jsonl.net, JSON.stringify(jsonl))
     return "NOT-SUPPORTTED"
   } else if (jsonl.net =="tcp" && jsonl.type != "none" && jsonl.type != "") {
     return "NOT-SUPPORTTED"
@@ -2449,6 +2449,7 @@ function get_emoji(emojip, sname) {
     "🇨🇾": ["CY","塞浦路斯", "Cyprus"],
     "🇨🇷": ["哥斯达黎加", "Costa Rica"],
     "🇹🇳": ["突尼斯", "Tunisia"],
+    "🇻🇦": ["梵蒂冈"],
     "🇵🇦": ["巴拿马","巴拿馬", "Panama"],
     "🇮🇷": ["伊朗", "Iran"],
     "🇯🇴": ["约旦", "約旦", "Jordan"],
