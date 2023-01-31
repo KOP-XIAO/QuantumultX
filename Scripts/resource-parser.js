@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2023-01-31 10:00⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2023-01-31 10:15⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1844,7 +1844,7 @@ function Fobfs(jsonl, Pcert0, PTls13) {
     obfsi.push(obfs0, host0 + uri0);
     return obfsi.join(", ")
   } else if (jsonl.net !="tcp"){ // 过滤掉 h2/http 等类型
-    $notify("⚠️ Quantumult X 不支持该类型节点", "vmess + "jsonl.net, JSON.stringify(jsonl))
+    $notify("⚠️ Quantumult X 不支持该类型节点", "vmess + " + jsonl.net, JSON.stringify(jsonl))
     return "NOT-SUPPORTTED"
   } else if (jsonl.net =="tcp" && jsonl.type != "none" && jsonl.type != "") {
     return "NOT-SUPPORTTED"
