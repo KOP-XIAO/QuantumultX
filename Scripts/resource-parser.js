@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2023-02-08 13:15⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2023-02-23 16:15⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1551,7 +1551,7 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
             } catch (e) {
                 failedList.push(`<<<\nContent: ${list0[i]}\nError: ${e}`)
             }
-            if (Paead == -1) {node = AeadVmess(node)} // vmess 类型 aead 处理
+            if (Paead != "") {node = AeadVmess(node,Paead)} // vmess 类型 aead 处理
             if (Phost != "") {node = HOST_Handle(node,Phost)} // host 参数修改
             if (Pobfs != "") {node = OBFS_Handle(node,Pobfs)} // obfs 参数修改
             if (Psession != "") { node = Session_Handle(node,Psession)} // tls-session 参数
@@ -1580,11 +1580,11 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
 }
 
 // Vmess Aead  关闭-默认开启
-function AeadVmess(cnt) {
-  let paead = "aead=false"
+function AeadVmess(cnt,aeadp) {
+  let paead = aeadp == -1? "aead=false" : "aead=true" 
   if (/^vmess\s*\=/.test(cnt)) {
     if (/aead\s*\=/.test(cnt)) {
-      cnt = cnt.replace(/aead\s*\=.*\,/,"aead=false,")
+      cnt = cnt.replace(/aead\s*\=.*\,/,paead+",")
     } else {
       cnts = cnt.split(",")
       cnts.push(paead)
