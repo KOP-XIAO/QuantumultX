@@ -1,9 +1,9 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2023-02-23 16:15⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2023-02-27 17:50⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
-📖 使用 教程: https://shrtm.nu/4ECS
+📖 使用 教程: https://tinyurl.com/2jyygfom
 🗣 🆃🄷🄰🄽🄺🅂 🆃🄾  @Jamie CHIEN, @M**F**, @c0lada, @Peng-YM, @vinewx, @love4taylor, @shadowdogy 
 
 🤖 主要功能: 
@@ -1050,7 +1050,7 @@ function SCP2QX(subs) {
   for (var i = 0; i < subs.length; i++) {
     try {
       if (subs[i].slice(0, 8) == "hostname") {
-        hn = subs[i].replace(/\%.*\%/g, "")
+        hn = subs[i].replace(/\%.*\%/g, "").replace(/\:\d*/g,"")
         nrw.push(hn)
       }
       var SC = ["type=", ".js", "pattern=", "script-path="]
