@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2023-02-27 17:50⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2023-03-06 17:00⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -111,6 +111,7 @@ resource_parser_url = https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/mas
 
 let [link0, content0, subinfo] = [$resource.link, $resource.content, $resource.info]
 let version = typeof $environment != "undefined" ? Number($environment.version.split("build")[1]): 0 // 版本号
+let Perror = 0 //错误类型
 
 const subtag = typeof $resource.tag != "undefined" ? $resource.tag : "";
 ////// 非 raw 链接的沙雕情形
@@ -320,7 +321,9 @@ function Parser() {
       total = ResourceParse();
       
     } catch (err) {
+      if(Perror == 0) {
       $notify("❌ 解析出现错误", "⚠️ 请点击通知，发送订阅链接进行反馈", err, bug_link);
+    }
     }
   } else if (type0 == "wrong-field"){
     if (version >= 670 && typec!="") { //尝试跳转到正确类型
@@ -345,7 +348,9 @@ if (typeof($resource)!=="undefined" && PProfile == 0) {
   try {
     Profile_Handle()
   } catch (err) {
+    if(Perror == 0) {
       $notify("❌ 解析出现错误", "⚠️ 请点击通知，发送订阅链接进行反馈", err, bug_link);
+    }
     }
   openlink = {"open-url": ADDres}
   $notify("⚠️请忽略报错提示, 点击此通知跳转", "添加配置中的有效远程资源👇 ["+ PProfile+"]", ADDres,openlink)
@@ -384,9 +389,10 @@ function ResourceParse() {
   } else if (type0 == "QuanX" || type0 == "Clash" || type0 == "Surge") {
     total = Subs2QX(isQuanX(content0).join("\n"), Pudp0, Ptfo0, Pcert0, PTls13);
   } else if (type0 == "sgmodule") { // surge module 模块/含 url-regex 的 rule-set
+    //2023-03-06 考虑模块重写与quanx类型重写的混搭
     flag = 2 
-    total = SGMD2QX(content0) // 转换 
-    total = Rewrite_Filter(total, Pin0, Pout0,Preg,Pregout); // 筛选过滤
+    //total = SGMD2QX(content0) // 转换 
+    total = Rewrite_Filter(isQuanXRewrite(content0.split("\n")), Pin0, Pout0,Preg,Pregout);//Rewrite_Filter(total, Pin0, Pout0,Preg,Pregout); // 筛选过滤
     if (Preplace) { total = ReplaceReg(total, Preplace) }
     total = total.filter( (ele,pos)=>total.indexOf(ele) == pos); //重写重复检查
     if (Pcdn) {total = CDN(total)
@@ -489,7 +495,9 @@ function ResourceParse() {
       //$notify("done?","strange")
       } else { $done({ content: total });}
     } else {
+      if(Perror == 0) {
       $notify("❓❓ 友情提示 ➟ "+ "⟦" + subtag + "⟧", "⚠️⚠️ 解析后无有效内容", "🚥🚥 请自行检查相关参数, 或者点击通知跳转并发送链接反馈", bug_link)
+    }
       total = errornode
       $done({ content: errornode })
     }
@@ -1742,6 +1750,7 @@ function VR2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
     host = host!="{}" && host ? "obfs-host=" + host + ", " : ""
     obfs = obfs + host
   } else if (obfs=="grpc") {
+    Perror = 1 // 不需要反馈的类型
     $notify("⚠️ Quantumult X 暂不支持 grpc 类型 vmess节点，已忽略此条", "", subs)
     pdrop = 1
   }
@@ -1847,6 +1856,7 @@ function Fobfs(jsonl, Pcert0, PTls13) {
     obfsi.push(obfs0, host0 + uri0);
     return obfsi.join(", ")
   } else if (jsonl.net !="tcp"){ // 过滤掉 h2/http 等类型
+    Perror = 1
     $notify("⚠️ Quantumult X 不支持该类型节点", "vmess + " + jsonl.net, JSON.stringify(jsonl))
     return "NOT-SUPPORTTED"
   } else if (jsonl.net =="tcp" && jsonl.type != "none" && jsonl.type != "") {
@@ -2140,7 +2150,9 @@ try {
   //$notify("tag-fix","Look","cntf:\n"+cntf+"\nhd:\n"+hd+"\ntag:\n"+tag+"\ntail:\n"+tail+"\ncnti: \n"+cnti +"\n\ncntii: \n"+cntii)
   return cntii
 } catch (err) {
+  if(Perror == 0) {
   $notify("❌ 解析出现错误,已忽略该条目", "⚠️ 请点击通知，发送订阅链接进行反馈", cntf+"\n"+ err, bug_link);
+}
 }
   return ""
 }
