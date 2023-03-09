@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2023-03-07 17:00⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2023-03-09 14:00⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -2193,7 +2193,8 @@ function isQuanXRewrite(content) {
         //cnti=cnti.replace(/ /g, "").split("data=")[0] + " url " + "reject-dict"
       }else if(cnti.indexOf("URL-REGEX")!=-1 || cnti.indexOf(" header")!=-1 || cnti.replace(/ /g,"").indexOf("hostname=")!=-1){
         cnti=SGMD2QX(cnti)[0]? SGMD2QX(cnti)[0]:""
-      }else if (cnti.indexOf(" url ")!=-1 ){
+      }else if (cnti.indexOf(" url ")!=-1 && cnti.indexOf(" simple-response ")==-1){ // 2023-03-09 去掉 quan类型的 simple- response
+        cnti = cnti.replace("^http","http") // 去掉 ^ 以去重
         cnti= cnti.split(" ")[1] == "url" ? cnti : ""
       } else if (cnti.indexOf(" url-and-header ")!=-1 ){ // url-and-header : ^https:xxx.com header-content url-and-header type-rule content
         cnti= cnti //cnti.split(" ")[2] == "url-and-header" ? cnti : ""
