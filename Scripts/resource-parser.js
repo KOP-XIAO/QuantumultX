@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2023-03-09 14:00⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2023-03-10 15:00⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1798,9 +1798,9 @@ function V2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
   var nss = [];
   if (server != "") {
     ss = JSON.parse(server);
+    if(Pdbg) {$notify("Vmess-URI","",JSON.stringify(ss))}
     ip = "vmess=" + ss.add + ":" + ss.port;
     pwd = "password=" + ss.id;
-    
     mtd = "method=aes-128-gcm"
     try {
       tag = "tag=" + decodeURIComponent(ss.ps);
@@ -1859,7 +1859,7 @@ function Fobfs(jsonl, Pcert0, PTls13) {
     Perror = 1
     $notify("⚠️ Quantumult X 不支持该类型节点", "vmess + " + jsonl.net, JSON.stringify(jsonl))
     return "NOT-SUPPORTTED"
-  } else if (jsonl.net =="tcp" && jsonl.type != "none" && jsonl.type != "") {
+  } else if (jsonl.net =="tcp" && jsonl.type != "none" && jsonl.type != "" && jsonl.type != "vmess") {
     return "NOT-SUPPORTTED"
   } else {return ""}
 }
