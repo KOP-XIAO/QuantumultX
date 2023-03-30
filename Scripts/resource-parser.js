@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2023-03-26 15:05⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2023-03-30 15:05⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -656,6 +656,7 @@ function Type_Check(subs) {
       typec = "profile"
       type = "profile"  //默认配置类型
     }else if (/\.js/.test(link0)) { // xjb添加js脚本的行为
+      Perror = 1 ; // 无需反馈
       $notify("⚠️ 你导入的链接内容为 JS 脚本","🚥 脚本内未有重写规则，无法解析使用", " 请⚠️不要⚠️跑来解析器🤖️反馈 \n"+link0)
       type = "JS-0"
     } //else if (typeQ == "URI")
@@ -721,9 +722,9 @@ function TagCheck_QX(content) {
     }
     if (duplist.length >= 1) {
         no = duplist.length <= 10 ? emojino[duplist.length] : duplist.length;
-      if (Pdel!=1){
+      if (Pdel!=1 && Pntf0 != 0){
         $notify("⚠️ 引用" + "⟦" + subtag + "⟧" + " 内有" + no + "个名字重复的节点 ", "✅ 已添加数字区分, 删除请添加参数 del=1:", " ⨁ " + duplist.join("\n ⨁ "), nan_link)
-      } else {
+      } else if (Pdel ==1 && Pntf0 != 0) {
         $notify("⚠️ 引用" + "⟦" + subtag + "⟧" + " 内有" + no + "个名字重复的节点 ", "❌️ 已全部删除，如需保留请去除参数 del=1:", " ⨁ " + duplist.join("\n ⨁ "), nan_link)
       }
     }
@@ -1180,9 +1181,15 @@ function Rewrite_Filter(subs, Pin, Pout,Preg,Pregout) {
         nowrite = dwrite.length <= 10 ? emojino[dwrite.length] : dwrite.length
         no1write = Nlist.length <= 10 ? emojino[Nlist.length] : Nlist.length
         if (Pin0 && no1write != " 0️⃣ ") { //有 in 参数就通知保留项目
+          if (Pout!=0) {
             $notify("🤖 " + "重写引用  ➟ " + "⟦" + subtag + "⟧", "⛔️ 筛选参数: " + pfi + pfo, "☠️ 重写 rewrite 中保留以下" + no1write + "个匹配项:" + "\n ⨷ " + Nlist.join("\n ⨷ "), rwrite_link)
+          }
+          }
         } else if (dwrite.length > 0) {
+          if (Pout0!=0) {
             $notify("🤖 " + "重写引用  ➟ " + "⟦" + subtag + "⟧", "⛔️ 筛选参数: " + pfi + pfo, "☠️ 重写 rewrite 中已禁用以下" + nowrite + "个匹配项:" + "\n ⨷ " + dwrite.join("\n ⨷ "), rwrite_link)
+          }
+          }
         }
     }
     if (Nlist.length == 0 ) { 
@@ -1554,7 +1561,8 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
                 } else if (LoonK.some(NodeCheck)) {
                     node = Loon2QX(list0[i])
                 } else if (type == "vless") {
-                  $notify("⚠️ Quantumult X 暂未支持 Vless 类型节点 ⚠️")
+                  Perror = 1 ; // 无需反馈
+                  $notify("⚠️ Quantumult X 暂未支持 Vless 类型节点","请 ⚠️不要⚠️ 跑来 解析器🤖️ 反馈",list0[i])
                 }
             } catch (e) {
                 failedList.push(`<<<\nContent: ${list0[i]}\nError: ${e}`)
