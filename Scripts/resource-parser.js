@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2023-04-04 14:30⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2023-04-10 12:30⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1408,7 +1408,7 @@ function Rule_Policy(content) { //增加、替换 policy
       return "" }//if RuleK1 check 
 }
 
-// 处理纯列表
+// 处理纯列表, 包含 clash-provider
 function rule_list_handle(cnt) {
   var RuleK = ["//", "#", ";","[", "!","/"]
   const RuleCheck = (item) => cnt.trim().indexOf(item) == 0; //无视注释行
@@ -1425,14 +1425,19 @@ function rule_list_handle(cnt) {
       cnt = "ip-cidr, " + cnt+ "/32"
       cnt = Ppolicy == "Shawn" ? cnt+", Shawn" : cnt+", "+Ppolicy
     } else if (cnt.indexOf("payload:")==-1) { //host - suffix, not clash rule list
-      cnt=cnt.replace(/'|"|\+\.|\*\.|\*\.\*/g,"")
-      cnt = cnt[0]=="." ? cnt.replace(".",""): cnt
+      //$notify("xxx","xxxx",cnt)
+      cnt=cnt.replace(/'|"/g,"").trim()//replace(/'|"|\+\.|\*\.|\*\.\*/g,"") 2023-04-10
+      if(!/\*|\.|\+/.test(cnt[0])) {
+      //cnt = cnt[0]=="." ? cnt.replace(".",""): cnt
       cnt = "host-suffix, " + cnt
+    } else {
+      cnt = "host-wildcard, " + cnt
+    }
       cnt = Ppolicy == "Shawn" ? cnt+", Shawn" : cnt+", "+Ppolicy
+    }
     } 
       return cnt
   }
-}
 
 // Domain-Set
 function Domain2Rule(content) {
@@ -2496,7 +2501,7 @@ function get_emoji(emojip, sname) {
     "🇲🇦": ["摩洛哥", "Morocco"],
     "🇪🇨": ["厄瓜多尔","EC", "Ecuador"],
     "🇲🇺": ["毛里求斯", "Mauritius"],
-    "🇵🇷": ["波多黎各", "PR ", "PR-", "Puerto Rico"],
+    "🇵🇷": ["波多黎各", "PR ","PR-", "Puerto Rico"],
     "🇬🇹": ["危地马拉", " GT "],
     "🇭🇰": ["HK", "Hongkong", "Hong Kong", "HongKong", "HONG KONG","香港", "深港", "沪港", "呼港", "HKT", "HKBN", "HGC", "WTT", "CMI", "穗港", "京港", "港"],
     "🇨🇳": ["CN", "China", "回国", "中国","中國", "江苏", "北京", "上海", "广州", "深圳", "杭州", "徐州", "青岛", "宁波", "镇江", "back"],
