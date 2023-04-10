@@ -1427,7 +1427,7 @@ function rule_list_handle(cnt) {
     } else if (cnt.indexOf("payload:")==-1) { //host - suffix, not clash rule list
       //$notify("xxx","xxxx",cnt)
       cnt=cnt.replace(/'|"/g,"").trim()//replace(/'|"|\+\.|\*\.|\*\.\*/g,"") 2023-04-10
-      if(!/\*|\+/.test(cnt[0])) {
+      if(!/\*|\+/.test(cnt[0]) && !/[^\*]\*+[^\*]/.test(cnt)) {
       cnt = cnt[0]=="." ? cnt.replace(".",""): cnt
       cnt = "host-suffix, " + cnt
     } else {
