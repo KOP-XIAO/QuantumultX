@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2023-04-11 11:35⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2023-04-12 13:35⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1429,15 +1429,25 @@ function rule_list_handle(cnt) {
       cnt = Ppolicy == "Shawn" ? cnt+", Shawn" : cnt+", "+Ppolicy
     } else if (cnt.indexOf("payload:")==-1) { //host - suffix, not clash rule list
       //$notify("xxx","xxxx",cnt)
-      cnt=cnt.replace(/'|"/g,"").trim()//replace(/'|"|\+\.|\*\.|\*\.\*/g,"") 2023-04-10
-      if(!/\*|\+/.test(cnt[0])) {
-      cnt = cnt[0]=="." ? cnt.replace(".",""): cnt
-      cnt = "host-suffix, " + cnt
-    } else {
-      cnt = "host-wildcard, " + cnt
+      //cnt=cnt.replace(/'|"/g,"").trim()//replace(/'|"|\+\.|\*\.|\*\.\*/g,"") 2023-04-10
+      if(!/^('|")/.test(cnt)) { // not clash-provider
+        if(!/\*|\+/.test(cnt[0])) {
+        cnt = cnt[0]=="." ? cnt.replace(".",""): cnt
+        cnt = "host-suffix, " + cnt
+        } else {
+        cnt = "host-wildcard, " + cnt
+      }
+    } else { // clash provider
+      cnt=cnt.replace(/'|"/g,"").trim()
+      if ( /^(\*\.|\.)/.test(cnt) || cnt.indexOf("*")!=-1) {
+        cnt = "host-wildcard, " + cnt
+      } else {
+        cnt = "host-suffix, " + cnt.replace(/\+\./,"")
+      }
     }
       cnt = Ppolicy == "Shawn" ? cnt+", Shawn" : cnt+", "+Ppolicy
     }
+  
     } 
       return cnt
   }
