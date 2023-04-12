@@ -1413,34 +1413,38 @@ function Rule_Policy(content) { //增加、替换 policy
 
 // 处理纯列表, 包含 clash-provider
 function rule_list_handle(cnt) {
-  var RuleK = ["//", "#", ";","[", "!","/"]
-  const RuleCheck = (item) => cnt.trim().indexOf(item) == 0; //无视注释行
-  const nocheck = (item) => /^\d+$/.test(item) //检查数字项
-  cnt = cnt.split("#")[0].trim() // 去除注释部分
-  if(cnt.trim().indexOf(" ")==-1 && cnt.trim()!= "" && !RuleK.some(RuleCheck)){
-    if(cnt.indexOf("::")!=-1 && cnt.indexOf("/")!=-1) { // ip-v6?
-      cnt = "ip6-cidr, " + cnt
-      cnt = Ppolicy == "Shawn" ? cnt+", Shawn" : cnt+", "+Ppolicy
-    } else if (cnt.split("/").length == 2) {//ip-cidr
-      cnt = "ip-cidr, " + cnt
-      cnt = Ppolicy == "Shawn" ? cnt+", Shawn" : cnt+", "+Ppolicy
-    } else if (cnt.split(".").length == 4 && cnt.split(".").every(nocheck)) {  // ip 类规则
-      cnt = "ip-cidr, " + cnt+ "/32"
-      cnt = Ppolicy == "Shawn" ? cnt+", Shawn" : cnt+", "+Ppolicy
-    } else if (cnt.indexOf("payload:")==-1) { //host - suffix, not clash rule list
-      //$notify("xxx","xxxx",cnt)
-      cnt=cnt.replace(/'|"/g,"").trim()//replace(/'|"|\+\.|\*\.|\*\.\*/g,"") 2023-04-10
-      if(!/\*|\+/.test(cnt[0])) {
-      cnt = cnt[0]=="." ? cnt.replace(".",""): cnt
-      cnt = "host-suffix, " + cnt
-    } else {
-      cnt = "host-wildcard, " + cnt
+    var RuleK = ["//", "#", ";", "[", "!", "/"]
+    const RuleCheck = (item) => cnt.trim().indexOf(item) == 0; //无视注释行
+    const nocheck = (item) => /^\d+$/.test(item) //检查数字项
+    cnt = cnt.split("#")[0].trim() // 去除注释部分
+    if (cnt.trim().indexOf(" ") == -1 && cnt.trim() != "" && !RuleK.some(RuleCheck)) {
+        if (cnt.indexOf("::") != -1 && cnt.indexOf("/") != -1) { // ip-v6?
+            cnt = "ip6-cidr, " + cnt
+            cnt = Ppolicy == "Shawn" ? cnt + ", Shawn" : cnt + ", " + Ppolicy
+        } else if (cnt.split("/").length == 2) {//ip-cidr
+            cnt = "ip-cidr, " + cnt
+            cnt = Ppolicy == "Shawn" ? cnt + ", Shawn" : cnt + ", " + Ppolicy
+        } else if (cnt.split(".").length == 4 && cnt.split(".").every(nocheck)) {  // ip 类规则
+            cnt = "ip-cidr, " + cnt + "/32"
+            cnt = Ppolicy == "Shawn" ? cnt + ", Shawn" : cnt + ", " + Ppolicy
+        } else if (cnt.indexOf("payload:") == -1) { //host - suffix, not clash rule list
+            //$notify("xxx","xxxx",cnt)
+            cnt = cnt.replace(/'|"/g, "").trim()//replace(/'|"|\+\.|\*\.|\*\.\*/g,"") 2023-04-10
+            //clash中以.或*.开头匹配的都是子域名，只存在匹配层级区别，qx中有无此设计不明，只能确定*可用
+            if (/^\.|\*\./.test(cnt)) {//以.开头 = 匹配子域名 .stun.playstation.net/*.stun.playstation.net -> *.stun.playstation.net
+                cnt = "host-wildcard, " + cnt.replace(/^\.|\*\./, "*.")
+            } else if (/^(\+\.)/.test(cnt)) {//以+.开头 = 匹配当前域名及其子域名，走后缀匹配即可 +.xboxlive.com -> suffix xboxlive.com
+                cnt = "host-suffix, " + cnt.replace(/^(\+\.)/, "")
+            } else if (cnt.indexOf("*") != -1) {//不以*.开头的字符串中包含*的情况 -> 保持该规则
+                cnt = "host-wildcard, " + cnt
+            } else {
+                cnt = "host-suffix, " + cnt
+            }
+            cnt = Ppolicy == "Shawn" ? cnt + ", Shawn" : cnt + ", " + Ppolicy
+        }
     }
-      cnt = Ppolicy == "Shawn" ? cnt+", Shawn" : cnt+", "+Ppolicy
-    }
-    } 
-      return cnt
-  }
+    return cnt
+}
 
 // Domain-Set
 function Domain2Rule(content) {
