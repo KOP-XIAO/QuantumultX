@@ -2887,6 +2887,7 @@ function CSS2QX(cnt) {
   pwd = "password=" + cnt.password
   mtd = "method="+ cnt.cipher
   udp = cnt.udp ? "udp-relay=true" : "udp-relay=false"
+  uot = cnt["udp-over-tcp"] ?  "udp-over-tcp=true" : "udp-over-tcp=false"
   tfo = cnt.tfo ? "fast-open=true" : "fast-open=false"
   obfs = cnt["plugin-opts"] ? "obfs=" + cnt["plugin-opts"].mode : ""
   ohost = cnt["plugin-opts"] ? "obfs-host=" + cnt["plugin-opts"].host : ""
@@ -2899,7 +2900,7 @@ function CSS2QX(cnt) {
     if (obfs == "obfs=wss") { // tls verification
       cert = Pcert0 == 1? "" : "tls-verification =false"}
   }
-  node = "shadowsocks="+[ipt, pwd, mtd, udp, tfo, obfs, ohost, ouri, cert, tag].filter(Boolean).join(", ")
+  node = "shadowsocks="+[ipt, pwd, mtd, udp, uot, tfo, obfs, ohost, ouri, cert, tag].filter(Boolean).join(", ")
   return node
 }
 
