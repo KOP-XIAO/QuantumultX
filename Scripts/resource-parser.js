@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2024-01-02 11:14⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2024-01-10 09:30⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -2376,7 +2376,7 @@ function Rename(str) {
             oname = Prn[i].split("@")[0] ? decodeURIComponent(Prn[i].split("@")[0]) : Prn[i].split("@")[0];
             if (oname && nname) { //重命名
                 var rn = escapeRegExp(oname)
-                name = name.replace(new RegExp(rn, "gmi"), nname)
+                name = name.replace(new RegExp(rn, "gm"), nname)
             } else if (oname && nname == "") {//前缀
                 var nemoji = emoji_del(name)
                 if ((Pemoji == 1 || Pemoji == 2) && Prname ) { //判断是否有重复 emoji，有则删除旧有
@@ -2388,7 +2388,7 @@ function Rename(str) {
                 hh = Dot2(oname.slice(0, oname.length - 2)).split(".") //符号.的特殊处理
                 for (j = 0; j < hh.length; j++) {
                     var nn = escapeRegExp(ToDot(hh[j]))
-                    var del = new RegExp(nn, "gmi");
+                    var del = new RegExp(nn, "gm");
                     name = name.replace(del, "")
                 }
             } else if (oname == "" && nname == "") { //仅有@时，删除@符号
