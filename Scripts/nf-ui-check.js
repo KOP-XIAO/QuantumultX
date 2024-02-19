@@ -10,6 +10,12 @@ event-interaction https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/
 
 @XIAO_KOP
 
+code: 
+0 成功
+100 error 未知错误
+101 timeout 测试超时
+102 Not Found 该节点仅支持解锁 Netflix 自制剧
+103 Not Available 该节点未解锁 Netflix
 **/
 
 const BASE_URL = 'https://www.netflix.com/title/'
@@ -35,26 +41,25 @@ var flags = new Map([[ "AC" , "🇦🇨" ] ,["AE","🇦🇪"], [ "AF" , "🇦�
     content: '检测失败，请重试',
   }
   await Promise.race([test(FILM_ID),timeOut(5000)])
-  .then((code) => {
-    console.log(code)
-    
-    if (code === 'Not Available') {
-      result['content'] = '该节点未解锁 Netflix'
-      //return 
-      //console.log(result)
-    } else if (code === 'Not Found') {
-      result['content'] = '该节点仅支持解锁 Netflix 自制剧'
-      //return
-    } else if (code === "timeout") {
-      result['content'] = "测试超时"
+  .then((resp) => {
+    console.log(JSON.stringify(resp, null, 2));
+    let code = resp.code;
+    let region = resp.region;
+    if(resp.code == 0) {
+      result['content'] = '该节点完整解锁 Netflix ➟ ⟦'+flags.get(region.toUpperCase())+" 地区⟧";
+    } else if (code == 102) { //该节点仅支持解锁 Netflix 自制剧
+      result['content'] = '该节点仅支持解锁 Netflix 自制剧 ➟ ⟦'+flags.get(region.toUpperCase())+" 地区⟧";
+    } else if (code == 103) { //该节点未解锁 Netflix
+        result['content'] = '该节点未解锁 Netflix';
+    } else if (code == 101) { 
+        result['content'] = "测试超时";
     } else {
-      result['content'] = '该节点完整解锁 Netflix ➟ ⟦'+flags.get(code.toUpperCase())+" 地区⟧"
+      result['content'] = "未知问题:" +resp.content;
     }
     
     //$notify(result["title"], output, result["content"], link)
     
-    //console.log(result)
-    let content = "------------------------------"+"</br></br>"+result["content"]
+        let content = "------------------------------"+"</br></br>"+result["content"]
     content = content + "</br></br>------------------------------</br>"+"<font color=#6959CD>"+"<b>节点</b> ➟ " + $environment.params+ "</font>"
     content =`<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: thin">` + content + `</p>`
     $done({"title":"Netflix 解锁检测","htmlMessage":content})
@@ -66,7 +71,7 @@ function timeOut(delay) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       //reject(new Error('timeout'))
-      resolve("timeout")
+      resolve({code: 101, content: "timeout"})
     }, delay)
   })
 }
@@ -83,28 +88,33 @@ function test(filmId) {
       },
     }
     $task.fetch(option).then (response => {
-      console.log(response.statusCode)
+      const region = response.body.match(/"requestCountry":{"id":"(\w\w)/)[1];
+      console.log('region -> ' + region)
       if (response.statusCode === 404) {
-        resolve('Not Found')
+        resolve({code: 102, content: "Not Found", region: region})
         return
       }
       
       if (response.statusCode === 403) {
-        resolve('Not Available')
+        resolve({code: 103, content: "Not Available"})
         return
       }
       
       if (response.statusCode === 200) {
-        let url = response.headers['X-Originating-URL']
-        let region = url.split('/')[3]
-        region = region.split('-')[0]
-        if (region == 'title') {
-          region = 'us'
+        const isPlayable = response.body.match(/"isPlayable":(true|false)/)[1];
+        if(isPlayable === 'false') {
+            resolve({code: 102, content: "Playable is false", region: region})
+        } else if (!isPlayable) {
+            // 为空
+            resolve({code: 103, content: "Playable is null"})
+        } else if (isPlayable === 'true') {
+            resolve({code: 0, content: "Netflix is Ok", region: region})
+        } else {
+            resolve({code: 100, content: "unkown error", region: region})
         }
-        resolve(region)
         return
       }
-      reject('Error')
+      reject({code: 100, content: "Error, http code " + response.statusCode})
     })
   })
 }
