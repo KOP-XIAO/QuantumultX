@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2024-03-14 12:00⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2024-07-05 13:15⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1009,15 +1009,15 @@ function ALPN_Handle(cnt,palpn) {
 
 function Mock2QXReject(row, filename) {
     if (/dict/i.test(filename)) {
-        return row.replace(/ /g, "").split("data=")[0] + " url " + "reject-dict"
+        return row.replace(/ /g, "").split("data=")[0].split("data-type=")[0] + " url " + "reject-dict"
     } else if (/array/i.test(filename)) {
-        return row.replace(/ /g, "").split("data=")[0] + " url " + "reject-array"
-    } else if (/(txt|html)/i.test(filename)) {
-        return row.replace(/ /g, "").split("data=")[0] + " url " + "reject-200"
+        return row.replace(/ /g, "").split("data=")[0].split("data-type=")[0] + " url " + "reject-array"
+    } else if (/(txt|html)/i.test(filename) || filename==null) {
+        return row.replace(/ /g, "").split("data=")[0].split("data-type=")[0] + " url " + "reject-200"
     } else if (/(png|jpg|gif)/i.test(filename)) {
-        return row.replace(/ /g, "").split("data=")[0] + " url " + "reject-img"
+        return row.replace(/ /g, "").split("data=")[0].split("data-type=")[0] + " url " + "reject-img"
     } else {
-        return row.replace(/ /g, "").split("data=")[0] + " url " + "reject"
+        return row.replace(/ /g, "").split("data=")[0].split("data-type=")[0] + " url " + "reject"
     }
 }
 
@@ -1041,10 +1041,10 @@ function URX2QX(subs) {
         } else if (subs[i].indexOf("data=") != -1 && subs.indexOf("[Map Local]") != -1){ // Map Local 类型
             // 取subs[i]的文件名
             let fn = subs[i].match(/data=.+\/(.+)"/) ? subs[i].match(/data=.+\/(.+)"/)[1] : null
-            if (!/header=".*content-type/i.test(subs[i]) && /blank/i.test(fn)) {
+            if ((!/header=".*content-type/i.test(subs[i]) && /blank/i.test(fn)) || fn==null) {
                 rw = Mock2QXReject(subs[i], fn)
             } else {
-                rw = subs[i].replace(/ /g, "").split("data=")[0].replace(/\"/g,"") + " url echo-response text/html echo-response " + subs[i].split("data=")[1].split(" ")[0].replace(/\"/g,"").replace(/ /g, "")//"reject-dict"
+                rw = subs[i].replace(/ /g, "").split("data=")[0].split("data-type=")[0].replace(/\"/g,"") + " url echo-response text/html echo-response " + subs[i].split("data=")[1].split(" ")[0].replace(/\"/g,"").replace(/ /g, "")//"reject-dict"
                 if (subs[i].indexOf("header=")!=-1) {
                     if (subs[i].indexOf("Content-Type:") !=-1) {
                         let tpe = subs[i].split("header=")[1].split("Content-Type:")[1].split(",")[0].replace(/\"/g,"")
