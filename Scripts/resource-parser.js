@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2024-11-06 19:18⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2025-03-30 08:12⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -2782,10 +2782,11 @@ function SCT2QX(content) {
 // surge3 中的 SS 类型
 function SSS2QX(content) {
     var cnt = content;
+    var cnts=cnt.replace(" ","").replace("\"","")
     var tag = "tag=" + cnt.split("=")[0].trim();
     var ipport = cnt.split(",")[1].trim() + ":" + cnt.split(",")[2].trim();
     var pmtd = "method=" + cnt.split("encrypt-method")[1].split(",")[0].split("=")[1];
-    var pwd = "password=" + cnt.split("password")[1].split(",")[0].split("=")[1];
+    var pwd = "password=" + cnts.split("password=")[1].split(",")[0].replace("\"","")//.split("\"")[0];
     if (cnt.indexOf("obfs") != -1) {
         pobfs = "obfs=" + cnt.replace(/obfs-host/, "").split("obfs")[1].split(",")[0].split("=")[1]
     } else { pobfs = "" }
