@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2025-03-30 08:12⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2025-04-30 22:12⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -2202,7 +2202,11 @@ function SS2QX(subs, Pudp, Ptfo) {
     //console.log(cntt)
     if (cntt.indexOf("@") != -1 && cntt.indexOf(":") != -1) {
       ip = cnt.split("@")[1].split("#")[0].split("/")[0].split("?")[0];
-      pwdmtd = Base64.decode(cnt.split("@")[0].replace(/-/g, "+").replace(/_/g, "/")).split("\u0000")[0].split(":")
+      if(cntt.indexOf("%")==-1){
+        pwdmtd = Base64.decode(cnt.split("@")[0].replace(/-/g, "+").replace(/_/g, "/")).split("\u0000")[0].split(":")
+      } else {
+        pwdmtd = decodeURIComponent(cnt.split("@")[0]).split(":")
+      }
     } else if (cntt.indexOf("?")==-1) { // 后部 b64 encode 类型
       var cnt0 = Base64.decode(cnt.split("#")[0].replace(/-/g, "+").replace(/_/g, "/").split("\u0000")[0]);
       ip = cnt0.split("@")[1].split("#")[0].split("/")[0];
@@ -2212,7 +2216,7 @@ function SS2QX(subs, Pudp, Ptfo) {
       var cnt1 = Base64.decode(cnt.split("#")[0].split("?")[1].split("=")[1].replace(/-/g, "+").replace(/_/g, "/").split("\u0000")[0]);
       ip = cnt0.split("@")[1].split("#")[0].split("/")[0];
       pwdmtd = cnt0.split("@")[0].split(":")
-    }
+    } 
     mtd = "method=" + pwdmtd[0];
     pwdmtd.splice(0,1) 
     pwd = "password=" + pwdmtd.reduce(joinx);
