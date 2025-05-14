@@ -1,6 +1,6 @@
  /***
   [task_local]
-  event-interaction https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/geo_location.js, tag=GeoIP 查询, img-url=location.fill.viewfinder.system
+  event-interaction https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/geo_location.js, tag=GeoIP Make Enquiries, img-url=location.fill.viewfinder.system
   
   @XIAO_KOP
 
@@ -20,14 +20,14 @@
  
   var message = ""
   const paras = ["ip","isp","country_code","city"]
-  const paran = ["IP","ISP","地区","城市"]
+  const paran = ["IP","ISP","Area","City"]
   $task.fetch(myRequest).then(response => {
     message = response? json2info(response.body,paras) : ""
-      $done({"title": "    🔎 IP.SB 查询结果", "htmlMessage": message});
+      $done({"title": "    🔎 IP.SB Search Result", "htmlMessage": message});
   }, reason => {
-    message = "</br></br>🛑 查询超时"
+    message = "</br></br>🛑 Query Timeout"
     message = `<p style="text-align: center; font-family: -apple-system; font-size: large; font-weight: bold;">` + message + `</p>`
-      $done({"title": "🔎 IP.SB 查询结果", "htmlMessage": message});
+      $done({"title": "🔎 IP.SB Search Result", "htmlMessage": message});
   })
 
 
