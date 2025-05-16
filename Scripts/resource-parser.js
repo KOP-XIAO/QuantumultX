@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2025-05-15 20:55⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2025-05-16 10:58⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -2207,11 +2207,11 @@ function SS2QX(subs, Pudp, Ptfo) {
   QX=""
   if (cnt.split(":").length <= 10) { //排除难搞的 ipv6 节点
     type = "shadowsocks=";
-    let cntt = cnt.split("#")[0]
+    let cntt = cnt.split("#")[0]// 
     //console.log(cntt)
     if (cntt.indexOf("@") != -1 && cntt.indexOf(":") != -1) {
       ip = cnt.split("@")[1].split("#")[0].split("/")[0].split("?")[0];
-      if(cntt.indexOf("%")==-1){
+      if(cntt.indexOf("%")==-1 || cntt.split("@")[0].indexOf(":")==-1){ // 2025-05-16 
         pwdmtd = Base64.decode(cnt.split("@")[0].replace(/-/g, "+").replace(/_/g, "/")).split("\u0000")[0].split(":")
       } else {
         pwdmtd = decodeURIComponent(cnt.split("@")[0]).split(":")
@@ -2226,6 +2226,7 @@ function SS2QX(subs, Pudp, Ptfo) {
       ip = cnt0.split("@")[1].split("#")[0].split("/")[0];
       pwdmtd = cnt0.split("@")[0].split(":")
     } 
+    if(Pdbg) {$notify("dd","",pwdmtd)}
     mtd = "method=" + pwdmtd[0];
     pwdmtd.splice(0,1) 
     pwd = "password=" + pwdmtd.reduce(joinx);
