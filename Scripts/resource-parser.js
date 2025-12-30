@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2025-05-16 10:58⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2025-12-30 12:05⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/Shawn_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -2074,6 +2074,25 @@ function SSR2QX(subs, Pudp, Ptfo) {
     return QX;
 }
 
+// read parameters 2025-12-30
+function param(res,org,mbody) {
+  if(mbody.indexOf(org)!=-1) {
+    tmp=mbody.split(org)[1].split("&")[0].split("#")[0]
+    return res+"="+tmp
+  }
+  else return ""
+}
+
+// get reality parameters
+function Reality_Handle(cnt) {
+//add reality-base64-pubkey, reality-hex-shortid, vless-flow=xtls-rprx-vision
+  a1=param("reality-base64-pubkey","pbk=",cnt)
+  a2=param("reality-hex-shortid","sid=",cnt)
+  a3=cnt.indexOf("flow=xtls-rprx-vision")!=-1 || cnt.indexOf("xtls=2")!=-1? "vless-flow=xtls-rprx-vision": ""
+  rnt=[a1,a2,a3].filter(Boolean).join(", ")
+  return rnt
+}
+
 // Vless uri 转换成 QUANX 格式
 // vless://pwd@a.b.c.gq:443?encryption=none&security=tls&type=ws&host=a.b.c.d&path=dsjdaaaaj#VLESS_WSS
 // Vless Shadowrocket URI
@@ -2122,12 +2141,12 @@ function VL2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
   thost=cnt.indexOf("obfsParam=") == -1? thost : "obfs-host=" + decodeURIComponent(cnt.split("obfsParam=")[1].split("&")[0].split("#")[0]).replace(/\"|(Host\":)|\{|\}/g,"")
 
   puri = cnt.indexOf("path=") == -1? puri : "obfs-uri=" + decodeURIComponent(cnt.split("path=")[1].split("&")[0].split("#")[0])
-  } else if (cnt.indexOf("&type=ws")!=-1 || cnt.indexOf("?type=ws")!=-1 || cnt.indexOf("type=http")!=-1 || cnt.indexOf("security=tls")!=-1) {//v2rayN uri
+  } else if (cnt.indexOf("&type=ws")!=-1 || cnt.indexOf("?type=ws")!=-1 || cnt.indexOf("type=http")!=-1 || cnt.indexOf("security=tls")!=-1 || cnt.indexOf("security=reality")!=-1) {//v2rayN uri
     if(cnt.indexOf("type=http") != -1) {
       obfs="obfs=http"
     } else if (cnt.indexOf("type=ws") != -1) {
-      obfs = cnt.indexOf("security=tls") != -1? "obfs=wss" : "obfs=ws" 
-    } else if(cnt.indexOf("security=tls")!=-1) {
+      obfs = cnt.indexOf("security=tls") != -1 || cnt.indexOf("security=reality")!=-1? "obfs=wss" : "obfs=ws" 
+    } else if(cnt.indexOf("security=tls")!=-1 || cnt.indexOf("security=reality")!=-1) {
       obfs = "obfs=over-tls"
     }
     thost=cnt.indexOf("&host=") == -1? thost : "obfs-host=" + decodeURIComponent(cnt.split("&host=")[1].split("&")[0].split("#")[0])
@@ -2148,10 +2167,10 @@ if(obfs=="obfs=wss" && obfs=="obfs=over-tls"){
   pcert=""
   ptls13=""
 }
-
-  nvless.push(type + ip, pwd, mtd, obfs, pcert, thost, puri, pudp, ptfo, tag)
+// Reality para 2025-12-30
+  prlt= version>=891? Reality_Handle(cnt) : ""
+  nvless.push(type + ip, pwd, mtd, obfs, pcert, thost, puri, pudp, ptfo, prlt, tag)
   QX = type!="NS"? nvless.filter(Boolean).join(", ")  : ""
-  //$notify("VLESS","subtitle",QX)
   return QX
 }
 
