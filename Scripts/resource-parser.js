@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2025-12-30 15:30⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2025-12-30 18:00⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -2232,10 +2232,10 @@ function SS2QX(subs, Pudp, Ptfo) {
     type = "shadowsocks=";
     let cntt = cnt.split("#")[0]// 
     //console.log(cntt)
-    if (cntt.indexOf("@") != -1 && cntt.indexOf(":") != -1) {
+    if (cntt.indexOf("@") != -1 && cntt.indexOf(":") != -1) { 
       ip = cnt.split("@")[1].split("#")[0].split("/")[0].split("?")[0];
       if(cntt.indexOf("%")==-1 || cntt.split("@")[0].indexOf(":")==-1){ // 2025-05-16 
-        pwdmtd = Base64.decode(cnt.split("@")[0].replace(/-/g, "+").replace(/_/g, "/")).split("\u0000")[0].split(":")
+        pwdmtd = Base64.decode(cnt.split("@")[0].replace(/-/g, "+").replace(/_/g, "/").replace(/%3D/g,"")).split("\u0000")[0].split(":")
       } else {
         pwdmtd = decodeURIComponent(cnt.split("@")[0]).split(":")
       }
