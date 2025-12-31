@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2025-12-30 18:00⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2025-12-31 10:40⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -2986,8 +2986,20 @@ function LoonSSR2QX(cnt) {
   return node
 }
 
+// read parameters
+function param1(res,org,mbody) {
+  mbodys=mbody.replace(/\s/g,"")
+  if(mbodys.indexOf(org)!=-1) {
+    tmp=mbodys.split(org)[1].split("=")[1].split(",")[0].replace(/\"/g,"")
+    return res+"="+tmp
+  }
+  else return ""
+}
+
 //Loon 的 VLESS 部分
 //vls = VLESS,1.1.1.1,443,"b0dd64e4-0fbd-4038-9139-d1f32a68a0dc",transport=ws,path=patha,host=host.com,udp=true,over-tls=true,tls-name=sni.co
+//2025-12-31 add reality part support
+//vls-name = VLESS,ip,port,"pwd",transport=tcp,flow=xtls-rprx-vision,public-key="pbk",short-id=sid,udp=true,block-quic=true,over-tls=true,sni=sni.com
 function LoonVL2QX(cnt) {
   var tag = ", tag=" + cnt.split("=")[0].trim()
   cnt=cnt.replace(" ","") //去掉空格 简化 
@@ -3007,8 +3019,13 @@ function LoonVL2QX(cnt) {
     obfshost="obfs-host="+cnt.split("host=")[1].split(",")[0]
   }  else if (cnt.indexOf("tls-name=")!=-1) {
     obfshost="obfs-host="+cnt.split("tls-name=")[1].split(",")[0]
+  } else if (cnt.indexOf("sni=")!=-1) {
+    obfshost="obfs-host="+cnt.split("sni=")[1].split(",")[0]
   }
-  node = node + [ip, mtd, pwd, obfs, obfshost, vpath].join(", ") + tag
+  vflow=param1("vless-flow","flow",cnt)
+  vpbk=param1("reality-base64-pubkey","public-key",cnt)
+  vsid=param1("reality-hex-shortid","short-id",cnt)
+  node = node + [ip, mtd, pwd, obfs, obfshost, vpath,vflow,vpbk,vsid].filter(Boolean).join(", ") + tag
   return node
 }
 
