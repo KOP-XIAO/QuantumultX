@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2025-12-31 10:40⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2025-12-31 15:20⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1559,6 +1559,27 @@ function ReplaceReg(cnt, para) {
     return cnt0//.split("\n")
 }
 
+
+// read parameters 2025-12-30
+function param(res,org,mbody) {
+  if(mbody.indexOf(org)!=-1) {
+    tmp=mbody.split(org)[1].split("&")[0].split("#")[0]
+    return res+"="+tmp
+  }
+  else return ""
+}
+
+// get reality parameters
+function Reality_Handle(cnt) {
+//add reality-base64-pubkey, reality-hex-shortid, vless-flow=xtls-rprx-vision
+  a1=param("reality-base64-pubkey","pbk=",cnt)
+  a2=param("reality-hex-shortid","sid=",cnt)
+  a3=(cnt.indexOf("flow=xtls-rprx-vision")!=-1 || cnt.indexOf("xtls=2")!=-1) && a1 != "" ? "vless-flow=xtls-rprx-vision": ""
+  rnt=[a1,a2,a3].filter(Boolean).join(", ")
+  return rnt
+}
+
+
 //混合订阅类型，用于未整体进行 base64 encode 以及已经 decode 后的类型
 function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
   if (Pdbg) {$notify("subs", "node", subs)}
@@ -1630,6 +1651,7 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
                 } else if (LoonK.some(NodeCheck)) { // Loon type
                     node = Loon2QX(list0[i])
                 } 
+              if (Pdbg) {$notify(i, type, node)}
             } catch (e) {
                 failedList.push(`<<<\nContent: ${list0[i]}\nError: ${e}`)
             }
@@ -2074,24 +2096,6 @@ function SSR2QX(subs, Pudp, Ptfo) {
     return QX;
 }
 
-// read parameters 2025-12-30
-function param(res,org,mbody) {
-  if(mbody.indexOf(org)!=-1) {
-    tmp=mbody.split(org)[1].split("&")[0].split("#")[0]
-    return res+"="+tmp
-  }
-  else return ""
-}
-
-// get reality parameters
-function Reality_Handle(cnt) {
-//add reality-base64-pubkey, reality-hex-shortid, vless-flow=xtls-rprx-vision
-  a1=param("reality-base64-pubkey","pbk=",cnt)
-  a2=param("reality-hex-shortid","sid=",cnt)
-  a3=cnt.indexOf("flow=xtls-rprx-vision")!=-1 || cnt.indexOf("xtls=2")!=-1? "vless-flow=xtls-rprx-vision": ""
-  rnt=[a1,a2,a3].filter(Boolean).join(", ")
-  return rnt
-}
 
 // Vless uri 转换成 QUANX 格式
 // vless://pwd@a.b.c.gq:443?encryption=none&security=tls&type=ws&host=a.b.c.d&path=dsjdaaaaj#VLESS_WSS
@@ -2213,7 +2217,9 @@ function TJ2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
       thost=cnt.indexOf("&host=") == -1? thost : "obfs-host=" + decodeURIComponent(cnt.split("&host=")[1].split("&")[0].split("#")[0])
       puri = cnt.indexOf("&path=") == -1? puri : "obfs-uri=" + decodeURIComponent(cnt.split("&path=")[1].split("&")[0].split("#")[0])
     }
-    ntrojan.push(type + ip, pwd, obfs, pcert, thost, puri, pudp, ptfo, tag)
+    // Reality para 2025-12-31
+    prlt= version>=891? Reality_Handle(cnt) : ""
+    ntrojan.push(type + ip, pwd, obfs, pcert, thost, puri, pudp, ptfo,prlt,tag)
     QX = ntrojan.filter(Boolean).join(", ");
     //$notify("title","subtitle",QX)
     return QX;
