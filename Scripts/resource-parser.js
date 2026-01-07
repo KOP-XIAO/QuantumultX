@@ -1574,7 +1574,7 @@ function Reality_Handle(cnt) {
 //add reality-base64-pubkey, reality-hex-shortid, vless-flow=xtls-rprx-vision
   a1=param("reality-base64-pubkey","pbk=",cnt)
   a2=param("reality-hex-shortid","sid=",cnt)
-  a3=(cnt.indexOf("flow=xtls-rprx-vision")!=-1 || cnt.indexOf("xtls=2")!=-1) && a1 != "" ? "vless-flow=xtls-rprx-vision": ""
+  a3=(cnt.indexOf("flow=xtls-rprx-vision")!=-1 || cnt.indexOf("flow=xtls-rprx-vision-udp443")!=-1 || cnt.indexOf("xtls=2")!=-1) ? "vless-flow=xtls-rprx-vision": ""
   rnt=[a1,a2,a3].filter(Boolean).join(", ")
   return rnt
 }
