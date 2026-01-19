@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-01-12 10:07⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-01-14 15:37⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -627,7 +627,7 @@ function Type_Check(subs) {
       typec = "filter-list"
       type = (typeQ == "unsupported" || typeQ =="filter")? "Rule":"wrong-field";
       content0 = content0.split("\n").map(rule_list_handle).join("\n")
-    } else if (subi.indexOf("sub://") == 0) { // sub:// 类型
+    } else if (subi.indexOf("sub://") == 0 || subi.indexOf("subs://") == 0) { // sub:// 类型
       typec = "sub-http"
       type = "sub-http"
     } else if (typeQ == "filter" && subs.indexOf("payload:")!=-1) { // clash-provider 类型？
