@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-01-29 18:09⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-02-02 22:49⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -502,7 +502,7 @@ function ResourceParse() {
       if (PUOT==1) { total = total.split("\n").map(UOT).join("\n")}
       if (Pcnt == 1 && total!=undefined) {$notify("⟦" + subtag + "⟧"+"解析后最终返回内容" , "节点数量: " +total.split("\n").length, total)}
       total = PRelay==""? Base64.encode(total) : ServerRelay(total.split("\n"),PRelay) //强制节点类型 base64 加密后再导入 Quantumult X, 如果是relay，则转换成分流类型
-      if (PNS !=0) {$notify("⚠️ 存在Quantumult X不支持的节点类型", "⚠️ 已忽略相关节点数，共计："+PNS+" 条", "⚠️ 当前版本不支持 HY2，Anytls 等类型")}
+      if (PNS !=0) {$notify("⚠️ 存在Quantumult X不支持的节点类型", "⚠️ 已忽略相关节点数，共计："+PNS+" 条", "⚠️ 当前版本不支持 Hysteria2，Anytls 等类型"+"\n"+"⚠️ 也不支持“v2ray-http-upgrade” 类型vless")}
       if(Pflow==1) {
         //$notify("添加流量信息","xxx","xxxx")
         $done({ content: total, info: {bytes_used: 3073741824, bytes_remaining: 2147483648, expire_date: 1854193966}});
@@ -3079,6 +3079,7 @@ function YAMLFix(cnt){
   cnt = cnt.indexOf("proxies:") != -1 && /\n\s{4}server/.test(cnt)  ? cnt.replace(/\n\s{4}(headers|path)/g,"\n      $1").replace(/\n\s{6}Host/g,"\n        Host").replace(/\t/g,""):cnt
   //console.log("part-fix:\n"+cnt.split("proxies:")[1])
   cnt = cnt.indexOf("proxies:") == -1? "proxies:\n" + cnt :"proxies:"+cnt.split("proxies:")[1]
+  cnt = cnt.replace(/>/g,"⟩") // 2026-02-02 部分奇葩问题
   console.log("after-fix\n"+cnt)
   if(Pdbg == 1) {
   $notify("After-Fix","this is", "After-fix:\n"+cnt)}
@@ -3157,12 +3158,117 @@ function YJSON(cnt) {
   return cnt
 }
 
+function reorderYamlByNesting(yamlString, decodeUnicode = true) {
+  // 如果需要，先解码 Unicode
+  if (decodeUnicode) {
+    yamlString = decodeUnicodeEscapes(yamlString);
+  }
+  
+  const lines = yamlString.split('\n');
+  const result = [];
+  let i = 0;
+  // 收集字段块（包括所有子级）
+  function collectFieldBlock(startIdx, parentIndent) {
+    const block = [lines[startIdx]];
+    let idx = startIdx + 1;
+    while (idx < lines.length) {
+      const line = lines[idx];
+      const indent = line.search(/\S/);
+      const trimmed = line.trim();
+      if (!trimmed) {
+        idx++;
+        continue;
+      }
+      if (indent <= parentIndent) {
+        break;
+      }
+      block.push(line);
+      idx++;
+    }
+    return { block, nextIdx: idx };
+  }
+  // 判断是否有子级
+  function hasChildren(block, parentIndent) {
+    return block.slice(1).some(line => {
+      const trimmed = line.trim();
+      return trimmed && line.search(/\S/) > parentIndent;
+    });
+  }
+  // 处理单个列表项
+  function processListItem(startIdx, listIndent) {
+    const simpleFields = [];
+    const nestedFields = [];
+    const fieldIndent = listIndent + 2;
+    let idx = startIdx;
+    while (idx < lines.length) {
+      const line = lines[idx];
+      const indent = line.search(/\S/);
+      const trimmed = line.trim();
+      if (!trimmed) {
+        idx++;
+        continue;
+      }
+      if (indent <= listIndent) {
+        break;
+      }
+      if (indent === fieldIndent && trimmed.includes(':')) {
+        const { block, nextIdx } = collectFieldBlock(idx, fieldIndent);
+        
+        if (hasChildren(block, fieldIndent)) {
+          nestedFields.push(...block);
+        } else {
+          simpleFields.push(block[0]);
+        }
+        
+        idx = nextIdx;
+      } else {
+        idx++;
+      }
+    }
+    return { simpleFields, nestedFields, endIdx: idx };
+  }
+  // 主循环
+  while (i < lines.length) {
+    const line = lines[i];
+    const trimmed = line.trim();
+    if (trimmed.startsWith('- ')) {
+      const listIndent = line.search(/\S/);
+      result.push(line);
+      
+      const { simpleFields, nestedFields, endIdx } = processListItem(i + 1, listIndent);
+      result.push(...simpleFields, ...nestedFields);
+      
+      i = endIdx;
+    } else {
+      result.push(line);
+      i++;
+    }
+  }
+  return result.join('\n');
+}
+function decodeUnicodeEscapes(str) {
+  return str
+  .replace(/\\U([0-9A-Fa-f]{8})/g, (match, hex) => {
+    return String.fromCodePoint(parseInt(hex, 16));
+  })
+  .replace(/\\u\{([0-9A-Fa-f]+)\}/g, (match, hex) => {
+    return String.fromCodePoint(parseInt(hex, 16));
+  })
+  .replace(/\\u([0-9A-Fa-f]{4})/g, (match, hex) => {
+    return String.fromCodePoint(parseInt(hex, 16));
+  })
+  .replace(/\\x([0-9A-Fa-f]{2})/g, (match, hex) => {
+    return String.fromCharCode(parseInt(hex, 16));
+  });
+}
+
+
 
 // Clash parser
 function Clash2QX(cnt) {
   const yaml = new YAML()
   if (Pdbg==1) { $notify(" Before YAML Parse", "content", cnt)}
-  var aa = JSON.stringify(yaml.parse(YAMLFix(cnt))).replace(/yaml@bug𝟙/g,"[").replace(/冒号/gmi,":").replace(/yaml@bug𝟚/g,"*")
+  var aa = JSON.stringify(yaml.parse(reorderYamlByNesting(YAMLFix(cnt)))).replace(/yaml@bug𝟙/g,"[").replace(/冒号/gmi,":").replace(/yaml@bug𝟚/g,"*")
   for (var i=0;i<10;i++) {
     aa = aa.replace(new RegExp(patn[4][i], "gmi"),patn[0][i])
   }
@@ -3190,6 +3296,8 @@ function Clash2QX(cnt) {
         node = CS52QX(node)
       } else if (typecc == "vless"){
         node = CVL2QX(node)
+      } else { // not support type
+        PNS = PNS+1
       }
       node = Pudp0 != 0 ? XUDP(node,Pudp0) : node
       node = Ptfo0 != 0 ? XTFO(node,Ptfo0) : node
@@ -3401,7 +3509,13 @@ function CVL2QX(cnt){
   } else if (Pcert0 != 1 && cnt.tls) {
     cert = "tls-verification=false"
   }
-  node = "vless="+[ipt, pwd, mtd, udp, tfo, obfs, ohost, vfl, pbk, sid, cert, tag].filter(Boolean).join(", ")
+  const pspt = getValue(()=>cnt["ws-opts"]["v2ray-http-upgrade"])
+  if (pspt==true) {
+    PNS = PNS +1
+    node=""
+  } else {
+    node = "vless="+[ipt, pwd, mtd, udp, tfo, obfs, ohost, vfl, pbk, sid, cert, tag].filter(Boolean).join(", ")
+  }
   //console.log(node)
   return node
 }
