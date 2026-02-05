@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-02-05 09:53⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-02-05 20:57⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -2141,7 +2141,8 @@ function VL2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
   ptfo = (Ptfo == 1 || cnt.indexOf("tfo=1")!=-1)? "fast-open=true" : "fast-open=false";
   //ptfo = cnt.indexOf("tfo=1") != -1? "fast-open=true" : ptfo
   if (typeU == "SR-URI") {//小火箭内的websocket写法
-    if(cnt.indexOf("obfs=none")!=-1 && cnt.indexOf("tls=1")==-1) {
+    if((cnt.indexOf("obfs=none")!=-1 || cnt.indexOf("obfs=")==-1) && cnt.indexOf("tls=1")==-1) {
+      // tcp
       obfs = ""
     } else if((cnt.indexOf("obfs=none")!=-1 || cnt.indexOf("obfs=")==-1) && cnt.indexOf("tls=1")!=-1) {
       obfs = "obfs=over-tls"
@@ -3301,6 +3302,9 @@ function Clash2QX(cnt) {
       }
       node = Pudp0 != 0 ? XUDP(node,Pudp0) : node
       node = Ptfo0 != 0 ? XTFO(node,Ptfo0) : node
+      node=node.replace(/^([^,]*)\s+/g, (match, p1) => { // 某些ipv6节点空格问题
+        return p1.replace(/\s+/g, '');
+      });
       nodelist.push(node)
     }catch (e) {
       $notify(`⚠️该节点解析错误, 暂时已忽略处理`,`可点击通知并发送链接反馈至 bot`,JSON.stringify(node),bug_link )
