@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-02-06 16:40⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-02-11 11:51⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -3309,13 +3309,19 @@ function Clash2QX(cnt) {
         node = CVL2QX(node)
       } else { // not support type
         PNS = PNS+1
+        if (Pdbg==1) { // 通知提示
+          $notify("不支持该类型节点，已忽略",typecc,JSON.stringify(node))
+        }
+        typecc="NS"
       }
       node = Pudp0 != 0 ? XUDP(node,Pudp0) : node
       node = Ptfo0 != 0 ? XTFO(node,Ptfo0) : node
+      if (typecc!="NS") {
       node=node.replace(/^([^,]*)\s+/g, (match, p1) => { // 某些ipv6节点空格问题
         return p1.replace(/\s+/g, '');
       });
       nodelist.push(node)
+    } 
     }catch (e) {
       $notify(`⚠️该节点解析错误, 暂时已忽略处理`,`可点击通知并发送链接反馈至 bot`,JSON.stringify(node),bug_link )
       $notify(`⚠️错误内容如下`,`可复制错误内容到反馈 bot`,JSON.stringify(node)+"\n\n"+e)
