@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-02-25 11:01⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-02-27 10:27⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -591,7 +591,7 @@ function Type_Check(subs) {
     var DomainK = ["domain-set,"]
     var QuanXK = ["shadowsocks=", "trojan=", "vmess=", "http=", "socks5=", "vless="];
     var SurgeK = ["=ss,", "=vmess,", "=trojan,", "=http,", "=custom,", "=https,", "=shadowsocks", "=shadowsocksr", "=sock5", "=sock5-tls"];
-    var ClashK = ["proxies:"]
+    var ClashK = ["proxies:","\"proxies\":"]
     var SubK = ["dm1lc3M", "c3NyOi8v", "CnNzOi8", "dHJvamFu", "c3M6Ly", "c3NkOi8v", "c2hhZG93", "aHR0cDovLw", "aHR0cHM6L", "CnRyb2phbjo", "aHR0cD0", "aHR0cCA","U1RBVFVT","dmxlc3M6"];
     var RewriteK = [" url 302", " url 307", " url reject", " url script", " url req", " url res", " url echo", " url-and-header 302", " url-and-header 307", " url-and-header reject", " url-and-header script", " url-and-header req", " url-and-header res", " url-and-header echo", " url jsonjq"] // quantumult X 类型 rewrite
     var SubK2 = ["ss://", "vmess://", "ssr://", "trojan://", "ssd://", "\nhttps://", "\nhttp://","socks://","ssocks://","vless://"];
@@ -3052,7 +3052,7 @@ function LoonVL2QX(cnt) {
 ////////////////////
 
 function YAMLFix(cnt){
-  cnt = cnt.replace(/\[/g,"yaml@bug1").replace(/\\r/g,"").replace(/\*/g,"yaml@bug2")
+  cnt = cnt.replace(/\[/g,"yaml@bug𝟙").replace(/\\r/g,"").replace(/\*/g,"yaml@bug𝟚")
   //2022-08-08 增加 .replace(/\*/g,"🌟@bug2") 以解决名字以 * 开始时引起的部分问题
   if (cnt.indexOf("{") != -1 && /\{\s*\"*(name|type|server)/.test(cnt)){ // - { } 类型 yaml
     cnt =  cleanYamlSpaces(cnt) // 2026-02-06 部分空格解析错误
@@ -3087,6 +3087,7 @@ function YAMLFix(cnt){
   //console.log("part-fix:\n"+cnt.split("proxies:")[1])
   cnt = cnt.indexOf("proxies:") == -1? "proxies:\n" + cnt :"proxies:"+cnt.split("proxies:")[1]
   cnt = cnt.replace(/>/g,"⟩") // 2026-02-02 部分奇葩问题
+  //cnt=cnt.replace(/yaml@bug𝟙/g,"[").replace(/冒号/gmi,":").replace(/yaml@bug𝟚/g,"*")
   console.log("after-fix\n"+cnt)
   if(Pdbg == 1) {
   $notify("After-Fix","this is", "After-fix:\n"+cnt)}
@@ -3278,13 +3279,22 @@ function decodeUnicodeEscapes(str) {
   });
 }
 
+// 完整的json
+function JCheck(cnt) {
+  if (/^{/.test(cnt) &&/}$/.test(cnt)) {
+    return 1
+  } else {
+    return 0
+  }
+}
 
 
 // Clash parser
 function Clash2QX(cnt) {
   const yaml = new YAML()
-  if (Pdbg==1) { $notify(" Before YAML Parse", "content", cnt)}
-  var aa = JSON.stringify(yaml.parse(reorderYamlByNesting(YAMLFix(cnt)))).replace(/yaml@bug𝟙/g,"[").replace(/冒号/gmi,":").replace(/yaml@bug𝟚/g,"*")
+  //if (Pdbg==1) { $notify(" Before YAML Parse", "content", cnt)}
+  // 如果本身为json则无需解析
+  aa = JCheck(cnt)==0 ? JSON.stringify(yaml.parse(reorderYamlByNesting(YAMLFix(cnt)))).replace(/yaml@bug𝟙/g,"[").replace(/冒号/gmi,":").replace(/yaml@bug𝟚/g,"*") : cnt
   for (var i=0;i<10;i++) {
     aa = aa.replace(new RegExp(patn[4][i], "gmi"),patn[0][i])
   }
@@ -3527,6 +3537,11 @@ function CVL2QX(cnt){
   ohost = phost ? "obfs-host="+phost : ohost
   //ohost= cnt["ws-opts"]? "obfs-host=" + cnt["ws-opts"]["headers"]["Host"] : ohost
   ohost = cnt["servername"]? "obfs-host=" + cnt["servername"] : ohost
+  ohost=ohost.toLowerCase()
+
+  const ppath = getValue(()=>cnt["ws-opts"]["path"]) 
+  puri = ppath ? "obfs-uri="+ppath : ""
+
   cert = cnt["skip-cert-verify"] && cnt.tls ? "tls-verification=false" : ""
   //$notify(cert)
   if (Pcert0 == 1 && cnt.tls) {
@@ -3539,7 +3554,7 @@ function CVL2QX(cnt){
     PNS = PNS +1
     node=""
   } else {
-    node = "vless="+[ipt, pwd, mtd, udp, tfo, obfs, ohost, vfl, pbk, sid, cert, tag].filter(Boolean).join(", ")
+    node = "vless="+[ipt, pwd, mtd, udp, tfo, obfs, ohost, puri, vfl, pbk, sid, cert, tag].filter(Boolean).join(", ")
   }
   //console.log(node)
   return node
