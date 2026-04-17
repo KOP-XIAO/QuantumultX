@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-04-17 10:13⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-04-17 15:29⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1683,10 +1683,10 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
                   }
                 } else if (QuanXK.some(NodeCheck1)) { // QuanX type 
                     node = QX_TLS(isQuanX(list0[i])[0], Pcert0, PTls13)
-                } else if (SurgeK.some(NodeCheck) && listi.indexOf(",password=")!=-1) { // Surge type
-                    node = QX_TLS(Surge2QX(list0[i])[0], Pcert0, PTls13)
                 } else if (LoonK.some(NodeCheck2)) { // Loon type
                     node = Loon2QX(list0[i])
+                } else if (SurgeK.some(NodeCheck) ) { // Surge type, 第2为端口号
+                    node = QX_TLS(Surge2QX(list0[i])[0], Pcert0, PTls13)
                 } else if (type=="hysteria2" || (type=="anytls" && version<914)) { //
                   PNS=PNS+1 
                 }
