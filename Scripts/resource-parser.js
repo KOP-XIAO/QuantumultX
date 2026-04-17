@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-04-17 15:29⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-04-17 16:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -223,6 +223,7 @@ var Psession =  mark0 && para1.indexOf("tsession=") != -1 && version >= 771? par
 var Pmix = version>=844? 1 : 0 // allow rewrite and filter mix from version 844
 var Pjsonjq = version>=845? 0 : 1 // allow jsonjq from version 845
 var PNS=0 // 不支持的节点统计
+var NSList=["不支持节点内容⬇️"] // 不支持节点列表
 
 var RegoutList= [] ;//用于 regout参数删选提醒
 // URL-Scheme 增加配置
@@ -504,9 +505,9 @@ function ResourceParse() {
       total = PRelay==""? Base64.encode(total) : ServerRelay(total.split("\n"),PRelay) //强制节点类型 base64 加密后再导入 Quantumult X, 如果是relay，则转换成分流类型
       if (PNS !=0) {
         if (version >913) {
-          $notify("⚠️ 存在Quantumult X不支持的节点类型", "⚠️ 已忽略相关节点数，共计："+PNS+" 条", "⚠️ 当前版本不支持 Hysteria2 等类型"+"\n"+"⚠️ 也不支持“http-upgrade/xhttp/grpc/mkcp/h2” 等类型vless")
+          $notify("⚠️ 存在Quantumult X 不支持的节点", "⚠️ 已忽略相关节点，共计："+PNS+" 条", "⚠️ 此版本暂不支持 Hysteria2/Tuic 等类型"+"\n"+"⚠️ 也不支持“http-upgrade/xhttp/grpc/mkcp/h2” 等类型vless\n"+NSList.join("\n"))
         } else {
-          $notify("⚠️ 存在Quantumult X不支持的节点类型", "⚠️ 已忽略相关节点数，共计："+PNS+" 条", "⚠️ 当前版本不支持 Hysteria2，Anytls 等类型"+"\n"+"⚠️ 也不支持“http-upgrade/xhttp/grpc/mkcp/h2” 等类型vless")
+          $notify("⚠️ 存在Quantumult X 不支持的节点", "⚠️ 已忽略相关节点，共计："+PNS+" 条", "⚠️ 此版本暂不支持 Hysteria2/Anytls 等类型"+"\n"+"⚠️ 也不支持“http-upgrade/xhttp/grpc/mkcp/h2” 等类型vless\n"+NSList.join("\n"))
         }
       }
       if(Pflow==1) {
@@ -518,9 +519,9 @@ function ResourceParse() {
       if(Perror == 0) {
       if (PNS !=0) { // 全部为不支持类型节点
         if (version >913) {
-          $notify("⚠️ Quantumult-X 不支持该订阅内的节点类型", "⚠️ 已忽略共计："+PNS+" 条不支持节点，剩余 0️⃣ 条", "⚠️ 当前版本不支持 Hysteria2 等类型"+"\n"+"⚠️ 也不支持“http-upgrade/xhttp/grpc/mkcp/h2” 等类型vless")
+          $notify("⚠️ Quantumult-X 不支持该订阅内的节点", "⚠️ 已忽略共计："+PNS+" 条不支持节点，剩余 0️⃣ 条", "⚠️ 此版本暂不支持 Hysteria2/Tuic 等类型"+"\n"+"⚠️ 也不支持“http-upgrade/xhttp/grpc/mkcp/h2” 等类型vless\n"+NSList.join("\n"))
         } else {
-          $notify("⚠️ Quantumult-X 不支持该订阅内的节点类型", "⚠️ 已忽略共计："+PNS+" 条不支持节点，剩余 0️⃣ 条", "⚠️ 当前版本不支持 Hysteria2，Anytls 等类型"+"\n"+"⚠️ 也不支持“http-upgrade/xhttp/grpc/mkcp/h2” 等类型vless")
+          $notify("⚠️ Quantumult-X 不支持该订阅内的节点", "⚠️ 已忽略共计："+PNS+" 条不支持节点，剩余 0️⃣ 条", "⚠️ 此版本暂不支持 Hysteria2/Anytls 等类型"+"\n"+"⚠️ 也不支持“http-upgrade/xhttp/grpc/mkcp/h2” 等类型vless\n"+NSList.join("\n"))
         }
         
       } else { // 其它原因
@@ -1687,8 +1688,9 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
                     node = Loon2QX(list0[i])
                 } else if (SurgeK.some(NodeCheck) ) { // Surge type, 第2为端口号
                     node = QX_TLS(Surge2QX(list0[i])[0], Pcert0, PTls13)
-                } else if (type=="hysteria2" || (type=="anytls" && version<914)) { //
+                } else if (type=="hysteria2" || (type=="anytls" && version<914) || type=="tuic") { //
                   PNS=PNS+1 
+                  NSList.push(list0[i])
                 }
               if (Pdbg) {$notify(i, type, node)}
             } catch (e) {
@@ -1964,6 +1966,7 @@ function V2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
       nss.push(ip, mtd, pwd, obfs, tfo, udp, caead, tag);
     } else if(obfs == "NOT-SUPPORTTED"){
       PNS=PNS+1
+      NSList.push(subs)
     }
     QX = nss.join(", ");
   }
@@ -2254,7 +2257,10 @@ if(obfs=="obfs=wss" && obfs=="obfs=over-tls"){
   prlt= version>=891? Reality_Handle(cnt) : ""
   nvless.push(type + ip, pwd, mtd, obfs, pcert, thost, puri, pudp, ptfo, prlt, tag)
   QX = type!="NS"? nvless.filter(Boolean).join(", ")  : ""
-  PNS= type=="NS"? PNS+1 : PNS
+  if (type=="NS") {
+    PNS=PNS+1
+    NSList.push(subs)
+  }
   return QX
 }
 
@@ -3439,6 +3445,7 @@ function Clash2QX(cnt) {
         node = CTLS2QX(node)
       } else { // not support type
         PNS = PNS+1
+        NSList.push(bb[i])
         if (Pdbg==1) { // 通知提示
           $notify("不支持该类型节点，已忽略",typecc,JSON.stringify(node))
         }
@@ -3683,6 +3690,7 @@ function CVL2QX(cnt){
   const pspt = getValue(()=>cnt["ws-opts"]["v2ray-http-upgrade"])
   if (pspt==true) {
     PNS = PNS +1
+    NSList.push(cnt)
     node=""
   } else {
     node = "vless="+[ipt, pwd, mtd, udp, tfo, obfs, ohost, puri, vfl, pbk, sid, cert, tag].filter(Boolean).join(", ")
