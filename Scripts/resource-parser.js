@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-04-15 20:53⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-04-17 10:13⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -503,7 +503,11 @@ function ResourceParse() {
       if (Pcnt == 1 && total!=undefined) {$notify("⟦" + subtag + "⟧"+"解析后最终返回内容" , "节点数量: " +total.split("\n").length, total)}
       total = PRelay==""? Base64.encode(total) : ServerRelay(total.split("\n"),PRelay) //强制节点类型 base64 加密后再导入 Quantumult X, 如果是relay，则转换成分流类型
       if (PNS !=0) {
-        $notify("⚠️ 存在Quantumult X不支持的节点类型", "⚠️ 已忽略相关节点数，共计："+PNS+" 条", "⚠️ 当前版本不支持 Hysteria2，Anytls 等类型"+"\n"+"⚠️ 也不支持“http-upgrade/xhttp/grpc/mkcp/h2” 等类型vless")
+        if (version >913) {
+          $notify("⚠️ 存在Quantumult X不支持的节点类型", "⚠️ 已忽略相关节点数，共计："+PNS+" 条", "⚠️ 当前版本不支持 Hysteria2 等类型"+"\n"+"⚠️ 也不支持“http-upgrade/xhttp/grpc/mkcp/h2” 等类型vless")
+        } else {
+          $notify("⚠️ 存在Quantumult X不支持的节点类型", "⚠️ 已忽略相关节点数，共计："+PNS+" 条", "⚠️ 当前版本不支持 Hysteria2，Anytls 等类型"+"\n"+"⚠️ 也不支持“http-upgrade/xhttp/grpc/mkcp/h2” 等类型vless")
+        }
       }
       if(Pflow==1) {
         //$notify("添加流量信息","xxx","xxxx")
@@ -513,7 +517,12 @@ function ResourceParse() {
     } else { // total length = 0
       if(Perror == 0) {
       if (PNS !=0) { // 全部为不支持类型节点
-        $notify("⚠️ Quantumult-X 不支持该订阅内的节点类型", "⚠️ 已忽略共计："+PNS+" 条不支持节点，剩余 0️⃣ 条", "⚠️ 当前版本不支持 Hysteria2，Anytls 等类型"+"\n"+"⚠️ 也不支持“http-upgrade/xhttp/grpc/mkcp/h2” 等类型vless")
+        if (version >913) {
+          $notify("⚠️ Quantumult-X 不支持该订阅内的节点类型", "⚠️ 已忽略共计："+PNS+" 条不支持节点，剩余 0️⃣ 条", "⚠️ 当前版本不支持 Hysteria2 等类型"+"\n"+"⚠️ 也不支持“http-upgrade/xhttp/grpc/mkcp/h2” 等类型vless")
+        } else {
+          $notify("⚠️ Quantumult-X 不支持该订阅内的节点类型", "⚠️ 已忽略共计："+PNS+" 条不支持节点，剩余 0️⃣ 条", "⚠️ 当前版本不支持 Hysteria2，Anytls 等类型"+"\n"+"⚠️ 也不支持“http-upgrade/xhttp/grpc/mkcp/h2” 等类型vless")
+        }
+        
       } else { // 其它原因
         $notify("❓❓ 该订阅 ➟ "+ "⟦" + subtag + "⟧ 解析后无有效节点", "⚠️⚠️ 解析后 Quantumult-X 支持节点数为 0️⃣ 条", "🚥🚥 请自行检查相关参数、确认节点类型, 或者点击通知跳转并发送链接反馈", bug_link)
       } 
@@ -2131,6 +2140,8 @@ function SSR2QX(subs, Pudp, Ptfo) {
 
 // AnyTLS uri 转换成 quanx 格式
 //anytls://pwd@name:443?peer=xxx.com&udp=1#US-A-ANYTLS-0.5%E5%80%8D%E7%8E%8
+// tls with reality
+//anytls://ip:port?security=reality&pbk=yourkey&sid=yourshortip&fp=chrome&sni=sample.com#Server-Anytls_Reality
 
 function Anytls2QX(subs,Pcert0) {
   try {
@@ -2150,7 +2161,9 @@ function Anytls2QX(subs,Pcert0) {
     thost = cnt.indexOf("peer=") != -1? "tls-host="+cnt.split("peer=")[1].split(/&|#/)[0]:thost
     pudp = Pudp0 == -1 ? "udp-relay=false" : "udp-relay=true" // 默认开启
     tag = cnt.indexOf("#") != -1 ? "tag=" + decodeURIComponent(cnt.split("#").slice(-1)[0]) : "tag= [anytls]" + ip
-    Nanytls.push(type + ip, pwd, ptls, pcert, pudp, thost, tag)
+    // reality
+    prlt= version>=914? Reality_Handle(cnt) : ""
+    Nanytls.push(type + ip, pwd, ptls, pcert, pudp, thost, prlt, tag)
     QX= Nanytls.filter(Boolean).join(", ")
     return QX
   } catch (error) {
