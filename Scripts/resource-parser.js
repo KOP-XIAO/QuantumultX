@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-04-22 16:49⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-04-23 16:09⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -223,7 +223,7 @@ var Psession =  mark0 && para1.indexOf("tsession=") != -1 && version >= 771? par
 var Pmix = version>=844? 1 : 0 // allow rewrite and filter mix from version 844
 var Pjsonjq = version>=845? 0 : 1 // allow jsonjq from version 845
 var PNS=0 // 不支持的节点统计
-var NSList=["不支持的以下的节点 ↘️ \n"] // 不支持节点列表
+var NSList=["当前订阅内，不支持以下节点 ↘️ \n"] // 不支持节点列表
 
 var RegoutList= [] ;//用于 regout参数删选提醒
 // URL-Scheme 增加配置
