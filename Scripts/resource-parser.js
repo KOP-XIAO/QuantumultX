@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-04-28 21:03⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-04-29 12:10⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -147,7 +147,8 @@ $parser.hashSchema = function () {
     ];
   }
 
-  return {
+  if ($resource.type == "server") {
+    return {
     version: 1,
     sections: [
       {
@@ -213,6 +214,40 @@ $parser.hashSchema = function () {
       },
       {
         type: "group",
+        title: "其他",
+        items: [
+          { type: "select", key: "ntf",  label: "解析通知",
+            options: [
+              { label: "默认",          value: "" },
+              { label: "关闭",          value: "0"},
+              { label: "打开",          value: "1"}
+            ] },
+          { type: "select", key: "type", label: "强制类型",
+            options: [
+              { label: "自动",         value: ""           },
+              { label: "Nodes",        value: "nodes"      },
+              { label: "Rule",         value: "rule"       },
+              { label: "Module",       value: "module"     },
+              { label: "List",         value: "list"       },
+              { label: "Domain Set",   value: "domain-set" }
+            ] },
+          { type: "switch", key: "info", label: "流量信息",
+            onValue: "1", offValue: "" },
+          { type: "text",   key: "flow", label: "流量参数",
+            description: "格式：到期时间:总流量GB:已用GB（如 2026-12-31:1000:54）",
+            placeholder: "2026-12-31:1000:54" },
+          { type: "text",   key: "relay", label: "代理链 relay",
+            description: "目标策略名，将节点订阅转换为 ip/host 规则" }
+        ]
+      }
+    ]
+  };
+} else {
+  return {
+    version: 1,
+    sections: [
+      {
+        type: "group",
         title: "Rewrite / Filter",
         description: "仅对 rewrite_remote / filter_remote 生效",
         items: [
@@ -265,17 +300,13 @@ $parser.hashSchema = function () {
               { label: "List",         value: "list"       },
               { label: "Domain Set",   value: "domain-set" }
             ] },
-          { type: "switch", key: "info", label: "流量信息",
-            onValue: "1", offValue: "" },
-          { type: "text",   key: "flow", label: "流量参数",
-            description: "格式：到期时间:总流量GB:已用GB（如 2026-12-31:1000:54）",
-            placeholder: "2026-12-31:1000:54" },
           { type: "text",   key: "relay", label: "代理链 relay",
             description: "目标策略名，将节点订阅转换为 ip/host 规则" }
         ]
       }
     ]
   };
+}
 };
 
 
@@ -390,8 +421,8 @@ $parser.uiToHash = function (values) {
   return parts.join("&");
 };
 
+// end ==== Parser Helper UI by Quantumult-X (918+) ====
 
-//---------------------------
 
 
 //beginning 解析器正常使用，調試註釋此部分
