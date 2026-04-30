@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-04-30 11:58⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-04-30 12:27⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -164,7 +164,9 @@ $parser.hashSchema = function () {
           { type: "text",   key: "regex",  label: "正则保留（regex）",
             description: "对节点完整信息正则匹配", placeholder: "iplc" },
           { type: "text",   key: "regout", label: "正则删除（regout）",
-            description: "对节点完整信息正则删除", placeholder: "" }
+            description: "对节点完整信息正则删除", placeholder: "" },
+          { type: "text",   key: "replace", label: "正则替换（replace）",
+            description: "对节点内容进行修改替换", placeholder: "" }
         ]
       },
       {
@@ -214,7 +216,7 @@ $parser.hashSchema = function () {
       },
       {
         type: "group",
-        title: "其他",
+        title: "其他参数",
         items: [
           { type: "select", key: "ntf",  label: "解析通知",
             options: [
@@ -272,11 +274,14 @@ $parser.hashSchema = function () {
         type : "group",
         title: "代理链相关设置「Relay」",
         items : [
-          { type: "text", key: "via",    label: "via-interface",
-            description: "0 : via-interface=%TUN%, 设置代理链时，规则分流需使用此参数，策略组请选择（落地节点）" 
+          { type: "text", key: "via",    label: "via-interface「规则订阅」",
+             description: "0 : via-interface=%TUN%, 设置代理链时，规则分流需使用此参数，请在策略偏好将策略组指定为 落地策略组/节点\n" ,
+             placeholder: "填写 0 即可" 
           },
-          { type: "text",   key: "relay", label: "代理链 Relay",
-            description: "填写目标策略组/节点（中转），将（落地）节点订阅转换为 ip/host 规则，指向中转目标" },
+          { type: "text",   key: "relay", label: "代理链 Relay「节点订阅」",
+            description: "将（落地）节点的订阅转换为 ip/host 规则，指向 中转策略组/节点。\n ⚠️ 设置 代理链条Relay 时，请确保关闭改订阅首页的「策略偏好」设置 \n\n ⚠️ 以上两项不应该在同一条引用中同时设置 ⚠️" ,
+            placeholder: "⚠️ 此处请填写你的 中转策略组/节点名" },
+           
         ]
       },
       {
