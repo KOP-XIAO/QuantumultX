@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-04-29 12:10⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-04-30 11:58⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -147,7 +147,7 @@ $parser.hashSchema = function () {
     ];
   }
 
-  if ($resource.type == "server") {
+  if ($resource.type == "server") { // server content
     return {
     version: 1,
     sections: [
@@ -235,55 +235,53 @@ $parser.hashSchema = function () {
             onValue: "1", offValue: "" },
           { type: "text",   key: "flow", label: "流量参数",
             description: "格式：到期时间:总流量GB:已用GB（如 2026-12-31:1000:54）",
-            placeholder: "2026-12-31:1000:54" },
-          { type: "text",   key: "relay", label: "代理链 relay",
-            description: "目标策略名，将节点订阅转换为 ip/host 规则" }
+            placeholder: "2026-12-31:1000:54" }
         ]
       }
     ]
   };
-} else {
+} else if ($resource.type == "filter") { // rule content
   return {
     version: 1,
     sections: [
       {
         type: "group",
-        title: "Rewrite / Filter",
+        title: "Filter 「分流」",
         description: "仅对 rewrite_remote / filter_remote 生效",
         items: [
-          { type: "tags", key: "inhn",  label: "保留主机名（inhn）",
-            description: "按主机名关键字保留 rewrite/filter。每行一个关键字（多行之间为\"或\"关系）。",
+          { type: "tags", key: "in",  label: "保留分流规则「in」",
+            description: "按关键字保留 filter。每行一个关键字（多行之间为\"或\"关系）。",
             placeholder: "如：weibo" },
-          { type: "tags", key: "outhn", label: "删除主机名（outhn）",
-            description: "按主机名关键字删除 rewrite/filter。每行一个关键字（多行之间为\"或\"关系）。",
-            placeholder: "如：tb_price" },
-          { type: "text", key: "policy", label: "默认策略组",
+          { type: "tags", key: "out",  label: "禁用分流/重写「out」",
+            description: "按关键字保留 filter。每行一个关键字（多行之间为\"或\"关系）。",
+            placeholder: "如：weibo" },
+          { type: "text", key: "policy", label: "单策略组指定「policy」",
             description: "rule-set 生成策略组的名字（默认 Shawn）",
             placeholder: "Shawn" },
-          { type: "text", key: "pset",   label: "Policy Set",
+          { type: "text", key: "pset",   label: "多策略组指定「pset」",
             description: "regex1@policy1+regex2@policy2" },
-          { type: "select", key: "dst", label: "转换目标（dst）",
-            options: [
-              { label: "默认（不转换）", value: ""        },
-              { label: "Rewrite",        value: "rewrite" },
-              { label: "Filter",         value: "filter"  }
-            ] },
-          { type: "switch", key: "cdn",  label: "GitHub CDN 加速",
-            onValue: "1", offValue: "" },
-          { type: "select", key: "fcr",  label: "网络接口（fcr）",
-            options: [
-              { label: "默认",            value: ""  },
-              { label: "强制蜂窝数据",    value: "1" },
-              { label: "混合接口",        value: "2" },
-              { label: "负载均衡",        value: "3" }
-            ] },
+          { type: "text", key: "regex",   label: "正则保留「regex」",
+            description: "正则匹配保留指定内容" },
+          { type: "text", key: "regout",   label: "正则删除「regout」",
+            description: "正则匹配删除指定内容" },
+          { type: "text", key: "replace",   label: "正则替换「replace」",
+            description: "regex@new_regex 正则替换指定内容" }
+        ]
+      },
+      {
+        type : "group",
+        title: "代理链相关设置「Relay」",
+        items : [
           { type: "text", key: "via",    label: "via-interface",
-            description: "0 = via-interface=%TUN%" }
+            description: "0 : via-interface=%TUN%, 设置代理链时，规则分流需使用此参数，策略组请选择（落地节点）" 
+          },
+          { type: "text",   key: "relay", label: "代理链 Relay",
+            description: "填写目标策略组/节点（中转），将（落地）节点订阅转换为 ip/host 规则，指向中转目标" },
         ]
       },
       {
         type: "group",
-        title: "其他",
+        title: "其他参数",
         items: [
           { type: "select", key: "ntf",  label: "解析通知",
             options: [
@@ -300,15 +298,87 @@ $parser.hashSchema = function () {
               { label: "List",         value: "list"       },
               { label: "Domain Set",   value: "domain-set" }
             ] },
-          { type: "text",   key: "relay", label: "代理链 relay",
-            description: "目标策略名，将节点订阅转换为 ip/host 规则" }
+          { type: "switch", key: "cdn",  label: "GitHub CDN 加速",
+            onValue: "1", offValue: "" },
+          { type: "select", key: "dst", label: "转换目标「dst」",
+            options: [
+              { label: "默认（不转换）", value: ""        },
+              { label: "Rewrite",        value: "rewrite" },
+              { label: "Filter",         value: "filter"  }
+            ] },
+          { type: "select", key: "fcr",  label: "网络接口指定「fcr」",
+            options: [
+              { label: "默认",            value: ""  },
+              { label: "强制蜂窝数据",    value: "1" },
+              { label: "混合接口",        value: "2" },
+              { label: "负载均衡",        value: "3" }
+            ] , description:"强制指定 “强制蜂窝数据/混合接口/负载均衡 等”" }
+        ]
+      }
+    ]
+  };
+} else { // rewrite type 
+  return {
+    version: 1,
+    sections: [
+      {
+        type: "group",
+        title: "Rewrite 「重写」",
+        description: "仅对 rewrite_remote / filter_remote 生效",
+        items: [
+          { type: "tags", key: "in",  label: "保留分流/重写「in」",
+            description: "按关键字保留 rewrite/filter。每行一个关键字（多行之间为\"或\"关系）。",
+            placeholder: "如：weibo" },
+          { type: "tags", key: "out",  label: "禁用分流/重写「out」",
+            description: "按关键字保留 rewrite/filter。每行一个关键字（多行之间为\"或\"关系）。",
+            placeholder: "如：weibo" },
+          { type: "tags", key: "inhn",  label: "保留主机名「inhn」",
+            description: "按关键字保留相关主机名hostname。每行一个关键字（多行之间为\"或\"关系）。",
+            placeholder: "如：weibo" },
+          { type: "tags", key: "outhn", label: "删除主机名「outhn」",
+            description: "按关键字删除相关主机名hostname。每行一个关键字（多行之间为\"或\"关系）。",
+            placeholder: "如：tb_price" },
+          { type: "text", key: "regex",   label: "正则保留「regex」",
+            description: "正则匹配保留指定内容" },
+          { type: "text", key: "regout",   label: "正则删除「regout」",
+            description: "正则匹配删除指定内容" },
+          { type: "text", key: "replace",   label: "正则替换「replace」",
+            description: "regex@new_regex 正则替换指定内容" }
+        ]
+      },
+      {
+        type: "group",
+        title: "其他参数",
+        items: [
+          { type: "select", key: "ntf",  label: "解析通知",
+            options: [
+              { label: "默认",          value: "" },
+              { label: "关闭",          value: "0"},
+              { label: "打开",          value: "1"}
+            ] },
+          { type: "select", key: "type", label: "强制类型",
+            options: [
+              { label: "自动",         value: ""           },
+              { label: "Nodes",        value: "nodes"      },
+              { label: "Rule",         value: "rule"       },
+              { label: "Module",       value: "module"     },
+              { label: "List",         value: "list"       },
+              { label: "Domain Set",   value: "domain-set" }
+            ] },
+          { type: "switch", key: "cdn",  label: "GitHub CDN 加速",
+            onValue: "1", offValue: "" },
+          { type: "select", key: "dst", label: "转换目标「dst」",
+            options: [
+              { label: "默认（不转换）", value: ""        },
+              { label: "Rewrite",        value: "rewrite" },
+              { label: "Filter",         value: "filter"  }
+            ] }
         ]
       }
     ]
   };
 }
 };
-
 
 // hashToUI：支持动态参数
 $parser.hashToUI = function (hash) {
