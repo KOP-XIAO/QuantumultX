@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-04-30 12:27⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-05-11 21:59⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -2166,14 +2166,14 @@ function QX_TLS(cnt,Pcert0,PTls13) {
   if(cnt.indexOf("tls-verification") != -1){ // 已有tls参数时, 如用户不指定，则不做处理
     cnt = (Pcert0 == -1 || Pcert0 == 1) ? cnt.replace(RegExp("tls\-verification.*?\,", "gmi"), cert0): cnt
     //cnt = Pcert0 == 1? cnt.replace(RegExp("tls\-verification.*?\,", "gmi"), cert0): cnt
-  }else if(cnt.indexOf("obfs=over-tls")!=-1 || /over\-tls\s*\=\s*true/.test(cnt) || cnt.indexOf("obfs=wss")!=-1){ //未包含tls参数时
-    cnt = cnt.replace(new RegExp("tag.*?\=", "gmi"), cert0+"tag=")
+  } else if(cnt.indexOf("obfs=over-tls")!=-1 || /over\-tls\s*\=\s*true/.test(cnt) || cnt.indexOf("obfs=wss")!=-1){ //未包含tls参数时
+    cnt = cnt.replace(new RegExp("tag\s*\=", "gmi"), cert0+"tag=")
   }
   if (tls13 !="") {
   if(cnt.indexOf("tls13") != -1){
     cnt = cnt.replace(RegExp("tls13.*?\,", "gmi"), tls13)
-  }else if(cnt.indexOf("obfs=over-tls")!=-1 || /over\-tls\s*\=\s*true/.test(cnt) || cnt.indexOf("obfs=wss")!=-1){
-    cnt = cnt.replace(new RegExp("tag.*?\=", "gmi"), tls13+"tag=")
+  } else if(cnt.indexOf("obfs=over-tls")!=-1 || /over\-tls\s*\=\s*true/.test(cnt) || cnt.indexOf("obfs=wss")!=-1){
+    cnt = cnt.replace(new RegExp("tag\s*\=", "gmi"), tls13+"tag=")
   }
   }
   if (!/^(shadowsocks|trojan|vmess|vless|anytls)/.test(cnt.trim())) { //关闭非 ss/ssr/trojan/vmess/vless 类型的 udp
@@ -2181,9 +2181,9 @@ function QX_TLS(cnt,Pcert0,PTls13) {
     if(cnt.indexOf("udp-relay") != -1){
       var cnt = cnt.replace(RegExp("udp\-relay.*?\,", "gmi"), udp)
     }else{
-      var cnt = cnt.replace(new RegExp("tag.*?\=", "gmi"), udp+"tag=")
+      var cnt = cnt.replace(new RegExp("tag\s*\=", "gmi"), udp+"tag=")
     }
-  }   
+  }
   return cnt
 }
 
