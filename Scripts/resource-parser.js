@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-05-16 10:07⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-05-16 16:11⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -39,6 +39,7 @@
   ❖ replace=regex1@𝘀𝘁𝗿1+regex2@𝘀𝘁𝗿2
 ⦿ ptn/npt=1-8, 将节点名英文/数字替换成样式 ⇒ 🅰/🄰/𝐀/𝗮/𝔸/𝕒/ᵃ/ᴬ, ①\❶\⓵\𝟙\¹\₁\𝟏\𝟷
 ⦿ delreg, 利用正则表达式来删除 "节点名" 中的字段(⚠️ 慎用)
+⦿ UA=1，将尝试使用 shadowrocket 的UA重新获取节点信息
 ⦿ aead=-1, 关闭 Vmess 的 AEAD 参数
 ⦿ host=xxx, 修改已有 host , 如要增加host，请用☠️结尾
 ⦿ obfs=vhttp/shttp, 指定 obfs=shadowsocks-http 或 obfs=vmess-http 的特殊需求
@@ -165,15 +166,15 @@ $parser.hashSchema = function () {
             description: "对节点完整信息正则匹配", placeholder: "iplc" },
           { type: "text",   key: "regout", label: "正则删除（regout）",
             description: "对节点完整信息正则删除", placeholder: "" },
-          { type: "text",   key: "replace", label: "正则替换（replace）",
-            description: "对节点内容进行修改替换", placeholder: "" }
+          { type: "text",   key: "sort", label: "节点排序（sort）",
+            description: "对节点进行排序，参数是1(正序)/-1（逆序）/x（随机排序）/自定义规则（用>或者<连接）", placeholder: "🇭🇰>🇯🇵>🇺🇸" }
         ]
       },
       {
         type: "group",
         title: "节点参数",
         items: [
-          { type: "select", key: "emoji", label: "Emoji 旗帜",
+          { type: "select", key: "emoji", label: "Emoji 旗帜（🇨🇳🇭🇰🇺🇸...）",
             description: "添加/删除节点名地区旗帜", options: _emojiOptions() },
           { type: "switch", key: "udp",   label: "UDP Relay",
             onValue: "1", offValue: "-1" },
@@ -192,20 +193,20 @@ $parser.hashSchema = function () {
             placeholder: "" },
           { type: "text",   key: "checkurl", label: "Check URL",
             description: "server_check_url 参数",
-            placeholder: "http://...", keyboard: "url" }
+            placeholder: "http://...", keyboard: "url" },
+          { type: "text",   key: "replace", label: "正则替换节点信息（replace）",
+            description: "替换节点信息（⚠️ 可匹配所有内容 ⚠️），regex1@str1+regex2@str2", placeholder: "" }
         ]
       },
       {
         type: "group",
         title: "节点重命名",
         items: [
-          { type: "text", key: "rename",  label: "Rename",
+          { type: "text", key: "rename",  label: "节点重命名（Rename）",
             description: "格式：旧名@新名 / 前缀@ / @后缀；多组用 + 连接；删除字段用 ☠️ 结尾",
             placeholder: "香港@HK+@[1X]" },
-          { type: "text", key: "rrname",  label: "Reverse Rename",
+          { type: "text", key: "rrname",  label: "节点重命名（emoji 保持在前）",
             description: "在 emoji 之后再次重命名", placeholder: "" },
-          { type: "text", key: "replace", label: "正则替换",
-            description: "regex1@str1+regex2@str2", placeholder: "" },
           { type: "select", key: "ptn", label: "字母样式（ptn）",
             description: "将节点名英文替换成花式样式",
             options: _ptnOptions() },
@@ -233,6 +234,9 @@ $parser.hashSchema = function () {
               { label: "List",         value: "list"       },
               { label: "Domain Set",   value: "domain-set" }
             ] },
+          { type: "switch", key: "UA", label: "UA 替换",
+            onValue: "1", offValue: "" ,
+            description: "尝试使用 Shadowrocket 的 User-Agent 重新获取订阅内容"},
           { type: "switch", key: "info", label: "流量信息",
             onValue: "1", offValue: "" },
           { type: "text",   key: "flow", label: "流量参数",
@@ -502,9 +506,33 @@ $parser.uiToHash = function (values) {
 
 //beginning 解析器正常使用，調試註釋此部分
 
-let [link0, content0, subinfo] = [$resource.link, $resource.content, $resource.info]
+
+//
 let version = typeof $environment != "undefined" ? Number($environment.version.split("build")[1]): 0 // 版本号
+
+const UA_Retry= "Shadowrocket/3218 CFNetwork/3860.600.12 Darwin/25.5.0 iPhone18,1"
+const currentUA = $resource.user_agent;
+const inRetry = currentUA && currentUA.length > 0;
+
+var  UARetry = $resource.link.indexOf("#")!=-1 && $resource.link.indexOf("UA=1") != -1 ? 1 : 0;
+
+
+const result = {
+      // Normal parse result (kept for old-version compat;
+      // new versions ignore this when retry fires)
+      content: "",
+      // or error: "..."
+  };
+
+//$notify("retry2","🚦 UA-retry-After-outside",currentUA)
+//
+
+
+
+let [link0, content0, subinfo] = [$resource.link, $resource.content, $resource.info]
+
 let Perror = 0 //错误类型
+
 
 const ADDRes = `quantumult-x:///add-resource?remote-resource=url-encoded-json`
 var RLink0 = {
@@ -673,6 +701,28 @@ if (Pflow!=0) {
   Finfo = BJson
 }
 
+//STATUS=🚀↑:0.62GB,↓:15.1GB,TOT:200GB💡Expires:2026-08-02
+//status=🚀↑:0.83gb,↓:17.73gb,tot:200gb💡expires:2026-08-02
+//2026-05-06 for shadowrocket sub with flow-info-fake server
+function Rocket_flow(RInfo) {
+  var Rinfo=RInfo.replace(/ /g, "").toLowerCase()
+  var BJson={}
+  try {
+    var Pdate = Rinfo.split("expires:")[1].split(",")[0].replace(/[^\x00-\x7F]/g, '').trim()// date-time
+    var Ptotal = Number(Rinfo.split("tot:")[1].split("gb")[0]) // flow
+    var Pupload = Number(Rinfo.split("↑:")[1].split("gb")[0]) // upload
+    var Pdown = Number(Rinfo.split("↓:")[1].split("gb")[0]) // download
+    var Bdate = Math.floor(Date.parse(Pdate)/1000)? Math.floor(Date.parse(Pdate)/1000): Math.floor(Date.parse("2046-10-10")/1000) 
+    var Btotal=Ptotal? Ptotal*1024*1024*1024 : 0
+    var Bused=Pupload? (Pupload+Pdown)*1024*1024*1024 : 0
+    var Bremain=Btotal !=0 ? Btotal-Bused : 1
+    BJson={bytes_used: Bused, bytes_remaining: Bremain, expire_date: Bdate}
+    Finfo = BJson
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 //花漾字 pattern
 var pat=[]
 pat[0] = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","k","r","s","t","u","v","w","x","y","z"]
@@ -721,6 +771,30 @@ var type0=""
 //flag=1,2,3分别为 server、rewrite、rule 类型
 var flag = 1
 
+// retry with new UA, default use shadowrocket
+if (UARetry && !inRetry && version>920) {
+  $notify("⚠️ 将尝试使用其他 UA, 重新获取订阅内容","⚠️ 如仍旧无有效内容，请自行与节点提供商联系","⚠️ 本次尝试使用 User-Agent 为 ⬇️\n\n"+UA_Retry)
+  $done({retry: {user_agent: "Shadowrocket/3218 CFNetwork/3860.600.12 Darwin/25.5.0 iPhone18,1"}})
+  //$notify("retry1","🚦 UA-retry-After",$resource.user_agent)
+} else {
+  if (typeof($resource)!=="undefined" && PProfile == 0) {
+  Parser()
+  $done({ content: total, info: Finfo })
+} else if (PProfile != 0) {
+  try {
+    Profile_Handle()
+  } catch (err) {
+    if(Perror == 0) {
+      $notify("❌ 解析出现错误", "⚠️ 请点击通知，发送订阅链接进行反馈", err, bug_link);
+    }
+    }
+  openlink = {"open-url": ADDres}
+  $notify("⚠️请忽略报错提示, 点击此通知跳转", "添加配置中的有效远程资源👇 ["+ PProfile+"]", ADDres,openlink)
+  total = ProfileInfo[typeQ]
+  $done({content:total})
+}
+}
+
 function Parser() {
   type0 = Type_Check(content0); //  类型判断
   //$notify(type0)
@@ -753,22 +827,24 @@ function Parser() {
     $done({ content: total });
 }
 
-if (typeof($resource)!=="undefined" && PProfile == 0) {
-  Parser()
-  $done({ content: total, info: Finfo })
-} else if (PProfile != 0) {
-  try {
-    Profile_Handle()
-  } catch (err) {
-    if(Perror == 0) {
-      $notify("❌ 解析出现错误", "⚠️ 请点击通知，发送订阅链接进行反馈", err, bug_link);
-    }
-    }
-  openlink = {"open-url": ADDres}
-  $notify("⚠️请忽略报错提示, 点击此通知跳转", "添加配置中的有效远程资源👇 ["+ PProfile+"]", ADDres,openlink)
-  total = ProfileInfo[typeQ]
-  $done({content:total})
-}
+
+// 2026-05-15 remove
+// if (typeof($resource)!=="undefined" && PProfile == 0) {
+//   Parser()
+//   $done({ content: total, info: Finfo })
+// } else if (PProfile != 0) {
+//   try {
+//     Profile_Handle()
+//   } catch (err) {
+//     if(Perror == 0) {
+//       $notify("❌ 解析出现错误", "⚠️ 请点击通知，发送订阅链接进行反馈", err, bug_link);
+//     }
+//     }
+//   openlink = {"open-url": ADDres}
+//   $notify("⚠️请忽略报错提示, 点击此通知跳转", "添加配置中的有效远程资源👇 ["+ PProfile+"]", ADDres,openlink)
+//   total = ProfileInfo[typeQ]
+//   $done({content:total})
+// }
 
 
 /**
@@ -2000,7 +2076,7 @@ function ReplaceReg(cnt, para) {
 }
 
 
-// read parameters 2025-12-30
+// read parameters 2026-05-17
 function param(res,org,mbody) {
   if(mbody.indexOf(org)!=-1) {
     tmp=mbody.split(org)[1].split("&")[0].split("#")[0].replace(/\s/,"")
@@ -2102,6 +2178,9 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
                 } else if (type=="hysteria2" || (type=="anytls" && version<914) || type=="tuic") { //
                   PNS=PNS+1 
                   NSList.push(numToEmoji10(PNS)+list0[i])
+                } else if (/^STATUS\=/.test(listi)) { // flow info fake server
+                  //$notify("Status","flow",listi)
+                  Rocket_flow(listi)
                 }
               if (Pdbg) {$notify(i, type, node)}
             } catch (e) {
