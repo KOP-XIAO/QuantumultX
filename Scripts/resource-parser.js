@@ -1,9 +1,5 @@
 /** 
-<<<<<<< Updated upstream
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-05-16 16:11⟧
-=======
 ☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-05-18 14:15⟧
->>>>>>> Stashed changes
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -177,11 +173,7 @@ $parser.hashSchema = function () {
           { type: "text",   key: "regex",  label: "正则保留（regex）",
             description: "对节点完整信息正则匹配以保留节点", placeholder: "iplc" },
           { type: "text",   key: "regout", label: "正则删除（regout）",
-<<<<<<< Updated upstream
-            description: "对节点完整信息正则删除", placeholder: "" },
-=======
             description: "对节点完整信息正则匹配以删除节点", placeholder: "" },
->>>>>>> Stashed changes
           { type: "text",   key: "sort", label: "节点排序（sort）",
             description: "对节点进行排序，参数是1(正序)/-1（逆序）/x（随机排序）/自定义规则（用>或者<连接）", placeholder: "🇭🇰>🇯🇵>🇺🇸" }
         ]
@@ -211,9 +203,7 @@ $parser.hashSchema = function () {
             placeholder: "" },
           { type: "text",   key: "checkurl", label: "Check URL",
             description: "server_check_url 参数",
-            placeholder: "http://...", keyboard: "url" },
-          { type: "text",   key: "replace", label: "正则替换节点信息（replace）",
-            description: "替换节点信息（⚠️ 可匹配所有内容 ⚠️），regex1@str1+regex2@str2", placeholder: "" }
+            placeholder: "http://...", keyboard: "url" }
         ]
       },
       {
@@ -256,19 +246,7 @@ $parser.hashSchema = function () {
               { label: "Module",       value: "module"     },
               { label: "List",         value: "list"       },
               { label: "Domain Set",   value: "domain-set" }
-<<<<<<< Updated upstream
-            ] },
-          { type: "switch", key: "UA", label: "UA 替换",
-            onValue: "1", offValue: "" ,
-            description: "尝试使用 Shadowrocket 的 User-Agent 重新获取订阅内容"},
-          { type: "switch", key: "info", label: "流量信息",
-            onValue: "1", offValue: "" },
-          { type: "text",   key: "flow", label: "流量参数",
-            description: "格式：到期时间:总流量GB:已用GB（如 2026-12-31:1000:54）",
-            placeholder: "2026-12-31:1000:54" }
-=======
             ] }
->>>>>>> Stashed changes
         ]
       }
     ]
@@ -802,10 +780,6 @@ var flag = 1
 if (UARetry && !inRetry && version>920) {
   $notify("⚠️ 将尝试使用其他 UA, 重新获取订阅内容","⚠️ 如仍旧无有效内容，请自行与节点提供商联系","⚠️ 本次尝试使用 User-Agent 为 ⬇️\n\n"+UA_Retry)
   $done({retry: {user_agent: "Shadowrocket/3218 CFNetwork/3860.600.12 Darwin/25.5.0 iPhone18,1"}})
-<<<<<<< Updated upstream
-  //$notify("retry1","🚦 UA-retry-After",$resource.user_agent)
-=======
->>>>>>> Stashed changes
 } else {
   if (typeof($resource)!=="undefined" && PProfile == 0) {
   Parser()
