@@ -1,5 +1,9 @@
 /** 
+<<<<<<< Updated upstream
 ☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-05-16 16:11⟧
+=======
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-05-18 14:15⟧
+>>>>>>> Stashed changes
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -152,9 +156,17 @@ $parser.hashSchema = function () {
     return {
     version: 1,
     sections: [
+      { type: "group",
+        title: "✈️ 订阅获取",
+        items: [
+          { type: "switch", key: "UA", label: "UA 替换",
+            onValue: "1", offValue: "" ,
+            description: "尝试使用 Shadowrocket 的 User-Agent 重新获取订阅内容"}
+          ]
+      },
       {
         type: "group",
-        title: "节点筛选",
+        title: "🎲 筛选&排序",
         items: [
           { type: "tags",   key: "in",     label: "保留（in）",
             description: "按节点名关键字保留。每行一个关键字表示\"或\"；同行用 . 分隔表示\"与\"。例：另起一行填 香港、台湾 表示含其一即可；同一行填 香港.IPLC 表示同时含香港和 IPLC。",
@@ -163,19 +175,25 @@ $parser.hashSchema = function () {
             description: "按节点名关键字删除。每行一个关键字表示\"或\"；同行用 . 分隔表示\"与\"。",
             placeholder: "如：BGP / BGP.试用" },
           { type: "text",   key: "regex",  label: "正则保留（regex）",
-            description: "对节点完整信息正则匹配", placeholder: "iplc" },
+            description: "对节点完整信息正则匹配以保留节点", placeholder: "iplc" },
           { type: "text",   key: "regout", label: "正则删除（regout）",
+<<<<<<< Updated upstream
             description: "对节点完整信息正则删除", placeholder: "" },
+=======
+            description: "对节点完整信息正则匹配以删除节点", placeholder: "" },
+>>>>>>> Stashed changes
           { type: "text",   key: "sort", label: "节点排序（sort）",
             description: "对节点进行排序，参数是1(正序)/-1（逆序）/x（随机排序）/自定义规则（用>或者<连接）", placeholder: "🇭🇰>🇯🇵>🇺🇸" }
         ]
       },
       {
         type: "group",
-        title: "节点参数",
+        title: "⛰️ 参数调整",
         items: [
           { type: "select", key: "emoji", label: "Emoji 旗帜（🇨🇳🇭🇰🇺🇸...）",
             description: "添加/删除节点名地区旗帜", options: _emojiOptions() },
+          { type: "text",   key: "replace", label: "正则替换节点信息（replace）",
+            description: "替换节点信息（⚠️ 可匹配所有内容 ⚠️），regex1@str1+regex2@str2", placeholder: "" },
           { type: "switch", key: "udp",   label: "UDP Relay",
             onValue: "1", offValue: "-1" },
           { type: "switch", key: "tfo",   label: "Fast Open",
@@ -200,7 +218,7 @@ $parser.hashSchema = function () {
       },
       {
         type: "group",
-        title: "节点重命名",
+        title: "🎯 重命名",
         items: [
           { type: "text", key: "rename",  label: "节点重命名（Rename）",
             description: "格式：旧名@新名 / 前缀@ / @后缀；多组用 + 连接；删除字段用 ☠️ 结尾",
@@ -208,16 +226,16 @@ $parser.hashSchema = function () {
           { type: "text", key: "rrname",  label: "节点重命名（emoji 保持在前）",
             description: "在 emoji 之后再次重命名", placeholder: "" },
           { type: "select", key: "ptn", label: "字母样式（ptn）",
-            description: "将节点名英文替换成花式样式",
+            description: "将节点名英文替换成花式样式 🅰/🄰/𝐀/𝗮/𝔸/𝕒/ᵃ/ᴬ ",
             options: _ptnOptions() },
           { type: "select", key: "npt", label: "数字样式（npt）",
-            description: "将节点名数字替换成花式样式",
+            description: "将节点名数字替换成花式样式 ①/❶/⓵/𝟙/¹/₁/𝟏/𝟷",
             options: _nptOptions() }
         ]
       },
       {
         type: "group",
-        title: "其他参数",
+        title: "🤖 其他参数",
         items: [
           { type: "select", key: "ntf",  label: "解析通知",
             options: [
@@ -225,6 +243,11 @@ $parser.hashSchema = function () {
               { label: "关闭",          value: "0"},
               { label: "打开",          value: "1"}
             ] },
+          { type: "switch", key: "info", label: "流量信息",
+            onValue: "1", offValue: "", description: "通知的形式推送“订阅用量”以及“到期时间”等信息"},
+          { type: "text",   key: "flow", label: "流量参数",
+            description: "格式：到期时间:总流量GB:已用GB（如 2026-12-31:1000:54）",
+            placeholder: "2026-12-31:1000:54" },
           { type: "select", key: "type", label: "强制类型",
             options: [
               { label: "自动",         value: ""           },
@@ -233,6 +256,7 @@ $parser.hashSchema = function () {
               { label: "Module",       value: "module"     },
               { label: "List",         value: "list"       },
               { label: "Domain Set",   value: "domain-set" }
+<<<<<<< Updated upstream
             ] },
           { type: "switch", key: "UA", label: "UA 替换",
             onValue: "1", offValue: "" ,
@@ -242,6 +266,9 @@ $parser.hashSchema = function () {
           { type: "text",   key: "flow", label: "流量参数",
             description: "格式：到期时间:总流量GB:已用GB（如 2026-12-31:1000:54）",
             placeholder: "2026-12-31:1000:54" }
+=======
+            ] }
+>>>>>>> Stashed changes
         ]
       }
     ]
@@ -252,7 +279,7 @@ $parser.hashSchema = function () {
     sections: [
       {
         type: "group",
-        title: "Filter 「分流」",
+        title: "🔀 Filter 「分流」",
         description: "仅对 rewrite_remote / filter_remote 生效",
         items: [
           { type: "tags", key: "in",  label: "保留分流规则「in」",
@@ -276,7 +303,7 @@ $parser.hashSchema = function () {
       },
       {
         type : "group",
-        title: "代理链相关设置「Relay」",
+        title: "🔗 代理链相关设置「Relay」",
         items : [
           { type: "text", key: "via",    label: "via-interface「规则订阅」",
              description: "0 : via-interface=%TUN%, 设置代理链时，规则分流需使用此参数，请在策略偏好将策略组指定为 落地策略组/节点\n" ,
@@ -290,7 +317,7 @@ $parser.hashSchema = function () {
       },
       {
         type: "group",
-        title: "其他参数",
+        title: "🤖 其他参数",
         items: [
           { type: "select", key: "ntf",  label: "解析通知",
             options: [
@@ -332,7 +359,7 @@ $parser.hashSchema = function () {
     sections: [
       {
         type: "group",
-        title: "Rewrite 「重写」",
+        title: "🫆 Rewrite 「重写」",
         description: "仅对 rewrite_remote / filter_remote 生效",
         items: [
           { type: "tags", key: "in",  label: "保留分流/重写「in」",
@@ -357,7 +384,7 @@ $parser.hashSchema = function () {
       },
       {
         type: "group",
-        title: "其他参数",
+        title: "🤖 其他参数",
         items: [
           { type: "select", key: "ntf",  label: "解析通知",
             options: [
@@ -775,7 +802,10 @@ var flag = 1
 if (UARetry && !inRetry && version>920) {
   $notify("⚠️ 将尝试使用其他 UA, 重新获取订阅内容","⚠️ 如仍旧无有效内容，请自行与节点提供商联系","⚠️ 本次尝试使用 User-Agent 为 ⬇️\n\n"+UA_Retry)
   $done({retry: {user_agent: "Shadowrocket/3218 CFNetwork/3860.600.12 Darwin/25.5.0 iPhone18,1"}})
+<<<<<<< Updated upstream
   //$notify("retry1","🚦 UA-retry-After",$resource.user_agent)
+=======
+>>>>>>> Stashed changes
 } else {
   if (typeof($resource)!=="undefined" && PProfile == 0) {
   Parser()
@@ -2813,8 +2843,8 @@ function SS2QX(subs, Pudp, Ptfo) {
     //console.log(cntt)
     if (cntt.indexOf("@") != -1 && cntt.indexOf(":") != -1) { 
       ip = cnt.split("@")[1].split("#")[0].split("/")[0].split("?")[0];
-      if(cntt.indexOf("%")==-1 || cntt.split("@")[0].indexOf(":")==-1){ // 2025-05-16 
-        pwdmtd = Base64.decode(cnt.split("@")[0].replace(/-/g, "+").replace(/_/g, "/").replace(/%3D/g,"")).split("\u0000")[0].split(":")
+      if(cntt.indexOf("%")==-1 || cntt.split("@")[0].indexOf(":")==-1){ // 2026-05-18 :(%3D)|(\=)
+        pwdmtd = Base64.decode(cnt.split("@")[0].replace(/-/g, "+").replace(/_/g, "/").replace(/(%3D)|(\=)/g,"")).split("\u0000")[0].split(":")
       } else {
         pwdmtd = decodeURIComponent(cnt.split("@")[0]).split(":")
       }
