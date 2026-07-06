@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-05-18 14:15⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-07-06 18:50⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -155,9 +155,9 @@ $parser.hashSchema = function () {
       { type: "group",
         title: "✈️ 订阅获取",
         items: [
-          { type: "switch", key: "UA", label: "UA 替换",
+          { type: "switch", key: "UA", label: "User-Agent 替换",
             onValue: "1", offValue: "" ,
-            description: "尝试使用 Shadowrocket 的 User-Agent 重新获取订阅内容"}
+            description: "开启该选项后，将会尝试使用 Shadowrocket 的 User-Agent 重新获取订阅内容"}
           ]
       },
       {
@@ -917,7 +917,7 @@ function ResourceParse() {
     total = total.length<100? total.filter( (ele,pos)=>total.indexOf(ele) == pos) : total
     total = total.join("\n")
   } else if (content0.trim() == "") {
-    $notify("‼️ 当前引用" + "⟦" + subtag + "⟧" + " 返回內容为空", "⁉️ 点通知跳转以确认链接是否失效", "如确认链接有效，请在链接后添加 ?flag=shadowrocket 或 &flag=shadowrocket ", nan_link);
+    $notify("‼️ 当前引用" + "⟦" + subtag + "⟧" + " 返回內容为空", "1️⃣ 请确认 APP 已经更新至最新版本 1.5.6", "2️⃣ 如确认链接有效，请打开资源解析器的「User-Agent 替换」选项重新获取链接内容 ", nan_link);
     flag = 0;
   } else if (type0 == "sub-http") {
     let url = VCheck(String(Base64.decode(content0.split("sub://")[1].split("#")[0])+", opt-parser=true, tag="+(new Date()).getTime()))
@@ -989,9 +989,9 @@ function ResourceParse() {
       total = PRelay==""? Base64.encode(total) : ServerRelay(total.split("\n"),PRelay) //强制节点类型 base64 加密后再导入 Quantumult X, 如果是relay，则转换成分流类型
       if (PNS !=0) {
         if (version >913) {
-          $notify("⚠️ 存在 Quantumult X 不支持的节点", "⚠️ 已忽略相关节点，共计 ➟ "+PNS+" 条", "⚠️ 此版本暂不支持 Hysteria2/Tuic 等类型, 以及 http-upgrade/xhttp/grpc/mkcp/h2” 等类型 vless\n\n"+NSList.join("\n"))
+          $notify("⚠️ 存在 QuantumultX 不支持类型 ➟ ⟦"+subtag+"⟧", "⚠️ 已忽略相关节点，共计 ➟ "+PNS+" 条", "⚠️ 此版本暂不支持 Hysteria2/Tuic/Wireguard 等类型, 以及 http-upgrade/xhttp/grpc/mkcp/h2” 等类型 vless\n\n"+NSList.join("\n"))
         } else {
-          $notify("⚠️ 存在 Quantumult X 不支持的节点", "⚠️ 已忽略相关节点，共计 ➟ "+PNS+" 条", "⚠️ 此版本暂不支持 Hysteria2/Anytls 等类型, 以及 http-upgrade/xhttp/grpc/mkcp/h2” 等类型 vless\n\n"+NSList.join("\n"))
+          $notify("⚠️ 存在 QuantumultX 不支持类型 ➟ ⟦"+subtag+"⟧", "⚠️ 已忽略相关节点，共计 ➟ "+PNS+" 条", "⚠️ 此版本暂不支持 Hysteria2/Tuic/Anytls 等类型, 以及 http-upgrade/xhttp/grpc/mkcp/h2” 等类型 vless\n\n"+NSList.join("\n"))
         }
       }
       if(Pflow==1) {
@@ -1003,9 +1003,9 @@ function ResourceParse() {
       if(Perror == 0) {
       if (PNS !=0) { // 全部为不支持类型节点
         if (version >913) {
-          $notify("⚠️ Quantumult-X 不支持该订阅内的节点", "⚠️ 已忽略共计 ➟ "+PNS+" 条不支持节点，剩余 0️⃣ 条", "⚠️ 此版本暂不支持 Hysteria2/Tuic 等类型, 以及 http-upgrade/xhttp/grpc/mkcp/h2” 等类型 vless\n\n"+NSList.join("\n"))
+          $notify("⚠️ QuantumultX 不支持该订阅内的任何节点➟ ⟦"+subtag+"⟧", "⚠️ 已忽略共计 ➟ "+PNS+" 条不支持节点，剩余 0️⃣ 条", "⚠️ 此版本暂不支持 Hysteria2/Tuic/Wireguard 等类型, 以及 http-upgrade/xhttp/grpc/mkcp/h2” 等类型 vless\n\n"+NSList.join("\n"))
         } else {
-          $notify("⚠️ Quantumult-X 不支持该订阅内的节点", "⚠️ 已忽略共计 ➟ "+PNS+" 条不支持节点，剩余 0️⃣ 条", "⚠️ 此版本暂不支持 Hysteria2/Anytls 等类型, 以及 http-upgrade/xhttp/grpc/mkcp/h2” 等类型 vless\n\n"+NSList.join("\n"))
+          $notify("⚠️ QuantumultX 不支持该订阅内的任何节点➟ ⟦"+subtag+"⟧", "⚠️ 已忽略共计 ➟ "+PNS+" 条不支持节点，剩余 0️⃣ 条", "⚠️ 此版本暂不支持 Hysteria2/Tuic/Anytls 等类型, 以及 http-upgrade/xhttp/grpc/mkcp/h2” 等类型 vless\n\n"+NSList.join("\n"))
         }
         
       } else { // 其它原因
@@ -1088,7 +1088,8 @@ function Type_Check(subs) {
     var ClashK = ["proxies:","\"proxies\":"]
     var SubK = ["dm1lc3M", "c3NyOi8v", "CnNzOi8", "dHJvamFu", "c3M6Ly", "c3NkOi8v", "c2hhZG93", "aHR0cDovLw", "aHR0cHM6L", "CnRyb2phbjo", "aHR0cD0", "aHR0cCA","U1RBVFVT","dmxlc3M6"];
     var RewriteK = [" url 302", " url 307", " url reject", " url script", " url req", " url res", " url echo", " url-and-header 302", " url-and-header 307", " url-and-header reject", " url-and-header script", " url-and-header req", " url-and-header res", " url-and-header echo", " url jsonjq"] // quantumult X 类型 rewrite
-    var SubK2 = ["ss://", "vmess://", "ssr://", "trojan://", "ssd://", "\nhttps://", "\nhttp://","socks://","ssocks://","vless://","anytls://"];
+    var JsonJQK = [" response-body-json-jq ", " request-body-json-jq "] // 需要转换成 QuanX jsonjq 的 rewrite
+    var SubK2 = ["ss://", "vmess://", "ssr://", "trojan://", "ssd://", "\nhttps://", "\nhttp://","socks://","ssocks://","vless://","anytls://","wireguard://","wg://","tuic://"];
     var ModuleK = ["[Script]", "[Rule]", "[URL Rewrite]", "[Map Local]", "\nhttp-r", "script-path"]
     var QXProfile = ["[filter_local]","[filter_remote]","[server_local]","[server_remote]"]
     var html = "DOCTYPE html"
@@ -1098,6 +1099,7 @@ function Type_Check(subs) {
     const NodeCheck1 = (item) => subi.toLowerCase().indexOf(item.toLowerCase()) != -1; //b64加密的订阅类型
     const NodeCheck2 = (item) => subi.toLowerCase().indexOf(item.toLowerCase()) != -1; //URI 类型
     const RewriteCheck = (item) => subs.indexOf(item) != -1 ; // quanx 重写判定
+    const JsonJQCheck = (item) => (" " + subs.toLowerCase().replace(/\s+/g," ") + " ").indexOf(item) != -1;
     const ProfileCheck = (item) => subs.indexOf(item) != -1; //是否为quanx配置文件
     var subsn = subs.split("\n")
     if ( (subs.indexOf(html) != -1 || subs.indexOf("doctype html") != -1) && link0.indexOf("github.com" == -1)) {
@@ -1112,7 +1114,7 @@ function Type_Check(subs) {
     } else if ( (((ModuleK.some(RewriteCheck) || para1.indexOf("dst=rewrite") != -1) && (para1.indexOf("dst=filter") == -1) && subs.indexOf("[Proxy]") == -1) || typeU == "module") && typeU != "nodes" && typeU != "rule" && typeQ !="filter") { // Surge 类型 module /rule-set(含url-regex) 类型
       typec="rewrite"
       type = (typeQ == "unsupported" || typeQ =="rewrite")? "sgmodule" : "wrong-field"
-    } else if ((/(^hostname|\nhostname)\s*\=/.test(subi) || RewriteK.some(RewriteCheck))  && para1.indexOf("dst=filter")==-1 && subi.indexOf("securehostname") == -1 && !/module|nodes|rule/.test(typeU) && !(RuleK.some(RuleCheck) && typeQ == "filter") && !(typeQ!= "rewrite" && QXProfile.some(ProfileCheck))) {
+    } else if ((/(^hostname|\nhostname)\s*\=/.test(subi) || RewriteK.some(RewriteCheck) || JsonJQK.some(JsonJQCheck))  && para1.indexOf("dst=filter")==-1 && subi.indexOf("securehostname") == -1 && !/module|nodes|rule/.test(typeU) && !(RuleK.some(RuleCheck) && typeQ == "filter") && !(typeQ!= "rewrite" && QXProfile.some(ProfileCheck))) {
       // 2022-07-20 remove constrain && !/\[(Proxy|filter_local)\]/.test(subs)
       typec = "rewrite"
       type = (typeQ == "unsupported" || typeQ =="rewrite")? "rewrite":"wrong-field" //Quantumult X 类型 rewrite/ Surge Script/
@@ -1597,12 +1599,41 @@ function URX2QX(subs) {
     return nrw
 }
 
+/*
+JSON-JQ rewrite 转换说明 ⟦2026-07-06 18:36:10 +08⟧
+----------------------------------------------------------
+仅改动 resource-parser-r.js。
+新增以下输入语法转换：
+  - pattern response-body-json-jq 'jq expression' -> pattern url jsonjq-response-body jq expression
+  - pattern request-body-json-jq 'jq expression'  -> pattern url jsonjq-request-body jq expression
+保留 jq 表达式内部双引号，仅移除包裹整段 jq 的外层引号。
+----------------------------------------------------------
+*/
+function JsonJQRewrite2QX(row) {
+  var matched = row.match(/^\s*(\"[^\"]+\"|'[^']+'|\S+)\s+(response-body-json-jq|request-body-json-jq)\s+([\s\S]+?)\s*$/i);
+  if (!matched) { return "" }
+  var pattern = matched[1].replace("^http", "http");
+  if (pattern.length > 1 && (pattern[0] == "\"" || pattern[0] == "'") && pattern[pattern.length - 1] == pattern[0]) {
+    var unquotedPattern = pattern.slice(1, -1).trim();
+    if (/^\^?https?\??/i.test(unquotedPattern)) {
+      pattern = unquotedPattern.replace("^http", "http");
+    }
+  }
+  var type = matched[2].toLowerCase() == "response-body-json-jq" ? "jsonjq-response-body" : "jsonjq-request-body";
+  var jq = matched[3].trim();
+  if (jq.length > 1 && ((jq[0] == "'" && jq[jq.length - 1] == "'") || (jq[0] == "\"" && jq[jq.length - 1] == "\""))) {
+    jq = jq.slice(1, -1);
+  }
+  return pattern + " url " + type + " " + jq;
+}
+
 //script&rewrite 转换成 Quantumult X
 function SCP2QX(subs) {
   var nrw = []
   var rw = ""
   var RewriteK = [" url 302", " url 307", " url reject", " url script", " url req", " url res", " url echo", " url-and-header 302", " url-and-header 307", " url-and-header reject", " url-and-header script", " url-and-header req", " url-and-header res", " url-and-header echo", " url jsonjq"] // quantumult X 类型 rewrite
-  subs = subs.split("\n").map(x => x.trim().replace(/\s+/g," "))
+  var rawSubs = subs.split("\n").map(x => x.trim())
+  subs = rawSubs.map(x => x.replace(/\s+/g," "))
   //$notify("Script","",subs)
   for (var i = 0; i < subs.length; i++) {
     try {
@@ -1616,10 +1647,15 @@ function SCP2QX(subs) {
       var NoteK = ["//", "#", ";"]; //排除注释项
       const sccheck = (item) => subs[i].indexOf(item) != -1
       const notecheck = (item) => subs[i].indexOf(item) == 0
-      const RewriteCheck = (item) => subs[i].indexOf(item) != -1 ; // quanx 重写判定
-      if (!NoteK.some(notecheck) && !RewriteK.some(RewriteCheck)){
-        if(Pdbg==1) {$notify("rewrite-check","",subs[i])}
-        if (SC.every(sccheck)) { // surge js 新格式
+        const RewriteCheck = (item) => subs[i].indexOf(item) != -1 ; // quanx 重写判定
+        if (!NoteK.some(notecheck) && !RewriteK.some(RewriteCheck)){
+          if(Pdbg==1) {$notify("rewrite-check","",subs[i])}
+          if (/\s(response-body-json-jq|request-body-json-jq)\s/i.test(rawSubs[i])) {
+            rw = JsonJQRewrite2QX(rawSubs[i])
+            if (rw != "") {
+              nrw.push(rw)
+            }
+          } else if (SC.every(sccheck)) { // surge js 新格式
           //部分正则中含有,的问题
           ptn = subs[i].replace(/\s/gi,"").split("pattern=")[1].split(/\,[a-zA-Z]/)[0] 
           js = subs[i].replace(/\s/gi,"").split("script-path=")[1].split(",")[0]
@@ -2140,6 +2176,9 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
                 } else if (type == "ssocks" && list0[i].indexOf("remarks=") != -1) { //shadowrocket socks5-tls 类型
                     node = S5R2QX(list0[i],tlsp="over-tls")
                     node = tag0 != "" ? URI_TAG(node, tag0) : node
+                } else if (type == "socks" && list0[i].indexOf("remarks=") == -1) { // socks URI 2026-05-25
+                    node = Socks2QX(list0[i])
+                    node = tag0 != "" ? URI_TAG(node, tag0) : node
                 } else if (type == "ssr") {
                     node = SSR2QX(list0[i], Pudp, Ptfo)
                     node = tag0 != "" ? URI_TAG(node, tag0) : node
@@ -2179,7 +2218,7 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
                     node = Loon2QX(list0[i])
                 } else if (SurgeK.some(NodeCheck) ) { // Surge type, 第2为端口号
                     node = QX_TLS(Surge2QX(list0[i])[0], Pcert0, PTls13)
-                } else if (type=="hysteria2" || (type=="anytls" && version<914) || type=="tuic") { //
+                } else if (type=="hysteria2" || (type=="anytls" && version<914) || type=="tuic" || type=="wireguard"|| type=="wg") { //
                   PNS=PNS+1 
                   NSList.push(numToEmoji10(PNS)+list0[i])
                 } else if (/^STATUS\=/.test(listi)) { // flow info fake server
@@ -2413,7 +2452,7 @@ function VR2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
 //Shadowrocket 格式的 socks URI 转换
 function S5R2QX(cnt,tlsp="false") {
   var listh = Base64.decode(cnt.split("socks://")[1].split("#")[0].split("?")[0])
-  server=listh+"#"+cnt.split("?")[1]
+  server=cnt.indexOf("#")!=-1? listh+"#"+cnt.split("?")[1] : listh+"?"+cnt.split("?")[1]
   var nss = []
   if (server != "") {
       var ipport = "socks5=" + server.split("@")[1].split("#")[0].split("/")[0];
@@ -2430,7 +2469,26 @@ function S5R2QX(cnt,tlsp="false") {
   return QX
 }
  
-
+// socks URI  转换 2026-05-25, 无remarks命名部分
+function Socks2QX(cnt,tlsp="false") {
+  var listh = Base64.decode(cnt.split("socks://")[1].split("#")[0].split("?")[0])
+  server=cnt.indexOf("#")!=-1? listh+"#"+cnt.split("?")[1] : listh+"?"+cnt.split("?")[1]
+  var nss = []
+  if (server != "") {
+      var ipport = "socks5=" + server.split("@")[1].split("#")[0].split("/")[0];
+      var uname = "username=" + server.split(":")[0];
+      var pwd = "password=" + server.split("@")[0].split(":")[1];
+      name = server.indexOf("#") != -1? server.split("#")[1] : ipport.split("=")[1].split(":")[0]
+      var tag = "tag=" + decodeURIComponent(name.split("&")[0]);
+      var tls = tlsp=="false"? "":"over-tls=true"
+      var cert = Pcert0 != 0 ? "tls-verification=true" : "tls-verification=false";
+      cert = tls == ""? "":cert
+      var tfo = Ptfo0 == 1 ? "fast-open=true" : "fast-open=false";
+      nss.push(ipport, uname, pwd, tls, cert, tfo, tag)
+  }
+  var QX = nss.filter(Boolean).join(",");
+  return QX
+}
 
 //V2RayN uri 转换成 QUANX 格式
 function V2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
@@ -2838,7 +2896,7 @@ function SS2QX(subs, Pudp, Ptfo) {
     pwd = "password=" + pwdmtd.reduce(joinx);
     if (cntt.indexOf("v2ray-plugin")==-1 && cntt.indexOf("plugin=v2ray")==-1) { //Shadowrocket style v2-plugin
       obfs = cnt.split("obfs%3D")[1] != null ? ", obfs=" + cnt.split("obfs%3D")[1].split("%3B")[0].split("#")[0] : "";
-      obfshost = cnt.split("obfs-host%3D")[1] != null ? ", obfs-host=" + cnt.split("obfs-host%3D")[1].split("&")[0].split("#")[0] : "";
+      obfshost = cnt.split("obfs-host%3D")[1] != null ? ", obfs-host=" + decodeURIComponent(cnt.split("obfs-host%3D")[1].split("&")[0].split("#")[0]) : "";
     } else if (cnt1 != undefined){
       cnt1 = JSON.parse(cnt1)
       obfs= cnt1.tls? ", obfs=wss" : ", obfs=ws"
@@ -2952,6 +3010,41 @@ function isQuanX(content) {
    return nlist
 }
 
+/*
+Rewrite pattern quote 修复说明 ⟦2026-07-06 18:29:51 +08⟧
+----------------------------------------------------------
+仅改动 resource-parser-r.js。
+修复 Loon/Surge rewrite 转 QuanX 后，规则最前面的 http/https 匹配正则保留外层双引号的问题：
+  - 例如 `"^https://example.com/ad" reject` 之前会输出 `"https://example.com/ad" url reject`
+  - 修正点放在 isQuanXRewrite() 最终写入前，覆盖各转换分支与原生 QuanX rewrite 透传
+  - 只移除首段 pattern 的成对双引号，不全局删除引号，避免影响 echo/header/script 等内容
+----------------------------------------------------------
+*/
+function RewritePatternQuoteFix(cnti) {
+  if (!cnti) { return cnti }
+  function stripQuote(pattern) {
+    if (pattern.length > 1 && pattern[0] == "\"" && pattern[pattern.length - 1] == "\"") {
+      var unquoted = pattern.slice(1, -1).trim();
+      if (/^\^?https?\??/i.test(unquoted)) {
+        return unquoted;
+      }
+    }
+    return pattern;
+  }
+  var marker = cnti.indexOf(" url-and-header ") != -1 ? " url-and-header " : " url ";
+  var idx = cnti.indexOf(marker);
+  if (idx == -1) { return cnti }
+  var pattern = cnti.slice(0, idx).trim();
+  var rest = cnti.slice(idx);
+  if (marker == " url-and-header ") {
+    var matched = pattern.match(/^(\"[^\"]+\")(\s+[\s\S]+)$/);
+    if (matched) {
+      return stripQuote(matched[1]) + matched[2] + rest;
+    }
+  }
+  return stripQuote(pattern) + rest;
+}
+
 //surge script/quanx-rewrite - > quanx
 function isQuanXRewrite(content) {
   cnt = content.filter(Boolean)
@@ -2964,6 +3057,8 @@ function isQuanXRewrite(content) {
       if (cnti.indexOf("pattern")!=-1 && cnti.indexOf("type")!=-1 || cnti.indexOf("http-r")!=-1) {
         cnti=SGMD2QX(cnti)[0]? SGMD2QX(cnti)[0]:""
         //console.log(cnti)
+      }else if (/\s(response-body-json-jq|request-body-json-jq)\s/i.test(cnti)) {
+        cnti=SGMD2QX(cnti)[0]? SGMD2QX(cnti)[0]:""
       }else if ((cnti.indexOf(" 302")!=-1 || cnti.indexOf(" 307")!=-1 || (/\s(_|-)\s(reject|REJECT)/.test(cnti)) || (/\sreject$/.test(cnti)) || (/\sreject-/.test(cnti))) && cnti.indexOf(" url ")==-1 && cnti.indexOf(" url-and-header ")==-1 ){
         cnti=SGMD2QX(cnti)[0]? SGMD2QX(cnti)[0]:""
         //console.log("sss",cnti)
@@ -2986,7 +3081,7 @@ function isQuanXRewrite(content) {
       }
       if (cnti!="" && cnti.trim()[0]!="[" && cnti.indexOf("RULE-SET")==-1 && !/cronexp\=|type\=cron/.test(cnti.replace(/ /g,""))) { //&& !RuleK.some(RuleCheck)
         if (!(/\;$/.test(cnti))) { // 某些特殊情形 let url = xxx;
-        cnt0.push(cnti) //  排除其它项目后写入
+        cnt0.push(RewritePatternQuoteFix(cnti)) //  排除其它项目后写入
         //$notify(cnti,"已经写入")
       }
       }
@@ -3665,16 +3760,93 @@ function LoonTLS2QX(content) {
 
 ////////////////////
 
+/*
+YAMLFix 修复说明 ⟦2026-07-02 10:23:41 HKT⟧
+----------------------------------------------------------
+仅改动 resource-parser-r.js。
+修复 inline YAML map 中引号内逗号被拆坏的问题：
+  - 不再删除 value 引号后全局 replace(/,/g, "\n   ")
+  - 改为只拆顶层逗号，保留 "VM, WS"、"pa,ss" 以及嵌套 {path:..., headers:{...}}
+----------------------------------------------------------
+*/
 function YAMLFix(cnt){
+  function splitInlineYamlMapItems(str) {
+    var parts = [];
+    var buf = "";
+    var quote = "";
+    var escaped = false;
+    var depth = 0;
+    var leftBracketToken = "yaml@bug𝟙";
+    for (var i = 0; i < str.length; i++) {
+      var ch = str[i];
+      if (quote) {
+        buf += ch;
+        if (quote == "\"" && ch == "\\" && !escaped) {
+          escaped = true;
+          continue;
+        }
+        if (quote == "'" && ch == "'" && str[i + 1] == "'") {
+          buf += str[++i];
+          continue;
+        }
+        if (ch == quote && !escaped) {
+          quote = "";
+        }
+        escaped = false;
+      } else if (str.slice(i, i + leftBracketToken.length) == leftBracketToken) {
+        depth++;
+        buf += leftBracketToken;
+        i += leftBracketToken.length - 1;
+      } else if (ch == "\"" || ch == "'") {
+        quote = ch;
+        buf += ch;
+      } else if (ch == "{" || ch == "[") {
+        depth++;
+        buf += ch;
+      } else if (ch == "}" || ch == "]") {
+        depth--;
+        buf += ch;
+      } else if (ch == "," && depth == 0) {
+        if (buf.trim() != "") {
+          parts.push(buf.trim());
+        }
+        buf = "";
+      } else {
+        buf += ch;
+      }
+    }
+    if (buf.trim() != "") {
+      parts.push(buf.trim());
+    }
+    return parts;
+  }
+
+  function expandInlineYamlMapLine(line) {
+    var match = line.match(/^(\s*)-\s*(\{[\s\S]*\})\s*(?:#.*)?$/);
+    if (!match) {
+      return line;
+    }
+    var indent = match[1];
+    var body = match[2].trim().slice(1, -1);
+    var parts = splitInlineYamlMapItems(body);
+    if (parts.length == 0) {
+      return line;
+    }
+    var out = [];
+    for (var i = 0; i < parts.length; i++) {
+      out.push((i == 0 ? indent + "- " : indent + "  ") + parts[i]);
+    }
+    return out.join("\n");
+  }
+
   cnt = cnt.replace(/\[/g,"yaml@bug𝟙").replace(/\\r/g,"").replace(/\*/g,"yaml@bug𝟚")
   //2022-08-08 增加 .replace(/\*/g,"🌟@bug2") 以解决名字以 * 开始时引起的部分问题
   if (cnt.indexOf("{") != -1 && /\{\s*\"*(name|type|server)/.test(cnt)){ // - { } 类型 yaml
     cnt =  cleanYamlSpaces(cnt) // 2026-02-06 部分空格解析错误
-    cnt = cnt.replace(/(^|\n)- /g, "$1  - ").replace(/    - /g,"  - ").replace(/:(?!\s)/g,": ").replace(/\,\"/g,", \"").replace(/: {\s{0,1}/g, ": {,   ").replace(/, (Host|host|path|mux)/g,",   $1")
+    cnt = cnt.replace(/(^|\n)- /g, "$1  - ").replace(/    - /g,"  - ")
     //2022-04-11 remove tls|skip from replace(/, (Host|host|path|mux)/g,",   $1")
     console.log("1st:\n"+cnt)
-    cnt = cnt.replace(/{\s*name: (.*?), (.*?):/g,"{name: \"$1\", $2:").replace(/\"/gi,"").replace(/, short-id\"{0,1}/gi,",   short-id") //cnt.replace(/{\s*name: /g,"{name: \"").replace(/, (.*?):/,"\", $1:")
-    cnt = cnt.replace(/{\s*|\s*}/g,"").replace(/,/g,"\n   ")
+    cnt = cnt.split("\n").map(expandInlineYamlMapLine).join("\n").replace(/, short-id\"{0,1}/gi,", short-id")
   }
   cnt = cnt.replace(/\n\s*\-\s*\n.*name/g,"\n  - name").replace(/\$|\`/g,"").split("proxy-providers:")[0].split("proxy-groups:")[0].replace(/\"(name|type|server|port|cipher|password|uuid|alterId|udp)(\"*)/g,"$1")
     if(Pdbg == 1) {
@@ -3962,9 +4134,48 @@ function Clash2QX(cnt) {
   return nodelist.join("\n")
 }
 
+/*
+Clash YAML name Unicode 修复说明 ⟦2026-07-06 18:50:58 +08⟧
+----------------------------------------------------------
+仅改动 resource-parser-r.js。
+修复 Clash YAML server name 中双层转义 Unicode 未还原的问题：
+  - "\\U0001F534"、"\U0001F534" 均会还原为对应 emoji/字符
+  - 新增解码限定在 Clash 节点 name -> QuanX tag，不扩大 YAML 全局字段处理范围
+----------------------------------------------------------
+*/
+function ClashNameFix(name) {
+  var text = typeof name == "undefined" || name === null ? "" : String(name);
+  function safeCodePoint(fallback, hex) {
+    var code = parseInt(hex, 16);
+    if (!isFinite(code) || code < 0 || code > 0x10FFFF) {
+      return fallback;
+    }
+    return String.fromCodePoint(code);
+  }
+  return text
+    .replace(/\\\\U([0-9A-Fa-f]{8})/g, function(match, hex) {
+      return safeCodePoint(match, hex);
+    })
+    .replace(/\\U([0-9A-Fa-f]{8})/g, function(match, hex) {
+      return safeCodePoint(match, hex);
+    })
+    .replace(/\\\\u\{([0-9A-Fa-f]+)\}/g, function(match, hex) {
+      return safeCodePoint(match, hex);
+    })
+    .replace(/\\u\{([0-9A-Fa-f]+)\}/g, function(match, hex) {
+      return safeCodePoint(match, hex);
+    })
+    .replace(/\\\\u([0-9A-Fa-f]{4})/g, function(match, hex) {
+      return String.fromCharCode(parseInt(hex, 16));
+    })
+    .replace(/\\u([0-9A-Fa-f]{4})/g, function(match, hex) {
+      return String.fromCharCode(parseInt(hex, 16));
+    });
+}
+
 //Clash ss type server
 function CSS2QX(cnt) {
-  tag = "tag="+cnt.name.replace(/\\U.+?\s{1}/gi,"")
+  tag = "tag="+ClashNameFix(cnt.name)
   ipt = cnt.server+":"+cnt.port
   pwd = "password=" + cnt.password
   mtd = "method="+ cnt.cipher
@@ -3988,7 +4199,7 @@ function CSS2QX(cnt) {
 
 //Clash ssr type server
 function CSSR2QX(cnt) {
-  tag = "tag="+cnt.name.replace(/\\U.+?\s{1}/gi,"")
+  tag = "tag="+ClashNameFix(cnt.name)
   ipt = cnt.server+":"+cnt.port
   pwd = "password=" + cnt.password
   mtd = "method="+ cnt.cipher
@@ -4021,7 +4232,7 @@ function CSSR2QX(cnt) {
 
 //Clash vmess type server
 function CV2QX(cnt) {
-  tag = "tag="+cnt.name.replace(/\\U.+?\s{1}/gi," ")
+  tag = "tag="+ClashNameFix(cnt.name)
   ipt = cnt.server+":"+cnt.port
   pwd = "password=" + cnt.uuid
   mtd = "method="+ "aes-128-gcm" //cnt.cipher
@@ -4065,7 +4276,7 @@ function CV2QX(cnt) {
 
 //Clash Trojan
 function CT2QX(cnt) {
-  tag = "tag="+cnt.name.replace(/\\U.+?\s{1}/gi," ")
+  tag = "tag="+ClashNameFix(cnt.name)
   ipt = cnt.server+":"+cnt.port
   pwd = "password=" + cnt.password
   otls = "over-tls=true"
@@ -4093,7 +4304,7 @@ function CT2QX(cnt) {
 // Clash Anytls 2026-04-15
 
 function CTLS2QX(cnt) {
-  tag = "tag="+cnt.name.replace(/\\U.+?\s{1}/gi," ")
+  tag = "tag="+ClashNameFix(cnt.name)
   ipt = cnt.server+":"+cnt.port
   pwd = "password=" + cnt.password
   otls = "over-tls=true"
@@ -4109,7 +4320,7 @@ function CTLS2QX(cnt) {
 
 // Clash http
 function CH2QX(cnt){
-    tag = "tag="+cnt.name.replace(/\\U.+?\s{1}/gi," ")
+    tag = "tag="+ClashNameFix(cnt.name)
     ipt = cnt.server+":"+cnt.port
     uname = cnt.username ? "username=" + cnt.username : ""
     pwd = cnt.password && typeof(cnt.password) == "string" ? "password=" + cnt.password : ""
@@ -4127,7 +4338,7 @@ function CH2QX(cnt){
 
 // Clash socks5
 function CS52QX(cnt){
-    tag = "tag="+cnt.name.replace(/\\U.+?\s{1}/gi," ")
+    tag = "tag="+ClashNameFix(cnt.name)
     ipt = cnt.server+":"+cnt.port
     uname = cnt.username ? "username=" + cnt.username : ""
     pwd = cnt.password && typeof(cnt.password) == "string" ? "password=" + cnt.password : ""
@@ -4145,7 +4356,7 @@ function CS52QX(cnt){
 
 // clash vless type ,2026-01-07
 function CVL2QX(cnt){
-  tag = "tag="+cnt.name.replace(/\\U.+?\s{1}/gi," ").replace(/(\"|\')/gi,"")
+  tag = "tag="+ClashNameFix(cnt.name).replace(/(\"|\')/gi,"")
   ipt = cnt.server+":"+cnt.port
   pwd = "password=" + cnt.uuid
   mtd = "method=none" //cnt.cipher
@@ -4388,429 +4599,490 @@ Copyright (c) 2011 Diogo Costa (costa.h4evr@gmail.com)
 
 */
 
+/*
+YAML parser 修复说明 ⟦2026-06-30 18:29:46 HKT⟧
+----------------------------------------------------------
+仅改动 function YAML() 本体，原文件 resource-parser.js 未修改。
+修复重点：
+1. 移除 Date.parse 自动转换，避免 http/1.1、HK:01、2026-06-30 等普通字段被误转 Date。
+2. 支持单字符 key、quoted key、key:value 无空格写法、空值、顶层数组。
+3. 重写注释处理，仅将行首或空白后的 # 视为注释，保留 pa#ss、URL fragment 等值。
+4. 改善 flow map/flow array 解析，按引号与括号层级拆分逗号，支持引号内逗号和冒号。
+5. 增加基础 anchor/alias/merge(<<) 支持，并在缩进异常时记录 errors，避免 undefined.children 崩溃。
+----------------------------------------------------------
+*/
 function YAML() {
-        var errors = [],
-                reference_blocks = [],
-                processing_time = 0,
-                regex =
-                {
-                        "regLevel" : new RegExp("^([\\s\\-]+)"),
-                        "invalidLine" : new RegExp("^\\-\\-\\-|^\\.\\.\\.|^\\s*#.*|^\\s*$"),
-                        "dashesString" : new RegExp("^\\s*\\\"([^\\\"]*)\\\"\\s*$"),
-                        "quotesString" : new RegExp("^\\s*\\\'([^\\\']*)\\\'\\s*$"),
-                        "float" : new RegExp("^[+-]?[0-9]+\\.[0-9]+(e[+-]?[0-9]+(\\.[0-9]+)?)?$"),
-                        "integer" : new RegExp("^[+-]?[0-9]+$"),
-                        "array" : new RegExp("\\[\\s*(.*)\\s*\\]"),
-                        "map" : new RegExp("\\{\\s*(.*)\\s*\\}"),
-                        "key_value" : new RegExp("([a-z0-9_-][ a-z0-9_-]*):( .+)", "i"),
-                        "single_key_value" : new RegExp("^([a-z0-9_-][ a-z0-9_-]*):( .+?)$", "i"),
-                        "key" : new RegExp("([a-z0-9_-][ a-z0-9_-]+):( .+)?", "i"),
-                        "item" : new RegExp("^-\\s+"),
-                        "trim" : new RegExp("^\\s+|\\s+$"),
-                        "comment" : new RegExp("([^\\\'\\\"#]+([\\\'\\\"][^\\\'\\\"]*[\\\'\\\"])*)*(#.*)?")
-                };
- 
-         /**
-            * @class A block of lines of a given level.
-            * @param {int} lvl The block's level.
-            * @private
-            */
-        function Block(lvl) {
-                return {
-                        /* The block's parent */
-                        parent: null,
-                        /* Number of children */
-                        length: 0,
-                        /* Block's level */
-                        level: lvl,
-                        /* Lines of code to process */
-                        lines: [],
-                        /* Blocks with greater level */
-                        children : [],
-                        /* Add a block to the children collection */
-                        addChild : function(obj) {
-                                this.children.push(obj);
-                                obj.parent = this;
-                                ++this.length;
-                        }
-                };
+        var self = this;
+        var errors = [];
+        var reference_blocks = {};
+        var processing_time = 0;
+        var lines = [];
+        var cursor = 0;
+
+        this.errors = errors;
+        this.processing_time = processing_time;
+
+        function clone(obj) {
+                if (obj === null || typeof obj !== "object") {
+                        return obj;
+                }
+                try {
+                        return JSON.parse(JSON.stringify(obj));
+                } catch (err) {
+                        return obj;
+                }
         }
 
-        // function to create an XMLHttpClient in a cross-browser manner
-
-        function fromURL(src, ondone) {
-                var client = createXMLHTTPRequest();
-                client.onreadystatechange = function() {
-                        if (this.readyState == 4 || this.status == 200) {
-                                var txt = this.responseText;
-                                ondone(YAML.eval0(txt));
-                        }
-                };
-                client.open('GET', src);
-                client.send();
+        function isObject(obj) {
+                return obj !== null && typeof obj === "object" && !Array.isArray(obj);
         }
 
-        function parser(str) {
-                var regLevel = regex["regLevel"];
-                var invalidLine = regex["invalidLine"];
-                var lines = str.split("\n");
-                var m;
-                var level = 0, curLevel = 0;
-                
-                var blocks = [];
-                
-                var result = new Block(-1);
-                var currentBlock = new Block(0);
-                result.addChild(currentBlock);
-                var levels = [];
-                var line = "";
-                
-                blocks.push(currentBlock);
-                levels.push(level);
-                
-                for(var i = 0, len = lines.length; i < len; ++i) {
-                        line = lines[i];
-                        
-                        if(line.match(invalidLine)) {
+        function mergeInto(target, source) {
+                if (!isObject(target) || !isObject(source)) {
+                        return target;
+                }
+                for (var key in source) {
+                        if (typeof target[key] == "undefined") {
+                                target[key] = clone(source[key]);
+                        }
+                }
+                return target;
+        }
+
+        function countIndent(line) {
+                var match = String(line).match(/^\s*/);
+                return match ? match[0].length : 0;
+        }
+
+        function trimRight(str) {
+                return String(str).replace(/\s+$/, "");
+        }
+
+        function stripComments(line) {
+                var quote = "";
+                var escaped = false;
+                var result = "";
+                for (var i = 0; i < line.length; i++) {
+                        var ch = line[i];
+                        if (quote) {
+                                result += ch;
+                                if (quote == "\"" && ch == "\\" && !escaped) {
+                                        escaped = true;
+                                        continue;
+                                }
+                                if (quote == "'" && ch == "'" && line[i + 1] == "'") {
+                                        result += line[++i];
+                                        continue;
+                                }
+                                if (ch == quote && !escaped) {
+                                        quote = "";
+                                }
+                                escaped = false;
                                 continue;
                         }
-                
-                        if(m = regLevel.exec(line)) {
-                                level = m[1].length;
-                        } else
-                                level = 0;
-                        
-                        if(level > curLevel) {
-                                var oldBlock = currentBlock;
-                                currentBlock = new Block(level);
-                                oldBlock.addChild(currentBlock);
-                                blocks.push(currentBlock);
-                                levels.push(level);
-                        } else if(level < curLevel) {                
-                                var added = false;
-
-                                var k = levels.length - 1;
-                                for(; k >= 0; --k) {
-                                        if(levels[k] == level) {
-                                                currentBlock = new Block(level);
-                                                blocks.push(currentBlock);
-                                                levels.push(level);
-                                                if(blocks[k].parent!= null)
-                                                        blocks[k].parent.addChild(currentBlock);
-                                                added = true;
-                                                break;
-                                        }
-                                }
-                                
-                                if(!added) {
-                                        errors.push("Error: Invalid indentation at line " + i + ": " + line);
-                                        return;
-                                }
+                        if (ch == "\"" || ch == "'") {
+                                quote = ch;
+                                result += ch;
+                        } else if (ch == "#" && (i == 0 || /\s/.test(line[i - 1]))) {
+                                return trimRight(result);
+                        } else {
+                                result += ch;
                         }
-                        
-                        currentBlock.lines.push(line.replace(regex["trim"], ""));
-                        curLevel = level;
                 }
-                
+                return trimRight(result);
+        }
+
+        function preProcess(src) {
+                return String(src)
+                        .replace(/\r/g, "")
+                        .split("\n")
+                        .map(stripComments)
+                        .filter(function(line) {
+                                var trimmed = line.trim();
+                                return trimmed != "" && trimmed != "---" && trimmed != "...";
+                        });
+        }
+
+        function splitTopLevel(str, delimiter) {
+                var result = [];
+                var buf = "";
+                var quote = "";
+                var escaped = false;
+                var depth = 0;
+                for (var i = 0; i < str.length; i++) {
+                        var ch = str[i];
+                        if (quote) {
+                                buf += ch;
+                                if (quote == "\"" && ch == "\\" && !escaped) {
+                                        escaped = true;
+                                        continue;
+                                }
+                                if (quote == "'" && ch == "'" && str[i + 1] == "'") {
+                                        buf += str[++i];
+                                        continue;
+                                }
+                                if (ch == quote && !escaped) {
+                                        quote = "";
+                                }
+                                escaped = false;
+                                continue;
+                        }
+                        if (ch == "\"" || ch == "'") {
+                                quote = ch;
+                                buf += ch;
+                        } else if (ch == "[" || ch == "{") {
+                                depth++;
+                                buf += ch;
+                        } else if (ch == "]" || ch == "}") {
+                                depth--;
+                                buf += ch;
+                        } else if (ch == delimiter && depth == 0) {
+                                result.push(buf.trim());
+                                buf = "";
+                        } else {
+                                buf += ch;
+                        }
+                }
+                if (buf.trim() != "" || str.trim() == "") {
+                        result.push(buf.trim());
+                }
                 return result;
         }
-        
-        function processValue(val) {
-                val = val.replace(regex["trim"], "");
-                var m = null;
 
-                if(val == 'true') {
-                        return true;
-                } else if(val == 'false') {
-                        return false;
-                } else if(val == '.NaN') {
-                        return Number.NaN;
-                } else if(val == 'null') {
-                        return null;
-                } else if(val == '.inf') {
-                        return Number.POSITIVE_INFINITY;
-                } else if(val == '-.inf') {
-                        return Number.NEGATIVE_INFINITY;
-                } else if(m = val.match(regex["dashesString"])) {
-                        return m[1];
-                } else if(m = val.match(regex["quotesString"])) {
-                        return m[1];
-                } else if(m = val.match(regex["float"])) {
-                        return parseFloat(m[0]);
-                } else if(m = val.match(regex["integer"])) {
-                        return parseInt(m[0]);
-                } else if( !isNaN(m = Date.parse(val))) {
-                        return new Date(m);
-                } else if(m = val.match(regex["single_key_value"])) {
-                        var res = {};
-                        res[m[1]] = processValue(m[2]);
-                        return res;
-                } else if(m = val.match(regex["array"])){
-                        var count = 0, c = ' ';
-                        var res = [];
-                        var content = "";
-                        var str = false;
-                        for(var j = 0, lenJ = m[1].length; j < lenJ; ++j) {
-                                c = m[1][j];
-                                if(c == '\'' || c == '"') {
-                                        if(str === false) {
-                                                str = c;
-                                                content += c;
-                                                continue;
-                                        } else if((c == '\'' && str == '\'') || (c == '"' && str == '"')) {
-                                                str = false;
-                                                content += c;
-                                                continue;
-                                        }
-                                } else if(str === false && (c == '[' || c == '{')) {
-                                        ++count;
-                                } else if(str === false && (c == ']' || c == '}')) {
-                                        --count;
-                                } else if(str === false && count == 0 && c == ',') {
-                                        res.push(processValue(content));
-                                        content = "";
+        function findTopLevelColon(str) {
+                var quote = "";
+                var escaped = false;
+                var depth = 0;
+                for (var i = 0; i < str.length; i++) {
+                        var ch = str[i];
+                        if (quote) {
+                                if (quote == "\"" && ch == "\\" && !escaped) {
+                                        escaped = true;
                                         continue;
                                 }
-                                
-                                content += c;
-                        }
-                        
-                        if(content.length > 0)
-                                res.push(processValue(content));
-                        return res;
-                } else if(m = val.match(regex["map"])){
-                        var count = 0, c = ' ';
-                        var res = [];
-                        var content = "";
-                        var str = false;
-                        for(var j = 0, lenJ = m[1].length; j < lenJ; ++j) {
-                                c = m[1][j];
-                                if(c == '\'' || c == '"') {
-                                        if(str === false) {
-                                                str = c;
-                                                content += c;
-                                                continue;
-                                        } else if((c == '\'' && str == '\'') || (c == '"' && str == '"')) {
-                                                str = false;
-                                                content += c;
-                                                continue;
-                                        }
-                                } else if(str === false && (c == '[' || c == '{')) {
-                                        ++count;
-                                } else if(str === false && (c == ']' || c == '}')) {
-                                        --count;
-                                } else if(str === false && count == 0 && c == ',') {
-                                        res.push(content);
-                                        content = "";
+                                if (quote == "'" && ch == "'" && str[i + 1] == "'") {
+                                        i++;
                                         continue;
                                 }
-                                
-                                content += c;
-                        }
-                        
-                        if(content.length > 0)
-                                res.push(content);
-                                
-                        var newRes = {};
-                        for(var j = 0, lenJ = res.length; j < lenJ; ++j) {
-                                if(m = res[j].match(regex["key_value"])) {
-                                        newRes[m[1]] = processValue(m[2]);
+                                if (ch == quote && !escaped) {
+                                        quote = "";
                                 }
-                        }
-                        
-                        return newRes;
-                } else 
-                        return val;
-        }
-        
-        function processFoldedBlock(block) {
-                var lines = block.lines;
-                var children = block.children;
-                var str = lines.join(" ");
-                var chunks = [str];
-                for(var i = 0, len = children.length; i < len; ++i) {
-                        chunks.push(processFoldedBlock(children[i]));
-                }
-                return chunks.join("\n");
-        }
-        
-        function processLiteralBlock(block) {
-                var lines = block.lines;
-                var children = block.children;
-                var str = lines.join("\n");
-                for(var i = 0, len = children.length; i < len; ++i) {
-                        str += processLiteralBlock(children[i]);
-                }
-                return str;
-        }
-        
-        function processBlock(blocks) {
-                var m = null;
-                var res = {};
-                var lines = null;
-                var children = null;
-                var currentObj = null;
-                
-                var level = -1;
-                
-                var processedBlocks = [];
-                
-                var isMap = true;
-                
-                for(var j = 0, lenJ = blocks.length; j < lenJ; ++j) {
-                        
-                        if(level != -1 && level != blocks[j].level)
+                                escaped = false;
                                 continue;
-                
-                        processedBlocks.push(j);
-                
-                        level = blocks[j].level;
-                        lines = blocks[j].lines;
-                        children = blocks[j].children;
-                        currentObj = null;
-                
-                        for(var i = 0, len = lines.length; i < len; ++i) {
-                                var line = lines[i];
+                        }
+                        if (ch == "\"" || ch == "'") {
+                                quote = ch;
+                        } else if (ch == "[" || ch == "{") {
+                                depth++;
+                        } else if (ch == "]" || ch == "}") {
+                                depth--;
+                        } else if (ch == ":" && depth == 0) {
+                                return i;
+                        }
+                }
+                return -1;
+        }
 
-                                if(m = line.match(regex["key"])) {
-                                        var key = m[1];
-                                        
-                                        if(key[0] == '-') {
-                                                key = key.replace(regex["item"], "");
-                                                if (isMap) { 
-                                                        isMap = false;
-                                                        if (typeof(res.length) === "undefined") {
-                                                                res = [];
-                                                        } 
-                                                }
-                                                if(currentObj != null) res.push(currentObj);
-                                                currentObj = {};
-                                                isMap = true;
-                                        }
-                                        
-                                        if(typeof m[2] != "undefined") {
-                                                var value = m[2].replace(regex["trim"], "");
-                                                if(value[0] == '&') {
-                                                        var nb = processBlock(children);
-                                                        if(currentObj != null) currentObj[key] = nb;
-                                                        else res[key] = nb;
-                                                        reference_blocks[value.substr(1)] = nb;
-                                                } else if(value[0] == '|') {
-                                                        if(currentObj != null) currentObj[key] = processLiteralBlock(children.shift());
-                                                        else res[key] = processLiteralBlock(children.shift());
-                                                } else if(value[0] == '*') {
-                                                        var v = value.substr(1);
-                                                        var no = {};
-                                                        
-                                                        if(typeof reference_blocks[v] == "undefined") {
-                                                                errors.push("Reference '" + v + "' not found!");
-                                                        } else {
-                                                                for(var k in reference_blocks[v]) {
-                                                                        no[k] = reference_blocks[v][k];
-                                                                }
-                                                                
-                                                                if(currentObj != null) currentObj[key] = no;
-                                                                else res[key] = no;
-                                                        }
-                                                } else if(value[0] == '>') {
-                                                        if(currentObj != null) currentObj[key] = processFoldedBlock(children.shift());
-                                                        else res[key] = processFoldedBlock(children.shift());
-                                                } else {
-                                                        if(currentObj != null) currentObj[key] = processValue(value);
-                                                        else res[key] = processValue(value);
-                                                }
-                                        } else {
-                                                if(currentObj != null) currentObj[key] = processBlock(children);
-                                                else res[key] = processBlock(children);                        
-                                        }
-                                } else if(line.match(/^-\s*$/)) {
-                                        if (isMap) { 
-                                                isMap = false;
-                                                if (typeof(res.length) === "undefined") {
-                                                        res = [];
-                                                } 
-                                        }
-                                        if(currentObj != null) res.push(currentObj);
-                                        currentObj = {};
-                                        isMap = true;
-                                        continue;
-                                } else if(m = line.match(/^-\s*(.*)/)) {
-                                        if(currentObj != null) 
-                                                currentObj.push(processValue(m[1]));
-                                        else {
-                                                if (isMap) { 
-                                                        isMap = false;
-                                                        if (typeof(res.length) === "undefined") {
-                                                                res = [];
-                                                        } 
-                                                }
-                                                res.push(processValue(m[1]));
-                                        }
-                                        continue;
-                                }
-                        }
-                        
-                        if(currentObj != null) {
-                                if (isMap) { 
-                                        isMap = false;
-                                        if (typeof(res.length) === "undefined") {
-                                                res = [];
-                                        } 
-                                }
-                                res.push(currentObj);
-                        }
-                }
-                
-                for(var j = processedBlocks.length - 1; j >= 0; --j) {
-                        blocks.splice.call(blocks, processedBlocks[j], 1);
-                }
+        function unescapeDoubleQuoted(str) {
+                return str
+                        .replace(/\\u([0-9A-Fa-f]{4})/g, function(match, hex) {
+                                return String.fromCharCode(parseInt(hex, 16));
+                        })
+                        .replace(/\\x([0-9A-Fa-f]{2})/g, function(match, hex) {
+                                return String.fromCharCode(parseInt(hex, 16));
+                        })
+                        .replace(/\\(["\\\/bfnrt])/g, function(match, ch) {
+                                return {
+                                        "\"": "\"",
+                                        "\\": "\\",
+                                        "/": "/",
+                                        "b": "\b",
+                                        "f": "\f",
+                                        "n": "\n",
+                                        "r": "\r",
+                                        "t": "\t"
+                                }[ch];
+                        });
+        }
 
-                return res;
+        function parseKey(raw) {
+                var key = String(raw).trim();
+                if (/^".*"$/.test(key)) {
+                        return unescapeDoubleQuoted(key.slice(1, -1));
+                }
+                if (/^'.*'$/.test(key)) {
+                        return key.slice(1, -1).replace(/''/g, "'");
+                }
+                return key;
         }
-                
-        function semanticAnalysis(blocks) {
-                var res = processBlock(blocks.children);
-                return res;
+
+        function parseKeyValue(str) {
+                var idx = findTopLevelColon(str);
+                if (idx <= 0) {
+                        return null;
+                }
+                return {
+                        key: parseKey(str.slice(0, idx)),
+                        value: str.slice(idx + 1).trim()
+                };
         }
-        
-        function preProcess(src) {
-                var m;
-                var lines = src.split("\n");
-                
-                var r = regex["comment"];
-                
-                for(var i in lines) {
-                        if(m = lines[i].match(r)) {
-/*                var cmt = "";
-                                if(typeof m[3] != "undefined")
-                                        lines[i] = m[1];
-                                else if(typeof m[3] != "undefined")
-                                        lines[i] = m[3]; 
-                                else
-                                        lines[i] = "";
-                                        */
-                                if(typeof m[3] !== "undefined") {
-                                        lines[i] = m[0].substr(0, m[0].length - m[3].length);
+
+        function parseAnchor(value) {
+                var match = String(value).match(/^&([^\s]+)\s*(.*)$/);
+                if (!match) {
+                        return null;
+                }
+                return {
+                        name: match[1],
+                        value: match[2].trim()
+                };
+        }
+
+        function processAlias(value) {
+                var name = String(value).slice(1).trim();
+                if (typeof reference_blocks[name] == "undefined") {
+                        errors.push("Reference '" + name + "' not found");
+                        return {};
+                }
+                return clone(reference_blocks[name]);
+        }
+
+        function parseFlowArray(value) {
+                var inner = value.slice(1, -1).trim();
+                if (inner == "") {
+                        return [];
+                }
+                return splitTopLevel(inner, ",").map(processValue);
+        }
+
+        function parseFlowMap(value) {
+                var inner = value.slice(1, -1).trim();
+                var obj = {};
+                if (inner == "") {
+                        return obj;
+                }
+                var parts = splitTopLevel(inner, ",");
+                for (var i = 0; i < parts.length; i++) {
+                        var item = parseKeyValue(parts[i]);
+                        if (!item) {
+                                continue;
+                        }
+                        var parsed = processValue(item.value);
+                        if (item.key == "<<") {
+                                if (Array.isArray(parsed)) {
+                                        for (var j = 0; j < parsed.length; j++) {
+                                                mergeInto(obj, parsed[j]);
+                                        }
+                                } else {
+                                        mergeInto(obj, parsed);
                                 }
+                        } else {
+                                obj[item.key] = parsed;
                         }
                 }
-                
-                return lines.join("\n");
+                return obj;
         }
-        
+
+        function processValue(val) {
+                val = typeof val == "undefined" || val === null ? "" : String(val).trim();
+                if (val == "") {
+                        return null;
+                }
+                if (val[0] == "*") {
+                        return processAlias(val);
+                }
+                if (/^".*"$/.test(val)) {
+                        return unescapeDoubleQuoted(val.slice(1, -1));
+                }
+                if (/^'.*'$/.test(val)) {
+                        return val.slice(1, -1).replace(/''/g, "'");
+                }
+                if (/^\[[\s\S]*\]$/.test(val)) {
+                        return parseFlowArray(val);
+                }
+                if (/^\{[\s\S]*\}$/.test(val)) {
+                        return parseFlowMap(val);
+                }
+                if (val == "true") {
+                        return true;
+                }
+                if (val == "false") {
+                        return false;
+                }
+                if (val == "null" || val == "~") {
+                        return null;
+                }
+                if (val == ".NaN") {
+                        return Number.NaN;
+                }
+                if (val == ".inf" || val == "+.inf") {
+                        return Number.POSITIVE_INFINITY;
+                }
+                if (val == "-.inf") {
+                        return Number.NEGATIVE_INFINITY;
+                }
+                if (/^[+-]?\d+$/.test(val)) {
+                        return parseInt(val, 10);
+                }
+                if (/^[+-]?(?:\d+\.\d*|\d*\.\d+)(?:e[+-]?\d+)?$/i.test(val)) {
+                        return parseFloat(val);
+                }
+                return val;
+        }
+
+        function parseTextBlock(indent, folded) {
+                var collected = [];
+                while (cursor < lines.length) {
+                        var line = lines[cursor];
+                        var lineIndent = countIndent(line);
+                        if (lineIndent < indent) {
+                                break;
+                        }
+                        collected.push(line.slice(Math.min(indent, line.length)));
+                        cursor++;
+                }
+                return folded ? collected.join(" ").replace(/\s+/g, " ").trim() : collected.join("\n");
+        }
+
+        function parseNestedValue(parentIndent, value) {
+                if (value == "|" || value == ">") {
+                        if (cursor < lines.length && countIndent(lines[cursor]) > parentIndent) {
+                                return parseTextBlock(countIndent(lines[cursor]), value == ">");
+                        }
+                        return "";
+                }
+                if (value == "") {
+                        if (cursor < lines.length && countIndent(lines[cursor]) > parentIndent) {
+                                return parseBlock(countIndent(lines[cursor]));
+                        }
+                        return null;
+                }
+                return processValue(value);
+        }
+
+        function parseMap(indent) {
+                var obj = {};
+                while (cursor < lines.length) {
+                        var line = lines[cursor];
+                        var lineIndent = countIndent(line);
+                        var trimmed = line.trim();
+                        if (lineIndent < indent) {
+                                break;
+                        }
+                        if (lineIndent > indent) {
+                                errors.push("Invalid indentation at line " + (cursor + 1) + ": " + line);
+                                cursor++;
+                                continue;
+                        }
+                        if (/^-\s*/.test(trimmed)) {
+                                break;
+                        }
+                        var pair = parseKeyValue(trimmed);
+                        if (!pair) {
+                                errors.push("Invalid map item at line " + (cursor + 1) + ": " + line);
+                                cursor++;
+                                continue;
+                        }
+                        cursor++;
+                        var anchor = parseAnchor(pair.value);
+                        var anchorName = anchor ? anchor.name : "";
+                        var value = anchor ? anchor.value : pair.value;
+                        var parsed = parseNestedValue(lineIndent, value);
+                        if (anchorName) {
+                                reference_blocks[anchorName] = clone(parsed);
+                        }
+                        if (pair.key == "<<") {
+                                if (Array.isArray(parsed)) {
+                                        for (var i = 0; i < parsed.length; i++) {
+                                                mergeInto(obj, parsed[i]);
+                                        }
+                                } else {
+                                        mergeInto(obj, parsed);
+                                }
+                        } else {
+                                obj[pair.key] = parsed;
+                        }
+                }
+                return obj;
+        }
+
+        function parseSeq(indent) {
+                var arr = [];
+                while (cursor < lines.length) {
+                        var line = lines[cursor];
+                        var lineIndent = countIndent(line);
+                        var trimmed = line.trim();
+                        if (lineIndent < indent) {
+                                break;
+                        }
+                        if (lineIndent > indent) {
+                                errors.push("Invalid indentation at line " + (cursor + 1) + ": " + line);
+                                cursor++;
+                                continue;
+                        }
+                        if (!/^-/.test(trimmed)) {
+                                break;
+                        }
+                        var itemText = trimmed.replace(/^-\s*/, "");
+                        cursor++;
+                        var anchor = parseAnchor(itemText);
+                        var anchorName = anchor ? anchor.name : "";
+                        itemText = anchor ? anchor.value : itemText;
+                        var item;
+                        var pair = parseKeyValue(itemText);
+                        if (itemText == "") {
+                                item = cursor < lines.length && countIndent(lines[cursor]) > lineIndent ? parseBlock(countIndent(lines[cursor])) : null;
+                        } else if (pair && !/^[a-z][a-z0-9+.-]*:\/\//i.test(itemText)) {
+                                item = {};
+                                item[pair.key] = parseNestedValue(lineIndent, pair.value);
+                                if (cursor < lines.length && countIndent(lines[cursor]) > lineIndent) {
+                                        var next = parseBlock(countIndent(lines[cursor]));
+                                        if (isObject(next)) {
+                                                mergeInto(next, item);
+                                                item = next;
+                                        }
+                                }
+                        } else {
+                                item = processValue(itemText);
+                                if (cursor < lines.length && countIndent(lines[cursor]) > lineIndent && item === null) {
+                                        item = parseBlock(countIndent(lines[cursor]));
+                                }
+                        }
+                        if (anchorName) {
+                                reference_blocks[anchorName] = clone(item);
+                        }
+                        arr.push(item);
+                }
+                return arr;
+        }
+
+        function parseBlock(indent) {
+                if (cursor >= lines.length) {
+                        return {};
+                }
+                var lineIndent = countIndent(lines[cursor]);
+                if (lineIndent < indent) {
+                        return {};
+                }
+                if (/^-\s*/.test(lines[cursor].trim())) {
+                        return parseSeq(lineIndent);
+                }
+                return parseMap(lineIndent);
+        }
+
         this.parse = function eval0(str) {
                 errors = [];
-                reference_blocks = [];
+                reference_blocks = {};
                 processing_time = (new Date()).getTime();
-                var pre = preProcess(str)
-                var doc = parser(pre);
-                var res = semanticAnalysis(doc);
+                lines = preProcess(str);
+                cursor = 0;
+                var result = lines.length == 0 ? {} : parseBlock(countIndent(lines[0]));
                 processing_time = (new Date()).getTime() - processing_time;
-                
-                return res;
+                self.errors = errors;
+                self.processing_time = processing_time;
+                return result;
         }
-
-};
+}
 
 
 /***********************************************************************************************/
