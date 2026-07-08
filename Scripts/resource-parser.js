@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-07-06 18:50⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-07-07 20:24⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1088,7 +1088,7 @@ function Type_Check(subs) {
     var ClashK = ["proxies:","\"proxies\":"]
     var SubK = ["dm1lc3M", "c3NyOi8v", "CnNzOi8", "dHJvamFu", "c3M6Ly", "c3NkOi8v", "c2hhZG93", "aHR0cDovLw", "aHR0cHM6L", "CnRyb2phbjo", "aHR0cD0", "aHR0cCA","U1RBVFVT","dmxlc3M6"];
     var RewriteK = [" url 302", " url 307", " url reject", " url script", " url req", " url res", " url echo", " url-and-header 302", " url-and-header 307", " url-and-header reject", " url-and-header script", " url-and-header req", " url-and-header res", " url-and-header echo", " url jsonjq"] // quantumult X 类型 rewrite
-    var JsonJQK = [" response-body-json-jq ", " request-body-json-jq "] // 需要转换成 QuanX jsonjq 的 rewrite
+    var JsonJQK = [" response-body-json-jq ", " request-body-json-jq ", " response-body-json-del ", " response-body-json-replace "] // 需要转换成 QuanX jsonjq 的 rewrite
     var SubK2 = ["ss://", "vmess://", "ssr://", "trojan://", "ssd://", "\nhttps://", "\nhttp://","socks://","ssocks://","vless://","anytls://","wireguard://","wg://","tuic://"];
     var ModuleK = ["[Script]", "[Rule]", "[URL Rewrite]", "[Map Local]", "\nhttp-r", "script-path"]
     var QXProfile = ["[filter_local]","[filter_remote]","[server_local]","[server_remote]"]
@@ -1600,31 +1600,321 @@ function URX2QX(subs) {
 }
 
 /*
-JSON-JQ rewrite 转换说明 ⟦2026-07-06 18:36:10 +08⟧
+JSON-JQ rewrite 转换说明 ⟦2026-07-07 20:24:29 +08⟧
 ----------------------------------------------------------
 仅改动 resource-parser-r.js。
-新增以下输入语法转换：
-  - pattern response-body-json-jq 'jq expression' -> pattern url jsonjq-response-body jq expression
-  - pattern request-body-json-jq 'jq expression'  -> pattern url jsonjq-request-body jq expression
-保留 jq 表达式内部双引号，仅移除包裹整段 jq 的外层引号。
+新增/扩展以下输入语法转换：
+  - pattern response-body-json-jq 'jq expression'      -> pattern url jsonjq-response-body 'jq expression'
+  - pattern request-body-json-jq 'jq expression'       -> pattern url jsonjq-request-body 'jq expression'
+  - pattern response-body-json-del paths               -> pattern url jsonjq-response-body 'del(...)' / 'delpaths(...)'
+  - pattern response-body-json-replace path value, ... -> pattern url jsonjq-response-body 'if ... then setpath(...) else . end'
 ----------------------------------------------------------
 */
 function JsonJQRewrite2QX(row) {
-  var matched = row.match(/^\s*(\"[^\"]+\"|'[^']+'|\S+)\s+(response-body-json-jq|request-body-json-jq)\s+([\s\S]+?)\s*$/i);
-  if (!matched) { return "" }
-  var pattern = matched[1].replace("^http", "http");
-  if (pattern.length > 1 && (pattern[0] == "\"" || pattern[0] == "'") && pattern[pattern.length - 1] == pattern[0]) {
-    var unquotedPattern = pattern.slice(1, -1).trim();
-    if (/^\^?https?\??/i.test(unquotedPattern)) {
-      pattern = unquotedPattern.replace("^http", "http");
+  function stripOuterJQQuotes(str) {
+    str = typeof str == "undefined" || str === null ? "" : String(str).trim();
+    if (str.length > 1 && ((str[0] == "'" && str[str.length - 1] == "'") || (str[0] == "\"" && str[str.length - 1] == "\""))) {
+      return str.slice(1, -1);
     }
+    return str;
   }
-  var type = matched[2].toLowerCase() == "response-body-json-jq" ? "jsonjq-response-body" : "jsonjq-request-body";
-  var jq = matched[3].trim();
-  if (jq.length > 1 && ((jq[0] == "'" && jq[jq.length - 1] == "'") || (jq[0] == "\"" && jq[jq.length - 1] == "\""))) {
-    jq = jq.slice(1, -1);
+
+  function quoteJQExpression(str) {
+    return "'" + stripOuterJQQuotes(str).replace(/'/g, "\\'") + "'";
   }
-  return pattern + " url " + type + " " + jq;
+
+  function normalizeJsonPattern(pattern) {
+    pattern = stripOuterJQQuotes(pattern);
+    if (/^\^?https?\??/i.test(pattern)) {
+      return pattern;
+    }
+    return pattern;
+  }
+
+  function splitTopLevel(str, delimiter) {
+    var parts = [];
+    var buf = "";
+    var quote = "";
+    var escaped = false;
+    var depth = 0;
+    for (var i = 0; i < str.length; i++) {
+      var ch = str[i];
+      if (quote) {
+        buf += ch;
+        if (quote == "\"" && ch == "\\" && !escaped) {
+          escaped = true;
+          continue;
+        }
+        if (quote == "'" && ch == "'" && str[i + 1] == "'") {
+          buf += str[++i];
+          continue;
+        }
+        if (ch == quote && !escaped) {
+          quote = "";
+        }
+        escaped = false;
+      } else if (ch == "\"" || ch == "'") {
+        quote = ch;
+        buf += ch;
+      } else if (ch == "[" || ch == "{" || ch == "(") {
+        depth++;
+        buf += ch;
+      } else if (ch == "]" || ch == "}" || ch == ")") {
+        depth--;
+        buf += ch;
+      } else if (ch == delimiter && depth == 0) {
+        if (buf.trim() != "") {
+          parts.push(buf.trim());
+        }
+        buf = "";
+      } else {
+        buf += ch;
+      }
+    }
+    if (buf.trim() != "") {
+      parts.push(buf.trim());
+    }
+    return parts;
+  }
+
+  function splitTopLevelCommaOrSemi(str) {
+    var commaParts = splitTopLevel(str, ",");
+    if (commaParts.length > 1) {
+      return commaParts;
+    }
+    return splitTopLevel(str, ";");
+  }
+
+  function splitTopLevelWhitespace(str) {
+    var parts = [];
+    var buf = "";
+    var quote = "";
+    var escaped = false;
+    var depth = 0;
+    for (var i = 0; i < str.length; i++) {
+      var ch = str[i];
+      if (quote) {
+        buf += ch;
+        if (quote == "\"" && ch == "\\" && !escaped) {
+          escaped = true;
+          continue;
+        }
+        if (ch == quote && !escaped) {
+          quote = "";
+        }
+        escaped = false;
+      } else if (ch == "\"" || ch == "'") {
+        quote = ch;
+        buf += ch;
+      } else if (ch == "[" || ch == "{" || ch == "(") {
+        depth++;
+        buf += ch;
+      } else if (ch == "]" || ch == "}" || ch == ")") {
+        depth--;
+        buf += ch;
+      } else if (/\s/.test(ch) && depth == 0) {
+        if (buf.trim() != "") {
+          parts.push(buf.trim());
+        }
+        buf = "";
+      } else {
+        buf += ch;
+      }
+    }
+    if (buf.trim() != "") {
+      parts.push(buf.trim());
+    }
+    return parts;
+  }
+
+  function findTopLevelOperator(str, ops) {
+    var quote = "";
+    var escaped = false;
+    var depth = 0;
+    for (var i = 0; i < str.length; i++) {
+      var ch = str[i];
+      if (quote) {
+        if (quote == "\"" && ch == "\\" && !escaped) {
+          escaped = true;
+          continue;
+        }
+        if (ch == quote && !escaped) {
+          quote = "";
+        }
+        escaped = false;
+      } else if (ch == "\"" || ch == "'") {
+        quote = ch;
+      } else if (ch == "[" || ch == "{" || ch == "(") {
+        depth++;
+      } else if (ch == "]" || ch == "}" || ch == ")") {
+        depth--;
+      } else if (depth == 0) {
+        for (var j = 0; j < ops.length; j++) {
+          if (str.slice(i, i + ops[j].length) == ops[j]) {
+            return { index: i, op: ops[j] };
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  function normalizeJsonPath(path) {
+    path = stripOuterJQQuotes(path);
+    if (path.indexOf("$.") == 0) {
+      return "." + path.slice(2);
+    }
+    if (path[0] != "." && path[0] != "[" && path.indexOf("getpath(") != 0) {
+      return "." + path;
+    }
+    return path;
+  }
+
+  function pathToSegments(path) {
+    path = stripOuterJQQuotes(path);
+    if (path.indexOf("$.") == 0) {
+      path = path.slice(2);
+    } else if (path[0] == "$") {
+      path = path.slice(1);
+    }
+    if (/^\[[\s\S]*\]$/.test(path)) {
+      try {
+        var arr = JSON.parse(path);
+        return Array.isArray(arr) ? arr : null;
+      } catch (err) {
+        return null;
+      }
+    }
+    path = path.replace(/\[['"]([^'"]+)['"]\]/g, ".$1").replace(/\[(\d+)\]/g, ".$1");
+    if (path[0] == ".") {
+      path = path.slice(1);
+    }
+    if (!/^[^.\s]+(\.[^.\s]+)*$/.test(path)) {
+      return null;
+    }
+    return path.split(".").map(function(part) {
+      return /^\d+$/.test(part) ? Number(part) : part;
+    });
+  }
+
+  function canUseDirectJQPath(path) {
+    return /^\.[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$/.test(path);
+  }
+
+  function jqValueLiteral(value) {
+    value = stripOuterJQQuotes(value);
+    if (value == "") {
+      return "null";
+    }
+    if (/^(true|false|null)$/i.test(value) || /^[+-]?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(value)) {
+      return value.toLowerCase();
+    }
+    if (/^["\[{]/.test(value) || /^(if\s|\.|getpath\(|setpath\(|del\(|delpaths\()/.test(value)) {
+      return value;
+    }
+    return JSON.stringify(value);
+  }
+
+  function buildDelJQ(payload) {
+    payload = stripOuterJQQuotes(payload);
+    if (/^(del|delpaths)\s*\(/.test(payload)) {
+      return payload;
+    }
+    if (/^\[\s*\[/.test(payload)) {
+      return "delpaths(" + payload + ")";
+    }
+    var paths = splitTopLevelCommaOrSemi(payload);
+    if (paths.length == 1) {
+      var ws = splitTopLevelWhitespace(payload);
+      if (ws.length > 1) {
+        paths = ws;
+      }
+    }
+    paths = paths.map(function(path) {
+      return normalizeJsonPath(path);
+    }).filter(Boolean);
+    if (paths.length == 0) {
+      return "";
+    }
+    if (paths.every(canUseDirectJQPath)) {
+      return "del(" + paths.join(", ") + ")";
+    }
+    var segments = paths.map(pathToSegments);
+    if (segments.every(function(item) { return Array.isArray(item) })) {
+      return "delpaths(" + JSON.stringify(segments) + ")";
+    }
+    return "del(" + paths.join(", ") + ")";
+  }
+
+  function parseReplacePair(item) {
+    var found = findTopLevelOperator(item, ["=>", "="]);
+    if (found) {
+      return {
+        path: item.slice(0, found.index).trim(),
+        value: item.slice(found.index + found.op.length).trim()
+      };
+    }
+    var parts = splitTopLevelWhitespace(item);
+    if (parts.length >= 2) {
+      return {
+        path: parts[0],
+        value: parts.slice(1).join(" ")
+      };
+    }
+    return null;
+  }
+
+  function buildSafeSetpath(path, value) {
+    var segments = pathToSegments(path);
+    var literal = jqValueLiteral(value);
+    if (!segments || segments.length == 0) {
+      return normalizeJsonPath(path) + " = " + literal;
+    }
+    var parent = segments.slice(0, -1);
+    var key = segments[segments.length - 1];
+    var typeCheck = typeof key == "number" ? "type == \"array\" and has(" + key + ")" : "type == \"object\" and has(" + JSON.stringify(key) + ")";
+    return "if (getpath(" + JSON.stringify(parent) + ")? | " + typeCheck + ") then setpath(" + JSON.stringify(segments) + "; " + literal + ") else . end";
+  }
+
+  function buildReplaceJQ(payload) {
+    payload = stripOuterJQQuotes(payload);
+    if (/^(if\s|setpath\(|getpath\(|reduce\s|map\(|walk\()/.test(payload)) {
+      return payload;
+    }
+    try {
+      var obj = JSON.parse(payload);
+      if (obj && typeof obj == "object" && !Array.isArray(obj)) {
+        return Object.keys(obj).map(function(key) {
+          return buildSafeSetpath(key, JSON.stringify(obj[key]));
+        }).join(" | ");
+      }
+    } catch (err) {}
+    var items = splitTopLevelCommaOrSemi(payload);
+    var expressions = [];
+    for (var i = 0; i < items.length; i++) {
+      var pair = parseReplacePair(items[i]);
+      if (pair) {
+        expressions.push(buildSafeSetpath(pair.path, pair.value));
+      }
+    }
+    return expressions.join(" | ");
+  }
+
+  var matched = row.match(/^\s*(\"[^\"]+\"|'[^']+'|\S+)\s+(response-body-json-jq|request-body-json-jq|response-body-json-del|response-body-json-replace)\s+([\s\S]+?)\s*$/i);
+  if (!matched) { return "" }
+  var pattern = normalizeJsonPattern(matched[1]);
+  var action = matched[2].toLowerCase();
+  var body = matched[3].trim();
+  var type = action == "request-body-json-jq" ? "jsonjq-request-body" : "jsonjq-response-body";
+  var jq = "";
+  if (action == "response-body-json-del") {
+    jq = buildDelJQ(body);
+  } else if (action == "response-body-json-replace") {
+    jq = buildReplaceJQ(body);
+  } else {
+    jq = stripOuterJQQuotes(body);
+  }
+  return jq ? pattern + " url " + type + " " + quoteJQExpression(jq) : "";
 }
 
 //script&rewrite 转换成 Quantumult X
@@ -1647,15 +1937,15 @@ function SCP2QX(subs) {
       var NoteK = ["//", "#", ";"]; //排除注释项
       const sccheck = (item) => subs[i].indexOf(item) != -1
       const notecheck = (item) => subs[i].indexOf(item) == 0
-        const RewriteCheck = (item) => subs[i].indexOf(item) != -1 ; // quanx 重写判定
-        if (!NoteK.some(notecheck) && !RewriteK.some(RewriteCheck)){
-          if(Pdbg==1) {$notify("rewrite-check","",subs[i])}
-          if (/\s(response-body-json-jq|request-body-json-jq)\s/i.test(rawSubs[i])) {
-            rw = JsonJQRewrite2QX(rawSubs[i])
-            if (rw != "") {
-              nrw.push(rw)
-            }
-          } else if (SC.every(sccheck)) { // surge js 新格式
+      const RewriteCheck = (item) => subs[i].indexOf(item) != -1 ; // quanx 重写判定
+      if (!NoteK.some(notecheck) && !RewriteK.some(RewriteCheck)){
+        if(Pdbg==1) {$notify("rewrite-check","",subs[i])}
+        if (/\s(response-body-json-jq|request-body-json-jq|response-body-json-del|response-body-json-replace)\s/i.test(rawSubs[i])) {
+          rw = JsonJQRewrite2QX(rawSubs[i])
+          if (rw != "") {
+            nrw.push(rw)
+          }
+        } else if (SC.every(sccheck)) { // surge js 新格式
           //部分正则中含有,的问题
           ptn = subs[i].replace(/\s/gi,"").split("pattern=")[1].split(/\,[a-zA-Z]/)[0] 
           js = subs[i].replace(/\s/gi,"").split("script-path=")[1].split(",")[0]
@@ -3057,7 +3347,7 @@ function isQuanXRewrite(content) {
       if (cnti.indexOf("pattern")!=-1 && cnti.indexOf("type")!=-1 || cnti.indexOf("http-r")!=-1) {
         cnti=SGMD2QX(cnti)[0]? SGMD2QX(cnti)[0]:""
         //console.log(cnti)
-      }else if (/\s(response-body-json-jq|request-body-json-jq)\s/i.test(cnti)) {
+      }else if (/\s(response-body-json-jq|request-body-json-jq|response-body-json-del|response-body-json-replace)\s/i.test(cnti)) {
         cnti=SGMD2QX(cnti)[0]? SGMD2QX(cnti)[0]:""
       }else if ((cnti.indexOf(" 302")!=-1 || cnti.indexOf(" 307")!=-1 || (/\s(_|-)\s(reject|REJECT)/.test(cnti)) || (/\sreject$/.test(cnti)) || (/\sreject-/.test(cnti))) && cnti.indexOf(" url ")==-1 && cnti.indexOf(" url-and-header ")==-1 ){
         cnti=SGMD2QX(cnti)[0]? SGMD2QX(cnti)[0]:""
