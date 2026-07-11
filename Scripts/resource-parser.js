@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-07-07 20:24⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-07-11 09:51⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -3255,14 +3255,38 @@ function SSD2QX(subs, Pudp, Ptfo) {
     return QX;
 }
 
+/*
+QXFix 修复说明 ⟦2026-07-11 09:51:48 +08⟧
+----------------------------------------------------------
+仅改动 resource-parser-r.js。
+修复 obfs-uri 中逗号被 cnti.split(",") 误拆，并被拼入 tag 的问题。
+QuanX 不支持 path/uri 中包含逗号，因此在 QXFix 内部拆字段前，将 obfs-uri 值中逗号列表压缩为首项，并保留最后的 query。
+----------------------------------------------------------
+*/
 // 纠正部分不规范的写法(没有把 tag 写在最后)
 function QXFix(cntf) {
 var cnti = cntf.replace(/\s*tag\s*\=/g,"tag=").replace("chacha20-poly","chacha20-ietf-poly")
 try {
+  function normalizeQXObfsUriValue(str) {
+    var fieldK = "(password|method|udp-relay|udp-over-tcp|fast-open|obfs|obfs-host|obfs-uri|over-tls|tls-host|tls-verification|tls13|aead|tag|username|tls-alpn|server_check_url|tls-cert-sha256|tls-pubkey-sha256|reality-base64-pubkey|reality-hex-shortid|vless-flow)";
+    return str.replace(new RegExp("(obfs-uri=)([\\s\\S]*?)(,\\s*" + fieldK + "=|$)", "g"), function(match, key, value, tail) {
+      if (value.indexOf(",") == -1) {
+        return key + value + tail;
+      }
+      var first = value.split(",")[0];
+      var queryIndex = value.lastIndexOf("?");
+      var query = queryIndex == -1 ? "" : value.slice(queryIndex);
+      if (first.indexOf("?") != -1) {
+        first = first.split("?")[0];
+      }
+      return key + first + query + tail;
+    });
+  }
   var hd = cnti.split(",tag=")[0]
   var tag = "tag="+cnti.split(",tag=")[1].split(",")[0].trim()
   var tail = cnti.split(tag+",")
   cnti = tail.length<=1?  cnti : String(hd + ","+tail[1].split("\r")[0] +"," + tag)
+  cnti = normalizeQXObfsUriValue(cnti)
   cntis = cnti.split(",").filter(Boolean).map(item => item.trim()) //防止节点名中有,符号而导致的错误情况
   tagfix = ""
   cntii = ""
