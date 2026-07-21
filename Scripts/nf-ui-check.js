@@ -110,7 +110,7 @@ function test(filmId) {
         } else if (isPlayable === 'true') {
             resolve({code: 0, content: "Netflix is Ok", region: region})
         } else {
-            resolve({code: 100, content: "unkown error", region: region})
+            resolve({code: 100, content: "unknown error", region: region})
         }
         return
       }
