@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-09-16 12:06⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-09-16 16:36⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -3527,13 +3527,25 @@ function isQuanXRewrite(content, failures) {
   var cnt = content.filter(Boolean)
   var cnt0=[]
   var ignoredEcho = failures || []
-  var section = ""
+  var section = "", inComment = false, sectionInComment = false
   for (var i = 0; i< cnt.length; i++){
     if(cnt[i]){
       var cnti = cnt[i].trim()
       var originalRewrite = cnti
       if (!cnti || /^(?:#|;|\/\/)/.test(cnti)) { continue }
-      if (/^\[[^\]]+\]$/.test(cnti)) { section = cnti.toLowerCase(); continue }
+      // ⟦2026-09-16 16:36 +08⟧ 注释内的配置区段仅在该注释中有效，不延续到脚本正文。
+      if (/^\/\*/.test(cnti)) { inComment = inComment || cnti.indexOf("*/", 2) == -1; continue }
+      if (/^\*+\/(?:\s|$)/.test(cnti)) {
+        if (sectionInComment) { section = "" }
+        inComment = false; sectionInComment = false; continue
+      }
+      if (/^\[[^\]]+\]$/.test(cnti)) { section = cnti.toLowerCase(); sectionInComment = inComment; continue }
+      // 分流区段外只识别已知类型且逗号后仍有内容的行，不再把 url, 等 JS 字段视为分流。
+      var filterRule = /^[a-z][\w-]*\s*,/i.test(cnti) && (
+        section == "[rule]" || section == "[filter_local]" ||
+        /^(?:(?:host|domain)(?:-[\w-]+)?|ip-cidr6?|ip6-cidr|ip-asn|geoip|user-agent)\s*,\s*\S/i.test(cnti) ||
+        /^(?:AND|OR|NOT)\s*,\s*\(/i.test(cnti)
+      )
       var failureCount = ignoredEcho.length
       // echo-response 修复说明 ⟦2026-09-16 09:15:50 +08⟧
       // ⟦2026-09-16 10:32 +08⟧ 拦截上一版本生成的本地辅助脚本引用，不影响用户自己的远程脚本参数。
@@ -3559,7 +3571,7 @@ function isQuanXRewrite(content, failures) {
         if (!cnti) { ignoredEcho.push({ rule: originalRewrite, reason: /^http-(?:request|response)-jq\s+http-(?:request|response)(?:-jq)?\s/i.test(originalRewrite) ? "jq 规则的 URL 位置多出 http-request/http-response 动作，源格式错误" : "jq 规则缺少有效 URL、表达式，或引号未闭合" }) }
       } else if (/\surl(?:-and-header)?\s+jsonjq-(?:request|response)-body\s/i.test(cnti)) {
         cnti = cnti.replace(/^\^http/, "http")
-      } else if (/^(?:AND|OR|NOT)\s*,/i.test(cnti)) {
+      } else if (filterRule && /^(?:AND|OR|NOT)\s*,/i.test(cnti)) {
         ignoredEcho.push({ rule: cnti, reason: "逻辑组合规则无法直接转换，拆开会改变匹配条件" })
         continue
       } else if (cnti.indexOf("pattern")!=-1 && cnti.indexOf("type")!=-1 || cnti.indexOf("http-r")!=-1) {
@@ -3578,7 +3590,7 @@ function isQuanXRewrite(content, failures) {
         cnti= cnti.split(" ")[1] == "url" ? cnti : ""
       } else if (cnti.indexOf(" url-and-header ")!=-1 ){ // url-and-header : ^https:xxx.com header-content url-and-header type-rule content
         cnti= cnti //cnti.split(" ")[2] == "url-and-header" ? cnti : ""
-      } else if (/^[a-z][\w-]*\s*,/i.test(cnti)) {
+      } else if (filterRule) {
         if (Pmix==1) { cnti = Rule_Policy(cnti, ignoredEcho) }
         else { ignoredEcho.push({ rule: cnti, reason: "重写资源混合分流需要 Quantumult X build 844 或更新版本" }); cnti = "" }
       } else {
