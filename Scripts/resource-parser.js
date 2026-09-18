@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-09-16 16:36⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-09-18 14:27⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -1114,7 +1114,8 @@ function Type_Check(subs) {
     var SubK = ["dm1lc3M", "c3NyOi8v", "CnNzOi8", "dHJvamFu", "c3M6Ly", "c3NkOi8v", "c2hhZG93", "aHR0cDovLw", "aHR0cHM6L", "CnRyb2phbjo", "aHR0cD0", "aHR0cCA","U1RBVFVT","dmxlc3M6"];
     var RewriteK = [" url 302", " url 307", " url reject", " url script", " url req", " url res", " url echo", " url-and-header 302", " url-and-header 307", " url-and-header reject", " url-and-header script", " url-and-header req", " url-and-header res", " url-and-header echo", " url jsonjq"] // quantumult X 类型 rewrite
     var JsonJQK = [" response-body-json-jq ", " request-body-json-jq ", " response-body-json-del ", " response-body-json-replace ", " http-response-jq ", " http-request-jq "] // 需要转换成 QuanX jsonjq 的 rewrite
-    var SubK2 = ["ss://", "vmess://", "ssr://", "trojan://", "ssd://", "\nhttps://", "\nhttp://","socks://","ssocks://","vless://","anytls://","wireguard://","wg://","tuic://"];
+    // ⟦2026-09-18 14:27 +08⟧ Hysteria2 两种 URI 前缀进入节点处理，由不支持分支统一提示，避免误走未知/Base64 分支。
+    var SubK2 = ["ss://", "vmess://", "ssr://", "trojan://", "ssd://", "\nhttps://", "\nhttp://","socks://","ssocks://","vless://","anytls://","wireguard://","wg://","tuic://","hysteria2://","hy2://"];
     var ModuleK = ["[Script]", "[Rule]", "[URL Rewrite]", "[Body Rewrite]", "[Map Local]", "\nhttp-r", "script-path"]
     var QXProfile = ["[filter_local]","[filter_remote]","[server_local]","[server_remote]"]
     var html = "DOCTYPE html"
@@ -2647,7 +2648,7 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
                     node = Loon2QX(list0[i])
                 } else if (SurgeK.some(NodeCheck) ) { // Surge type, 第2为端口号
                     node = QX_TLS(Surge2QX(list0[i])[0], Pcert0, PTls13)
-                } else if (type=="hysteria2" || (type=="anytls" && version<914) || type=="tuic" || type=="wireguard"|| type=="wg") { //
+                } else if (type=="hysteria2" || type=="hy2" || (type=="anytls" && version<914) || type=="tuic" || type=="wireguard"|| type=="wg") { // hy2 与 hysteria2 共用不支持提示
                   PNS=PNS+1 
                   NSList.push(numToEmoji10(PNS)+list0[i])
                 } else if (/^STATUS\=/.test(listi)) { // flow info fake server
