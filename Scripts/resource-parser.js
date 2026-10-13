@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-10-09 16:32⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-10-13 12:49⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -10,6 +10,7 @@
 ❶ 将其它格式的⟦服务器订阅⟧解析成 𝐐𝐮𝐚𝐧𝐭𝐮𝐦𝐮𝐥𝐭 𝐗 格式
 ☑︎ 支持 𝐕2𝐫𝐚𝐲𝐍/𝗦𝗦(𝗥/𝗗)/𝗧𝗿𝗼𝗷𝗮𝗻/𝐕𝐋𝗲𝐬𝐬/𝗛𝗧𝗧𝗣(𝗦)/𝗔𝗻𝘆𝗧𝗟𝗦/𝗤𝘂𝗮𝗻𝘁𝘂𝗺𝘂𝗹𝘁(𝗫)/𝗦𝘂𝗿𝗴𝗲/𝐂𝐥𝐚𝐬𝐡/𝐒𝐡𝐚𝐝𝐨𝐰𝐫𝐨𝐜𝐤𝐞𝐭/𝐋𝐨𝐨𝐧 格式
 ☑︎ 提供说明 1⃣️ 中的可选个性化参数(筛选、重命名 等)
+☑︎ 节点扫码识别疑似订阅链接时，点击通知跳转添加节点订阅
 ❷ 𝗿𝗲𝘄𝗿𝗶𝘁𝗲(重写) & 𝗳𝗶𝗹𝘁𝗲𝗿(分流) 的 转换 & 筛选 
 ☑︎ 用于禁用/修改远程引用中某(几)项 𝗿𝗲𝘄𝗿𝗶𝘁𝗲/𝗵𝗼𝘀𝘁𝗻𝗮𝗺𝗲/𝗳𝗶𝗹𝘁𝗲𝗿
 ☑︎ 𝐒𝐮𝐫𝐠𝐞/𝐂𝐥𝐚𝐬𝐡 类型规则 𝗹𝗶𝘀𝘁 与 模块 𝐦𝐨𝐝𝐮𝐥𝐞 的解析使用
@@ -801,9 +802,14 @@ const getValue = (fn, defaultVaule) => {
 var type0=""
 //flag=1,2,3分别为 server、rewrite、rule 类型
 var flag = 1
+var subscriptionURL = SubscriptionURL(content0)
 
+// 订阅二维码先引导添加资源，URL 的 #参数留给添加后的订阅解析。
+if (subscriptionURL) {
+  type0 = "sub-http"
+  $done({content: ResourceParse()})
 // retry with new UA, default use shadowrocket
-if (UARetry && !inRetry && version>920) {
+} else if (UARetry && !inRetry && version>920) {
   $notify("⚠️ 将尝试使用其他 UA, 重新获取订阅内容","⚠️ 如仍旧无有效内容，请自行与节点提供商联系","⚠️ 本次尝试使用 User-Agent 为 ⬇️\n\n"+UA_Retry)
   $done({retry: {user_agent: "Shadowrocket/3218 CFNetwork/3860.600.12 Darwin/25.5.0 iPhone18,1"}})
 } else {
@@ -947,13 +953,15 @@ function ResourceParse() {
     $notify("‼️ 当前引用" + "⟦" + subtag + "⟧" + " 返回內容为空", "1️⃣ 请确认 APP 已经更新至最新版本 1.5.6", "2️⃣ 如确认链接有效，请打开资源解析器的「User-Agent 替换」选项重新获取链接内容 ", nan_link);
     flag = 0;
   } else if (type0 == "sub-http") {
-    let url = VCheck(String(Base64.decode(content0.split("sub://")[1].split("#")[0])+", opt-parser=true, tag="+(new Date()).getTime()))
-     RLink = RLink.replace("sremoteposition",url).replace("fremoteposition","").replace("rremoteposition","")
-    let ADDres0 = ADDres.replace("url-encoded-json",encodeURIComponent(RLink))
-    openlink = {"open-url": ADDres0}
-    $notify("⚠️ 该链接为节点订阅, 请点击此通知跳转添加", url, ADDres0,openlink)
-    flag = -1
-    total = ""
+    let url = subscriptionURL
+    if (version && version < 670) {
+      $notify("⚠️ 疑似节点订阅链接", "请在节点资源中添加订阅", "当前版本不支持点击通知添加资源，请更新 Quantumult X 后重试。")
+    } else {
+      let resource = {server_remote: [url.replace(/,/g, "%2C") + ", opt-parser=true, tag=扫码订阅-" + Date.now()]}
+      let addURL = ADDRes.replace("url-encoded-json", encodeURIComponent(JSON.stringify(resource)))
+      $notify("⚠️ 疑似节点订阅链接", "请点击此通知，跳转添加节点订阅", "该内容应通过节点资源添加；请在添加页面确认订阅地址。", {"open-url": addURL})
+    }
+    return "" // 已引导添加订阅，不再进入 flag=-1 的原始 URI 回退。
   } else if (type0 == "unknown") {
     ParseUnknown(content0)
     flag = -1;
@@ -1133,6 +1141,29 @@ function RuleNoteOutput(row) {
 }
 
 //判断订阅类型
+// 扫码可能传入订阅 URL；仅识别单个、具有订阅特征的链接，不请求其内容。
+function SubscriptionURL(content) {
+    if (!/^(server|uri|unsupported)$/i.test(typeQ)) { return "" }
+    var url = content.trim()
+    var wrapped = /^subs?:\/\//i.test(url)
+    if (wrapped) {
+      var encoded = url.replace(/^subs?:\/\//i, "").split("#")[0]
+      if (!/^[a-z0-9+/_-]+={0,2}$/i.test(encoded)) { return "" }
+      url = Base64.decode(encoded.replace(/-/g, "+").replace(/_/g, "/")).trim()
+    }
+    if (/[\s\x00-\x1f\x7f<>"\\]/.test(url)) { return "" }
+    var parts = /^https?:\/\/([^/?#]+)(\/[^?#]*)?(\?[^#]*)?(#.*)?$/i.exec(url)
+    if (!parts) { return "" }
+    // user:pass@host 和 Base64 主机段属于 HTTP(S) 节点 URI，不能改成订阅。
+    if (!/^(?:[a-z0-9-]+(?:\.[a-z0-9-]+)+|\[[a-f0-9:.]+\])(?::\d{1,5})?$/i.test(parts[1])) { return "" }
+    var path = parts[2] || "", query = parts[3] || ""
+    var subscriptionPath = /(?:^|\/)(?:sub|subscribe|subscription|link)(?:[/.]|$)/i.test(path)
+    var resourceFile = /\.(?:txt|list|yaml|yml|conf|json|snippet)$/i.test(path)
+    var tokenPath = path.split("/").some(function (part) { return /^[a-z0-9_-]{16,}$/i.test(part) && /[a-z]/i.test(part) && /\d/.test(part) })
+    var subscriptionQuery = /[?&](?:token|access_token|subscription|subscribe|sub|target)=[^&#]+/i.test(query) || /[?&](?:type|flag|format)=(?:quanx|quantumultx?|clash|surge|v2ray|sing-?box)(?:&|$)/i.test(query)
+    return wrapped || subscriptionPath || resourceFile || tokenPath || subscriptionQuery ? url : ""
+}
+
 function Type_Check(subs) {
     // 判型使用正文副本；content0 保留原始说明供逐条转换。
     if (typeQ != "server" && typeQ != "uri" && subs.indexOf("{#") != -1) { subs = subs.split("\n").map(RuleNoteBody).join("\n") }
@@ -1188,9 +1219,6 @@ function Type_Check(subs) {
       typec = "filter-list"
       type = (typeQ == "unsupported" || typeQ =="filter")? "Rule":"wrong-field";
       content0 = content0.split("\n").map(rule_list_handle).join("\n")
-    } else if (subi.indexOf("sub://") == 0 || subi.indexOf("subs://") == 0) { // sub:// 类型
-      typec = "sub-http"
-      type = "sub-http"
     } else if (typeQ == "filter" && subs.indexOf("payload:")!=-1) { // clash-provider 类型？
       typec = "Clash-Provider"
       type = (typeQ == "unsupported" || typeQ =="filter")? "Rule":"wrong-field";
