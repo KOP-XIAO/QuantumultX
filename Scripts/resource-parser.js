@@ -1214,7 +1214,7 @@ function Type_Check(subs) {
     } else if (typeQ === "rewrite" && !/^(?:nodes|rule)$/.test(typeU) && para1.indexOf("dst=filter") === -1 && subsn.some(function (row) { return IsLoonRewriteV2(row.trim()) || IsLoonScriptV2(row.trim()) })) {
       typec = "rewrite";
       type = "rewrite";
-    } else if ( (((ModuleK.some(RewriteCheck) || /^\s*\[(?:rule|(?:header|body) rewrite)\]\s*$/im.test(subs) || subsn.some(IsMapLocalInline) || (typeQ === "rewrite" && subsn.some(row => /^URL-REGEX\s*,/i.test(row.trim()))) || para1.indexOf("dst=rewrite") != -1) && (para1.indexOf("dst=filter") == -1) && subs.indexOf("[Proxy]") == -1) || typeU == "module") && typeU != "nodes" && typeU != "rule" && typeQ !="filter") { // Surge 类型 module /rule-set(含url-regex) 类型
+    } else if ( (((ModuleK.some(RewriteCheck) || /^\s*\[(?:rule|(?:url|header|body) rewrite)\]\s*$/im.test(subs) || subsn.some(IsMapLocalInline) || (typeQ === "rewrite" && subsn.some(row => /^URL-REGEX\s*,/i.test(row.trim()))) || para1.indexOf("dst=rewrite") != -1) && (para1.indexOf("dst=filter") == -1) && subs.indexOf("[Proxy]") == -1) || typeU == "module") && typeU != "nodes" && typeU != "rule" && typeQ !="filter") { // Surge 类型 module /rule-set(含url-regex) 类型
       typec="rewrite"
       type = (typeQ == "unsupported" || typeQ =="rewrite")? "sgmodule" : "wrong-field"
     } else if ((/(^hostname|\nhostname)\s*\=/.test(subi) || RewriteK.some(RewriteCheck) || JsonJQK.some(JsonJQCheck))  && para1.indexOf("dst=filter")==-1 && subi.indexOf("securehostname") == -1 && !/module|nodes|rule/.test(typeU) && !(RuleK.some(RuleCheck) && typeQ == "filter") && !(typeQ!= "rewrite" && QXProfile.some(ProfileCheck))) {
@@ -2301,21 +2301,12 @@ function SCP2QX(subs) {
             rw = ptn + " url " + type + js
             nrw.push(rw)
           }
-        } else if (/\d\s30(7|2)$/.test(subs[i])) { //rewrite 302&307 复写(Surge)
-          //tpe = subs[i].indexOf(" 302") != -1? "302":"307"
-          //$notify("307/2",subs[i])
-          rw = subs[i].split(" ")[0] + " url " + subs[i].split(" ")[2] + " " + subs[i].split(" ")[1].trim()
-          //if(rw.indexOf("307")!=-1) {$notify("XX",subs[i],rw.split(" "))}
-          nrw.push(rw)
+        } else if (/\s30[27]$/.test(subs[i])) { // Surge URL Rewrite
+          rw = SurgeURLRewrite2QX(rawSubs[i]).line
+          if (rw) nrw.push(rw)
         } else if (/\d\s\-\s30(2|7)\s/.test(subs[i])) { //rewrite 302&307 复写(Shadowrocket)
           //xx - 302 $1$2$3
           rw = subs[i].replace(" - "," url ")
-          nrw.push(rw)
-        } else if(subs[i].split(" ")[2] == "header") { // rewrite header 类型
-          var pget = subs[i].split(" ")[0].split(".com")[1]
-          var pgetn = subs[i].split(" ")[1].split(".com")[1]
-          rw = subs[i].split(" ")[0] + " url 302 " + subs[i].split(" ")[1]
-          //rw = subs[i].split(" ")[0] + " url request-header ^GET " + pget +"(.+\\r\\n)Host:.+(\\r\\n) request-header GET " + pgetn + "$1Host: " + subs[i].split(" ")[1].split("://")[1].split(".com")[0] + ".com$2"
           nrw.push(rw)
         } else if(subs[i].split(" ")[1] == "header-replace") { // rewrite header-replace 类型
           console.log(subs[i])
@@ -2674,8 +2665,7 @@ function Rule_Policy(content, ignored, mixed) { //增加、替换 policy
     if (/^(?:AND|OR|NOT)\s*,/i.test(content.trim())) { return skip("逻辑组合规则无法直接转换，拆开会改变匹配条件") }
     if (/^URL-REGEX\s*,/i.test(content.trim())) { return skip("URL-REGEX 需要作为重写资源导入，不是 Quantumult X 分流语法") }
     var source = content.replace(/^\s*\-\s/g, "").trim();
-    var cnt = mixed ? MixedFilterFields(source)
-                    : source.replace(/REJECT-TINYGIF/gi,"reject").replace(/REJECT-DROP/gi,"reject").split("//")[0].trim().split(",");
+    var cnt = MixedFilterFields(mixed ? source : MixedFilterSyntax(source));
     if (!cnt) return skip("分流字段的引号未闭合或格式有误");
     // ⟦2026-09-16 11:55 +08⟧ 已知 Surge 附加标记按字段移除，不再依赖位置；保留主匹配条件和策略。
     // QX 不复现 Surge 的预匹配阶段或扩展匹配机制，未知参数不擅自删除。
@@ -2718,6 +2708,7 @@ function Rule_Policy(content, ignored, mixed) { //增加、替换 policy
         }
         return [type, value, policy].concat(options).join(", ");
     }
+    if (cnt[2] && /^(?:reject-drop|reject-no-drop|reject-tinygif)$/i.test(cnt[2])) cnt[2] = "reject";
     var RuleK = ["//", "#", ";","[","/", "hostname","no-ipv6","no-system","<","{","}","]","^"];
     var RuleK1 = ["host", "host-suffix", "host-keyword", "host-wildcard", "domain", "domain-suffix", "domain-keyword", "domain-wildcard", "ip-cidr", "ip-cidr6", "geoip", "user-agent", "ip6-cidr", "ip-asn"];
     const RuleCheck = (item) => cnt[0].trim().toLowerCase().indexOf(item) == 0; //无视注释行
@@ -5988,6 +5979,46 @@ function SurgeRewriteFields(row) {
   return fields;
 }
 
+function SurgeURLRewrite2QX(row) {
+  var fields = SurgeRewriteFields(row)
+  if (!fields || !fields[0] || fields.length < 2 || fields.length > 3 || /\s|^\*/.test(fields[0])) {
+    return { reason: "Surge URL Rewrite 格式无效" }
+  }
+  var [pattern, replacement, type = "header"] = fields
+  type = type.toLowerCase()
+  if (type === "reject") return { line: pattern + " url reject" }
+  if (type === "header") return { reason: "Surge header 模式是透明改写，Quantumult X 302 会向客户端返回重定向" }
+  if (!/^(?:302|307)$/.test(type) || !replacement || /\s|\{\{\{GATEWAY_ADDRESS\}\}\}/.test(replacement)) {
+    return { reason: "Surge URL Rewrite 动作或替换目标无法转换" }
+  }
+  return { line: pattern + " url " + type + " " + replacement }
+}
+
+function SurgeHTTPScript2QX(row) {
+  var legacy = /^(http-(?:request|response))\s+("(?:[^"\\]|\\.)*"|\S+)\s+(.+)$/i.exec(row)
+  var modern = /^[^=]+?=\s*([\w-]+\s*=.*)$/.exec(row)
+  if (!legacy && !modern) return null
+  var source = legacy ? legacy[3] : modern[1]
+  var fields = new Map()
+  // 只识别参数边界上的逗号，保留正则量词及 URL 内的等号。
+  var parameter = /\s*([\w-]+)\s*=\s*("(?:[^"\\]|\\.)*"|[^"][\s\S]*?|)(?:\s*,\s*(?=[\w-]+\s*=)|\s*$)/y
+  while (parameter.lastIndex < source.length) {
+    var match = parameter.exec(source)
+    if (!match || fields.has(match[1].toLowerCase())) return ""
+    var value = match[2].trim()
+    if (value[0] === '"') value = value.slice(1, -1).replace(/\\"/g, '"')
+    fields.set(match[1].toLowerCase(), value)
+  }
+  var type = legacy ? legacy[1] : fields.get("type") || ""
+  var phase = /^http-(request|response)$/i.exec(type)
+  var pattern = legacy ? SurgeRewriteFields(legacy[2])?.[0] : fields.get("pattern")
+  var path = fields.get("script-path")
+  var body = fields.get("requires-body") || "false"
+  if (!phase || !pattern || !path || /\s|^[*"']/.test(pattern) || /\s|^["']/.test(path) ||
+      !/^(?:true|false|1|0)$/i.test(body) || /^(?:false|0)$/i.test(fields.get("enable") || fields.get("enabled") || "")) return ""
+  return pattern + " url script-" + phase[1].toLowerCase() + (/^(?:true|1)$/i.test(body) ? "-body " : "-header ") + path
+}
+
 function SurgeTextRewrite2QX(row, section) {
   function skip(reason) { return { reason: reason } }
   var fields = SurgeRewriteFields(row);
@@ -6113,6 +6144,19 @@ function isQuanXRewrite(content, failures, jqSources) {
         var urlReject = URLReject2QX(ruleSection ? MixedFilterSyntax(cnti) : cnti)
         if (urlReject) cnt0.push(RuleNoteJoin(noteParts.note, urlReject))
         else ignoredEcho.push({ rule: originalRewrite, reason: "URL-REGEX 缺少有效正则，或使用了无法转换为重写的策略" })
+        continue
+      }
+      if (!inComment && section === "[url rewrite]" && !/(?:^\S+\s+url|^\S+\s+.+?\s+url-and-header)\s/i.test(cnti)) {
+        var urlRewrite = SurgeURLRewrite2QX(MixedFilterSyntax(cnti))
+        if (urlRewrite.line) cnt0.push(RuleNoteJoin(noteParts.note, urlRewrite.line))
+        else ignoredEcho.push({ rule: originalRewrite, reason: urlRewrite.reason })
+        continue
+      }
+      if (!inComment && (section === "[script]" || !section) && /(?:^http-(?:request|response)\s|\btype\s*=\s*http-(?:request|response)\b)/i.test(cnti) &&
+          /(?:^|[\s,])script-path\s*=/i.test(cnti)) {
+        var httpScript = SurgeHTTPScript2QX(MixedFilterSyntax(cnti))
+        if (httpScript) cnt0.push(RuleNoteJoin(noteParts.note, httpScript))
+        else ignoredEcho.push({ rule: originalRewrite, reason: "HTTP 脚本声明已禁用、缺少必需参数，或有无法转换的参数" })
         continue
       }
       if (!inComment && !/^\S+\s+url\s+(?:(?:request|response)-(?:header|body)|jsonjq-(?:request|response)-body)\s/i.test(cnti) &&
