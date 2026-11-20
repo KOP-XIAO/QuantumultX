@@ -910,7 +910,7 @@ function ParseUnknown(cnt){
 
 
 function ResourceParse() {
-  var rewriteFailures = [];
+  var rewriteFailures = [], surgeJQ = new Map();
   //预处理，分流/重写等处理完成
   if (type0 == "Subs-B64Encode") { // subs2QX 负责所有节点的转换
     if (Pdbg) {$notify("original content", "node-b64", content0)}
@@ -924,15 +924,19 @@ function ResourceParse() {
     //2023-03-06 考虑模块重写与quanx类型重写的混搭
     flag = 2 
     //total = SGMD2QX(content0) // 转换 
-    total = Rewrite_Filter(isQuanXRewrite(content0.split("\n"), rewriteFailures), Pin0, Pout0,Preg,Pregout, rewriteFailures.length > 0);// 筛选过滤
+    total = Rewrite_Filter(isQuanXRewrite(content0.split("\n"), rewriteFailures, surgeJQ), Pin0, Pout0,Preg,Pregout, rewriteFailures.length > 0);// 筛选过滤
+    var sourceRows = total;
     if (Preplace) { total = ReplaceReg(total, Preplace) }
+    total = MergeSurgeJQRewrites(total, sourceRows, surgeJQ);
     total = total.filter( (ele,pos)=>total.indexOf(ele) == pos); //重写重复检查
     if (Pcdn) {total = CDN(total)
     } else { total = total.join("\n")}
   } else if (type0 == "rewrite") { // rewrite 类型
     flag = 2;
-    total = Rewrite_Filter(isQuanXRewrite(content0.split("\n"), rewriteFailures), Pin0, Pout0,Preg,Pregout, rewriteFailures.length > 0);
+    total = Rewrite_Filter(isQuanXRewrite(content0.split("\n"), rewriteFailures, surgeJQ), Pin0, Pout0,Preg,Pregout, rewriteFailures.length > 0);
+    var sourceRows = total;
     if (Preplace) { total = ReplaceReg(total, Preplace) }
+    total = MergeSurgeJQRewrites(total, sourceRows, surgeJQ);
     // rewrite重复检测
     total = total.filter( (ele,pos)=>total.indexOf(ele) == pos);
     if (Pcdn) {total = CDN(total)
@@ -1794,6 +1798,129 @@ function IsJsonJQRewrite(row) {
   return /^\s*(?:http-(?:request|response)-jq(?:\s|$)|(?:"[^"]+"|'[^']+'|\S+)\s+(?:response-body-json-jq|request-body-json-jq|response-body-json-del|response-body-json-replace)(?:\s|$))/i.test(row);
 }
 
+function transformJqText(input, { compact = false, quoteSafe = false } = {}) {
+    let i = 0;
+    const before = new Set([")", "]", ",", "|", "="]);
+    const after = new Set(["(", "[", ",", "|", "="]);
+    const string = () => {
+        let out = '"';
+        i++;
+        while (i < input.length) {
+            const ch = input[i++];
+            if (ch === '"')
+                return out + ch;
+            if (ch === "\\") {
+                const next = input[i++];
+                if (next === "(")
+                    out += "\\(" + code(true) + ")";
+                else {
+                    if (next === undefined)
+                        throw new Error("JQ contains an unterminated JSON string");
+                    out += ch + next;
+                }
+            }
+            else
+                out += quoteSafe && ch === "'" ? "\\u0027" : ch;
+        }
+        throw new Error("JQ contains an unterminated JSON string");
+    };
+    const code = (interpolation = false) => {
+        let out = "", pending = false, depth = 0;
+        const emit = (value) => {
+            if (compact && pending && out && !after.has(out.at(-1)) && !before.has(value[0]))
+                out += " ";
+            pending = false;
+            if (compact && before.has(value) && out.endsWith(" "))
+                out = out.slice(0, -1);
+            out += value;
+        };
+        while (i < input.length) {
+            const ch = input[i];
+            if (ch === ")" && interpolation && depth === 0) {
+                i++;
+                return out;
+            }
+            if (ch === '"') {
+                emit(string());
+                continue;
+            }
+            if (ch === "#") {
+                // jq treats a backslash immediately before a newline as comment continuation.
+                while (i < input.length) {
+                    if (input[i] === "\n" && input[i - 1] !== "\\" && !(input[i - 1] === "\r" && input[i - 2] === "\\"))
+                        break;
+                    i++;
+                }
+                if (compact)
+                    pending = true;
+                else
+                    out += " ";
+                continue;
+            }
+            if (/\s/.test(ch)) {
+                if (compact)
+                    pending = true;
+                else
+                    out += ch;
+                i++;
+                continue;
+            }
+            if (quoteSafe && ch === "'")
+                throw new Error("JQ contains a single quote outside a JSON string; target quoting is not proven safe");
+            if (ch === "(")
+                depth++;
+            else if (ch === ")")
+                depth--;
+            emit(ch);
+            i++;
+        }
+        if (interpolation)
+            throw new Error("JQ contains an unterminated string interpolation");
+        return out;
+    };
+    const out = code();
+    return compact ? out.trim() : out;
+}
+
+// ⟦2026-11-20 +08⟧ 同阶段、同 URL 正则的 Surge jq 在筛选后按源顺序串联。
+function MergeSurgeJQRewrites(rows, sourceRows, surgeJQ) {
+  var result = [], groups = new Map();
+  var rule = /^(\S+)\s+url\s+(jsonjq-(?:request|response)-body)\s+'([\s\S]+)'$/;
+  for (var i = 0; i < rows.length; i++) {
+    var parts = RuleNoteSplit(rows[i]);
+    var original = rule.exec(RuleNoteBody(sourceRows[i]));
+    var matched = rule.exec(parts.body);
+    if (!surgeJQ.get(sourceRows[i]) || !original || !matched) {
+      result.push(rows[i]);
+      continue;
+    }
+    var key = JSON.stringify([original[1], original[2], matched[1], matched[2]]);
+    var group = groups.get(key);
+    if (!group) {
+      group = { start: result.length, prefix: matched[1] + " url " + matched[2], entries: [] };
+      groups.set(key, group);
+    }
+    group.entries.push({ index: result.length, jq: matched[3], note: parts.note });
+    result.push(rows[i]);
+  }
+  groups.forEach(function (group) {
+    if (group.entries.length < 2) return;
+    var programs = group.entries.map(entry => entry.jq);
+    if (programs.some(program => /^\s*(?:import|include|module)\b/.test(program))) return;
+    // 单条 Surge jq 无输出时保留其输入，再继续下一条。
+    var variable = "$jq_result";
+    while (programs.some(program => program.includes(variable))) variable += "_";
+    var expression = programs.map(function (program) {
+      return "([(" + program + ")] as " + variable + " | if " + variable + " == [] then . else " + variable + "[] end)";
+    }).join(" | ");
+    var notes = [...new Set(group.entries.map(entry => entry.note.trim().slice(2, -2).trim()).filter(Boolean))];
+    var note = notes.length ? "{# " + notes.join(" / ") + " #} " : "";
+    result[group.start] = RuleNoteJoin(note, group.prefix + " '" + expression + "'");
+    group.entries.slice(1).forEach(entry => { result[entry.index] = "" });
+  });
+  return result.filter(Boolean);
+}
+
 function JsonJQRewrite2QX(row) {
   function stripOuterJQQuotes(str) {
     str = typeof str == "undefined" || str === null ? "" : String(str).trim();
@@ -2106,6 +2233,11 @@ function JsonJQRewrite2QX(row) {
     jq = buildReplaceJQ(body);
   } else {
     jq = stripOuterJQQuotes(body);
+  }
+  if (surge && jq) {
+    try { jq = transformJqText(jq, { quoteSafe: true }).trim() }
+    catch (_) { return "" }
+    return jq ? pattern + " url " + type + " '" + jq + "'" : "";
   }
   return jq ? pattern + " url " + type + " " + quoteJQExpression(jq) : "";
 }
@@ -3925,9 +4057,7 @@ function IsLoonRewriteV2(row) {
   return /^(?:request|response)\s+if\b/.test(row);
 }
 
-// WayX Loon Rewrite V2 native conversion. Updated 2026-11-20 (chance).
-// The scoped compiler is sourced from WayX a6038c5 (core, jq-text and rewrite).
-// QX resource parsers cannot fetch dependencies or publish generated helpers.
+// ⟦2026-11-20 +08⟧ Loon Rewrite V2 转换为 QuanX 原生重写；无法等价转换的条目汇总提示。
 function CreateLoonRewriteV2Converter() {
   function validateIcuPattern(pattern, label) {
     const flags = /^\(\?([ims]+)\)/.exec(pattern);
@@ -4170,89 +4300,6 @@ function compileRegexForTarget(regex, { subject = "url", target = "generic", req
         capability,
         notes: [],
     };
-}
-function transformJqText(input, { compact = false, quoteSafe = false } = {}) {
-    let i = 0;
-    const before = new Set([")", "]", ",", "|", "="]);
-    const after = new Set(["(", "[", ",", "|", "="]);
-    const string = () => {
-        let out = '"';
-        i++;
-        while (i < input.length) {
-            const ch = input[i++];
-            if (ch === '"')
-                return out + ch;
-            if (ch === "\\") {
-                const next = input[i++];
-                if (next === "(")
-                    out += "\\(" + code(true) + ")";
-                else {
-                    if (next === undefined)
-                        throw new Error("JQ contains an unterminated JSON string");
-                    out += ch + next;
-                }
-            }
-            else
-                out += quoteSafe && ch === "'" ? "\\u0027" : ch;
-        }
-        throw new Error("JQ contains an unterminated JSON string");
-    };
-    const code = (interpolation = false) => {
-        let out = "", pending = false, depth = 0;
-        const emit = (value) => {
-            if (compact && pending && out && !after.has(out.at(-1)) && !before.has(value[0]))
-                out += " ";
-            pending = false;
-            if (compact && before.has(value) && out.endsWith(" "))
-                out = out.slice(0, -1);
-            out += value;
-        };
-        while (i < input.length) {
-            const ch = input[i];
-            if (ch === ")" && interpolation && depth === 0) {
-                i++;
-                return out;
-            }
-            if (ch === '"') {
-                emit(string());
-                continue;
-            }
-            if (ch === "#") {
-                // jq treats a backslash immediately before a newline as comment continuation.
-                while (i < input.length) {
-                    if (input[i] === "\n" && input[i - 1] !== "\\" && !(input[i - 1] === "\r" && input[i - 2] === "\\"))
-                        break;
-                    i++;
-                }
-                if (compact)
-                    pending = true;
-                else
-                    out += " ";
-                continue;
-            }
-            if (/\s/.test(ch)) {
-                if (compact)
-                    pending = true;
-                else
-                    out += ch;
-                i++;
-                continue;
-            }
-            if (quoteSafe && ch === "'")
-                throw new Error("JQ contains a single quote outside a JSON string; target quoting is not proven safe");
-            if (ch === "(")
-                depth++;
-            else if (ch === ")")
-                depth--;
-            emit(ch);
-            i++;
-        }
-        if (interpolation)
-            throw new Error("JQ contains an unterminated string interpolation");
-        return out;
-    };
-    const out = code();
-    return compact ? out.trim() : out;
 }
 const BT = String.fromCharCode(96), PUN = "(),[].|";
 function fail(s, i, m) {
@@ -4647,7 +4694,7 @@ function getRewriteV2ActionDefinition(name) {
 }
 function actionError(action, message) {
     const error = new Error(action.name + ": " + message);
-    error.code = "WAYX_REWRITE_V2_ACTION_INVALID";
+    error.code = "LOON_REWRITE_V2_ACTION_INVALID";
     error.action = action.name;
     return error;
 }
@@ -4680,7 +4727,7 @@ function validateRewriteV2Action(action) {
 }
 function conditionError(message) {
     const error = new Error(message);
-    error.code = "WAYX_REWRITE_V2_CONDITION_INVALID";
+    error.code = "LOON_REWRITE_V2_CONDITION_INVALID";
     return error;
 }
 function validateCondition(node, phase) {
@@ -5751,7 +5798,7 @@ function qxNativeHeaderPlan(ast) {
   };
 }
 
-function isQuanXRewrite(content, failures) {
+function isQuanXRewrite(content, failures, surgeJQ) {
   var cnt = content.filter(Boolean)
   var cnt0=[]
   var ignoredEcho = failures || []
@@ -5783,7 +5830,11 @@ function isQuanXRewrite(content, failures) {
         if (!convertLoonRewriteV2) { convertLoonRewriteV2 = CreateLoonRewriteV2Converter() }
         var convertedLoon = convertLoonRewriteV2(cnti)
         if (convertedLoon.lines && convertedLoon.lines.length) {
-          convertedLoon.lines.forEach(function (line) { cnt0.push(RuleNoteJoin(noteParts.note, line)) })
+          convertedLoon.lines.forEach(function (line) {
+            var output = RuleNoteJoin(noteParts.note, line)
+            if (surgeJQ) { surgeJQ.set(output, false) }
+            cnt0.push(output)
+          })
         } else {
           ignoredEcho.push({ rule: originalRewrite, reason: convertedLoon.reason })
         }
@@ -5860,7 +5911,10 @@ function isQuanXRewrite(content, failures) {
           ignoredEcho.push({ rule: originalRewrite, reason: echoReason })
           continue
         }
-        cnt0.push(RuleNoteJoin(noteParts.note, RewritePatternQuoteFix(cnti))) // 说明仅在正文通过检查后回附
+        var output = RuleNoteJoin(noteParts.note, RewritePatternQuoteFix(cnti))
+        var fromSurgeJQ = /^http-(?:request|response)-jq\s/i.test(noteParts.body)
+        if (surgeJQ) { surgeJQ.set(output, (surgeJQ.get(output) ?? true) && fromSurgeJQ) }
+        cnt0.push(output) // 说明仅在正文通过检查后回附
         //$notify(cnti,"已经写入")
       }
       }
