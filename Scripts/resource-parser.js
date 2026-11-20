@@ -909,6 +909,7 @@ function ParseUnknown(cnt){
 
 function ResourceParse() {
   var rewriteFailures = [];
+  var jqRows = new Set();
   //预处理，分流/重写等处理完成
   if (type0 == "Subs-B64Encode") { // subs2QX 负责所有节点的转换
     if (Pdbg) {$notify("original content", "node-b64", content0)}
@@ -922,17 +923,17 @@ function ResourceParse() {
     //2023-03-06 考虑模块重写与quanx类型重写的混搭
     flag = 2 
     //total = SGMD2QX(content0) // 转换 
-    total = Rewrite_Filter(isQuanXRewrite(content0.split("\n"), rewriteFailures), Pin0, Pout0,Preg,Pregout, rewriteFailures.length > 0);// 筛选过滤
+    total = Rewrite_Filter(isQuanXRewrite(content0.split("\n"), rewriteFailures, jqRows), Pin0, Pout0,Preg,Pregout, rewriteFailures.length > 0, jqRows);// 筛选过滤
     if (Preplace) { total = ReplaceReg(total, Preplace) }
-    total = total.filter( (ele,pos)=>total.indexOf(ele) == pos); //重写重复检查
+    total = total.filter( (ele,pos)=>jqRows.has(pos) || total.indexOf(ele) == pos); //重写重复检查
     if (Pcdn) {total = CDN(total)
     } else { total = total.join("\n")}
   } else if (type0 == "rewrite") { // rewrite 类型
     flag = 2;
-    total = Rewrite_Filter(isQuanXRewrite(content0.split("\n"), rewriteFailures), Pin0, Pout0,Preg,Pregout, rewriteFailures.length > 0);
+    total = Rewrite_Filter(isQuanXRewrite(content0.split("\n"), rewriteFailures, jqRows), Pin0, Pout0,Preg,Pregout, rewriteFailures.length > 0, jqRows);
     if (Preplace) { total = ReplaceReg(total, Preplace) }
     // rewrite重复检测
-    total = total.filter( (ele,pos)=>total.indexOf(ele) == pos);
+    total = total.filter( (ele,pos)=>jqRows.has(pos) || total.indexOf(ele) == pos);
     if (Pcdn) {total = CDN(total)
     } else {total = total.join("\n")}
   } else if (type0 == "Rule") {  // rule 类型, 已处理完毕
@@ -1205,6 +1206,10 @@ function Type_Check(subs) {
       type = (hy2Clash || typeQ == "unsupported" || typeQ =="server")? "Clash":"wrong-field";
       typec = "server"
       content0 = Clash2QX(hy2Clash || subs)
+    } else if (typeQ === "rewrite" && !/^(?:nodes|rule)$/.test(typeU) && para1.indexOf("dst=filter") === -1 &&
+               subsn.some(row => IsLoonRewriteV2(row.trim()) || IsLoonScriptV2(row.trim()))) {
+      typec = "rewrite";
+      type = "rewrite";
     } else if ( (((ModuleK.some(RewriteCheck) || subsn.some(IsMapLocalInline) || para1.indexOf("dst=rewrite") != -1) && (para1.indexOf("dst=filter") == -1) && subs.indexOf("[Proxy]") == -1) || typeU == "module") && typeU != "nodes" && typeU != "rule" && typeQ !="filter") { // Surge 类型 module /rule-set(含url-regex) 类型
       typec="rewrite"
       type = (typeQ == "unsupported" || typeQ =="rewrite")? "sgmodule" : "wrong-field"
@@ -2221,9 +2226,10 @@ function SGMD2QX(subs) {
 }
 
 //Rewrite过滤，使用+连接多个关键词(逻辑"或"):in 为保留，out 为排除
-function Rewrite_Filter(subs, Pin, Pout,Preg,Pregout, hasUnsupported) {
+function Rewrite_Filter(subs, Pin, Pout,Preg,Pregout, hasUnsupported, jqRows) {
     if (!subs.length && hasUnsupported) { return [] } // 全部转换失败时已有汇总，不再重复通知空结果。
     var Nlist = [];
+    var jqPositions = new Set();
     var noteK = ["//", "#", ";"];
     var hnc = 0;
     var dwrite = []
@@ -2244,9 +2250,8 @@ function Rewrite_Filter(subs, Pin, Pout,Preg,Pregout, hasUnsupported) {
                 var outflag = Rcheck(subi, Pout);
                 if (outflag == 1 || inflag == 0) {
                     dwrite.push(RuleNoteJoin(noteParts.note, /^[a-z][\w-]*\s*,/i.test(subi) ? "-" + subi : subi.replace(" url "," - ").replace(" url-and-header "," - "))); // 混合分流也需禁用，hide=0 不能恢复为有效规则
-                } else if (outflag == 0 && inflag != 0) { //out 未命中 && in 未排除
-                    Nlist.push(RuleNoteJoin(noteParts.note, subi));
-                } else if (outflag == 2 && inflag != 0) { //无 out 参数 && in 未排除
+                } else if ((outflag == 0 || outflag == 2) && inflag != 0) { //out 未命中或无 out 参数，且 in 未排除
+                    if (jqRows.has(i)) { jqPositions.add(Nlist.length) }
                     Nlist.push(RuleNoteJoin(noteParts.note, subi));
                 }
             }
@@ -2275,11 +2280,25 @@ function Rewrite_Filter(subs, Pin, Pout,Preg,Pregout, hasUnsupported) {
       
       }
     }
-    if(Preg){ Nlist = Nlist.map(Regex).filter(Boolean) // regex to filter rewrites
+    // 筛选后更新 jq 的位置。每条 jq 规则独立保留，不能按文本去重。
+    function FilterRewrite(check) {
+      var positions = new Set();
+      var count = 0;
+      Nlist = Nlist.filter((row, pos) => {
+        if (!check(row)) { return false }
+        if (jqPositions.has(pos)) { positions.add(count) }
+        count++;
+        return true;
+      });
+      jqPositions = positions;
+    }
+    if(Preg){ FilterRewrite(Regex) // regex to filter rewrites
       RegCheck(Nlist, "重写引用", "regex", Preg) }
-    if(Pregout){ Nlist = Nlist.map(RegexOut).filter(Boolean) // regex to delete rewrites
+    if(Pregout){ FilterRewrite(RegexOut) // regex to delete rewrites
       RegCheck(Nlist, "重写引用", "regout", Pregout) }
     if (hostname != "") { Nlist.push(hostname) }
+    jqRows.clear();
+    jqPositions.forEach(pos => jqRows.add(pos + (Phide == 1 ? 0 : dwrite.length)));
     Nlist =Phide ==1? Nlist : [...dwrite,...Nlist]
     //$notify("final","Content",Nlist)
     return Nlist
@@ -3918,11 +3937,1458 @@ function NotifyUnsupportedRules(ignored) {
   $notify("⚠️ 已忽略 " + ignored.length + " 条无法自动转换的规则 ➟ ⟦" + subtag + "⟧", "📋 点击通知查看详情（展示 " + shown + "/" + ignored.length + " 条）" + (truncated ? "，长内容已截断" : ""), message)
 }
 
+function IsLoonRewriteV2(row) {
+  return /^(?:request|response)\s+if\b/.test(row);
+}
+
+function IsLoonScriptV2(row) {
+  return /^(?:(?:request|response)\s+if\b|cron\s+|network-changed\s+then\b|generic\s+then\b)/.test(row) &&
+    /\bthen\s+script\s*\(/.test(row);
+}
+
+// ⟦2026-11-20 +08⟧ Loon Rewrite V2 转换为 QuanX 原生重写；无法等价转换的条目汇总提示。
+function CreateLoonRewriteV2Converter() {
+// Flatten line breaks and comments without changing jq token boundaries.
+function transformJqText(input) {
+    let i = 0;
+    function readString() {
+        let out = '"';
+        i++;
+        while (i < input.length) {
+            const ch = input[i++];
+            if (ch === '"') return out + ch;
+            if (ch === "\\") {
+                const next = input[i++];
+                if (next === undefined) throw new Error("JQ contains an unterminated string");
+                out += next === "(" ? "\\(" + readCode(true) + ")" : ch + next;
+            } else if (ch === "'") {
+                out += "\\u0027";
+            } else {
+                out += ch;
+            }
+        }
+        throw new Error("JQ contains an unterminated string");
+    }
+    function readCode(interpolation = false) {
+        let out = "", depth = 0;
+        while (i < input.length) {
+            const ch = input[i];
+            if (ch === '"') {
+                out += readString();
+                continue;
+            }
+            if (ch === "#") {
+                // A backslash immediately before a newline continues a jq comment.
+                while (i < input.length) {
+                    if (input[i] === "\n" && input[i - 1] !== "\\" &&
+                        !(input[i - 1] === "\r" && input[i - 2] === "\\")) break;
+                    i++;
+                }
+                out += " ";
+                continue;
+            }
+            i++;
+            if (ch === "'") throw new Error("JQ contains a single quote outside a string");
+            if (ch === ")" && interpolation && depth === 0) return out;
+            if (ch === "(") depth++;
+            if (ch === ")") depth--;
+            out += /[\r\n\t]/.test(ch) ? " " : ch;
+        }
+        if (interpolation) throw new Error("JQ contains an unterminated string interpolation");
+        return out;
+    }
+    const result = readCode().trim();
+    if (/[\r\n]/.test(result)) throw new Error("JQ contains a line break inside a string");
+    return result;
+}
+
+  function validateIcuPattern(pattern, label) {
+    const flags = /^\(\?([ims]+)\)/.exec(pattern);
+    try {
+      new RegExp(flags ? pattern.slice(flags[0].length) : pattern, flags ? flags[1] : '');
+    } catch (_) {
+      throw new Error(label + ": 此正则需要离线 ICU 校验");
+    }
+  }
+const SUPPORTED_FLAGS = /^[ims]*$/;
+function scanSourceRegexLiteral(text, start = 0) {
+    text = String(text);
+    if (text[start] !== "/")
+        throw new SyntaxError("Expected regex opening delimiter");
+    let escaped = false, inClass = false, close = -1;
+    for (let i = start + 1; i < text.length; i++) {
+        const c = text[i];
+        if (escaped) {
+            escaped = false;
+            continue;
+        }
+        if (c === "\\") {
+            escaped = true;
+            continue;
+        }
+        if (c === "[" && !inClass) {
+            inClass = true;
+            continue;
+        }
+        if (c === "]" && inClass) {
+            inClass = false;
+            continue;
+        }
+        if (c === "/" && !inClass) {
+            close = i;
+            break;
+        }
+    }
+    if (close < 0)
+        throw new SyntaxError("Unterminated regex");
+    let end = close + 1;
+    while (end < text.length && /[A-Za-z]/.test(text[end]))
+        end++;
+    if (end < text.length && !/[\s(),\[\].|&=~]/.test(text[end]))
+        throw new SyntaxError("Invalid regex suffix boundary");
+    const node = {
+        type: "regex",
+        pattern: text.slice(start + 1, close),
+        flags: text.slice(close + 1, end),
+    };
+    assertRegexNode(node);
+    return { ...node, end };
+}
+function assertRegexNode(node) {
+    if (!node || node.type !== "regex")
+        throw new TypeError("Expected Loon semantic Regex node");
+    const flags = String(node.flags || "");
+    if (!SUPPORTED_FLAGS.test(flags))
+        throw new Error("Unsupported Loon regex flag(s): " + flags);
+    if (new Set(flags).size !== flags.length)
+        throw new Error("Duplicate Loon regex flag(s): " + flags);
+    return { source: String(node.pattern ?? ""), flags };
+}
+function compileSourceRegex(node) {
+    const { source, flags } = assertRegexNode(node);
+    return new RegExp(source, flags);
+}
+class SemanticEvaluationError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "SemanticEvaluationError";
+    }
+}
+function stringTemplateParts(node) {
+    if (node?.type === "raw-string")
+        return [["s", String(node.value)]];
+    if (node?.type !== "string")
+        throw new TypeError("Expected a string template");
+    const raw = typeof node.raw === "string" && node.raw.startsWith('"');
+    const text = raw ? node.raw.slice(1, -1) : String(node.value);
+    const parts = [];
+    let literal = "";
+    const flush = () => {
+        if (literal) {
+            parts.push(["s", literal]);
+            literal = "";
+        }
+    };
+    for (let i = 0; i < text.length; i++) {
+        if (text[i] === "\\" && i + 1 < text.length) {
+            if (text.slice(i + 1, i + 3) === "${") {
+                literal += "${";
+                i += 2;
+                continue;
+            }
+            if (raw) {
+                const n = text[++i];
+                literal +=
+                    { n: "\n", r: "\r", t: "\t", '"': '"', "\\": "\\" }[n] ?? "\\" + n;
+                continue;
+            }
+        }
+        if (text.slice(i, i + 2) === "${") {
+            let j = i + 2, quote = null, escaped = false;
+            for (; j < text.length; j++) {
+                const c = text[j];
+                if (quote) {
+                    if (escaped)
+                        escaped = false;
+                    else if (c === "\\")
+                        escaped = true;
+                    else if (c === quote)
+                        quote = null;
+                }
+                else if (c === "'")
+                    quote = c;
+                else if (c === "}")
+                    break;
+            }
+            if (j === text.length)
+                throw new SemanticEvaluationError("Unterminated string template");
+            flush();
+            parts.push(["v", text.slice(i + 2, j)]);
+            i = j;
+        }
+        else
+            literal += text[i];
+    }
+    flush();
+    return parts;
+}
+function normalizeRegexBodyForTarget(pattern) {
+    // Historical name kept to avoid broad call-site churn. This is deliberately
+    // an identity operation: no global \/ -> / or other regex-body rewriting.
+    return String(pattern ?? "");
+}
+function normalizeUrlRegexForTarget(pattern) {
+    const source = normalizeRegexBodyForTarget(pattern);
+    const prefix = source.match(/^(?:\(\?[imsx-]+\))?\^?http(?:s|\(s\)|\(\?:s\))?\??:(?:\\?\/){2}/);
+    if (!prefix)
+        return source;
+    let out = source.slice(0, prefix[0].length), classDepth = 0, quoted = false;
+    for (let i = prefix[0].length; i < source.length; i++) {
+        const ch = source[i];
+        if (quoted) {
+            out += ch;
+            if (ch === "\\" && source[i + 1] === "E") {
+                out += "E";
+                i++;
+                quoted = false;
+            }
+            continue;
+        }
+        if (ch === "\\") {
+            if (source[i + 1] === "Q")
+                quoted = true;
+            if (source[i + 1] === "/" && !classDepth)
+                return out + source.slice(i);
+            out += source.slice(i, i + 2);
+            i++;
+            continue;
+        }
+        if (ch === "/" && !classDepth)
+            return out + source.slice(i);
+        if (ch === "[")
+            classDepth++;
+        if (ch === "]" && classDepth)
+            classDepth--;
+        const separator = ch === "." &&
+            !classDepth &&
+            /[A-Za-z0-9_)\]]/.test(source[i - 1] || "") &&
+            /[A-Za-z0-9_(\[]/.test(source[i + 1] || "");
+        out += separator ? "\\." : ch;
+    }
+    return out;
+}
+function compileQxRegex(regex, body = false) {
+    assertRegexNode(regex);
+    const pattern = body
+        ? normalizeRegexBodyForTarget(regex.pattern)
+        : normalizeUrlRegexForTarget(regex.pattern);
+    const flags = [..."ims"].filter(flag => regex.flags?.includes(flag)).join("");
+    return { pattern: (flags ? "(?" + flags + ")" : "") + pattern, notes: [] };
+}
+const BT = String.fromCharCode(96), PUN = "(),[].|";
+function fail(s, i, m) {
+    throw new SyntaxError(m +
+        " at column " +
+        (i + 1) +
+        "\n" +
+        s +
+        "\n" +
+        " ".repeat(Math.max(0, i)) +
+        "^");
+}
+function dq(r) {
+    let o = "";
+    for (let i = 1; i < r.length - 1; i++) {
+        let c = r[i];
+        if (c !== "\\") {
+            o += c;
+            continue;
+        }
+        let n = r[++i];
+        o +=
+            n === "n"
+                ? "\n"
+                : n === "r"
+                    ? "\r"
+                    : n === "t"
+                        ? "\t"
+                        : n === '"'
+                            ? '"'
+                            : n === "\\"
+                                ? "\\"
+                                : "\\" + n;
+    }
+    return o;
+}
+function tokenizeRewriteV2(source) {
+    const s = String(source ?? ""), a = [];
+    let i = 0;
+    const add = (type, raw, value = raw, start = i, end = i + raw.length) => a.push({ type, raw, value, start, end });
+    while (i < s.length) {
+        let c = s[i];
+        if (/\s/.test(c)) {
+            i++;
+            continue;
+        }
+        let st = i, t = s.slice(i, i + 2);
+        if (["&&", "||", "==", "~="].includes(t)) {
+            add("operator", t, t, st, i + 2);
+            i += 2;
+            continue;
+        }
+        if (PUN.includes(c)) {
+            add("punct", c, c, st, ++i);
+            continue;
+        }
+        if (c === "$" && s[i + 1] === "{") {
+            i += 2;
+            let d = 1, q = null, e = false;
+            while (i < s.length && d) {
+                c = s[i];
+                if (q) {
+                    if (e)
+                        e = false;
+                    else if (c === "\\")
+                        e = true;
+                    else if (c === q)
+                        q = null;
+                    i++;
+                    continue;
+                }
+                if (c === "'") {
+                    q = c;
+                    i++;
+                    continue;
+                }
+                if (c === "{")
+                    d++;
+                else if (c === "}")
+                    d--;
+                i++;
+            }
+            if (d)
+                fail(s, st, "Unterminated variable");
+            let r = s.slice(st, i);
+            add("variable", r, r.slice(2, -1), st, i);
+            continue;
+        }
+        if (c === '"') {
+            i++;
+            let e = false, ok = false;
+            while (i < s.length) {
+                c = s[i++];
+                if (e) {
+                    e = false;
+                    continue;
+                }
+                if (c === "\\") {
+                    e = true;
+                    continue;
+                }
+                if (c === '"') {
+                    ok = true;
+                    break;
+                }
+            }
+            if (!ok)
+                fail(s, st, "Unterminated string");
+            let r = s.slice(st, i);
+            add("string", r, dq(r), st, i);
+            continue;
+        }
+        if (c === BT) {
+            i++;
+            let ok = false;
+            while (i < s.length) {
+                if (s[i] !== BT) {
+                    i++;
+                    continue;
+                }
+                if (s[i + 1] === BT) {
+                    i += 2;
+                    continue;
+                }
+                i++;
+                ok = true;
+                break;
+            }
+            if (!ok)
+                fail(s, st, "Unterminated raw string");
+            let r = s.slice(st, i);
+            add("raw-string", r, r
+                .slice(1, -1)
+                .split(BT + BT)
+                .join(BT), st, i);
+            continue;
+        }
+        if (c === "/") {
+            let regex;
+            try {
+                regex = scanSourceRegexLiteral(s, st);
+            }
+            catch (error) {
+                fail(s, st, error.message);
+            }
+            i = regex.end;
+            add("regex", s.slice(st, i), { pattern: regex.pattern, flags: regex.flags }, st, i);
+            continue;
+        }
+        let n = s
+            .slice(i)
+            .match(/^-?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?/);
+        if (n) {
+            let r = n[0];
+            i += r.length;
+            add("number", r, Number(r), st, i);
+            continue;
+        }
+        if (/[A-Za-z_]/.test(c)) {
+            i++;
+            while (i < s.length && /[A-Za-z0-9_-]/.test(s[i]))
+                i++;
+            let r = s.slice(st, i);
+            add("identifier", r, r, st, i);
+            continue;
+        }
+        fail(s, i, "Unexpected character " + JSON.stringify(c));
+    }
+    a.push({ type: "eof", raw: "", value: null, start: s.length, end: s.length });
+    return a;
+}
+class Parser {
+    constructor(s) {
+        this.s = String(s ?? "");
+        this.t = tokenizeRewriteV2(this.s);
+        this.i = 0;
+    }
+    p(n = 0) {
+        return this.t[Math.min(this.i + n, this.t.length - 1)];
+    }
+    is(t, v, n = 0) {
+        let x = this.p(n);
+        return x.type === t && (v === undefined || x.value === v);
+    }
+    kw(v) {
+        return this.is("identifier", v);
+    }
+    next() {
+        return this.t[this.i++];
+    }
+    need(t, v, m = undefined) {
+        let x = this.p();
+        if (!this.is(t, v))
+            fail(this.s, x.start, m || "Expected " + (v ?? t) + ", got " + (x.raw || x.type));
+        return this.next();
+    }
+    parse() {
+        let q = this.need("identifier", undefined, "Expected request or response"), phase = q.value.toLowerCase();
+        if (!["request", "response"].includes(phase))
+            fail(this.s, q.start, "Unsupported rewrite phase " + q.raw);
+        this.need("identifier", "if");
+        let condition = this.or();
+        this.need("identifier", "then");
+        let actions = this.pipe();
+        this.need("eof", undefined, "Unexpected trailing token");
+        return {
+            type: "rewrite",
+            syntax: "loon-rewrite-v2",
+            phase,
+            condition,
+            actions,
+            raw: this.s,
+        };
+    }
+    or() {
+        let l = this.and();
+        while (this.is("operator", "||")) {
+            this.next();
+            l = { type: "logical", operator: "||", left: l, right: this.and() };
+        }
+        return l;
+    }
+    and() {
+        let l = this.primary();
+        while (this.is("operator", "&&")) {
+            this.next();
+            l = { type: "logical", operator: "&&", left: l, right: this.primary() };
+        }
+        return l;
+    }
+    primary() {
+        if (this.is("punct", "(")) {
+            this.next();
+            let e = this.or();
+            this.need("punct", ")", "Expected closing condition parenthesis");
+            return { type: "group", expression: e };
+        }
+        return this.cmp();
+    }
+    cmp() {
+        let left = this.val(false), o = this.need("operator", undefined, "Expected == or ~="), right = this.val(false), capture = null;
+        if (!["==", "~="].includes(o.value))
+            fail(this.s, o.start, "Unsupported comparison " + o.raw);
+        if (this.kw("as")) {
+            if (o.value !== "~=")
+                fail(this.s, this.p().start, "as capture is only valid after ~=");
+            this.next();
+            capture = this.need("identifier", undefined, "Expected capture name").value;
+        }
+        return { type: "comparison", operator: o.value, left, right, capture };
+    }
+    pipe() {
+        let a = [this.action()];
+        while (this.is("punct", "|")) {
+            this.next();
+            a.push(this.action());
+        }
+        return a;
+    }
+    action() {
+        let n = [
+            this.need("identifier", undefined, "Expected action name").value,
+        ];
+        while (this.is("punct", ".")) {
+            this.next();
+            n.push(this.need("identifier", undefined, "Expected action name after dot")
+                .value);
+        }
+        let args = [];
+        if (this.is("punct", "(")) {
+            this.next();
+            if (!this.is("punct", ")"))
+                for (;;) {
+                    args.push(this.val(true));
+                    if (!this.is("punct", ","))
+                        break;
+                    this.next();
+                }
+            this.need("punct", ")", "Expected closing action parenthesis");
+        }
+        return { type: "action", name: n.join("."), args };
+    }
+    val(arr) {
+        let x = this.p();
+        if (arr && this.is("punct", "["))
+            return this.array();
+        if (x.type === "variable") {
+            this.next();
+            return { type: "variable", name: x.value, raw: x.raw };
+        }
+        if (["string", "raw-string"].includes(x.type)) {
+            this.next();
+            return { type: x.type, value: x.value, raw: x.raw };
+        }
+        if (x.type === "regex") {
+            this.next();
+            return {
+                type: "regex",
+                pattern: x.value.pattern,
+                flags: x.value.flags,
+                raw: x.raw,
+            };
+        }
+        if (x.type === "number") {
+            this.next();
+            return { type: "number", value: x.value, raw: x.raw };
+        }
+        if (x.type === "identifier" && ["true", "false"].includes(x.value)) {
+            this.next();
+            return { type: "boolean", value: x.value === "true", raw: x.raw };
+        }
+        if (x.type === "identifier" && x.value === "null") {
+            this.next();
+            return { type: "null", value: null, raw: x.raw };
+        }
+        fail(this.s, x.start, "Expected value, got " + (x.raw || x.type));
+    }
+    array() {
+        this.need("punct", "[");
+        let items = [];
+        if (!this.is("punct", "]"))
+            for (;;) {
+                if (this.is("punct", "["))
+                    fail(this.s, this.p().start, "Nested arrays are not supported");
+                items.push(this.val(false));
+                if (!this.is("punct", ","))
+                    break;
+                this.next();
+            }
+        this.need("punct", "]", "Expected closing array bracket");
+        return { type: "array", items };
+    }
+}
+function parseRewriteV2(s) {
+    return new Parser(s).parse();
+}
+function findRewriteComparisons(n, p = () => true, o = []) {
+    if (!n)
+        return o;
+    if (n.type === "comparison") {
+        if (p(n))
+            o.push(n);
+        return o;
+    }
+    if (n.type === "group")
+        return findRewriteComparisons(n.expression, p, o);
+    if (n.type === "logical") {
+        findRewriteComparisons(n.left, p, o);
+        findRewriteComparisons(n.right, p, o);
+    }
+    return o;
+}
+const defs = [
+    ["url.replace", 1, 1, false],
+    ["redirect", 2, 2, false],
+    ["reject", 1, 2, false],
+    ["reject_img", 1, 1, false],
+    ["reject_dict", 1, 1, false],
+    ["reject_array", 1, 1, false],
+    ["reject_video", 1, 1, false],
+    ["request.body.replace", 2, 2, true],
+    ["response.body.replace", 2, 2, true],
+    ["request.json.add", 2, 2, true],
+    ["request.json.delete", 1, 1, true],
+    ["request.json.replace", 2, 2, true],
+    ["request.json.jq", 1, 1, false],
+    ["request.json.jq_file", 1, 1, false],
+    ["response.json.add", 2, 2, true],
+    ["response.json.delete", 1, 1, true],
+    ["response.json.replace", 2, 2, true],
+    ["response.json.jq", 1, 1, false],
+    ["response.json.jq_file", 1, 1, false],
+    ["request.body.mock", 2, 3, false],
+    ["request.body.mock_file", 2, 3, false],
+    ["response.body.mock", 2, 4, false],
+    ["response.body.mock_file", 2, 4, false],
+];
+const LOON_REWRITE_V2_ACTIONS = new Map(defs.map(([name, minArgs, maxArgs, bulk]) => [
+    name,
+    Object.freeze({ name, minArgs, maxArgs, bulk }),
+]));
+function getRewriteV2ActionDefinition(name) {
+    return LOON_REWRITE_V2_ACTIONS.get(String(name ?? "")) || null;
+}
+function actionError(action, message) {
+    const error = new Error(action.name + ": " + message);
+    error.code = "LOON_REWRITE_V2_ACTION_INVALID";
+    error.action = action.name;
+    return error;
+}
+function validateRewriteV2Action(action) {
+    if (!action || action.type !== "action")
+        throw new TypeError("Expected Rewrite v2 action AST node");
+    const def = getRewriteV2ActionDefinition(action.name);
+    if (!def)
+        throw actionError(action, "action is not supported by the Quantumult X resource parser");
+    const count = action.args.length;
+    if (count < def.minArgs || count > def.maxArgs) {
+        const expected = def.minArgs === def.maxArgs
+            ? String(def.minArgs)
+            : def.minArgs + ".." + def.maxArgs;
+        throw actionError(action, "expected " + expected + " argument(s), got " + count);
+    }
+    const arrays = action.args.filter((arg) => arg.type === "array");
+    if (arrays.length) {
+        if (!def.bulk)
+            throw actionError(action, "array parameters are not documented for this action");
+        if (arrays.length !== action.args.length)
+            throw actionError(action, "bulk form must use arrays for every argument");
+        const lengths = new Set(arrays.map((arg) => arg.items.length));
+        if (arrays.some((arg) => arg.items.length === 0))
+            throw actionError(action, "bulk arrays must not be empty");
+        if (lengths.size !== 1)
+            throw actionError(action, "bulk arrays must have equal lengths");
+    }
+    return def;
+}
+function conditionError(message) {
+    const error = new Error(message);
+    error.code = "LOON_REWRITE_V2_CONDITION_INVALID";
+    return error;
+}
+function validateCondition(node, phase) {
+    if (!node)
+        throw conditionError("missing Rewrite v2 condition");
+    if (node.type === "group")
+        return validateCondition(node.expression, phase);
+    if (node.type === "logical") {
+        validateCondition(node.left, phase);
+        validateCondition(node.right, phase);
+        return;
+    }
+    if (node.type !== "comparison" || node.left?.type !== "variable")
+        throw conditionError("condition left side must be a variable");
+    const name = node.left.name;
+    const known = name === "url" ||
+        name === "request.method" ||
+        name === "response.status";
+    // Other variables may be declared plugin [Argument] references. Their
+    // declaration/type is validated by the argument-usage planner before any
+    // executable target rule is emitted, so keep them in the AST here.
+    if (!known)
+        return;
+    if (phase === "request" &&
+        name === "response.status")
+        throw conditionError("request phase cannot reference response data: " + name);
+    if (node.operator === "~=") {
+        if (!["regex", "variable"].includes(node.right?.type))
+            throw conditionError("~= requires a Regex right-hand value");
+        return;
+    }
+    if (node.operator !== "==")
+        throw conditionError("unsupported condition operator: " + node.operator);
+    if (name === "response.status" &&
+        node.right?.type !== "number" &&
+        node.right?.type !== "variable")
+        throw conditionError("response.status equality requires Number or typed variable");
+    if (name === "request.method" &&
+        !["string", "raw-string", "variable"].includes(node.right?.type))
+        throw conditionError("request.method equality requires String or typed variable");
+    if (name === "url" &&
+        !["string", "raw-string", "variable"].includes(node.right?.type))
+        throw conditionError("url equality requires String or typed variable");
+}
+function validateRewriteV2Ast(ast, { regexEngine = "icu" } = {}) {
+    if (!ast || ast.type !== "rewrite")
+        throw new TypeError("Expected Rewrite v2 AST root");
+    const validateRegexes = (node) => {
+        if (!node || typeof node !== "object")
+            return;
+        // Source regex validation uses ICU without
+        // rewriting atomic groups; JS execution remains a separate helper boundary.
+        if (node.type === "regex" && regexEngine === "javascript")
+            compileSourceRegex(node);
+        else if (node.type === "regex")
+            validateIcuPattern((node.flags ? "(?" + node.flags + ")" : "") + node.pattern, "Invalid source regex");
+        const names = node.type === "variable"
+            ? [node.name]
+            : node.type === "string"
+                ? stringTemplateParts(node)
+                    .filter((p) => p[0] === "v")
+                    .map((p) => p[1])
+                : [];
+        if (ast.phase === "request" &&
+            names.includes("response.status"))
+            throw conditionError("request phase cannot reference response data");
+        for (const value of Object.values(node)) {
+            if (Array.isArray(value))
+                value.forEach(validateRegexes);
+            else if (value && typeof value === "object")
+                validateRegexes(value);
+        }
+    };
+    validateRegexes(ast);
+    validateCondition(ast.condition, ast.phase);
+    return ast.actions.map(validateRewriteV2Action);
+}
+function parseJsonKeyPath(pathText) {
+    const text = String(pathText ?? "");
+    if (!text)
+        throw new Error("JSON key path must not be empty");
+    const parts = [];
+    let i = 0;
+    const decodeSingleQuoted = (value) => {
+        let out = "";
+        for (let j = 1; j < value.length - 1; j++) {
+            const ch = value[j];
+            if (ch !== "\\") {
+                out += ch;
+                continue;
+            }
+            if (j + 1 >= value.length - 1) {
+                out += "\\";
+                continue;
+            }
+            const next = value[++j];
+            if (next === "'" || next === "\\")
+                out += next;
+            else if (next === "n")
+                out += "\n";
+            else if (next === "r")
+                out += "\r";
+            else if (next === "t")
+                out += "\t";
+            else
+                out += "\\" + next;
+        }
+        return out;
+    };
+    while (i < text.length) {
+        if (text[i] === ".") {
+            i++;
+            continue;
+        }
+        if (text[i] === "[") {
+            const rest = text.slice(i);
+            const numeric = rest.match(/^\[(\d+)\]/);
+            if (numeric) {
+                parts.push(Number(numeric[1]));
+                i += numeric[0].length;
+                continue;
+            }
+            const quoted = rest.match(/^\[((?:"(?:\\.|[^"\\])*")|(?:'(?:\\.|[^'\\])*'))\]/);
+            if (!quoted)
+                throw new Error("unsupported JSON key-path bracket syntax: " + text);
+            let value;
+            if (quoted[1].startsWith('"')) {
+                try {
+                    value = JSON.parse(quoted[1]);
+                }
+                catch {
+                    throw new Error("invalid quoted JSON key-path segment: " + text);
+                }
+            }
+            else {
+                value = decodeSingleQuoted(quoted[1]);
+            }
+            parts.push(value);
+            i += quoted[0].length;
+            continue;
+        }
+        const bare = text.slice(i).match(/^[^.[\]]+/);
+        if (!bare)
+            throw new Error("invalid JSON key path: " + text);
+        parts.push(bare[0]);
+        i += bare[0].length;
+    }
+    if (!parts.length)
+        throw new Error("JSON key path must not be empty");
+    return parts;
+}
+function validateParts(parts) {
+    if (!Array.isArray(parts) ||
+        !parts.length ||
+        parts.some((part) => typeof part !== "string" && !Number.isInteger(part))) {
+        throw new Error("JQ path must be a non-empty array of string/integer segments");
+    }
+    return parts;
+}
+function planFixedPathDeleteJq(paths, { sourceForm = "key-path" } = {}) {
+    if (!Array.isArray(paths) || !paths.length)
+        throw new Error("delete path list must contain nonempty parsed paths");
+    if (!["key-path", "path-arrays"].includes(sourceForm))
+        throw new Error("unknown deletion source representation");
+    const parts = paths.map((item) => validateParts(Array.isArray(item) ? item : item?.parts));
+    const prefix = (a, b) => a.length < b.length && a.every((part, i) => part === b[i]);
+    const independent = parts.every((path) => path.every((part) => typeof part === "string")) &&
+        !parts.some((path, i) => parts.some((other, j) => i !== j && (prefix(path, other) || prefix(other, path))));
+    if (independent) {
+        const selectors = parts.map((path) => "." +
+            path
+                .map((key, i) => /^[A-Za-z_][A-Za-z0-9_]*$/.test(key)
+                ? (i ? "." : "") + key
+                : "[" + JSON.stringify(key) + "]")
+                .join(""));
+        return {
+            form: "del",
+            reason: "independent-object-paths",
+            sourceForm,
+            execution: "sequential",
+            jq: "del(" + selectors.join(",") + ")",
+        };
+    }
+    return {
+        form: parts.length === 1 ? "delpaths" : "reduce",
+        reason: "ordered-path-deletion",
+        sourceForm,
+        execution: "sequential",
+        jq: parts.length === 1
+            ? "delpaths(" + JSON.stringify(parts) + ")"
+            : "reduce " + JSON.stringify(parts) + "[] as $p (.;delpaths([$p]))",
+    };
+}
+function renderFixedPathDeleteJq(paths, options = undefined) {
+    return planFixedPathDeleteJq(paths, options).jq;
+}
+function renderFixedJsonMutationJq(operation, entries) {
+    if (!Array.isArray(entries) || !entries.length)
+        throw new Error(operation + " entries must not be empty");
+    if (operation === "delete")
+        return renderFixedPathDeleteJq(entries);
+    if (operation === "add")
+        return entries
+            .map((entry) => renderFixedPathAddJq(entry.parts, entry.value))
+            .join(" | ");
+    if (operation === "replace")
+        return entries
+            .map((entry) => renderFixedPathReplaceJq(entry.parts, entry.value))
+            .join(" | ");
+    throw new Error("unsupported fixed JSON mutation: " + operation);
+}
+function quoteJq(expr) {
+    return `'${transformJqText(String(expr).replace(/^\uFEFF/, ""))}'`;
+}
+function unsupported(reason, extra = {}) {
+    return { ok: false, reason, ...extra };
+}
+function stringNode(node) {
+    if (!node || !["string", "raw-string"].includes(node.type))
+        return null;
+    return String(node.value);
+}
+function scalarItems(node) {
+    return node?.type === "array" ? node.items : [node];
+}
+function urlComparisonRegex(c) {
+    if (c?.type !== "comparison" ||
+        c.left?.type !== "variable" ||
+        c.left.name !== "url")
+        return null;
+    if (c.operator === "~=" && c.right?.type === "regex")
+        return { regex: c.right, capture: c.capture || null };
+    if (c.operator !== "==" || !["string", "raw-string"].includes(c.right?.type))
+        return null;
+    const parts = stringTemplateParts(c.right);
+    if (parts.some(([kind]) => kind !== "s"))
+        return null;
+    const value = parts.map(([, part]) => part).join("");
+    const pattern = "^" +
+        regexEscape(value).replace(/\s/g, (ch) => "\\u" + ch.charCodeAt(0).toString(16).padStart(4, "0")) +
+        "$";
+    return { regex: { type: "regex", pattern, flags: "" }, capture: null };
+}
+function simpleUrlRewriteCondition(ast) {
+    if (!ast || ast.type !== "rewrite")
+        return unsupported("expected Rewrite v2 AST");
+    const c = unwrap(ast.condition);
+    const match = urlComparisonRegex(c);
+    if (!match)
+        return unsupported("condition is not a single fixed URL comparison");
+    return { ok: true, ...compileQxRegex(match.regex) };
+}
+function parseKeyPath(path) {
+    return parseJsonKeyPath(path);
+}
+function jqPathSelector(parts) {
+    validateParts(parts);
+    return parts.reduce((out, part) => typeof part === "number"
+        ? out + "[" + part + "]"
+        : /^[A-Za-z_][A-Za-z0-9_]*$/.test(part)
+            ? out + (out === "." ? "" : ".") + part
+            : out + "[" + JSON.stringify(part) + "]", ".");
+}
+function pathSelector(path) {
+    return jqPathSelector(parseKeyPath(path));
+}
+function renderFixedPathAddJq(parts, value) {
+    validateParts(parts);
+    return "setpath(" + JSON.stringify(parts) + "; " + value + ")";
+}
+function anyToJq(node) {
+    if (!node)
+        throw new Error("missing JSON value");
+    if (node.type === "string") {
+        const parts = stringTemplateParts(node);
+        if (parts.some((p) => p[0] === "v"))
+            throw new Error("JSON template requires a semantic feature helper");
+        return JSON.stringify(parts.map((p) => p[1]).join(""));
+    }
+    if (node.type === "raw-string") {
+        try {
+            return JSON.stringify(JSON.parse(node.value));
+        }
+        catch {
+            return JSON.stringify(node.value);
+        }
+    }
+    if (node.type === "number" || node.type === "boolean")
+        return JSON.stringify(node.value);
+    if (node.type === "null")
+        return "null";
+    if (node.type === "variable")
+        throw new Error("plugin/capture variable JSON value requires a target runtime bridge");
+    throw new Error("unsupported JSON value node: " + node.type);
+}
+function qxQuote(value) {
+    return quoteJq(value);
+}
+function renderFixedPathReplaceJq(parts, value) {
+    validateParts(parts);
+    return "setpath(" + JSON.stringify(parts) + "; " + value + ")";
+}
+function jsonActionToJq(action) {
+    const name = action?.name || "";
+    if (!/^(?:request|response)\.json\.(?:add|delete|replace)$/.test(name)) {
+        return unsupported("JSON action is outside add/delete/replace direct subset");
+    }
+    if (name.endsWith(".delete")) {
+        const nodes = scalarItems(action.args[0]);
+        const paths = nodes.map((node) => {
+            const value = stringNode(node);
+            if (value === null)
+                throw new Error(name + ": key path must be a fixed string");
+            const parts = parseKeyPath(value);
+            return {
+                parts,
+                literal: JSON.stringify(parts),
+                selector: pathSelector(value),
+            };
+        });
+        return { ok: true, jq: renderFixedPathDeleteJq(paths) };
+    }
+    const paths = scalarItems(action.args[0]);
+    const values = scalarItems(action.args[1]);
+    if (paths.length !== values.length)
+        throw new Error(name + ": batch argument lengths differ");
+    const ops = paths.map((node, index) => {
+        const key = stringNode(node);
+        if (key === null)
+            throw new Error(name + ": key path must be a fixed string");
+        const parts = parseKeyPath(key);
+        const value = anyToJq(values[index]);
+        if (name.endsWith(".add")) {
+            return renderFixedPathAddJq(parts, value);
+        }
+        return renderFixedPathReplaceJq(parseKeyPath(key), value);
+    });
+    return { ok: true, jq: ops.join(" | ") };
+}
+function fixedJsonKeyPath(node, actionName) {
+    if (!["string", "raw-string"].includes(node?.type))
+        throw new Error(actionName + ": key path must be a fixed string");
+    const pieces = stringTemplateParts(node);
+    if (pieces.some((piece) => piece[0] !== "s"))
+        throw new Error(actionName + ": dynamic key path requires runtime transport");
+    const parts = parseKeyPath(pieces.map((piece) => piece[1]).join(""));
+    // Use the existing native path lowering for
+    // whole pipelines, including array indices and ordered deletion effects.
+    return parts;
+}
+function fixedJsonOps(action) {
+    const name = action?.name || "";
+    if (!/^(?:request|response)\.json\.(?:add|delete|replace)$/.test(name)) {
+        return unsupported("JSON pipeline action is outside add/delete/replace subset");
+    }
+    const paths = scalarItems(action.args[0]);
+    const values = name.endsWith(".delete")
+        ? null
+        : scalarItems(action.args[1]);
+    if (values && paths.length !== values.length) {
+        return unsupported(name + ": batch argument lengths differ");
+    }
+    const operation = name.split(".").at(-1);
+    const entries = [];
+    for (let index = 0; index < paths.length; index++) {
+        let key;
+        try {
+            key = fixedJsonKeyPath(paths[index], name);
+        }
+        catch (error) {
+            return unsupported(String(error?.message || error));
+        }
+        if (operation === "delete") {
+            entries.push({ parts: key });
+            continue;
+        }
+        try {
+            entries.push({ parts: key, value: anyToJq(values[index]) });
+        }
+        catch (error) {
+            return unsupported(String(error?.message || error));
+        }
+    }
+    const ops = [renderFixedJsonMutationJq(operation, entries)];
+    return { ok: true, ops };
+}
+function jsonPipelineToSafeNativeJq(ast) {
+    validateRewriteV2Ast(ast);
+    if (!Array.isArray(ast?.actions) || ast.actions.length < 1) {
+        return unsupported("native JSON pipeline requires at least one action");
+    }
+    if (!["request", "response"].includes(ast.phase)) {
+        return unsupported("native JSON pipeline requires request/response phase");
+    }
+    if (ast.actions.some((action) => !new RegExp("^" + ast.phase + "\\.json\\.(?:add|delete|replace|jq)$").test(action.name))) {
+        return unsupported("native JSON pipeline requires same-phase add/delete/replace/jq actions only");
+    }
+    const ops = [];
+    // Translate each action inside the source
+    // declaration directly to jq; never split its pipeline into target rules.
+    for (const action of ast.actions) {
+        if (action.name === ast.phase + ".json.jq") {
+            const parts = stringTemplateParts(action.args[0]);
+            if (parts.some((part) => part[0] !== "s"))
+                return unsupported("native JQ requires fixed source expression");
+            const expression = parts.map((part) => part[1]).join("");
+            const filter = transformJqText(expression.replace(/^\uFEFF/, ""));
+            if (!filter) return unsupported("JQ expression is empty");
+            ops.push("(" + filter + ")");
+            continue;
+        }
+        const mapped = fixedJsonOps(action);
+        if (!mapped.ok)
+            return mapped;
+        ops.push(...mapped.ops);
+    }
+    return { ok: true, jq: ops.join(" | ") };
+}
+function qxDirectRewritePlan(ast, { matcher = null } = {}) {
+    validateRewriteV2Ast(ast);
+    if (ast.actions.length !== 1)
+        return unsupported("QX direct mapping requires exactly one action");
+    let condition;
+    if (matcher) {
+        if (matcher.exact !== true || !matcher.prefix) {
+            return unsupported("QX direct native action requires an exact matcher plan");
+        }
+        condition = {
+            ok: true,
+            pattern: matcher.urlPattern,
+            prefix: matcher.prefix,
+            notes: [],
+        };
+    }
+    else {
+        condition = simpleUrlRewriteCondition(ast);
+        if (!condition.ok)
+            return condition;
+        condition = { ...condition, prefix: condition.pattern + " url " };
+    }
+    const action = ast.actions[0];
+    if (action.name === "redirect") {
+        const status = action.args[0];
+        if (ast.phase !== "request" ||
+            status?.type !== "number" ||
+            ![302, 307].includes(status.value)) {
+            return unsupported("QX native redirect requires request phase and status 302 or 307");
+        }
+        const urlConditions = findRewriteComparisons(ast.condition, (c) => Boolean(urlComparisonRegex(c)));
+        if (urlConditions.length !== 1)
+            return unsupported("QX native redirect requires one URL regex capture scope");
+        try {
+            const replacement = loonTemplateToQxUrl(action.args[1], urlConditions[0].capture);
+            return {
+                ok: true,
+                strategy: "direct",
+                section: "rewrite",
+                pattern: condition.pattern,
+                line: condition.prefix + status.value + " " + replacement,
+                notes: condition.notes,
+            };
+        }
+        catch (error) {
+            return unsupported(String(error.message || error));
+        }
+    }
+    const primitive = qxPrimitiveForRewriteV2Action(action);
+    if (primitive && /^(?:reject-|reject$)/.test(primitive)) {
+        return {
+            ok: true,
+            strategy: "direct",
+            section: "rewrite",
+            pattern: condition.pattern,
+            line: condition.prefix + primitive,
+            notes: condition.notes,
+        };
+    }
+    if (action.name === "request.json.jq" || action.name === "response.json.jq") {
+        const jq = stringNode(action.args[0]);
+        if (jq === null)
+            return unsupported(action.name + ": inline JQ must be a fixed string");
+        const token = primitive;
+        return {
+            ok: true,
+            strategy: "direct",
+            section: "rewrite",
+            pattern: condition.pattern,
+            line: condition.prefix + token + " " + qxQuote(jq),
+            notes: condition.notes,
+        };
+    }
+    if (/^(?:request|response)\.json\.(?:add|delete|replace)$/.test(action.name)) {
+        const mapped = jsonActionToJq(action);
+        if (!mapped.ok)
+            return mapped;
+        const token = primitive;
+        return {
+            ok: true,
+            strategy: "direct",
+            section: "rewrite",
+            pattern: condition.pattern,
+            line: condition.prefix + token + " " + qxQuote(mapped.jq),
+            notes: condition.notes,
+        };
+    }
+    if (action.name === "request.body.replace" ||
+        action.name === "response.body.replace") {
+        if (action.args.some((node) => node.type === "array")) {
+            const members = expandBulkAction(action).map((args) => qxDirectRewritePlan({ ...ast, actions: [{ ...action, args }] }, { matcher }));
+            if (members.some((plan) => !plan.ok))
+                return members.find((plan) => !plan.ok);
+            const lines = members.flatMap((plan) => plan.lines || [plan.line]);
+            return { ...members[0], line: lines[0], lines };
+        }
+        const regex = action.args[0];
+        const replacement = stringNode(action.args[1]);
+        if (regex?.type !== "regex" || replacement === null)
+            return unsupported(action.name + ": invalid body replacement arguments");
+        const bodyRegex = compileQxRegex(regex, true);
+        if (/\s/.test(bodyRegex.pattern) || /[\r\n]/.test(replacement))
+            return unsupported("QX direct body replacement with literal whitespace requires script fallback");
+        const token = primitive;
+        return {
+            ok: true,
+            strategy: "direct",
+            section: "rewrite",
+            pattern: condition.pattern,
+            line: condition.prefix +
+                token +
+                " " +
+                bodyRegex.pattern +
+                " " +
+                token +
+                " " +
+                replacement,
+            notes: [...condition.notes, ...bodyRegex.notes],
+        };
+    }
+    return unsupported("action requires generated script or target-specific mapping");
+}
+function loonTemplateToQxUrl(node, capture) {
+    return stringTemplateParts(node)
+        .map(([kind, value]) => {
+        if (kind === "s") {
+            // Native URL Rewrite has no documented literal-dollar escape. Never
+            // reinterpret raw/escaped Loon text as a target capture or placeholder.
+            if (/[$\\\s]/.test(value))
+                throw new Error("URL replacement literal cannot be represented safely in Quantumult X");
+            return value;
+        }
+        const ref = value.match(/^([A-Za-z_][A-Za-z0-9_-]*)\.(\d+)$/);
+        if (ref) {
+            if (!capture || ref[1] !== capture)
+                throw new Error("URL replacement contains a non-URL capture");
+            if (Number(ref[2]) === 0)
+                throw new Error("Quantumult X URL Rewrite does not document a complete-match $0 replacement");
+            return "$" + Number(ref[2]);
+        }
+        throw new Error("URL replacement contains an unsupported variable: " + value);
+    })
+        .join("");
+}
+function fixedNoTemplate(node, what) {
+    const value = stringNode(node);
+    if (value === null)
+        throw new Error(what + " must be a fixed string");
+    if (value.includes("$" + "{"))
+        throw new Error(what + " contains a runtime variable");
+    return value;
+}
+function expandBulkAction(action) {
+    if (!action.args.some((arg) => arg.type === "array"))
+        return [action.args];
+    const arrays = action.args.map((arg) => arg.items);
+    return arrays[0].map((_, index) => arrays.map((items) => items[index]));
+}
+const QX_REWRITE_PRIMITIVES = Object.freeze({
+    "url.replace": null,
+    redirect: Object.freeze({ 302: "302", 307: "307" }),
+    reject: Object.freeze({ 200: "reject-200", 404: "reject" }),
+    reject_img: Object.freeze({ 200: "reject-img" }),
+    reject_dict: Object.freeze({ 200: "reject-dict" }),
+    reject_array: Object.freeze({ 200: "reject-array" }),
+    reject_video: null,
+    "request.body.replace": "request-body",
+    "response.body.replace": "response-body",
+    ...Object.fromEntries(["request", "response"].flatMap(phase =>
+        ["add", "delete", "replace", "jq", "jq_file"].map(action =>
+            [phase + ".json." + action, "jsonjq-" + phase + "-body"]
+        )
+    )),
+    "request.body.mock": null,
+    "request.body.mock_file": null,
+    "response.body.mock": null,
+    "response.body.mock_file": null,
+});
+function qxPrimitiveForRewriteV2Action(action) {
+    validateRewriteV2Action(action);
+    const mapping = QX_REWRITE_PRIMITIVES[action.name];
+    if (!mapping)
+        return null;
+    if (typeof mapping === "string")
+        return mapping;
+    // A custom reject body needs the existing semantic/script planner.
+    if (action.name === "reject" && action.args.length !== 1)
+        return null;
+    const status = action.args[0];
+    return status?.type === "number" ? (mapping[status.value] ?? null) : null;
+}
+function unwrap(node) {
+    let cur = node;
+    while (cur?.type === "group")
+        cur = cur.expression;
+    return cur;
+}
+function regexEscape(value) {
+    return String(value).replace(/[.*+?^$\{\}()|[\]\\]/g, "\\$&");
+}
+function comparisonKey(node) {
+    const match = urlComparisonRegex(node);
+    if (!match)
+        return null;
+    const { pattern, flags } = match.regex;
+    return {
+        key: pattern + "\u0000" + String(flags || ""),
+        pattern: compileQxRegex(match.regex).pattern,
+    };
+}
+function exactPredicates(node) {
+    const n = unwrap(node);
+    if (!n)
+        return { ok: false, reason: "missing Rewrite condition" };
+    if (n.type === "comparison") {
+        const item = comparisonKey(n);
+        if (!item) {
+            return {
+                ok: false,
+                reason: "condition comparison is outside the exact QX matcher subset",
+            };
+        }
+        return { ok: true, predicates: new Map([[item.key, item]]) };
+    }
+    if (n.type !== "logical" || n.operator !== "&&") {
+        return {
+            ok: false,
+            reason: "exact QX matcher currently requires a comparison or AND-only condition",
+        };
+    }
+    const left = exactPredicates(n.left);
+    if (!left.ok)
+        return left;
+    const right = exactPredicates(n.right);
+    if (!right.ok)
+        return right;
+    const merged = new Map([...left.predicates, ...right.predicates]);
+    if (merged.size > 1)
+        return {
+            ok: false,
+            reason: "exact QX matcher cannot intersect multiple distinct URL regex predicates",
+        };
+    return { ok: true, predicates: merged };
+}
+function qxExactRewriteMatcherPlan(ast) {
+    const exact = exactPredicates(ast?.condition);
+    if (!exact.ok)
+        return exact;
+    const urlPattern = exact.predicates.values().next().value.pattern;
+    return { ok: true, exact: true, urlPattern, prefix: urlPattern + " url " };
+}
+
+  // Script V2 与 Rewrite V2 共用条件语法；脚本参数和 with 独立处理。
+  function convertScriptV2(row) {
+    const skip = reason => ({ reason });
+    if (!IsLoonRewriteV2(row)) {
+      return skip("定时、网络切换和手动脚本需要 Quantumult X [task_local]，不能导入重写资源");
+    }
+    try {
+      const string = /"(?:[^"\\]|\\.)*"|`(?:[^`]|``)*`/.source;
+      const variable = /\$\{[a-z_][\w-]*\}/i.source;
+      const object = "\\{\\s*" + variable + "(?:\\s*,\\s*" + variable + ")*\\s*\\}";
+      const call = new RegExp("\\bthen\\s+script\\s*\\(\\s*(" + string +
+        ")\\s*(?:,\\s*(" + string + "|" + object + "))?\\s*\\)\\s*(?:with\\s+(.+))?$").exec(row);
+      if (!call) return skip("Script V2 需要一条 script(...) 声明和有效的脚本路径");
+      const ast = parseRewriteV2(row.slice(0, call.index) + "then reject(200)");
+      validateCondition(ast.condition, ast.phase);
+      if (findRewriteComparisons(ast.condition, condition => condition.capture).length) {
+        return skip("Script V2 条件不支持 as 命名捕获");
+      }
+      const matcher = qxExactRewriteMatcherPlan(ast);
+      if (!matcher.ok) return matcher;
+      const path = fixedNoTemplate(new Parser(call[1]).val(false), "脚本路径");
+      const remote = /^https:\/\/[^/#?]+(?:[/?#]|$)/i.test(path);
+      const local = /^(?:[\w.@-]+\/)*[\w.@-]+\.js$/i.test(path) &&
+        !path.split("/").some(part => part === "." || part === "..");
+      if (!path || /[\s"'<>\\\x00-\x1f\x7f]/.test(path) || (!remote && !local)) {
+        return skip("脚本路径需要 HTTPS URL 或 Quantumult X 本地脚本文件");
+      }
+      if (call[2]) {
+        return skip("Loon 的 script(...) 参数需要适配后的脚本读取，重写资源不能传入 $argument");
+      }
+      const options = new Map();
+      const fields = new RegExp("\\s*([a-z_]+)\\s*=\\s*(" + string + "|" + variable +
+        "|true|false|[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?)\\s*(,|$)", "y");
+      const body = call[3] || "";
+      while (fields.lastIndex < body.length) {
+        const field = fields.exec(body);
+        if (!field || (field[3] && fields.lastIndex === body.length)) return skip("Script V2 的 with 参数格式有误");
+        const [, name, raw] = field;
+        if (options.has(name)) return skip("重复的 Script V2 参数：" + name);
+        const node = new Parser(raw.replace(/^\+(?=\d|\.)/, "")).val(false);
+        const boolean = node.type === "boolean", dynamic = node.type === "variable";
+        const valid = {
+          enable: boolean || dynamic, debug: boolean || dynamic,
+          requires_body: boolean, binary_body_mode: boolean,
+          timeout: dynamic || (node.type === "number" && Number.isFinite(node.value) && node.value > 0),
+          tag: node.type === "string" || node.type === "raw-string",
+          img_url: node.type === "string" || node.type === "raw-string"
+        };
+        if (valid[name] !== true) return skip("无法识别的 Script V2 参数或值：" + name);
+        if (name === "tag" || name === "img_url") fixedNoTemplate(node, name);
+        options.set(name, node);
+      }
+      const enable = options.get("enable");
+      if (enable?.value === false) return { disabled: true };
+      if (enable?.type === "variable") return skip("Script V2 动态启用依赖 Loon 插件参数");
+      const debug = options.get("debug");
+      const unsupportedOptions = [];
+      if (options.get("binary_body_mode")?.value === true) unsupportedOptions.push("binary_body_mode=true");
+      if (options.has("timeout")) unsupportedOptions.push("timeout");
+      if (debug?.value === true) unsupportedOptions.push("debug=true");
+      if (debug?.type === "variable") unsupportedOptions.push("动态 debug");
+      const action = "script-" + ast.phase + (options.get("requires_body")?.value === true ? "-body" : "-header");
+      return { lines: [matcher.prefix + action + " " + path], omittedOptions: unsupportedOptions };
+    } catch (error) {
+      return skip("Loon Script V2: " + String(error.message || error).split("\n")[0]);
+    }
+  }
+
+  function convertRewriteV2(row) {
+    function hasArgument(node) {
+      if (node.type === "array") return node.items.some(hasArgument);
+      return node.type === "variable" ||
+        (node.type === "string" && stringTemplateParts(node).some(part => part[0] === "v"));
+    }
+    try {
+      const ast = parseRewriteV2(row);
+      validateRewriteV2Ast(ast, { regexEngine: "javascript" });
+      const matcher = qxExactRewriteMatcherPlan(ast);
+      if (!matcher.ok) return { reason: matcher.reason };
+      if (ast.actions.some(action => action.name !== "redirect" && action.args.some(hasArgument))) {
+        return { reason: "该动作使用的变量需要插件参数或脚本运行时" };
+      }
+      const first = ast.actions[0];
+      if (ast.actions.some(action => /\.(?:jq_file|mock_file)$/.test(action.name))) {
+        return { reason: "资源解析器无法主动下载 jq_file 或 mock_file 依赖，请导入离线转换后的重写" };
+      }
+      const isJson = action => /^(?:request|response)\.json\.(?:add|delete|replace|jq)$/.test(action.name);
+      if (ast.actions.every(isJson)) {
+        if (version < 845) return { reason: "jsonjq 需要 Quantumult X build 845 或更新版本" };
+        const mapped = jsonPipelineToSafeNativeJq(ast);
+        if (!mapped.ok) return mapped;
+        return { lines: [matcher.prefix + "jsonjq-" + ast.phase + "-body " + quoteJq(mapped.jq)], jq: true };
+      }
+      if (ast.actions.length !== 1) return { reason: "无法在 QX 原生重写中保留这组动作的执行顺序" };
+      if (ast.phase !== "request" && /^(?:redirect|reject(?:_|$))/.test(first.name)) {
+        return { reason: "此动作无法保留原响应阶段" };
+      }
+      const mapped = qxDirectRewritePlan(ast, { matcher });
+      if (!mapped.ok) return mapped;
+      return { lines: mapped.lines || [mapped.line] };
+    } catch (error) {
+      return { reason: "Loon Rewrite V2: " + String(error.message || error).split("\n")[0] };
+    }
+  }
+  convertRewriteV2.script = convertScriptV2;
+  return convertRewriteV2;
+}
+
 // ⟦2026-11-02 18:07 UTC+8⟧ reject/跳转重写转换排除已识别的分流，避免把末尾策略误转为 url reject。
-function isQuanXRewrite(content, failures) {
+function isQuanXRewrite(content, failures, jqRows) {
   var cnt = content.filter(Boolean)
   var cnt0=[]
   var ignoredEcho = failures || []
+  var convertLoonV2
+  var omittedScriptOptions = new Set()
   var section = "", inComment = false, sectionInComment = false
   for (var i = 0; i< cnt.length; i++){
     if(cnt[i]){
@@ -3939,6 +5405,26 @@ function isQuanXRewrite(content, failures) {
         inComment = false; sectionInComment = false; continue
       }
       if (/^\[[^\]]+\]$/.test(cnti)) { section = cnti.toLowerCase(); sectionInComment = inComment; continue }
+      if (!inComment) {
+        const scriptV2 = (!section || section === "[script]") && IsLoonScriptV2(cnti);
+        const rewriteV2 = (!section || section === "[rewrite]" || section === "[rewrite_local]") && IsLoonRewriteV2(cnti);
+        if (scriptV2 || rewriteV2) {
+          if (!convertLoonV2) convertLoonV2 = CreateLoonRewriteV2Converter();
+          const converted = scriptV2 ? convertLoonV2.script(cnti) : convertLoonV2(cnti);
+          if (converted.lines) {
+            converted.lines.forEach(line => {
+              if (converted.jq) { jqRows.add(cnt0.length) }
+              cnt0.push(RuleNoteJoin(noteParts.note, line));
+            });
+            if (converted.omittedOptions) {
+              converted.omittedOptions.forEach(option => omittedScriptOptions.add(option));
+            }
+          } else if (!converted.disabled) {
+            ignoredEcho.push({ rule: originalRewrite, reason: converted.reason });
+          }
+          continue;
+        }
+      }
       // 分流区段外只识别已知类型且逗号后仍有内容的行，不再把 url, 等 JS 字段视为分流。
       var filterRule = /^[a-z][\w-]*\s*,/i.test(cnti) && (
         section == "[rule]" || section == "[filter_local]" ||
@@ -4016,11 +5502,17 @@ function isQuanXRewrite(content, failures) {
           ignoredEcho.push({ rule: originalRewrite, reason: echoReason })
           continue
         }
+        if (/\surl(?:-and-header)?\s+jsonjq-(?:request|response)-body\s/i.test(cnti)) {
+          jqRows.add(cnt0.length)
+        }
         cnt0.push(RuleNoteJoin(noteParts.note, RewritePatternQuoteFix(cnti))) // 说明仅在正文通过检查后回附
         //$notify(cnti,"已经写入")
       }
       }
     }
+  }
+  if (omittedScriptOptions.size) {
+    $notify("⚠️ Script V2 已省略无法映射的参数", "", [...omittedScriptOptions].join("、"));
   }
   NotifyUnsupportedRules(ignoredEcho)
   //console.log(cnt0)
