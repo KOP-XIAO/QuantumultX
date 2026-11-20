@@ -1186,7 +1186,7 @@ function Type_Check(subs) {
     var JsonJQK = [" response-body-json-jq ", " request-body-json-jq ", " response-body-json-del ", " response-body-json-replace ", " http-response-jq ", " http-request-jq "] // 需要转换成 QuanX jsonjq 的 rewrite
     // Hysteria2 两种 URI 前缀共用 build 门槛和转换。
     var SubK2 = ["ss://", "vmess://", "ssr://", "trojan://", "ssd://", "\nhttps://", "\nhttp://","socks://","ssocks://","vless://","anytls://","wireguard://","wg://","tuic://","hysteria2://","hy2://"];
-    var ModuleK = ["[Script]", "[Rule]", "[URL Rewrite]", "[Map Local]", "\nhttp-r", "script-path"]
+    var ModuleK = ["[Script]", "[URL Rewrite]", "[Map Local]", "\nhttp-r", "script-path"]
     var QXProfile = ["[filter_local]","[filter_remote]","[server_local]","[server_remote]"]
     var html = "DOCTYPE html"
     var subi = subs.replace(/ /g, "")
@@ -1214,7 +1214,7 @@ function Type_Check(subs) {
     } else if (typeQ === "rewrite" && !/^(?:nodes|rule)$/.test(typeU) && para1.indexOf("dst=filter") === -1 && subsn.some(function (row) { return IsLoonRewriteV2(row.trim()) })) {
       typec = "rewrite";
       type = "rewrite";
-    } else if ( (((ModuleK.some(RewriteCheck) || /^\s*\[(?:header|body) rewrite\]\s*$/im.test(subs) || subsn.some(IsMapLocalInline) || (typeQ === "rewrite" && subsn.some(row => /^URL-REGEX\s*,/i.test(row.trim()))) || para1.indexOf("dst=rewrite") != -1) && (para1.indexOf("dst=filter") == -1) && subs.indexOf("[Proxy]") == -1) || typeU == "module") && typeU != "nodes" && typeU != "rule" && typeQ !="filter") { // Surge 类型 module /rule-set(含url-regex) 类型
+    } else if ( (((ModuleK.some(RewriteCheck) || /^\s*\[(?:rule|(?:header|body) rewrite)\]\s*$/im.test(subs) || subsn.some(IsMapLocalInline) || (typeQ === "rewrite" && subsn.some(row => /^URL-REGEX\s*,/i.test(row.trim()))) || para1.indexOf("dst=rewrite") != -1) && (para1.indexOf("dst=filter") == -1) && subs.indexOf("[Proxy]") == -1) || typeU == "module") && typeU != "nodes" && typeU != "rule" && typeQ !="filter") { // Surge 类型 module /rule-set(含url-regex) 类型
       typec="rewrite"
       type = (typeQ == "unsupported" || typeQ =="rewrite")? "sgmodule" : "wrong-field"
     } else if ((/(^hostname|\nhostname)\s*\=/.test(subi) || RewriteK.some(RewriteCheck) || JsonJQK.some(JsonJQCheck))  && para1.indexOf("dst=filter")==-1 && subi.indexOf("securehostname") == -1 && !/module|nodes|rule/.test(typeU) && !(RuleK.some(RuleCheck) && typeQ == "filter") && !(typeQ!= "rewrite" && QXProfile.some(ProfileCheck))) {
@@ -2369,6 +2369,32 @@ function SGMD2QX(subs) {
     return nrwt
 }
 
+function QXFilterType(type) {
+  type = type.trim().toLowerCase()
+  if (type == "ip-cidr6") return "ip6-cidr"
+  type = type.replace(/^domain(?=-|$)/, "host")
+  return /^(?:host(?:-suffix|-keyword|-wildcard)?|ip-cidr|ip6-cidr|geoip|ip-asn|user-agent)$/.test(type) ? type : ""
+}
+
+// 混合资源允许源规则的匹配值或策略用引号包围。
+function MixedFilterFields(row) {
+  var fields = [], match
+  var field = /\s*("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|[^\s,"'][^,]*?|)(?:\s*)(,|$)/y
+  do {
+    match = field.exec(row)
+    if (!match) return null
+    fields.push(match[1])
+  } while (match[2])
+  return fields
+}
+
+// 混合资源按分流字段切分，行尾说明和引号内的标点不参与策略识别。
+function MixedFilterSyntax(row) {
+  return row.replace(/"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|\s+(?:\/\/|#|;)[\s\S]*$/g, function (token) {
+    return /^\s/.test(token) ? "" : token
+  }).trim()
+}
+
 //Rewrite过滤，使用+连接多个关键词(逻辑"或"):in 为保留，out 为排除
 function Rewrite_Filter(subs, Pin, Pout,Preg,Pregout, hasUnsupported) {
     if (!subs.length && hasUnsupported) { return [] } // 全部转换失败时已有汇总，不再重复通知空结果。
@@ -2382,7 +2408,9 @@ function Rewrite_Filter(subs, Pin, Pout,Preg,Pregout, hasUnsupported) {
         var noteParts = RuleNoteSplit(subs[i].trim());
         subi = noteParts.body;
         var subii = subi.replace(/ /g, "")
-        if (subi != "" && (subi.indexOf(" url ")!=-1 || subi.indexOf("host")!=-1 || /^(?:ip-cidr|ip6-cidr|geoip|ip-asn|user-agent)\s*,/i.test(subi) || subi.indexOf(" url-and-header ")!=-1 || /^hostname\=/.test(subii))) {
+        var comma = subi.indexOf(",")
+        var filter = comma > 0 && QXFilterType(subi.slice(0, comma))
+        if (subi != "" && (filter || subi.indexOf(" url ")!=-1 || subi.indexOf(" url-and-header ")!=-1 || /^hostname\=/.test(subii))) {
             const notecheck = (item) => subi.indexOf(item) == 0
             if (noteK.some(notecheck)) { // 注释项跳过 
                 continue;
@@ -2618,11 +2646,22 @@ function Rule_Handle(subs, Pout, Pin) {
   return nlist
 }
 
-function Rule_Policy(content, ignored) { //增加、替换 policy
+function MixedFilter2QX(row, failures, requirePolicy) {
+  var parts = RuleNoteSplit(row)
+  var body = MixedFilterSyntax(parts.body)
+  return ExpandDomainRegexRule(body).map(function (rule) {
+    var start = failures.length
+    var converted = Rule_Policy(rule, failures, requirePolicy ? "module" : "mixed")
+    for (var i = start; i < failures.length; i++) failures[i].rule = row
+    return RuleNoteJoin(parts.note, converted)
+  }).filter(Boolean)
+}
+
+function Rule_Policy(content, ignored, mixed) { //增加、替换 policy
     var noteParts = RuleNoteSplit(content);
     if (noteParts.note) {
         var failureStart = Array.isArray(ignored) ? ignored.length : 0;
-        var converted = Rule_Policy(noteParts.body, ignored);
+        var converted = Rule_Policy(noteParts.body, ignored, mixed);
         if (Array.isArray(ignored)) {
             for (var n = failureStart; n < ignored.length; n++) { ignored[n].rule = RuleNoteJoin(noteParts.note, ignored[n].rule) }
         }
@@ -2634,11 +2673,14 @@ function Rule_Policy(content, ignored) { //增加、替换 policy
     }
     if (/^(?:AND|OR|NOT)\s*,/i.test(content.trim())) { return skip("逻辑组合规则无法直接转换，拆开会改变匹配条件") }
     if (/^URL-REGEX\s*,/i.test(content.trim())) { return skip("URL-REGEX 需要作为重写资源导入，不是 Quantumult X 分流语法") }
-    var cnt = content.replace(/^\s*\-\s/g,"").replace(/REJECT-TINYGIF/gi,"reject").replace(/REJECT-DROP/gi,"reject").trim().split("//")[0].trim().split(",");
+    var source = content.replace(/^\s*\-\s/g, "").trim();
+    var cnt = mixed ? MixedFilterFields(source)
+                    : source.replace(/REJECT-TINYGIF/gi,"reject").replace(/REJECT-DROP/gi,"reject").split("//")[0].trim().split(",");
+    if (!cnt) return skip("分流字段的引号未闭合或格式有误");
     // ⟦2026-09-16 11:55 +08⟧ 已知 Surge 附加标记按字段移除，不再依赖位置；保留主匹配条件和策略。
     // QX 不复现 Surge 的预匹配阶段或扩展匹配机制，未知参数不擅自删除。
     cnt = cnt.map(function (part) { return part.trim() });
-    if (/^(?:domain(?:-suffix|-keyword|-wildcard|-regex)?|host(?:-suffix|-keyword|-wildcard)?|ip-cidr6?|ip6-cidr|ip-asn|geoip|user-agent)$/i.test(cnt[0])) {
+    if (QXFilterType(cnt[0]) || /^domain-regex$/i.test(cnt[0])) {
         cnt = cnt.slice(0, 2).concat(cnt.slice(2).filter(function (part) { return !/^(?:no-resolve|pre-matching|extended-matching)$/i.test(part) }));
         if (cnt[1]) { cnt[1] = cnt[1].replace(/^(["'])([\s\S]*)\1$/, "$2") }
     }
@@ -2654,6 +2696,27 @@ function Rule_Policy(content, ignored) { //增加、替换 policy
         var wildcard = pattern.replace(/^\^|\$$/g, "").replace(/\\\.|\.\*|\./g, token => token == "\\." ? "." : token == ".*" ? "*" : "?");
         cnt[0] = "host-wildcard";
         cnt[1] = ((pattern[0] == "^" ? "" : "*") + wildcard + (pattern.slice(-1) == "$" ? "" : "*")).replace(/\*+/g, "*");
+    }
+    if (mixed) {
+        var type = QXFilterType(cnt[0]);
+        if (!type) return skip("当前解析器没有此分流类型的可靠转换");
+        var value = cnt[1], policy = cnt[2];
+        if (policy) policy = policy.replace(/^(["'])([\s\S]*)\1$/, "$2");
+        if (!value || value.includes(",") || /\$\{/.test(value) || (type == "ip-asn" && !/^\d+$/.test(value))) {
+            return skip("分流匹配值为空或不能用 Quantumult X 的字段格式表示");
+        }
+        if (Ppolicy != "Shawn") policy = Ppolicy;
+        else if (!policy && mixed != "module" && cnt.length == 2) policy = "Shawn";
+        if (!policy || /,|\$\{/.test(policy)) return skip("分流缺少有效策略");
+        if (/^(?:direct|reject(?:-drop|-no-drop)?)$/i.test(policy)) policy = /^direct$/i.test(policy) ? "direct" : "reject";
+        else if (/^reject(?:-|$)|^(?:CELLULAR(?:-ONLY)?|(?:NO-)?HYBRID)$/i.test(policy)) {
+            return skip("此分流策略没有对应的 Quantumult X 策略");
+        }
+        var options = cnt.slice(3);
+        if (options.some(option => !/^(?:force-cellular|multi-interface(?:-balance)?|via-interface=[\w%-]+)$/i.test(option))) {
+            return skip("分流参数无法识别，未擅自删除未知条件");
+        }
+        return [type, value, policy].concat(options).join(", ");
     }
     var RuleK = ["//", "#", ";","[","/", "hostname","no-ipv6","no-system","<","{","}","]","^"];
     var RuleK1 = ["host", "host-suffix", "host-keyword", "host-wildcard", "domain", "domain-suffix", "domain-keyword", "domain-wildcard", "ip-cidr", "ip-cidr6", "geoip", "user-agent", "ip6-cidr", "ip-asn"];
@@ -5919,12 +5982,19 @@ function isQuanXRewrite(content, failures, jqSources) {
         inComment = false; sectionInComment = false; continue
       }
       if (/^\[[^\]]+\]$/.test(cnti)) { section = cnti.toLowerCase(); sectionInComment = inComment; continue }
-      // 分流区段外只识别已知类型且逗号后仍有内容的行，不再把 url, 等 JS 字段视为分流。
-      var filterRule = /^[a-z][\w-]*\s*,/i.test(cnti) && (
-        section == "[rule]" || section == "[filter_local]" ||
-        /^(?:(?:host|domain)(?:-[\w-]+)?|ip-cidr6?|ip6-cidr|ip-asn|geoip|user-agent)\s*,\s*\S/i.test(cnti) ||
-        /^(?:AND|OR|NOT)\s*,\s*\(/i.test(cnti)
-      )
+      var ruleSection = section == "[rule]" || section == "[filter_local]"
+      var ruleType = /^([a-z][\w-]*)\s*,/i.exec(cnti)
+      var urlRule = ruleType && /^url-regex$/i.test(ruleType[1])
+      var flatRewrite = !section || section == "[rewrite]" || section == "[rewrite_local]"
+      if (ruleType && !urlRule && (ruleSection || (flatRewrite &&
+          (QXFilterType(ruleType[1]) || /^(?:domain-regex|and|or|not)$/i.test(ruleType[1]))))) {
+        if (Pmix == 1) {
+          MixedFilter2QX(originalRewrite, ignoredEcho, section == "[rule]").forEach(rule => cnt0.push(rule))
+        } else {
+          ignoredEcho.push({ rule: originalRewrite, reason: "重写资源混合分流需要 Quantumult X build 844 或更新版本" })
+        }
+        continue
+      }
       if (IsLoonRewriteV2(cnti)) {
         if (inComment || (section && section !== "[rewrite]" && section !== "[rewrite_local]")) { continue }
         if (!convertLoonRewriteV2) { convertLoonRewriteV2 = CreateLoonRewriteV2Converter() }
@@ -5959,7 +6029,7 @@ function isQuanXRewrite(content, failures, jqSources) {
         continue
       }
       if (/^URL-REGEX\s*,/i.test(cnti)) {
-        var urlReject = URLReject2QX(cnti)
+        var urlReject = URLReject2QX(ruleSection ? MixedFilterSyntax(cnti) : cnti)
         if (urlReject) cnt0.push(RuleNoteJoin(noteParts.note, urlReject))
         else ignoredEcho.push({ rule: originalRewrite, reason: "URL-REGEX 缺少有效正则，或使用了无法转换为重写的策略" })
         continue
@@ -5981,13 +6051,10 @@ function isQuanXRewrite(content, failures, jqSources) {
         if (!cnti) { ignoredEcho.push({ rule: originalRewrite, reason: /^http-(?:request|response)-jq\s+http-(?:request|response)(?:-jq)?\s/i.test(originalRewrite) ? "jq 规则的 URL 位置多出 http-request/http-response 动作，源格式错误" : "jq 规则缺少有效 URL、表达式，或引号未闭合" }) }
       } else if (/\surl(?:-and-header)?\s+jsonjq-(?:request|response)-body\s/i.test(cnti)) {
         // 保留原生 jq 规则的 URL 锚点。
-      } else if (filterRule && /^(?:AND|OR|NOT)\s*,/i.test(cnti)) {
-        ignoredEcho.push({ rule: originalRewrite, reason: "逻辑组合规则无法直接转换，拆开会改变匹配条件" })
-        continue
       } else if (cnti.indexOf("pattern")!=-1 && cnti.indexOf("type")!=-1 || cnti.indexOf("http-r")!=-1) {
         cnti=SGMD2QX(cnti)[0]? SGMD2QX(cnti)[0]:""
         //console.log(cnti)
-      }else if (!filterRule && (cnti.indexOf(" 302")!=-1 || cnti.indexOf(" 307")!=-1 || (/\s(_|-)\sreject\b/i.test(cnti)) || (/\sreject$/.test(cnti)) || (/\sreject-/.test(cnti))) && cnti.indexOf(" url ")==-1 && cnti.indexOf(" url-and-header ")==-1 ){
+      }else if ((cnti.indexOf(" 302")!=-1 || cnti.indexOf(" 307")!=-1 || (/\s(_|-)\sreject\b/i.test(cnti)) || (/\sreject$/.test(cnti)) || (/\sreject-/.test(cnti))) && cnti.indexOf(" url ")==-1 && cnti.indexOf(" url-and-header ")==-1 ){
         cnti=SGMD2QX(cnti)[0]? SGMD2QX(cnti)[0]:""
         //console.log("sss",cnti)
       }else if(cnti.indexOf(" data=")!=-1){
@@ -5999,19 +6066,6 @@ function isQuanXRewrite(content, failures, jqSources) {
         cnti= cnti.split(" ")[1] == "url" ? cnti : ""
       } else if (cnti.indexOf(" url-and-header ")!=-1 ){ // url-and-header : ^https:xxx.com header-content url-and-header type-rule content
         cnti= cnti //cnti.split(" ")[2] == "url-and-header" ? cnti : ""
-      } else if (filterRule) {
-        if (Pmix==1) {
-          var expanded = ExpandDomainRegexRule(cnti)
-          if (expanded.length > 1) {
-            expanded.forEach(function (rule) {
-              var filter = Rule_Policy(RuleNoteJoin(noteParts.note, rule), ignoredEcho)
-              if (filter) cnt0.push(filter)
-            })
-            continue
-          }
-          cnti = Rule_Policy(expanded[0], ignoredEcho)
-        }
-        else { ignoredEcho.push({ rule: originalRewrite, reason: "重写资源混合分流需要 Quantumult X build 844 或更新版本" }); cnti = "" }
       } else {
         cnti=""
       }
