@@ -15,6 +15,7 @@
 ❷ 𝗿𝗲𝘄𝗿𝗶𝘁𝗲(重写) & 𝗳𝗶𝗹𝘁𝗲𝗿(分流) 的 转换 & 筛选 
 ☑︎ 用于禁用/修改远程引用中某(几)项 𝗿𝗲𝘄𝗿𝗶𝘁𝗲/𝗵𝗼𝘀𝘁𝗻𝗮𝗺𝗲/𝗳𝗶𝗹𝘁𝗲𝗿
 ☑︎ 𝐒𝐮𝐫𝐠𝐞/𝐂𝐥𝐚𝐬𝐡 类型规则 𝗹𝗶𝘀𝘁 与 模块 𝐦𝐨𝐝𝐮𝐥𝐞 的解析使用
+☑︎ 重写资源自动识别 Loon Rewrite V2，支持可原生表达的 URL、Header、Body 和 JSON/jq；文件依赖及无法等价的动作汇总提示。
 ----------------------------------------------------------
 0️⃣ 在 ⟦订阅链接⟧ 后加 "#" 使用, 不同参数用 "&" 连接 
 ⚠️ ☞ "你的订阅连接#emoji=1&tfo=1&in=香港+台湾"
@@ -1206,6 +1207,9 @@ function Type_Check(subs) {
       type = (hy2Clash || typeQ == "unsupported" || typeQ =="server")? "Clash":"wrong-field";
       typec = "server"
       content0 = Clash2QX(hy2Clash || subs)
+    } else if (typeQ === "rewrite" && !/^(?:nodes|rule)$/.test(typeU) && para1.indexOf("dst=filter") === -1 && subsn.some(function (row) { return IsLoonRewriteV2(row.trim()) })) {
+      typec = "rewrite";
+      type = "rewrite";
     } else if ( (((ModuleK.some(RewriteCheck) || subsn.some(IsMapLocalInline) || para1.indexOf("dst=rewrite") != -1) && (para1.indexOf("dst=filter") == -1) && subs.indexOf("[Proxy]") == -1) || typeU == "module") && typeU != "nodes" && typeU != "rule" && typeQ !="filter") { // Surge 类型 module /rule-set(含url-regex) 类型
       typec="rewrite"
       type = (typeQ == "unsupported" || typeQ =="rewrite")? "sgmodule" : "wrong-field"
@@ -3917,10 +3921,1841 @@ function NotifyUnsupportedRules(ignored) {
 }
 
 // ⟦2026-11-02 18:07 UTC+8⟧ reject/跳转重写转换排除已识别的分流，避免把末尾策略误转为 url reject。
+function IsLoonRewriteV2(row) {
+  return /^(?:request|response)\s+if\b/.test(row);
+}
+
+// WayX Loon Rewrite V2 native conversion. Updated 2026-11-20 (chance).
+// The scoped compiler is sourced from WayX a6038c5 (core, jq-text and rewrite).
+// QX resource parsers cannot fetch dependencies or publish generated helpers.
+function CreateLoonRewriteV2Converter() {
+  function validateIcuPattern(pattern, label) {
+    const flags = /^\(\?([ims]+)\)/.exec(pattern);
+    try {
+      new RegExp(flags ? pattern.slice(flags[0].length) : pattern, flags ? flags[1] : '');
+    } catch (_) {
+      throw new Error(label + ": 此正则需要离线 ICU 校验");
+    }
+  }
+const SUPPORTED_FLAGS = /^[ims]*$/;
+function scanSourceRegexLiteral(text, start = 0) {
+    text = String(text);
+    if (text[start] !== "/")
+        throw new SyntaxError("Expected regex opening delimiter");
+    let escaped = false, inClass = false, close = -1;
+    for (let i = start + 1; i < text.length; i++) {
+        const c = text[i];
+        if (escaped) {
+            escaped = false;
+            continue;
+        }
+        if (c === "\\") {
+            escaped = true;
+            continue;
+        }
+        if (c === "[" && !inClass) {
+            inClass = true;
+            continue;
+        }
+        if (c === "]" && inClass) {
+            inClass = false;
+            continue;
+        }
+        if (c === "/" && !inClass) {
+            close = i;
+            break;
+        }
+    }
+    if (close < 0)
+        throw new SyntaxError("Unterminated regex");
+    let end = close + 1;
+    while (end < text.length && /[A-Za-z]/.test(text[end]))
+        end++;
+    if (end < text.length && !/[\s(),\[\].|&=~]/.test(text[end]))
+        throw new SyntaxError("Invalid regex suffix boundary");
+    const node = {
+        type: "regex",
+        pattern: text.slice(start + 1, close),
+        flags: text.slice(close + 1, end),
+    };
+    assertRegexNode(node);
+    return { ...node, end };
+}
+function assertRegexNode(node) {
+    if (!node || node.type !== "regex")
+        throw new TypeError("Expected Loon semantic Regex node");
+    const flags = String(node.flags || "");
+    if (!SUPPORTED_FLAGS.test(flags))
+        throw new Error("Unsupported Loon regex flag(s): " + flags);
+    if (new Set(flags).size !== flags.length)
+        throw new Error("Duplicate Loon regex flag(s): " + flags);
+    return { source: String(node.pattern ?? ""), flags };
+}
+function compileSourceRegex(node) {
+    const { source, flags } = assertRegexNode(node);
+    return new RegExp(source, flags);
+}
+class SemanticEvaluationError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "SemanticEvaluationError";
+    }
+}
+function stringTemplateParts(node) {
+    if (node?.type === "raw-string")
+        return [["s", String(node.value)]];
+    if (node?.type !== "string")
+        throw new TypeError("Expected a string template");
+    const raw = typeof node.raw === "string" && node.raw.startsWith('"');
+    const text = raw ? node.raw.slice(1, -1) : String(node.value);
+    const parts = [];
+    let literal = "";
+    const flush = () => {
+        if (literal) {
+            parts.push(["s", literal]);
+            literal = "";
+        }
+    };
+    for (let i = 0; i < text.length; i++) {
+        if (text[i] === "\\" && i + 1 < text.length) {
+            if (text.slice(i + 1, i + 3) === "${") {
+                literal += "${";
+                i += 2;
+                continue;
+            }
+            if (raw) {
+                const n = text[++i];
+                literal +=
+                    { n: "\n", r: "\r", t: "\t", '"': '"', "\\": "\\" }[n] ?? "\\" + n;
+                continue;
+            }
+        }
+        if (text.slice(i, i + 2) === "${") {
+            let j = i + 2, quote = null, escaped = false;
+            for (; j < text.length; j++) {
+                const c = text[j];
+                if (quote) {
+                    if (escaped)
+                        escaped = false;
+                    else if (c === "\\")
+                        escaped = true;
+                    else if (c === quote)
+                        quote = null;
+                }
+                else if (c === "'")
+                    quote = c;
+                else if (c === "}")
+                    break;
+            }
+            if (j === text.length)
+                throw new SemanticEvaluationError("Unterminated string template");
+            flush();
+            parts.push(["v", text.slice(i + 2, j)]);
+            i = j;
+        }
+        else
+            literal += text[i];
+    }
+    flush();
+    return parts;
+}
+function normalizeRegexBodyForTarget(pattern) {
+    // Historical name kept to avoid broad call-site churn. This is deliberately
+    // an identity operation: no global \/ -> / or other regex-body rewriting.
+    return String(pattern ?? "");
+}
+function normalizeUrlRegexForTarget(pattern) {
+    const source = normalizeRegexBodyForTarget(pattern);
+    const prefix = source.match(/^(?:\(\?[imsx-]+\))?\^?http(?:s|\(s\)|\(\?:s\))?\??:(?:\\?\/){2}/);
+    if (!prefix)
+        return source;
+    let out = source.slice(0, prefix[0].length), classDepth = 0, quoted = false;
+    for (let i = prefix[0].length; i < source.length; i++) {
+        const ch = source[i];
+        if (quoted) {
+            out += ch;
+            if (ch === "\\" && source[i + 1] === "E") {
+                out += "E";
+                i++;
+                quoted = false;
+            }
+            continue;
+        }
+        if (ch === "\\") {
+            if (source[i + 1] === "Q")
+                quoted = true;
+            if (source[i + 1] === "/" && !classDepth)
+                return out + source.slice(i);
+            out += source.slice(i, i + 2);
+            i++;
+            continue;
+        }
+        if (ch === "/" && !classDepth)
+            return out + source.slice(i);
+        if (ch === "[")
+            classDepth++;
+        if (ch === "]" && classDepth)
+            classDepth--;
+        const separator = ch === "." &&
+            !classDepth &&
+            /[A-Za-z0-9_)\]]/.test(source[i - 1] || "") &&
+            /[A-Za-z0-9_(\[]/.test(source[i + 1] || "");
+        out += separator ? "\\." : ch;
+    }
+    return out;
+}
+const TARGET_REGEX_CAPABILITIES = Object.freeze(Object.fromEntries(["qx", "surge", "generic"].map((target) => [
+    target,
+    Object.freeze(Object.fromEntries(["url", "body", "header", "script"].map((field) => [
+        field,
+        Object.freeze({
+            inlineFlags: ["qx", "surge"].includes(target)
+                ? "verified"
+                : "temporarily-disabled",
+            flags: target === "surge" ? "imsx" : "ims",
+            emitFlags: target === "surge"
+                ? "imsx"
+                : target === "qx"
+                    ? "ims"
+                    : "",
+        }),
+    ]))),
+])));
+function targetRegexCapability(target, subject) {
+    return (TARGET_REGEX_CAPABILITIES[target]?.[subject] ??
+        TARGET_REGEX_CAPABILITIES.generic.url);
+}
+function compileRegexForTarget(regex, { subject = "url", target = "generic", requireEquivalent = false } = {}) {
+    if (!regex || regex.type !== "regex")
+        throw new TypeError("Expected Rewrite v2 regex AST node");
+    const pattern = subject === "url" || subject === "script"
+        ? normalizeUrlRegexForTarget(regex.pattern)
+        : normalizeRegexBodyForTarget(regex.pattern);
+    const flags = String(regex.flags || "");
+    assertRegexNode(regex);
+    const capability = targetRegexCapability(target, subject);
+    const mappedFlags = [...capability.emitFlags]
+        .filter((flag) => flags.includes(flag))
+        .join("");
+    const omittedFlags = [...flags]
+        .filter((flag) => !mappedFlags.includes(flag))
+        .join("");
+    const compatibilityUnverified = Boolean(flags) && capability.inlineFlags !== "verified";
+    if (requireEquivalent && (omittedFlags || compatibilityUnverified))
+        return {
+            ok: false,
+            reason: target +
+                " native " +
+                subject +
+                " regex cannot preserve source flags " +
+                flags +
+                " under the selected mapping policy",
+            pattern,
+            sourceFlags: flags,
+        };
+    // Modified: 2026-11-01 (chance). Disable Surge body default m when the
+    // source did not enable it; an explicit inline source group can override it.
+    const disableMultiline = target === "surge" && subject === "body" && !flags.includes("m");
+    const prefix = mappedFlags || disableMultiline
+        ? "(?" + mappedFlags + (disableMultiline ? "-m" : "") + ")"
+        : "";
+    const targetPattern = prefix + pattern;
+    return {
+        ok: true,
+        pattern: targetPattern,
+        sourceFlags: flags,
+        mappedFlags,
+        omittedFlags,
+        compatibilityUnverified,
+        capability,
+        notes: [],
+    };
+}
+function transformJqText(input, { compact = false, quoteSafe = false } = {}) {
+    let i = 0;
+    const before = new Set([")", "]", ",", "|", "="]);
+    const after = new Set(["(", "[", ",", "|", "="]);
+    const string = () => {
+        let out = '"';
+        i++;
+        while (i < input.length) {
+            const ch = input[i++];
+            if (ch === '"')
+                return out + ch;
+            if (ch === "\\") {
+                const next = input[i++];
+                if (next === "(")
+                    out += "\\(" + code(true) + ")";
+                else {
+                    if (next === undefined)
+                        throw new Error("JQ contains an unterminated JSON string");
+                    out += ch + next;
+                }
+            }
+            else
+                out += quoteSafe && ch === "'" ? "\\u0027" : ch;
+        }
+        throw new Error("JQ contains an unterminated JSON string");
+    };
+    const code = (interpolation = false) => {
+        let out = "", pending = false, depth = 0;
+        const emit = (value) => {
+            if (compact && pending && out && !after.has(out.at(-1)) && !before.has(value[0]))
+                out += " ";
+            pending = false;
+            if (compact && before.has(value) && out.endsWith(" "))
+                out = out.slice(0, -1);
+            out += value;
+        };
+        while (i < input.length) {
+            const ch = input[i];
+            if (ch === ")" && interpolation && depth === 0) {
+                i++;
+                return out;
+            }
+            if (ch === '"') {
+                emit(string());
+                continue;
+            }
+            if (ch === "#") {
+                // jq treats a backslash immediately before a newline as comment continuation.
+                while (i < input.length) {
+                    if (input[i] === "\n" && input[i - 1] !== "\\" && !(input[i - 1] === "\r" && input[i - 2] === "\\"))
+                        break;
+                    i++;
+                }
+                if (compact)
+                    pending = true;
+                else
+                    out += " ";
+                continue;
+            }
+            if (/\s/.test(ch)) {
+                if (compact)
+                    pending = true;
+                else
+                    out += ch;
+                i++;
+                continue;
+            }
+            if (quoteSafe && ch === "'")
+                throw new Error("JQ contains a single quote outside a JSON string; target quoting is not proven safe");
+            if (ch === "(")
+                depth++;
+            else if (ch === ")")
+                depth--;
+            emit(ch);
+            i++;
+        }
+        if (interpolation)
+            throw new Error("JQ contains an unterminated string interpolation");
+        return out;
+    };
+    const out = code();
+    return compact ? out.trim() : out;
+}
+const BT = String.fromCharCode(96), PUN = "(),[].|";
+function fail(s, i, m) {
+    throw new SyntaxError(m +
+        " at column " +
+        (i + 1) +
+        "\n" +
+        s +
+        "\n" +
+        " ".repeat(Math.max(0, i)) +
+        "^");
+}
+function dq(r) {
+    let o = "";
+    for (let i = 1; i < r.length - 1; i++) {
+        let c = r[i];
+        if (c !== "\\") {
+            o += c;
+            continue;
+        }
+        let n = r[++i];
+        o +=
+            n === "n"
+                ? "\n"
+                : n === "r"
+                    ? "\r"
+                    : n === "t"
+                        ? "\t"
+                        : n === '"'
+                            ? '"'
+                            : n === "\\"
+                                ? "\\"
+                                : "\\" + n;
+    }
+    return o;
+}
+function tokenizeRewriteV2(source) {
+    const s = String(source ?? ""), a = [];
+    let i = 0;
+    const add = (type, raw, value = raw, start = i, end = i + raw.length) => a.push({ type, raw, value, start, end });
+    while (i < s.length) {
+        let c = s[i];
+        if (/\s/.test(c)) {
+            i++;
+            continue;
+        }
+        let st = i, t = s.slice(i, i + 2);
+        if (["&&", "||", "==", "~="].includes(t)) {
+            add("operator", t, t, st, i + 2);
+            i += 2;
+            continue;
+        }
+        if (PUN.includes(c)) {
+            add("punct", c, c, st, ++i);
+            continue;
+        }
+        if (c === "$" && s[i + 1] === "{") {
+            i += 2;
+            let d = 1, q = null, e = false;
+            while (i < s.length && d) {
+                c = s[i];
+                if (q) {
+                    if (e)
+                        e = false;
+                    else if (c === "\\")
+                        e = true;
+                    else if (c === q)
+                        q = null;
+                    i++;
+                    continue;
+                }
+                if (c === "'") {
+                    q = c;
+                    i++;
+                    continue;
+                }
+                if (c === "{")
+                    d++;
+                else if (c === "}")
+                    d--;
+                i++;
+            }
+            if (d)
+                fail(s, st, "Unterminated variable");
+            let r = s.slice(st, i);
+            add("variable", r, r.slice(2, -1), st, i);
+            continue;
+        }
+        if (c === '"') {
+            i++;
+            let e = false, ok = false;
+            while (i < s.length) {
+                c = s[i++];
+                if (e) {
+                    e = false;
+                    continue;
+                }
+                if (c === "\\") {
+                    e = true;
+                    continue;
+                }
+                if (c === '"') {
+                    ok = true;
+                    break;
+                }
+            }
+            if (!ok)
+                fail(s, st, "Unterminated string");
+            let r = s.slice(st, i);
+            add("string", r, dq(r), st, i);
+            continue;
+        }
+        if (c === BT) {
+            i++;
+            let ok = false;
+            while (i < s.length) {
+                if (s[i] !== BT) {
+                    i++;
+                    continue;
+                }
+                if (s[i + 1] === BT) {
+                    i += 2;
+                    continue;
+                }
+                i++;
+                ok = true;
+                break;
+            }
+            if (!ok)
+                fail(s, st, "Unterminated raw string");
+            let r = s.slice(st, i);
+            add("raw-string", r, r
+                .slice(1, -1)
+                .split(BT + BT)
+                .join(BT), st, i);
+            continue;
+        }
+        if (c === "/") {
+            let regex;
+            try {
+                regex = scanSourceRegexLiteral(s, st);
+            }
+            catch (error) {
+                fail(s, st, error.message);
+            }
+            i = regex.end;
+            add("regex", s.slice(st, i), { pattern: regex.pattern, flags: regex.flags }, st, i);
+            continue;
+        }
+        let n = s
+            .slice(i)
+            .match(/^-?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?/);
+        if (n) {
+            let r = n[0];
+            i += r.length;
+            add("number", r, Number(r), st, i);
+            continue;
+        }
+        if (/[A-Za-z_]/.test(c)) {
+            i++;
+            while (i < s.length && /[A-Za-z0-9_-]/.test(s[i]))
+                i++;
+            let r = s.slice(st, i);
+            add("identifier", r, r, st, i);
+            continue;
+        }
+        fail(s, i, "Unexpected character " + JSON.stringify(c));
+    }
+    a.push({ type: "eof", raw: "", value: null, start: s.length, end: s.length });
+    return a;
+}
+class Parser {
+    constructor(s) {
+        this.s = String(s ?? "");
+        this.t = tokenizeRewriteV2(this.s);
+        this.i = 0;
+    }
+    p(n = 0) {
+        return this.t[Math.min(this.i + n, this.t.length - 1)];
+    }
+    is(t, v, n = 0) {
+        let x = this.p(n);
+        return x.type === t && (v === undefined || x.value === v);
+    }
+    kw(v) {
+        return this.is("identifier", v);
+    }
+    next() {
+        return this.t[this.i++];
+    }
+    need(t, v, m = undefined) {
+        let x = this.p();
+        if (!this.is(t, v))
+            fail(this.s, x.start, m || "Expected " + (v ?? t) + ", got " + (x.raw || x.type));
+        return this.next();
+    }
+    parse() {
+        let q = this.need("identifier", undefined, "Expected request or response"), phase = q.value.toLowerCase();
+        if (!["request", "response"].includes(phase))
+            fail(this.s, q.start, "Unsupported rewrite phase " + q.raw);
+        this.need("identifier", "if");
+        let condition = this.or();
+        this.need("identifier", "then");
+        let actions = this.pipe();
+        this.need("eof", undefined, "Unexpected trailing token");
+        return {
+            type: "rewrite",
+            syntax: "loon-rewrite-v2",
+            phase,
+            condition,
+            actions,
+            raw: this.s,
+        };
+    }
+    or() {
+        let l = this.and();
+        while (this.is("operator", "||")) {
+            this.next();
+            l = { type: "logical", operator: "||", left: l, right: this.and() };
+        }
+        return l;
+    }
+    and() {
+        let l = this.primary();
+        while (this.is("operator", "&&")) {
+            this.next();
+            l = { type: "logical", operator: "&&", left: l, right: this.primary() };
+        }
+        return l;
+    }
+    primary() {
+        if (this.is("punct", "(")) {
+            this.next();
+            let e = this.or();
+            this.need("punct", ")", "Expected closing condition parenthesis");
+            return { type: "group", expression: e };
+        }
+        return this.cmp();
+    }
+    cmp() {
+        let left = this.val(false), o = this.need("operator", undefined, "Expected == or ~="), right = this.val(false), capture = null;
+        if (!["==", "~="].includes(o.value))
+            fail(this.s, o.start, "Unsupported comparison " + o.raw);
+        if (this.kw("as")) {
+            if (o.value !== "~=")
+                fail(this.s, this.p().start, "as capture is only valid after ~=");
+            this.next();
+            capture = this.need("identifier", undefined, "Expected capture name").value;
+        }
+        return { type: "comparison", operator: o.value, left, right, capture };
+    }
+    pipe() {
+        let a = [this.action()];
+        while (this.is("punct", "|")) {
+            this.next();
+            a.push(this.action());
+        }
+        return a;
+    }
+    action() {
+        let n = [
+            this.need("identifier", undefined, "Expected action name").value,
+        ];
+        while (this.is("punct", ".")) {
+            this.next();
+            n.push(this.need("identifier", undefined, "Expected action name after dot")
+                .value);
+        }
+        let args = [];
+        if (this.is("punct", "(")) {
+            this.next();
+            if (!this.is("punct", ")"))
+                for (;;) {
+                    args.push(this.val(true));
+                    if (!this.is("punct", ","))
+                        break;
+                    this.next();
+                }
+            this.need("punct", ")", "Expected closing action parenthesis");
+        }
+        return { type: "action", name: n.join("."), args };
+    }
+    val(arr) {
+        let x = this.p();
+        if (arr && this.is("punct", "["))
+            return this.array();
+        if (x.type === "variable") {
+            this.next();
+            return { type: "variable", name: x.value, raw: x.raw };
+        }
+        if (["string", "raw-string"].includes(x.type)) {
+            this.next();
+            return { type: x.type, value: x.value, raw: x.raw };
+        }
+        if (x.type === "regex") {
+            this.next();
+            return {
+                type: "regex",
+                pattern: x.value.pattern,
+                flags: x.value.flags,
+                raw: x.raw,
+            };
+        }
+        if (x.type === "number") {
+            this.next();
+            return { type: "number", value: x.value, raw: x.raw };
+        }
+        if (x.type === "identifier" && ["true", "false"].includes(x.value)) {
+            this.next();
+            return { type: "boolean", value: x.value === "true", raw: x.raw };
+        }
+        if (x.type === "identifier" && x.value === "null") {
+            this.next();
+            return { type: "null", value: null, raw: x.raw };
+        }
+        fail(this.s, x.start, "Expected value, got " + (x.raw || x.type));
+    }
+    array() {
+        this.need("punct", "[");
+        let items = [];
+        if (!this.is("punct", "]"))
+            for (;;) {
+                if (this.is("punct", "["))
+                    fail(this.s, this.p().start, "Nested arrays are not supported");
+                items.push(this.val(false));
+                if (!this.is("punct", ","))
+                    break;
+                this.next();
+            }
+        this.need("punct", "]", "Expected closing array bracket");
+        return { type: "array", items };
+    }
+}
+function parseRewriteV2(s) {
+    return new Parser(s).parse();
+}
+function findRewriteComparisons(n, p = () => true, o = []) {
+    if (!n)
+        return o;
+    if (n.type === "comparison") {
+        if (p(n))
+            o.push(n);
+        return o;
+    }
+    if (n.type === "group")
+        return findRewriteComparisons(n.expression, p, o);
+    if (n.type === "logical") {
+        findRewriteComparisons(n.left, p, o);
+        findRewriteComparisons(n.right, p, o);
+    }
+    return o;
+}
+const defs = [
+    ["url.replace", 1, 1, false],
+    ["redirect", 2, 2, false],
+    ["reject", 1, 2, false],
+    ["reject_img", 1, 1, false],
+    ["reject_dict", 1, 1, false],
+    ["reject_array", 1, 1, false],
+    ["reject_video", 1, 1, false],
+    ["request.header.add", 2, 2, true],
+    ["request.header.set", 2, 2, true],
+    ["request.header.del", 1, 1, true],
+    ["request.header.replace", 3, 3, true],
+    ["response.header.add", 2, 2, true],
+    ["response.header.set", 2, 2, true],
+    ["response.header.del", 1, 1, true],
+    ["response.header.replace", 3, 3, true],
+    ["request.body.replace", 2, 2, true],
+    ["response.body.replace", 2, 2, true],
+    ["request.json.add", 2, 2, true],
+    ["request.json.delete", 1, 1, true],
+    ["request.json.replace", 2, 2, true],
+    ["request.json.jq", 1, 1, false],
+    ["request.json.jq_file", 1, 1, false],
+    ["response.json.add", 2, 2, true],
+    ["response.json.delete", 1, 1, true],
+    ["response.json.replace", 2, 2, true],
+    ["response.json.jq", 1, 1, false],
+    ["response.json.jq_file", 1, 1, false],
+    ["request.body.mock", 2, 3, false],
+    ["request.body.mock_file", 2, 3, false],
+    ["response.body.mock", 2, 4, false],
+    ["response.body.mock_file", 2, 4, false],
+];
+const LOON_REWRITE_V2_ACTIONS = new Map(defs.map(([name, minArgs, maxArgs, bulk]) => [
+    name,
+    Object.freeze({ name, minArgs, maxArgs, bulk }),
+]));
+function getRewriteV2ActionDefinition(name) {
+    return LOON_REWRITE_V2_ACTIONS.get(String(name ?? "")) || null;
+}
+function actionError(action, message) {
+    const error = new Error(action.name + ": " + message);
+    error.code = "WAYX_REWRITE_V2_ACTION_INVALID";
+    error.action = action.name;
+    return error;
+}
+function validateRewriteV2Action(action) {
+    if (!action || action.type !== "action")
+        throw new TypeError("Expected Rewrite v2 action AST node");
+    const def = getRewriteV2ActionDefinition(action.name);
+    if (!def)
+        throw actionError(action, "action is not present in the current official Loon Rewrite v2 registry");
+    const count = action.args.length;
+    if (count < def.minArgs || count > def.maxArgs) {
+        const expected = def.minArgs === def.maxArgs
+            ? String(def.minArgs)
+            : def.minArgs + ".." + def.maxArgs;
+        throw actionError(action, "expected " + expected + " argument(s), got " + count);
+    }
+    const arrays = action.args.filter((arg) => arg.type === "array");
+    if (arrays.length) {
+        if (!def.bulk)
+            throw actionError(action, "array parameters are not documented for this action");
+        if (arrays.length !== action.args.length)
+            throw actionError(action, "bulk form must use arrays for every argument");
+        const lengths = new Set(arrays.map((arg) => arg.items.length));
+        if (arrays.some((arg) => arg.items.length === 0))
+            throw actionError(action, "bulk arrays must not be empty");
+        if (lengths.size !== 1)
+            throw actionError(action, "bulk arrays must have equal lengths");
+    }
+    return def;
+}
+function conditionError(message) {
+    const error = new Error(message);
+    error.code = "WAYX_REWRITE_V2_CONDITION_INVALID";
+    return error;
+}
+function validateCondition(node, phase) {
+    if (!node)
+        throw conditionError("missing Rewrite v2 condition");
+    if (node.type === "group")
+        return validateCondition(node.expression, phase);
+    if (node.type === "logical") {
+        validateCondition(node.left, phase);
+        validateCondition(node.right, phase);
+        return;
+    }
+    if (node.type !== "comparison" || node.left?.type !== "variable")
+        throw conditionError("condition left side must be a variable");
+    const name = node.left.name;
+    const header = /^(request|response)\.header\[['"].+['"]\]$/.test(name);
+    const known = name === "url" ||
+        name === "request.method" ||
+        name === "response.status" ||
+        header;
+    // Other variables may be declared plugin [Argument] references. Their
+    // declaration/type is validated by the argument-usage planner before any
+    // executable target rule is emitted, so keep them in the AST here.
+    if (!known)
+        return;
+    if (phase === "request" &&
+        (name === "response.status" || name.startsWith("response.header[")))
+        throw conditionError("request phase cannot reference response data: " + name);
+    if (node.operator === "~=") {
+        if (!["regex", "variable"].includes(node.right?.type))
+            throw conditionError("~= requires a Regex right-hand value");
+        return;
+    }
+    if (node.operator !== "==")
+        throw conditionError("unsupported condition operator: " + node.operator);
+    if (name === "response.status" &&
+        node.right?.type !== "number" &&
+        node.right?.type !== "variable")
+        throw conditionError("response.status equality requires Number or typed variable");
+    if (name === "request.method" &&
+        !["string", "raw-string", "variable"].includes(node.right?.type))
+        throw conditionError("request.method equality requires String or typed variable");
+    if (name === "url" &&
+        !["string", "raw-string", "variable"].includes(node.right?.type))
+        throw conditionError("url equality requires String or typed variable");
+    if (header &&
+        !["string", "raw-string", "null", "variable"].includes(node.right?.type))
+        throw conditionError("header equality requires String, null, or String variable");
+}
+function validateRewriteV2Ast(ast, { regexEngine = "icu" } = {}) {
+    if (!ast || ast.type !== "rewrite")
+        throw new TypeError("Expected Rewrite v2 AST root");
+    const validateRegexes = (node) => {
+        if (!node || typeof node !== "object")
+            return;
+        // Modified: 2026-11-16 (chance). Source regex validation uses ICU without
+        // rewriting atomic groups; JS execution remains a separate helper boundary.
+        if (node.type === "regex" && regexEngine === "javascript")
+            compileSourceRegex(node);
+        else if (node.type === "regex")
+            validateIcuPattern((node.flags ? "(?" + node.flags + ")" : "") + node.pattern, "Invalid source regex");
+        const names = node.type === "variable"
+            ? [node.name]
+            : node.type === "string"
+                ? stringTemplateParts(node)
+                    .filter((p) => p[0] === "v")
+                    .map((p) => p[1])
+                : [];
+        if (ast.phase === "request" &&
+            names.some((name) => name === "response.status" || name.startsWith("response.header[")))
+            throw conditionError("request phase cannot reference response data");
+        for (const value of Object.values(node)) {
+            if (Array.isArray(value))
+                value.forEach(validateRegexes);
+            else if (value && typeof value === "object")
+                validateRegexes(value);
+        }
+    };
+    validateRegexes(ast);
+    validateCondition(ast.condition, ast.phase);
+    return ast.actions.map(validateRewriteV2Action);
+}
+function parseJsonKeyPath(pathText) {
+    const text = String(pathText ?? "");
+    if (!text)
+        throw new Error("JSON key path must not be empty");
+    const parts = [];
+    let i = 0;
+    const decodeSingleQuoted = (value) => {
+        let out = "";
+        for (let j = 1; j < value.length - 1; j++) {
+            const ch = value[j];
+            if (ch !== "\\") {
+                out += ch;
+                continue;
+            }
+            if (j + 1 >= value.length - 1) {
+                out += "\\";
+                continue;
+            }
+            const next = value[++j];
+            if (next === "'" || next === "\\")
+                out += next;
+            else if (next === "n")
+                out += "\n";
+            else if (next === "r")
+                out += "\r";
+            else if (next === "t")
+                out += "\t";
+            else
+                out += "\\" + next;
+        }
+        return out;
+    };
+    while (i < text.length) {
+        if (text[i] === ".") {
+            i++;
+            continue;
+        }
+        if (text[i] === "[") {
+            const rest = text.slice(i);
+            const numeric = rest.match(/^\[(\d+)\]/);
+            if (numeric) {
+                parts.push(Number(numeric[1]));
+                i += numeric[0].length;
+                continue;
+            }
+            const quoted = rest.match(/^\[((?:"(?:\\.|[^"\\])*")|(?:'(?:\\.|[^'\\])*'))\]/);
+            if (!quoted)
+                throw new Error("unsupported JSON key-path bracket syntax: " + text);
+            let value;
+            if (quoted[1].startsWith('"')) {
+                try {
+                    value = JSON.parse(quoted[1]);
+                }
+                catch {
+                    throw new Error("invalid quoted JSON key-path segment: " + text);
+                }
+            }
+            else {
+                value = decodeSingleQuoted(quoted[1]);
+            }
+            parts.push(value);
+            i += quoted[0].length;
+            continue;
+        }
+        const bare = text.slice(i).match(/^[^.[\]]+/);
+        if (!bare)
+            throw new Error("invalid JSON key path: " + text);
+        parts.push(bare[0]);
+        i += bare[0].length;
+    }
+    if (!parts.length)
+        throw new Error("JSON key path must not be empty");
+    return parts;
+}
+function validateParts(parts) {
+    if (!Array.isArray(parts) ||
+        !parts.length ||
+        parts.some((part) => typeof part !== "string" && !Number.isInteger(part))) {
+        throw new Error("JQ path must be a non-empty array of string/integer segments");
+    }
+    return parts;
+}
+function planFixedPathDeleteJq(paths, { sourceForm = "key-path" } = {}) {
+    if (!Array.isArray(paths) || !paths.length)
+        throw new Error("delete path list must contain nonempty parsed paths");
+    if (!["key-path", "path-arrays"].includes(sourceForm))
+        throw new Error("unknown deletion source representation");
+    const parts = paths.map((item) => validateParts(Array.isArray(item) ? item : item?.parts));
+    const prefix = (a, b) => a.length < b.length && a.every((part, i) => part === b[i]);
+    const independent = parts.every((path) => path.every((part) => typeof part === "string")) &&
+        !parts.some((path, i) => parts.some((other, j) => i !== j && (prefix(path, other) || prefix(other, path))));
+    if (independent) {
+        const selectors = parts.map((path) => "." +
+            path
+                .map((key, i) => /^[A-Za-z_][A-Za-z0-9_]*$/.test(key)
+                ? (i ? "." : "") + key
+                : "[" + JSON.stringify(key) + "]")
+                .join(""));
+        return {
+            form: "del",
+            reason: "independent-object-paths",
+            sourceForm,
+            execution: "sequential",
+            jq: "del(" + selectors.join(",") + ")",
+        };
+    }
+    return {
+        form: parts.length === 1 ? "delpaths" : "reduce",
+        reason: "ordered-path-deletion",
+        sourceForm,
+        execution: "sequential",
+        jq: parts.length === 1
+            ? "delpaths(" + JSON.stringify(parts) + ")"
+            : "reduce " + JSON.stringify(parts) + "[] as $p (.;delpaths([$p]))",
+    };
+}
+function renderFixedPathDeleteJq(paths, options = undefined) {
+    return planFixedPathDeleteJq(paths, options).jq;
+}
+function renderFixedJsonMutationJq(operation, entries) {
+    if (!Array.isArray(entries) || !entries.length)
+        throw new Error(operation + " entries must not be empty");
+    if (operation === "delete")
+        return renderFixedPathDeleteJq(entries);
+    if (operation === "add")
+        return entries
+            .map((entry) => renderFixedPathAddJq(entry.parts, entry.value))
+            .join(" | ");
+    if (operation === "replace")
+        return entries
+            .map((entry) => renderFixedPathReplaceJq(entry.parts, entry.value))
+            .join(" | ");
+    throw new Error("unsupported fixed JSON mutation: " + operation);
+}
+function minifyJq(expr) {
+    return transformJqText(String(expr), { compact: true });
+}
+function minifyJqFile(expr) {
+    return minifyJq(String(expr).replace(/^\uFEFF/, ""));
+}
+function normalizeJqForSingleQuotedConfig(expr) {
+    return transformJqText(String(expr), { quoteSafe: true });
+}
+function quoteJq(expr) {
+    return `'${normalizeJqForSingleQuotedConfig(expr)}'`;
+}
+function unsupported(reason, extra = {}) {
+    return { ok: false, reason, ...extra };
+}
+function stringNode(node) {
+    if (!node || !["string", "raw-string"].includes(node.type))
+        return null;
+    return String(node.value);
+}
+function scalarItems(node) {
+    return node?.type === "array" ? node.items : [node];
+}
+function urlComparisonRegex(c) {
+    if (c?.type !== "comparison" ||
+        c.left?.type !== "variable" ||
+        c.left.name !== "url")
+        return null;
+    if (c.operator === "~=" && c.right?.type === "regex")
+        return { regex: c.right, capture: c.capture || null };
+    if (c.operator !== "==" || !["string", "raw-string"].includes(c.right?.type))
+        return null;
+    const parts = stringTemplateParts(c.right);
+    if (parts.some(([kind]) => kind !== "s"))
+        return null;
+    const value = parts.map(([, part]) => part).join("");
+    const pattern = "^" +
+        regexEscape(value).replace(/\s/g, (ch) => "\\u" + ch.charCodeAt(0).toString(16).padStart(4, "0")) +
+        "$";
+    return { regex: { type: "regex", pattern, flags: "" }, capture: null };
+}
+function simpleUrlRewriteCondition(ast, { target = "generic" } = {}) {
+    if (!ast || ast.type !== "rewrite")
+        return unsupported("expected Rewrite v2 AST");
+    const c = unwrap(ast.condition);
+    const match = urlComparisonRegex(c);
+    if (!match)
+        return unsupported("condition is not a single fixed URL comparison");
+    // URL matcher bodies are source regex bodies after the Loon literal wrapper
+    // has been removed by the parser. Do not compile/canonicalize them here.
+    // Modified: 2026-11-01 (chance). Honor target URL flags, including Script v2.
+    const compiled = compileRegexForTarget(match.regex, { target });
+    if (!compiled.ok)
+        return compiled;
+    return { ...compiled, regex: match.regex, capture: match.capture };
+}
+function parseKeyPath(path) {
+    return parseJsonKeyPath(path);
+}
+function jqPathSelector(parts) {
+    validateParts(parts);
+    return parts.reduce((out, part) => typeof part === "number"
+        ? out + "[" + part + "]"
+        : /^[A-Za-z_][A-Za-z0-9_]*$/.test(part)
+            ? out + (out === "." ? "" : ".") + part
+            : out + "[" + JSON.stringify(part) + "]", ".");
+}
+function pathSelector(path) {
+    return jqPathSelector(parseKeyPath(path));
+}
+function renderFixedPathAddJq(parts, value) {
+    validateParts(parts);
+    return "setpath(" + JSON.stringify(parts) + "; " + value + ")";
+}
+function anyToJq(node) {
+    if (!node)
+        throw new Error("missing JSON value");
+    if (node.type === "string") {
+        const parts = stringTemplateParts(node);
+        if (parts.some((p) => p[0] === "v"))
+            throw new Error("JSON template requires a semantic feature helper");
+        return JSON.stringify(parts.map((p) => p[1]).join(""));
+    }
+    if (node.type === "raw-string") {
+        try {
+            return JSON.stringify(JSON.parse(node.value));
+        }
+        catch {
+            return JSON.stringify(node.value);
+        }
+    }
+    if (node.type === "number" || node.type === "boolean")
+        return JSON.stringify(node.value);
+    if (node.type === "null")
+        return "null";
+    if (node.type === "variable")
+        throw new Error("plugin/capture variable JSON value requires a target runtime bridge");
+    throw new Error("unsupported JSON value node: " + node.type);
+}
+function qxQuote(value) {
+    return quoteJq(value);
+}
+function renderFixedPathReplaceJq(parts, value) {
+    validateParts(parts);
+    return "setpath(" + JSON.stringify(parts) + "; " + value + ")";
+}
+function jsonActionToJq(action) {
+    const name = action?.name || "";
+    if (!/^(?:request|response)\.json\.(?:add|delete|replace)$/.test(name)) {
+        return unsupported("JSON action is outside add/delete/replace direct subset");
+    }
+    if (name.endsWith(".delete")) {
+        const nodes = scalarItems(action.args[0]);
+        const paths = nodes.map((node) => {
+            const value = stringNode(node);
+            if (value === null)
+                throw new Error(name + ": key path must be a fixed string");
+            const parts = parseKeyPath(value);
+            return {
+                parts,
+                literal: JSON.stringify(parts),
+                selector: pathSelector(value),
+            };
+        });
+        return { ok: true, jq: renderFixedPathDeleteJq(paths) };
+    }
+    const paths = scalarItems(action.args[0]);
+    const values = scalarItems(action.args[1]);
+    if (paths.length !== values.length)
+        throw new Error(name + ": batch argument lengths differ");
+    const ops = paths.map((node, index) => {
+        const key = stringNode(node);
+        if (key === null)
+            throw new Error(name + ": key path must be a fixed string");
+        const parts = parseKeyPath(key);
+        const value = anyToJq(values[index]);
+        if (name.endsWith(".add")) {
+            return renderFixedPathAddJq(parts, value);
+        }
+        return renderFixedPathReplaceJq(parseKeyPath(key), value);
+    });
+    return { ok: true, jq: ops.join(" | ") };
+}
+function fixedJsonKeyPath(node, actionName) {
+    if (!["string", "raw-string"].includes(node?.type))
+        throw new Error(actionName + ": key path must be a fixed string");
+    const pieces = stringTemplateParts(node);
+    if (pieces.some((piece) => piece[0] !== "s"))
+        throw new Error(actionName + ": dynamic key path requires runtime transport");
+    const parts = parseKeyPath(pieces.map((piece) => piece[1]).join(""));
+    // Modified: 2026-11-15 (chance). Use the existing native path lowering for
+    // whole pipelines, including array indices and ordered deletion effects.
+    return parts;
+}
+function fixedJsonOps(action) {
+    const name = action?.name || "";
+    if (!/^(?:request|response)\.json\.(?:add|delete|replace)$/.test(name)) {
+        return unsupported("JSON pipeline action is outside add/delete/replace subset");
+    }
+    const paths = scalarItems(action.args[0]);
+    const values = name.endsWith(".delete")
+        ? null
+        : scalarItems(action.args[1]);
+    if (values && paths.length !== values.length) {
+        return unsupported(name + ": batch argument lengths differ");
+    }
+    const operation = name.split(".").at(-1);
+    const entries = [];
+    for (let index = 0; index < paths.length; index++) {
+        let key;
+        try {
+            key = fixedJsonKeyPath(paths[index], name);
+        }
+        catch (error) {
+            return unsupported(String(error?.message || error));
+        }
+        if (operation === "delete") {
+            entries.push({ parts: key });
+            continue;
+        }
+        try {
+            entries.push({ parts: key, value: anyToJq(values[index]) });
+        }
+        catch (error) {
+            return unsupported(String(error?.message || error));
+        }
+    }
+    const ops = [renderFixedJsonMutationJq(operation, entries)];
+    return { ok: true, ops };
+}
+function jsonPipelineToSafeNativeJq(ast) {
+    validateRewriteV2Ast(ast);
+    if (!Array.isArray(ast?.actions) || ast.actions.length < 1) {
+        return unsupported("native JSON pipeline requires at least one action");
+    }
+    if (!["request", "response"].includes(ast.phase)) {
+        return unsupported("native JSON pipeline requires request/response phase");
+    }
+    if (ast.actions.some((action) => !new RegExp("^" + ast.phase + "\\.json\\.(?:add|delete|replace|jq)$").test(action.name))) {
+        return unsupported("native JSON pipeline requires same-phase add/delete/replace/jq actions only");
+    }
+    const ops = [];
+    // Modified: 2026-11-15 (chance). Translate each action inside the source
+    // declaration directly to jq; never split its pipeline into target rules.
+    for (const action of ast.actions) {
+        if (action.name === ast.phase + ".json.jq") {
+            const parts = stringTemplateParts(action.args[0]);
+            if (parts.some((part) => part[0] !== "s"))
+                return unsupported("native JQ requires fixed source expression");
+            const expression = parts.map((part) => part[1]).join("");
+            ops.push("(" + minifyJqFile(expression) + ")");
+            continue;
+        }
+        const mapped = fixedJsonOps(action);
+        if (!mapped.ok)
+            return mapped;
+        ops.push(...mapped.ops);
+    }
+    return { ok: true, jq: ops.join(" | ") };
+}
+function qxDirectRewritePlan(ast, { matcher = null } = {}) {
+    validateRewriteV2Ast(ast);
+    if (ast.actions.length !== 1)
+        return unsupported("QX direct mapping requires exactly one action");
+    let condition;
+    if (matcher) {
+        if (matcher.exact !== true || !matcher.prefix) {
+            return unsupported("QX direct native action requires an exact matcher plan");
+        }
+        condition = {
+            ok: true,
+            pattern: matcher.urlPattern,
+            prefix: matcher.prefix,
+            notes: [],
+        };
+    }
+    else {
+        condition = simpleUrlRewriteCondition(ast, { target: "qx" });
+        if (!condition.ok)
+            return condition;
+        condition = { ...condition, prefix: condition.pattern + " url " };
+    }
+    const action = ast.actions[0];
+    if (action.name === "redirect") {
+        const status = action.args[0];
+        if (ast.phase !== "request" ||
+            status?.type !== "number" ||
+            ![302, 307].includes(status.value)) {
+            return unsupported("QX native redirect requires request phase and status 302 or 307");
+        }
+        const urlConditions = findRewriteComparisons(ast.condition, (c) => Boolean(urlComparisonRegex(c)));
+        if (urlConditions.length !== 1)
+            return unsupported("QX native redirect requires one URL regex capture scope");
+        try {
+            const replacement = loonTemplateToNativeUrl(action.args[1], urlConditions[0].capture, null, "Quantumult X");
+            return {
+                ok: true,
+                strategy: "direct",
+                section: "rewrite",
+                pattern: condition.pattern,
+                line: condition.prefix + status.value + " " + replacement,
+                notes: condition.notes,
+            };
+        }
+        catch (error) {
+            return unsupported(String(error.message || error));
+        }
+    }
+    const primitive = qxPrimitiveForRewriteV2Action(action);
+    if (primitive && /^(?:reject-|reject$)/.test(primitive)) {
+        return {
+            ok: true,
+            strategy: "direct",
+            section: "rewrite",
+            pattern: condition.pattern,
+            line: condition.prefix + primitive,
+            notes: condition.notes,
+        };
+    }
+    if (action.name === "request.json.jq" || action.name === "response.json.jq") {
+        const jq = stringNode(action.args[0]);
+        if (jq === null)
+            return unsupported(action.name + ": inline JQ must be a fixed string");
+        const token = primitive;
+        return {
+            ok: true,
+            strategy: "direct",
+            section: "rewrite",
+            pattern: condition.pattern,
+            line: condition.prefix + token + " " + qxQuote(jq),
+            notes: condition.notes,
+        };
+    }
+    if (/^(?:request|response)\.json\.(?:add|delete|replace)$/.test(action.name)) {
+        const mapped = jsonActionToJq(action);
+        if (!mapped.ok)
+            return mapped;
+        const token = primitive;
+        return {
+            ok: true,
+            strategy: "direct",
+            section: "rewrite",
+            pattern: condition.pattern,
+            line: condition.prefix + token + " " + qxQuote(mapped.jq),
+            notes: condition.notes,
+        };
+    }
+    if (action.name === "request.body.replace" ||
+        action.name === "response.body.replace") {
+        if (action.args.some((node) => node.type === "array")) {
+            const members = expandBulkAction(action).map((args) => qxDirectRewritePlan({ ...ast, actions: [{ ...action, args }] }, { matcher }));
+            if (members.some((plan) => !plan.ok))
+                return members.find((plan) => !plan.ok);
+            const lines = members.flatMap((plan) => plan.lines || [plan.line]);
+            return { ...members[0], line: lines[0], lines };
+        }
+        const regex = action.args[0];
+        const replacement = stringNode(action.args[1]);
+        if (regex?.type !== "regex" || replacement === null)
+            return unsupported(action.name + ": invalid body replacement arguments");
+        // Modified: 2026-11-05 (chance). Preserve all source ims flags in QX body matching.
+        const bodyRegex = compileRegexForTarget(regex, {
+            subject: "body",
+            target: "qx",
+        });
+        if (!bodyRegex.ok)
+            return unsupported(bodyRegex.reason);
+        if (/\s/.test(bodyRegex.pattern) || /[\r\n]/.test(replacement))
+            return unsupported("QX direct body replacement with literal whitespace requires script fallback");
+        const token = primitive;
+        return {
+            ok: true,
+            strategy: "direct",
+            section: "rewrite",
+            pattern: condition.pattern,
+            line: condition.prefix +
+                token +
+                " " +
+                bodyRegex.pattern +
+                " " +
+                token +
+                " " +
+                replacement,
+            notes: [...condition.notes, ...bodyRegex.notes],
+        };
+    }
+    return unsupported("action requires generated script or target-specific mapping");
+}
+function loonTemplateToNativeUrl(node, capture, argumentTable = null, target = "Surge") {
+    return stringTemplateParts(node)
+        .map(([kind, value]) => {
+        if (kind === "s") {
+            // Native URL Rewrite has no documented literal-dollar escape. Never
+            // reinterpret raw/escaped Loon text as a target capture or placeholder.
+            if (/[$\\\s]/.test(value))
+                throw new Error("URL replacement literal cannot be represented safely in native " +
+                    target +
+                    " URL Rewrite");
+            return value;
+        }
+        const ref = value.match(/^([A-Za-z_][A-Za-z0-9_-]*)\.(\d+)$/);
+        if (ref) {
+            if (!capture || ref[1] !== capture)
+                throw new Error("URL replacement contains a non-URL capture");
+            if (Number(ref[2]) === 0)
+                throw new Error(target +
+                    " URL Rewrite does not document a complete-match $0 replacement");
+            return "$" + Number(ref[2]);
+        }
+        const entry = argumentTable?.byId?.get(value);
+        if (!entry)
+            throw new Error("URL replacement contains an unsupported variable: " + value);
+        return entry.placeholder;
+    })
+        .join("");
+}
+function fixedNoTemplate(node, what) {
+    const value = stringNode(node);
+    if (value === null)
+        throw new Error(what + " must be a fixed string");
+    if (value.includes("$" + "{"))
+        throw new Error(what + " contains a runtime variable");
+    return value;
+}
+function expandBulkAction(action) {
+    if (!action.args.some((arg) => arg.type === "array"))
+        return [action.args];
+    const arrays = action.args.map((arg) => arg.items);
+    return arrays[0].map((_, index) => arrays.map((items) => items[index]));
+}
+const REWRITE_MUTATION_MAPPINGS = Object.freeze(Object.fromEntries(["request", "response"].flatMap((phase) => [
+    ...[
+        ["add", ["header-add"]],
+        ["set", ["header-del", "header-add"]],
+        ["del", ["header-del"]],
+        ["replace", ["header-replace-regex"]],
+    ].map(([operation, surgeActions]) => [
+        phase + ".header." + operation,
+        Object.freeze({
+            qx: phase + "-header",
+            surge: "http-" + phase,
+            section: "header",
+            surgeActions: Object.freeze(surgeActions),
+        }),
+    ]),
+    ...["add", "delete", "replace", "jq", "jq_file"].map((operation) => [
+        phase + ".json." + operation,
+        Object.freeze({
+            qx: "jsonjq-" + phase + "-body",
+            surge: "http-" + phase + "-jq",
+            section: "body",
+        }),
+    ]),
+    [
+        phase + ".body.replace",
+        Object.freeze({
+            qx: phase + "-body",
+            surge: "http-" + phase,
+            section: "body",
+        }),
+    ],
+])));
+const QX_REWRITE_PRIMITIVES = Object.freeze({
+    "url.replace": null,
+    redirect: Object.freeze({ 302: "302", 307: "307" }),
+    reject: Object.freeze({ 200: "reject-200", 404: "reject" }),
+    reject_img: Object.freeze({ 200: "reject-img" }),
+    reject_dict: Object.freeze({ 200: "reject-dict" }),
+    reject_array: Object.freeze({ 200: "reject-array" }),
+    reject_video: null,
+    ...Object.fromEntries(Object.entries(REWRITE_MUTATION_MAPPINGS).map(([name, mapping]) => [name, mapping.qx])),
+    "request.body.mock": null,
+    "request.body.mock_file": null,
+    "response.body.mock": null,
+    "response.body.mock_file": null,
+});
+function qxPrimitiveForRewriteV2Action(action) {
+    validateRewriteV2Action(action);
+    const mapping = QX_REWRITE_PRIMITIVES[action.name];
+    if (!mapping)
+        return null;
+    if (typeof mapping === "string")
+        return mapping;
+    // A custom reject body needs the existing semantic/script planner.
+    if (action.name === "reject" && action.args.length !== 1)
+        return null;
+    const status = action.args[0];
+    return status?.type === "number" ? (mapping[status.value] ?? null) : null;
+}
+function unwrap(node) {
+    let cur = node;
+    while (cur?.type === "group")
+        cur = cur.expression;
+    return cur;
+}
+function fixedString(node) {
+    if (!node || !["string", "raw-string"].includes(node.type))
+        return null;
+    return String(node.value);
+}
+function regexEscape(value) {
+    return String(value).replace(/[.*+?^$\{\}()|[\]\\]/g, "\\$&");
+}
+function requestHeaderName(variableName) {
+    const match = String(variableName || "").match(/^request\.header\[(['"])([^'"]+)\1\]$/);
+    if (!match)
+        return null;
+    const name = match[2];
+    if (!/^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/.test(name))
+        return null;
+    return name;
+}
+function headerNameRegex(name) {
+    return [...String(name)]
+        .map((ch) => {
+        if (/[A-Za-z]/.test(ch)) {
+            return "[" + ch.toUpperCase() + ch.toLowerCase() + "]";
+        }
+        return regexEscape(ch);
+    })
+        .join("");
+}
+function requestHeaderLinePattern(name, value = null) {
+    const field = "\\r\\n" + headerNameRegex(name) + ":[ \\t]*";
+    if (value === null)
+        return field + "[^\\r\\n]*(?:\\r\\n|$)";
+    return field + regexEscape(value) + "[ \\t]*(?:\\r\\n|$)";
+}
+function comparisonKey(node) {
+    const n = unwrap(node);
+    if (n?.type !== "comparison" || n.left?.type !== "variable")
+        return null;
+    const url = urlComparisonRegex(n);
+    // Modified: 2026-11-05 (chance). Flagged URLs are native QX predicates, including helper prefilters.
+    if (url) {
+        return {
+            kind: "url-regex",
+            key: "url-regex\u0000" +
+                url.regex.pattern +
+                "\u0000" +
+                String(url.regex.flags || ""),
+            sourceFlags: String(url.regex.flags || ""),
+            pattern: compileRegexForTarget(url.regex, { target: "qx" }).pattern,
+        };
+    }
+    if (n.left.name === "request.method" && n.operator === "==") {
+        const value = fixedString(n.right);
+        if (value === null || !value || /[\s\r\n]/.test(value))
+            return null;
+        return {
+            kind: "request-method-eq",
+            key: "request-method-eq\u0000" + value,
+            value,
+        };
+    }
+    const headerName = requestHeaderName(n.left.name);
+    if (headerName) {
+        const normalizedName = headerName.toLowerCase();
+        if (n.operator === "==") {
+            const value = fixedString(n.right);
+            if (value === null || /[\x00-\x1F\x7F]/.test(value))
+                return null;
+            return {
+                kind: "request-header-eq",
+                key: "request-header-eq\u0000" + normalizedName + "\u0000" + value,
+                name: headerName,
+                value,
+                pattern: requestHeaderLinePattern(headerName, value),
+            };
+        }
+        if (n.operator === "~=" && n.right?.type === "regex") {
+            // A successful Loon header-regex condition guarantees that the request
+            // header exists. Keep the source regex inside the helper because
+            // embedding it in QX's serialized Headers string changes ^/$ and capture
+            // semantics.
+            return {
+                kind: "request-header-present",
+                key: "request-header-present\u0000" + normalizedName,
+                name: headerName,
+                pattern: requestHeaderLinePattern(headerName, null),
+            };
+        }
+    }
+    return null;
+}
+function selectUrlPredicate(predicates) {
+    for (const item of predicates.values())
+        if (item.kind === "url-regex")
+            return item;
+    return null;
+}
+function selectMethodPredicate(predicates) {
+    for (const item of predicates.values())
+        if (item.kind === "request-method-eq")
+            return item;
+    return null;
+}
+function selectHeaderPredicate(predicates) {
+    for (const item of predicates.values()) {
+        if (item.kind === "request-header-eq" ||
+            item.kind === "request-header-present")
+            return item;
+    }
+    return null;
+}
+function exactPredicates(node) {
+    const n = unwrap(node);
+    if (!n)
+        return { ok: false, reason: "missing Rewrite condition" };
+    if (n.type === "comparison") {
+        const item = comparisonKey(n);
+        if (!item || item.kind.startsWith("request-header-")) {
+            return {
+                ok: false,
+                reason: "condition comparison is outside the exact QX matcher subset",
+            };
+        }
+        return { ok: true, predicates: new Map([[item.key, item]]) };
+    }
+    if (n.type !== "logical" || n.operator !== "&&") {
+        return {
+            ok: false,
+            reason: "exact QX matcher currently requires a comparison or AND-only condition",
+        };
+    }
+    const left = exactPredicates(n.left);
+    if (!left.ok)
+        return left;
+    const right = exactPredicates(n.right);
+    if (!right.ok)
+        return right;
+    const merged = new Map([...left.predicates, ...right.predicates]);
+    const urls = [...merged.values()].filter((item) => item.kind === "url-regex");
+    const methods = [...merged.values()].filter((item) => item.kind === "request-method-eq");
+    if (urls.length > 1)
+        return {
+            ok: false,
+            reason: "exact QX matcher cannot intersect multiple distinct URL regex predicates",
+        };
+    if (methods.length > 1)
+        return {
+            ok: false,
+            reason: "exact QX matcher cannot satisfy multiple distinct request.method equalities",
+        };
+    return { ok: true, predicates: merged };
+}
+function matcherFromPredicates(predicates) {
+    const url = selectUrlPredicate(predicates);
+    const method = selectMethodPredicate(predicates);
+    const header = selectHeaderPredicate(predicates);
+    const hasUrl = Boolean(url);
+    const hasHeaders = Boolean(method || header);
+    const urlPattern = hasUrl ? url.pattern : "^https?://";
+    if (hasHeaders) {
+        // Quantumult X url-and-header evaluates URL first and then one regex over
+        // a serialized request-side string containing method, path and headers.
+        // Header-regex source conditions remain in the helper; the native layer
+        // only proves request-header presence for those cases.
+        const methodPattern = method
+            ? "^" + regexEscape(method.value) + "[ ]"
+            : null;
+        let headersPattern = header?.pattern || methodPattern;
+        if (methodPattern && header) {
+            headersPattern = methodPattern + "[\\s\\S]*" + header.pattern;
+        }
+        const pushedDown = [];
+        if (method)
+            pushedDown.push("request.method");
+        if (header)
+            pushedDown.push("request.header[" + JSON.stringify(header.name) + "]");
+        return {
+            ok: true,
+            matcher: "url-and-header",
+            matchScope: hasUrl ? "url-and-headers" : "headers-only",
+            urlPattern,
+            headersPattern,
+            prefix: urlPattern + " " + headersPattern + " url-and-header ",
+            pushedDown,
+        };
+    }
+    return {
+        ok: true,
+        matcher: "url",
+        matchScope: hasUrl ? "url-only" : "unfiltered",
+        urlPattern,
+        headersPattern: null,
+        prefix: urlPattern + " url ",
+        pushedDown: [],
+    };
+}
+function qxExactRewriteMatcherPlan(ast, options = {}) {
+    const exact = exactPredicates(ast?.condition);
+    if (!exact.ok)
+        return exact;
+    const plan = matcherFromPredicates(exact.predicates);
+    if (!options.compatibility && plan.urlPattern === "^https?://") {
+        plan.urlPattern = "^";
+        plan.prefix = plan.prefix.replace("^https?:// ", "^ ");
+    }
+    return {
+        ...plan,
+        exact: true,
+        compatibilityUnverified: false,
+    };
+}
+function qxNativeHeaderPlan(ast) {
+    if (!["request", "response"].includes(ast?.phase) || !ast.actions?.length)
+        return null;
+    if (ast.actions.length === 1 &&
+        simpleUrlRewriteCondition(ast).ok &&
+        !ast.condition.capture &&
+        [ast.phase + ".header.set", ast.phase + ".header.del"].includes(ast.actions[0].name)) {
+        try {
+            const matcher = qxExactRewriteMatcherPlan(ast, {
+                compatibility: true,
+            });
+            if (!matcher.ok)
+                return null;
+            const token = REWRITE_MUTATION_MAPPINGS[ast.actions[0].name].qx, lines = [];
+            for (const args of expandBulkAction(ast.actions[0])) {
+                const name = fixedNoTemplate(args[0], "header name");
+                if (!name || /[\s:\r\n]/.test(name))
+                    return null;
+                const field = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                lines.push(matcher.prefix +
+                    token +
+                    " (?m)^()(?i:" +
+                    field +
+                    "):[^\\r\\n]*(?:\\r?\\n|$) " +
+                    token +
+                    " $1");
+                if (ast.actions[0].name.endsWith(".set")) {
+                    const value = fixedNoTemplate(args[1], "header value");
+                    if (/[\r\n$]/.test(value))
+                        return null;
+                    lines.push(matcher.prefix +
+                        token +
+                        " ^([^\\r\\n]+)(\\r\\n) " +
+                        token +
+                        " $1$2" +
+                        name +
+                        ": " +
+                        value +
+                        "$2");
+                }
+            }
+            return { section: "rewrite", line: lines[0], lines };
+        }
+        catch {
+            return null;
+        }
+    }
+    if (ast.actions.length === 1 &&
+        simpleUrlRewriteCondition(ast).ok &&
+        !ast.condition.capture &&
+        ast.actions[0].name === ast.phase + ".header.replace") {
+        try {
+            const matcher = qxExactRewriteMatcherPlan(ast, {
+                compatibility: true,
+            });
+            if (!matcher.ok)
+                return null;
+            const lines = [];
+            for (const args of expandBulkAction(ast.actions[0])) {
+                const name = fixedNoTemplate(args[0], "header name");
+                const replacement = fixedNoTemplate(args[2], "header replacement");
+                const regex = args[1];
+                if (!name ||
+                    /[\s:\r\n]/.test(name) ||
+                    /[\r\n]/.test(replacement) ||
+                    regex?.type !== "regex")
+                    return null;
+                // Whole-header matching must stay inside one value. Boundary-sensitive,
+                // newline-capable, lookaround and backreference patterns keep a helper.
+                const pattern = String(regex.pattern);
+                if (/[\^$]|\\[sSDWnr1-9xucpP0]|\(\?[^:]|\[\^|\[\[:/.test(pattern) ||
+                    (regex.flags?.includes("s") && pattern.includes(".")))
+                    return null;
+                const field = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                // Modified: 2026-11-05 (chance). Preserve source ims within the Header
+                // value group, independently of case-insensitive field-name matching.
+                const compiled = compileRegexForTarget(regex, {
+                    subject: "header",
+                    target: "qx",
+                });
+                if (!compiled.ok)
+                    return null;
+                const body = compiled.mappedFlags
+                    ? "(?" + compiled.mappedFlags + ":" + pattern + ")"
+                    : "(?:" + pattern + ")";
+                const token = REWRITE_MUTATION_MAPPINGS[ast.actions[0].name].qx;
+                const search = "(?m)^((?i:" + field + "):[\\t\\x20]*[^\\r\\n]*?)(" + body + ")";
+                const value = "$1" +
+                    replacement.replace(/\$(\d+)/g, (_, number) => "$" + (Number(number) + 2));
+                if (/\$(?!\d)/.test(replacement))
+                    return null;
+                lines.push(matcher.prefix + token + " " + search + " " + token + " " + value);
+            }
+            return { section: "rewrite", line: lines[0], lines };
+        }
+        catch {
+            return null;
+        }
+    }
+    if (ast.actions.some((action) => action.name !== ast.phase + ".header.add"))
+        return null;
+    const matcher = qxExactRewriteMatcherPlan(ast, { compatibility: true });
+    if (!matcher.ok)
+        return null;
+    const pairs = [];
+    for (const action of ast.actions) {
+        const names = action.args[0]?.type === "array"
+            ? action.args[0].items
+            : [action.args[0]];
+        const values = action.args[1]?.type === "array"
+            ? action.args[1].items
+            : [action.args[1]];
+        if (!names.length || names.length !== values.length)
+            return null;
+        for (let i = 0; i < names.length; i++) {
+            const nameNode = names[i], valueNode = values[i];
+            if (!nameNode ||
+                !["string", "raw-string"].includes(nameNode.type) ||
+                !valueNode ||
+                !["string", "raw-string"].includes(valueNode.type))
+                return null;
+            const name = String(nameNode.value), value = String(valueNode.value);
+            if (!name || /[\s:\r\n]/.test(name) || /[\r\n$]/.test(value))
+                return null;
+            pairs.push([name, value]);
+        }
+    }
+    // QX request/response-header rewrites operate on the complete header block.
+    // A source-authored add|add pipeline can therefore be coalesced into one
+    // whole-header insertion without changing duplicate-header semantics or
+    // source action order.
+    const token = REWRITE_MUTATION_MAPPINGS[ast.actions[0].name].qx;
+    const headerPattern = "^([^\\r\\n]+)(\\r\\n)";
+    const inserted = pairs
+        .map(([name, value]) => name + ": " + value + "$2")
+        .join("");
+    return {
+        section: "rewrite",
+        line: matcher.prefix +
+            token +
+            " " +
+            headerPattern +
+            " " +
+            token +
+            " $1$2" +
+            inserted,
+    };
+}
+
+  return function (row) {
+    function hasArgument(node) {
+      if (node.type === "array") return node.items.some(hasArgument);
+      return node.type === "variable" ||
+        (node.type === "string" && stringTemplateParts(node).some(part => part[0] === "v"));
+    }
+    try {
+      const ast = parseRewriteV2(row);
+      validateRewriteV2Ast(ast, { regexEngine: "javascript" });
+      const matcher = qxExactRewriteMatcherPlan(ast, { compatibility: true });
+      if (!matcher.ok) return { reason: matcher.reason };
+      if (ast.actions.some(action => action.name !== "redirect" && action.args.some(hasArgument))) {
+        return { reason: "该动作使用的变量需要插件参数或脚本运行时" };
+      }
+      const first = ast.actions[0];
+      if (ast.actions.some(action => /\.(?:jq_file|mock_file)$/.test(action.name))) {
+        return { reason: "资源解析器无法主动下载 jq_file 或 mock_file 依赖，请导入离线转换后的重写" };
+      }
+      const isJson = action => /^(?:request|response)\.json\.(?:add|delete|replace|jq)$/.test(action.name);
+      if (ast.actions.every(isJson)) {
+        if (version < 845) return { reason: "jsonjq 需要 Quantumult X build 845 或更新版本" };
+        const mapped = jsonPipelineToSafeNativeJq(ast);
+        if (!mapped.ok) return mapped;
+        return { lines: [matcher.prefix + "jsonjq-" + ast.phase + "-body " + quoteJq(mapped.jq)] };
+      }
+      const header = qxNativeHeaderPlan(ast);
+      if (header) return { lines: header.lines || [header.line] };
+      if (ast.actions.length !== 1) return { reason: "无法在 QX 原生重写中保留这组动作的执行顺序" };
+      if (ast.phase !== "request" && /^(?:redirect|reject(?:_|$))/.test(first.name)) {
+        return { reason: "此动作无法保留原响应阶段" };
+      }
+      const mapped = qxDirectRewritePlan(ast, { matcher });
+      if (!mapped.ok) return mapped;
+      return { lines: mapped.lines || [mapped.line] };
+    } catch (error) {
+      return { reason: "Loon Rewrite V2: " + String(error.message || error).split("\n")[0] };
+    }
+  };
+}
+
 function isQuanXRewrite(content, failures) {
   var cnt = content.filter(Boolean)
   var cnt0=[]
   var ignoredEcho = failures || []
+  var convertLoonRewriteV2
   var section = "", inComment = false, sectionInComment = false
   for (var i = 0; i< cnt.length; i++){
     if(cnt[i]){
@@ -3943,6 +5778,17 @@ function isQuanXRewrite(content, failures) {
         /^(?:(?:host|domain)(?:-[\w-]+)?|ip-cidr6?|ip6-cidr|ip-asn|geoip|user-agent)\s*,\s*\S/i.test(cnti) ||
         /^(?:AND|OR|NOT)\s*,\s*\(/i.test(cnti)
       )
+      if (IsLoonRewriteV2(cnti)) {
+        if (inComment || (section && section !== "[rewrite]" && section !== "[rewrite_local]")) { continue }
+        if (!convertLoonRewriteV2) { convertLoonRewriteV2 = CreateLoonRewriteV2Converter() }
+        var convertedLoon = convertLoonRewriteV2(cnti)
+        if (convertedLoon.lines && convertedLoon.lines.length) {
+          convertedLoon.lines.forEach(function (line) { cnt0.push(RuleNoteJoin(noteParts.note, line)) })
+        } else {
+          ignoredEcho.push({ rule: originalRewrite, reason: convertedLoon.reason })
+        }
+        continue
+      }
       var failureCount = ignoredEcho.length
       // echo-response 修复说明 ⟦2026-09-16 09:15:50 +08⟧
       // ⟦2026-09-16 10:32 +08⟧ 拦截上一版本生成的本地辅助脚本引用，不影响用户自己的远程脚本参数。
