@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-11-20 11:03 UTC+8⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-11-20 12:11 UTC+8⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -3451,8 +3451,11 @@ function HY2Serialize(node) {
   if (interval !== undefined && (!hopping || !/^\d+$/.test(interval) || interval < 5 || interval > 3600)) {
     HY2Invalid("QuanX 端口跳跃仅支持 5–3600 秒的固定间隔")
   }
-  if (node.obfs && node.obfs != "salamander") HY2Invalid("当前 Quantumult X 仅支持 Salamander 混淆")
-  if (node.key !== undefined || node.obfs == "salamander") {
+  // ⟦2026-11-20 12:11 UTC+8⟧ obfs=none/plain 表示无混淆，输出时省略 Salamander 密钥。
+  var plainObfs = typeof node.obfs == "string" && /^(?:none|plain)$/i.test(node.obfs)
+  if (plainObfs && node.key !== undefined && node.key !== "") HY2Invalid("无混淆设置与混淆密钥冲突")
+  if (node.obfs && !plainObfs && node.obfs != "salamander") HY2Invalid("当前 Quantumult X 仅支持 Salamander 混淆")
+  if (!plainObfs && (node.key !== undefined || node.obfs == "salamander")) {
     if (!safeValue(node.key) || encodeURIComponent(node.key).replace(/%[A-F0-9]{2}/g, "x").length < 4) {
       HY2Invalid("Salamander 密钥缺失、少于 4 字节或无法安全表示")
     }
@@ -3490,7 +3493,7 @@ function HY2Serialize(node) {
   var fields = {
     password: node.auth, "tls-host": node.sni, "tls-verification": verification,
     "tls-cert-sha256": certPin, "tls-pubkey-sha256": keyPin, "udp-relay": udp,
-    "salamander-password": node.key, "download-bandwidth": mbps || undefined,
+    "salamander-password": plainObfs ? undefined : node.key, "download-bandwidth": mbps || undefined,
     "port-hopping": hopping, "port-hopping-interval": interval === undefined ? undefined : Number(interval),
     server_check_url: node.check
   }
