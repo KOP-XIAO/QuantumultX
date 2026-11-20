@@ -1211,7 +1211,7 @@ function Type_Check(subs) {
       type = (hy2Clash || typeQ == "unsupported" || typeQ =="server")? "Clash":"wrong-field";
       typec = "server"
       content0 = Clash2QX(hy2Clash || subs)
-    } else if (typeQ === "rewrite" && !/^(?:nodes|rule)$/.test(typeU) && para1.indexOf("dst=filter") === -1 && subsn.some(function (row) { return IsLoonRewriteV2(row.trim()) })) {
+    } else if (typeQ === "rewrite" && !/^(?:nodes|rule)$/.test(typeU) && para1.indexOf("dst=filter") === -1 && subsn.some(function (row) { return IsLoonRewriteV2(row.trim()) || IsLoonScriptV2(row.trim()) })) {
       typec = "rewrite";
       type = "rewrite";
     } else if ( (((ModuleK.some(RewriteCheck) || /^\s*\[(?:rule|(?:header|body) rewrite)\]\s*$/im.test(subs) || subsn.some(IsMapLocalInline) || (typeQ === "rewrite" && subsn.some(row => /^URL-REGEX\s*,/i.test(row.trim()))) || para1.indexOf("dst=rewrite") != -1) && (para1.indexOf("dst=filter") == -1) && subs.indexOf("[Proxy]") == -1) || typeU == "module") && typeU != "nodes" && typeU != "rule" && typeQ !="filter") { // Surge 类型 module /rule-set(含url-regex) 类型
@@ -4157,6 +4157,11 @@ function IsLoonRewriteV2(row) {
   return /^(?:request|response)\s+if\b/.test(row);
 }
 
+function IsLoonScriptV2(row) {
+  return /^(?:(?:request|response)\s+if\b|cron\s+|network-changed\s+then\b|generic\s+then\b)/.test(row) &&
+    /\bthen\s+script\s*\(/.test(row);
+}
+
 // ⟦2026-11-20 +08⟧ Loon Rewrite V2 转换为 QuanX 原生重写；无法等价转换的条目汇总提示。
 function CreateLoonRewriteV2Converter() {
   function validateIcuPattern(pattern, label) {
@@ -5858,7 +5863,71 @@ function qxNativeHeaderPlan(ast) {
     };
 }
 
-  return function (row) {
+  // Script V2 与 Rewrite V2 共用条件语法；脚本参数和 with 独立处理。
+  function convertScriptV2(row) {
+    const skip = reason => ({ reason });
+    if (!IsLoonRewriteV2(row)) {
+      return skip("定时、网络切换和手动脚本需要 Quantumult X [task_local]，不能导入重写资源");
+    }
+    try {
+      const string = /"(?:[^"\\]|\\.)*"|`(?:[^`]|``)*`/.source;
+      const variable = /\$\{[a-z_][\w-]*\}/i.source;
+      const object = "\\{\\s*" + variable + "(?:\\s*,\\s*" + variable + ")*\\s*\\}";
+      const call = new RegExp("\\bthen\\s+script\\s*\\(\\s*(" + string +
+        ")\\s*(?:,\\s*(" + string + "|" + object + "))?\\s*\\)\\s*(?:with\\s+(.+))?$").exec(row);
+      if (!call) return skip("Script V2 需要一条 script(...) 声明和有效的脚本路径");
+      const ast = parseRewriteV2(row.slice(0, call.index) + "then reject(200)");
+      validateCondition(ast.condition, ast.phase);
+      if (findRewriteComparisons(ast.condition, condition => condition.capture).length) {
+        return skip("Script V2 条件不支持 as 命名捕获");
+      }
+      const matcher = qxExactRewriteMatcherPlan(ast, { compatibility: true });
+      if (!matcher.ok) return matcher;
+      if (ast.phase === "response" && ["headers-only", "unfiltered"].includes(matcher.matchScope)) {
+        return skip("Script V2 响应脚本缺少必要的 URL 匹配条件");
+      }
+      const path = new Parser(call[1]).val(false);
+      const url = fixedNoTemplate(path, "脚本路径");
+      if (!url || /[\s"'<>\\\x00-\x1f\x7f]/.test(url) ||
+          (!/^https?:\/\/[^/#?]+(?:[/?#]|$)/i.test(url) && !/^(?:[\w.@-]+\/)*[\w.@-]+\.js$/i.test(url))) {
+        return skip("脚本路径需要 HTTP(S) URL 或 Quantumult X 已有脚本文件");
+      }
+      if (call[2]) {
+        return skip("Loon 的 script(...) 参数需要适配后的脚本读取，重写资源不能传入 $argument");
+      }
+      const options = new Map();
+      const fields = new RegExp("\\s*([a-z_]+)\\s*=\\s*(" + string + "|" + variable +
+        "|true|false|[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?)\\s*(,|$)", "y");
+      const body = call[3] || "";
+      while (fields.lastIndex < body.length) {
+        const field = fields.exec(body);
+        if (!field || (field[3] && fields.lastIndex === body.length)) return skip("Script V2 的 with 参数格式有误");
+        const [, name, raw] = field;
+        if (options.has(name)) return skip("重复的 Script V2 参数：" + name);
+        const node = new Parser(raw.replace(/^\+(?=\d|\.)/, "")).val(false);
+        const boolean = node.type === "boolean", dynamic = node.type === "variable";
+        const valid = {
+          enable: boolean || dynamic, debug: boolean || dynamic,
+          requires_body: boolean, binary_body_mode: boolean,
+          timeout: dynamic || (node.type === "number" && Number.isFinite(node.value) && node.value > 0),
+          tag: node.type === "string" || node.type === "raw-string",
+          img_url: node.type === "string" || node.type === "raw-string"
+        };
+        if (valid[name] !== true) return skip("无法识别的 Script V2 参数或值：" + name);
+        if (name === "tag" || name === "img_url") fixedNoTemplate(node, name);
+        options.set(name, node);
+      }
+      const enable = options.get("enable");
+      if (enable?.value === false) return { disabled: true };
+      if (enable?.type === "variable") return skip("Script V2 动态启用依赖 Loon 插件参数");
+      const action = "script-" + ast.phase + (options.get("requires_body")?.value === true ? "-body" : "-header");
+      return { lines: [matcher.prefix + action + " " + url] };
+    } catch (error) {
+      return skip("Loon Script V2: " + String(error.message || error).split("\n")[0]);
+    }
+  }
+
+  function convertRewriteV2(row) {
     function hasArgument(node) {
       if (node.type === "array") return node.items.some(hasArgument);
       return node.type === "variable" ||
@@ -5895,7 +5964,9 @@ function qxNativeHeaderPlan(ast) {
     } catch (error) {
       return { reason: "Loon Rewrite V2: " + String(error.message || error).split("\n")[0] };
     }
-  };
+  }
+  convertRewriteV2.script = convertScriptV2;
+  return convertRewriteV2;
 }
 
 // Surge 参数可用引号包含空格，保留正则反斜杠及替换模板。
@@ -5993,6 +6064,13 @@ function isQuanXRewrite(content, failures, jqSources) {
         } else {
           ignoredEcho.push({ rule: originalRewrite, reason: "重写资源混合分流需要 Quantumult X build 844 或更新版本" })
         }
+        continue
+      }
+      if (!inComment && (!section || section == "[script]") && IsLoonScriptV2(cnti)) {
+        if (!convertLoonRewriteV2) { convertLoonRewriteV2 = CreateLoonRewriteV2Converter() }
+        var convertedScript = convertLoonRewriteV2.script(cnti)
+        if (convertedScript.lines) cnt0.push(RuleNoteJoin(noteParts.note, convertedScript.lines[0]))
+        else if (!convertedScript.disabled) ignoredEcho.push({ rule: originalRewrite, reason: convertedScript.reason })
         continue
       }
       if (IsLoonRewriteV2(cnti)) {
