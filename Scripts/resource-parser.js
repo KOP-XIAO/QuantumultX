@@ -910,6 +910,7 @@ function ParseUnknown(cnt){
 function ResourceParse() {
   var rewriteFailures = [];
   var jqRows = new Set();
+  var jqBarriers = new Set();
   //预处理，分流/重写等处理完成
   if (type0 == "Subs-B64Encode") { // subs2QX 负责所有节点的转换
     if (Pdbg) {$notify("original content", "node-b64", content0)}
@@ -923,17 +924,17 @@ function ResourceParse() {
     //2023-03-06 考虑模块重写与quanx类型重写的混搭
     flag = 2 
     //total = SGMD2QX(content0) // 转换 
-    total = Rewrite_Filter(isQuanXRewrite(content0.split("\n"), rewriteFailures, jqRows), Pin0, Pout0,Preg,Pregout, rewriteFailures.length > 0, jqRows);// 筛选过滤
+    total = Rewrite_Filter(isQuanXRewrite(content0.split("\n"), rewriteFailures, jqRows, jqBarriers), Pin0, Pout0,Preg,Pregout, rewriteFailures.length > 0, jqRows, jqBarriers);// 筛选过滤
     if (Preplace) { total = ReplaceReg(total, Preplace) }
-    total = total.filter( (ele,pos)=>jqRows.has(pos) || total.indexOf(ele) == pos); //重写重复检查
+    total = MergeJsonJQRewrites(total, jqRows, jqBarriers); //重写重复检查
     if (Pcdn) {total = CDN(total)
     } else { total = total.join("\n")}
   } else if (type0 == "rewrite") { // rewrite 类型
     flag = 2;
-    total = Rewrite_Filter(isQuanXRewrite(content0.split("\n"), rewriteFailures, jqRows), Pin0, Pout0,Preg,Pregout, rewriteFailures.length > 0, jqRows);
+    total = Rewrite_Filter(isQuanXRewrite(content0.split("\n"), rewriteFailures, jqRows, jqBarriers), Pin0, Pout0,Preg,Pregout, rewriteFailures.length > 0, jqRows, jqBarriers);
     if (Preplace) { total = ReplaceReg(total, Preplace) }
     // rewrite重复检测
-    total = total.filter( (ele,pos)=>jqRows.has(pos) || total.indexOf(ele) == pos);
+    total = MergeJsonJQRewrites(total, jqRows, jqBarriers);
     if (Pcdn) {total = CDN(total)
     } else {total = total.join("\n")}
   } else if (type0 == "Rule") {  // rule 类型, 已处理完毕
@@ -2226,16 +2227,87 @@ function SGMD2QX(subs) {
 }
 
 //Rewrite过滤，使用+连接多个关键词(逻辑"或"):in 为保留，out 为排除
-function Rewrite_Filter(subs, Pin, Pout,Preg,Pregout, hasUnsupported, jqRows) {
+function IsJsonJQModule(program) {
+  return /^\s*(?:module|import|include)\s*["{]/.test(program);
+}
+
+// 仅合并转换生成的同条件 jq；原生规则、失败项和可能重叠的规则保留顺序。
+function MergeJsonJQRewrites(rows, jqRows, barriers) {
+  function prefixes(pattern) {
+    pattern = pattern.replace(/^\(\?i\)/, "");
+    if (pattern.includes("|")) { return [""] }
+    var optional = pattern.match(/^\^(https?)\?/);
+    var patterns = optional ? [optional[1], optional[1].slice(0, -1)].map(scheme =>
+      "^" + scheme + pattern.slice(optional[0].length)
+    ) : [pattern];
+    return patterns.map(value => {
+      var match = value.match(/^\^((?:[a-z0-9_:/%=-]|\\[/.?+*(){}\[\]$^])+)(.*)$/i);
+      if (!match) { return "" }
+      var prefix = match[1].replace(/\\(.)/g, "$1").toLowerCase();
+      return /^[?*{]/.test(match[2]) ? prefix.slice(0, -1) : prefix;
+    });
+  }
+  function disjoint(a, b) {
+    return a.every(x => b.every(y => x && y && !x.startsWith(y) && !y.startsWith(x)));
+  }
+
+  var output = [], pending = new Map(), groups = [], seen = new Set();
+  rows.forEach((row, pos) => {
+    if (barriers.has(pos)) { pending.clear() }
+    var parts = RuleNoteSplit(row);
+    var body = parts.body;
+    var active = /\surl(?:-and-header)?\s/.test(body);
+    var jq = active && body.match(/^(\S+\s+url\s+jsonjq-(?:request|response)-body)\s+'(.+)'$/);
+    var program = jq && jq[2];
+    var standalone = program && (
+      IsJsonJQModule(program) ||
+      /(?:^|[^\w.$])(?:input|inputs|input_filename|input_line_number|halt|halt_error)\b|#/.test(program)
+    );
+    var key = jq && jqRows.has(pos) && !standalone ? jq[1] : null;
+    var urlPrefixes = active ? prefixes(body.split(/\s/, 1)[0]) : [];
+    if (active) {
+      pending.forEach((group, other) => {
+        if (other != key && !disjoint(group.prefixes, urlPrefixes)) { pending.delete(other) }
+      });
+    }
+    var group = pending.get(key);
+    if (group) {
+      group.programs.push(program);
+      if (parts.note) { group.notes.push(parts.note.trim().slice(2, -2).trim()) }
+      return;
+    }
+    if (key) {
+      group = { pos: output.length, key, prefixes: urlPrefixes, programs: [program],
+        notes: parts.note ? [parts.note.trim().slice(2, -2).trim()] : [] };
+      pending.set(key, group);
+      groups.push(group);
+    }
+    if (/\surl(?:-and-header)?\s+jsonjq-(?:request|response)-body\s/i.test(body) || !seen.has(row)) {
+      output.push(row);
+      seen.add(row);
+    }
+  });
+  groups.forEach(group => {
+    if (group.programs.length < 2) { return }
+    var note = group.notes.length ? "{# " + group.notes.join(" / ") + " #} " : "";
+    var jq = group.programs.map(program => "(" + program + ")").join(" | ");
+    output[group.pos] = RuleNoteJoin(note, group.key + " '" + jq + "'");
+  });
+  return output;
+}
+
+function Rewrite_Filter(subs, Pin, Pout,Preg,Pregout, hasUnsupported, jqRows, jqBarriers) {
     if (!subs.length && hasUnsupported) { return [] } // 全部转换失败时已有汇总，不再重复通知空结果。
     var Nlist = [];
     var jqPositions = new Set();
+    var barrierPositions = new Set();
     var noteK = ["//", "#", ";"];
     var hnc = 0;
     var dwrite = []
     var hostname = ""
     //$notify("S0","Content",subs)
     for (var i = 0; i < subs.length; i++) {
+        if (jqBarriers.has(i)) { barrierPositions.add(Nlist.length) }
         var noteParts = RuleNoteSplit(subs[i].trim());
         subi = noteParts.body;
         var subii = subi.replace(/ /g, "")
@@ -2280,17 +2352,20 @@ function Rewrite_Filter(subs, Pin, Pout,Preg,Pregout, hasUnsupported, jqRows) {
       
       }
     }
-    // 筛选后更新 jq 的位置。每条 jq 规则独立保留，不能按文本去重。
+    // 更新筛选后的 jq 和转换失败位置。
     function FilterRewrite(check) {
       var positions = new Set();
+      var barriers = new Set();
       var count = 0;
       Nlist = Nlist.filter((row, pos) => {
+        if (barrierPositions.has(pos)) { barriers.add(count) }
         if (!check(row)) { return false }
         if (jqPositions.has(pos)) { positions.add(count) }
         count++;
         return true;
       });
       jqPositions = positions;
+      barrierPositions = barriers;
     }
     if(Preg){ FilterRewrite(Regex) // regex to filter rewrites
       RegCheck(Nlist, "重写引用", "regex", Preg) }
@@ -2298,7 +2373,10 @@ function Rewrite_Filter(subs, Pin, Pout,Preg,Pregout, hasUnsupported, jqRows) {
       RegCheck(Nlist, "重写引用", "regout", Pregout) }
     if (hostname != "") { Nlist.push(hostname) }
     jqRows.clear();
-    jqPositions.forEach(pos => jqRows.add(pos + (Phide == 1 ? 0 : dwrite.length)));
+    var offset = Phide == 1 ? 0 : dwrite.length;
+    jqPositions.forEach(pos => jqRows.add(pos + offset));
+    jqBarriers.clear();
+    barrierPositions.forEach(pos => jqBarriers.add(pos + offset));
     Nlist =Phide ==1? Nlist : [...dwrite,...Nlist]
     //$notify("final","Content",Nlist)
     return Nlist
@@ -5012,6 +5090,10 @@ function jsonPipelineToSafeNativeJq(ast) {
             const expression = parts.map((part) => part[1]).join("");
             const filter = transformJqText(expression.replace(/^\uFEFF/, ""));
             if (!filter) return unsupported("JQ expression is empty");
+            if (IsJsonJQModule(filter)) {
+                return ast.actions.length === 1 ? { ok: true, jq: filter } :
+                    unsupported("jq 模块指令只能位于独立程序开头，无法保留整组动作");
+            }
             ops.push("(" + filter + ")");
             continue;
         }
@@ -5383,14 +5465,19 @@ function qxExactRewriteMatcherPlan(ast) {
 }
 
 // ⟦2026-11-02 18:07 UTC+8⟧ reject/跳转重写转换排除已识别的分流，避免把末尾策略误转为 url reject。
-function isQuanXRewrite(content, failures, jqRows) {
+function isQuanXRewrite(content, failures, jqRows, jqBarriers) {
   var cnt = content.filter(Boolean)
   var cnt0=[]
   var ignoredEcho = failures || []
   var convertLoonV2
   var omittedScriptOptions = new Set()
   var section = "", inComment = false, sectionInComment = false
+  var failurePosition = ignoredEcho.length;
   for (var i = 0; i< cnt.length; i++){
+    if (ignoredEcho.length != failurePosition) {
+      jqBarriers.add(cnt0.length);
+      failurePosition = ignoredEcho.length;
+    }
     if(cnt[i]){
       var cnti = cnt[i].trim()
       var originalRewrite = cnti
@@ -5448,7 +5535,8 @@ function isQuanXRewrite(content, failures, jqRows) {
         continue
       }
       // jq 先于脚本识别，避免表达式里的 type/pattern/http-response 被误认为脚本参数。
-      if (IsJsonJQRewrite(cnti)) {
+      var convertedJq = IsJsonJQRewrite(cnti);
+      if (convertedJq) {
         if (version < 845) {
           ignoredEcho.push({ rule: originalRewrite, reason: "jsonjq 需要 Quantumult X build 845 或更新版本" })
           continue
@@ -5456,7 +5544,7 @@ function isQuanXRewrite(content, failures, jqRows) {
         cnti = JsonJQRewrite2QX(cnti)
         if (!cnti) { ignoredEcho.push({ rule: originalRewrite, reason: /^http-(?:request|response)-jq\s+http-(?:request|response)(?:-jq)?\s/i.test(originalRewrite) ? "jq 规则的 URL 位置多出 http-request/http-response 动作，源格式错误" : "jq 规则缺少有效 URL、表达式，或引号未闭合" }) }
       } else if (/\surl(?:-and-header)?\s+jsonjq-(?:request|response)-body\s/i.test(cnti)) {
-        cnti = cnti.replace(/^\^http/, "http")
+        // 原生 jq 保留完整匹配条件。
       } else if (filterRule && /^(?:AND|OR|NOT)\s*,/i.test(cnti)) {
         ignoredEcho.push({ rule: originalRewrite, reason: "逻辑组合规则无法直接转换，拆开会改变匹配条件" })
         continue
@@ -5502,9 +5590,7 @@ function isQuanXRewrite(content, failures, jqRows) {
           ignoredEcho.push({ rule: originalRewrite, reason: echoReason })
           continue
         }
-        if (/\surl(?:-and-header)?\s+jsonjq-(?:request|response)-body\s/i.test(cnti)) {
-          jqRows.add(cnt0.length)
-        }
+        if (convertedJq) { jqRows.add(cnt0.length) }
         cnt0.push(RuleNoteJoin(noteParts.note, RewritePatternQuoteFix(cnti))) // 说明仅在正文通过检查后回附
         //$notify(cnti,"已经写入")
       }
