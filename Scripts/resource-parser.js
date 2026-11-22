@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-11-20 13:40⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-11-22 20:27⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -8,7 +8,7 @@
 
 🤖 主要功能: 
 ❶ 将其它格式的⟦服务器订阅⟧解析成 𝐐𝐮𝐚𝐧𝐭𝐮𝐦𝐮𝐥𝐭 𝐗 格式
-☑︎ 支持 𝐕2𝐫𝐚𝐲𝐍/𝗦𝗦(𝗥/𝗗)/𝗧𝗿𝗼𝗷𝗮𝗻/𝐕𝐋𝗲𝐬𝐬/𝗛𝗧𝗧𝗣(𝗦)/𝗔𝗻𝘆𝗧𝗟𝗦/𝗤𝘂𝗮𝗻𝘁𝘂𝗺𝘂𝗹𝘁(𝗫)/𝗦𝘂𝗿𝗴𝗲/𝐂𝐥𝐚𝐬𝐡/𝐒𝐡𝐚𝐝𝐨𝐰𝐫𝐨𝐜𝐤𝐞𝐭/𝐋𝐨𝐨𝐧/𝗛𝘆𝘀𝘁𝗲𝗿𝗶𝗮𝟮 格式
+☑︎ 支持 𝐕2𝐫𝐚𝐲𝐍/𝗦𝗦(𝗥/𝗗)/𝗧𝗿𝗼𝗷𝗮𝗻/𝐕𝐋𝗲𝐬𝐬/𝗛𝗧𝗧𝗣(𝗦)/𝗔𝗻𝘆𝗧𝗟𝗦/𝗤𝘂𝗮𝗻𝘁𝘂𝗺𝘂𝗹𝘁(𝗫)/𝗦𝘂𝗿𝗴𝗲/𝐂𝐥𝐚𝐬𝐡/𝐒𝐡𝐚𝐝𝐨𝐰𝐫𝐨𝐜𝐤𝐞𝐭/𝐋𝐨𝐨𝐧/𝗛𝘆𝘀𝘁𝗲𝗿𝗶𝗮𝟮/𝗺𝗶𝗲𝗿𝘂 格式
 ☑︎ 提供说明 1⃣️ 中的可选个性化参数(筛选、重命名 等)
 ☑︎ 节点扫码识别疑似订阅链接时，点击通知跳转添加节点订阅
 ❷ 𝗿𝗲𝘄𝗿𝗶𝘁𝗲(重写) & 𝗳𝗶𝗹𝘁𝗲𝗿(分流) 的 转换 & 筛选 
@@ -679,6 +679,8 @@ var PNS=0 // 不支持的节点统计
 var NSList=["当前订阅内，不支持以下节点 ↘️ \n"] // 不支持节点列表
 var HY2Supported = Number.isInteger(version) && version >= 965
 var HY2Skipped = Object.create(null)
+var MieruSupported = Number.isInteger(version) && version >= 968
+var MieruSkipped = Object.create(null)
 
 var RegoutList= [] ;//用于 regout参数删选提醒
 // URL-Scheme 增加配置
@@ -1178,8 +1180,8 @@ function Type_Check(subs) {
     var SubK = ["dm1lc3M", "c3NyOi8v", "CnNzOi8", "dHJvamFu", "c3M6Ly", "c3NkOi8v", "c2hhZG93", "aHR0cDovLw", "aHR0cHM6L", "CnRyb2phbjo", "aHR0cD0", "aHR0cCA","U1RBVFVT","dmxlc3M6"];
     var RewriteK = [" url 302", " url 307", " url reject", " url script", " url req", " url res", " url echo", " url-and-header 302", " url-and-header 307", " url-and-header reject", " url-and-header script", " url-and-header req", " url-and-header res", " url-and-header echo", " url jsonjq"] // quantumult X 类型 rewrite
     var JsonJQK = [" response-body-json-jq ", " request-body-json-jq ", " response-body-json-del ", " response-body-json-replace ", " http-response-jq ", " http-request-jq "] // 需要转换成 QuanX jsonjq 的 rewrite
-    // Hysteria2 两种 URI 前缀共用 build 门槛和转换。
-    var SubK2 = ["ss://", "vmess://", "ssr://", "trojan://", "ssd://", "\nhttps://", "\nhttp://","socks://","ssocks://","vless://","anytls://","wireguard://","wg://","tuic://","hysteria2://","hy2://"];
+    // 新协议 URI 与旧节点共用订阅入口，逐条检查 build。
+    var SubK2 = ["ss://", "vmess://", "ssr://", "trojan://", "ssd://", "\nhttps://", "\nhttp://","socks://","ssocks://","vless://","anytls://","wireguard://","wg://","tuic://","hysteria2://","hy2://","mieru://","mierus://"];
     var ModuleK = ["[Script]", "[Rule]", "[URL Rewrite]", "[Body Rewrite]", "[Map Local]", "\nhttp-r", "script-path"]
     var QXProfile = ["[filter_local]","[filter_remote]","[server_local]","[server_remote]"]
     var html = "DOCTYPE html"
@@ -1192,19 +1194,19 @@ function Type_Check(subs) {
     const JsonJQCheck = (item) => (" " + subs.toLowerCase().replace(/\s+/g," ") + " ").indexOf(item) != -1;
     const ProfileCheck = (item) => subs.indexOf(item) != -1; //是否为quanx配置文件
     var subsn = subs.split("\n")
-    var allowHY2 = ["server", "uri", "unsupported"].indexOf(String(typeQ).toLowerCase()) != -1
-    var hy2Clash = allowHY2 && HY2ClashSnippet(subs)
-    var hy2Lines = allowHY2 && subsn.some(HY2LineKind)
-    var hy2Decoded
+    var allowNodeExtensions = ["server", "uri", "unsupported"].indexOf(String(typeQ).toLowerCase()) != -1
+    var extendedClash = allowNodeExtensions && ExtendedClashSnippet(subs)
+    var extendedLines = allowNodeExtensions && subsn.some(ExtendedNodeLine)
+    var extendedDecoded
     if ( (subs.indexOf(html) != -1 || subs.indexOf("doctype html") != -1) && link0.indexOf("github.com" == -1)) {
       $notify("‼️ 该链接返回为无效网页内容"+ " ➟ " + "⟦" + subtag + "⟧", "⁉️ 点通知跳转以确认链接是否失效\n"+link0, "返回内容如下⬇️：\n"+subs, nan_link);
       type = "web";
     } else if (typeU == "nodes" && typeQ=="server") { //指定为节点类型
       type = (typeQ == "unsupported" || typeQ =="server")? "Subs":"wrong-field"
-    } else if (hy2Clash || ClashK.some(NodeCheck) || typeU == "clash"){ // Clash 类型节点转换
-      type = (hy2Clash || typeQ == "unsupported" || typeQ =="server")? "Clash":"wrong-field";
+    } else if (extendedClash || ClashK.some(NodeCheck) || typeU == "clash"){ // Clash 类型节点转换
+      type = (extendedClash || typeQ == "unsupported" || typeQ =="server")? "Clash":"wrong-field";
       typec = "server"
-      content0 = Clash2QX(hy2Clash || subs)
+      content0 = Clash2QX(extendedClash || subs)
     } else if ( (((ModuleK.some(RewriteCheck) || subsn.some(IsMapLocalInline) || para1.indexOf("dst=rewrite") != -1) && (para1.indexOf("dst=filter") == -1) && subs.indexOf("[Proxy]") == -1) || typeU == "module") && typeU != "nodes" && typeU != "rule" && typeQ !="filter") { // Surge 类型 module /rule-set(含url-regex) 类型
       typec="rewrite"
       type = (typeQ == "unsupported" || typeQ =="rewrite")? "sgmodule" : "wrong-field"
@@ -1212,7 +1214,7 @@ function Type_Check(subs) {
       // 2022-07-20 remove constrain && !/\[(Proxy|filter_local)\]/.test(subs)
       typec = "rewrite"
       type = (typeQ == "unsupported" || typeQ =="rewrite")? "rewrite":"wrong-field" //Quantumult X 类型 rewrite/ Surge Script/
-    } else if (((RuleK.some(RuleCheck) && subs.indexOf(html) == -1 ) || (typeQ == "filter" && subsn.some(function (row) { return /^[a-z][\w-]*\s*,/i.test(row.trim()) })) || typeU == "rule" || para1.indexOf("dst=filter")!=-1) && typeU != "nodes" && !hy2Lines && !(typeQ == "server" && (QuanXK.some(NodeCheck) || SurgeK.some(NodeCheck))) ) {
+    } else if (((RuleK.some(RuleCheck) && subs.indexOf(html) == -1 ) || (typeQ == "filter" && subsn.some(function (row) { return /^[a-z][\w-]*\s*,/i.test(row.trim()) })) || typeU == "rule" || para1.indexOf("dst=filter")!=-1) && typeU != "nodes" && !extendedLines && !(typeQ == "server" && (QuanXK.some(NodeCheck) || SurgeK.some(NodeCheck))) ) {
       // rule/filter类型
       // 2022-07-20 remove constrain && !/\[(Proxy|server_local)\]/.test(subs) adter html
       typec = "filter"
@@ -1238,7 +1240,7 @@ function Type_Check(subs) {
       typec= "server-surge"
       type = (typeQ == "unsupported" || typeQ =="server" || typeQ =="uri")? "Surge":"wrong-field"; // Surge Profiles
       content0 = Surge2QX(content0).join("\n");
-    } else if (hy2Lines) {
+    } else if (extendedLines) {
       typec = "server"
       type = "Subs"
     } else if ((SurgeK.some(NodeCheck)  && !/\[(Proxy|filter_local)\]/.test(subs)) || typeU == "list") {
@@ -1253,10 +1255,10 @@ function Type_Check(subs) {
       typec= "server-sip008"
       type = (typeQ == "unsupported" || typeQ =="server")? "Subs":"wrong-field"
       content0 = SIP2QuanX(content0)
-    } else if (allowHY2 && (hy2Decoded = HY2DecodeSubscription(subs))) {
+    } else if (allowNodeExtensions && (extendedDecoded = DecodeExtendedSubscription(subs))) {
       typec = "server-b64"
       type = "Subs"
-      content0 = hy2Decoded
+      content0 = extendedDecoded
     } else if (SubK.some(NodeCheck1)) {  //b64加密的订阅类型
       typec="server-b64"
       type = (typeQ == "unsupported" || typeQ =="server")? "Subs-B64Encode":"wrong-field"
@@ -1296,6 +1298,7 @@ function TagCheck_QX(content) {
     "vless":["𝐯𝐥𝐞𝐬𝐬","𝐕𝐋𝐄𝐒𝐒","🅥🅛🅔🅢🅢","🆅🅻🅴🆂🆂","ⓥⓛⓔⓢⓢ","🅅🄻🄴🅂🅂","VLESS"],"anytls":["𝐚𝐧𝐲𝐭𝐥𝐬","𝐀𝐍𝐘𝐓𝐋𝐒","🅐🅝🅨🅣🅛🅢","🅰🅽🆈🆃🅻🆂","ⓐⓝⓨⓣⓛⓢ","🄰🄽🅈🅃🄻🅂","𝖠𝖭𝖸𝖳𝖫𝖲"]
   } // type
   typefix.hysteria2 = ["HY2","HY2","HY2","HY2","HY2","HY2","HY2"]
+  typefix.mieru = ["MIERU","MIERU","MIERU","MIERU","MIERU","MIERU","MIERU"]
   console.log(content)
     var Olist = content.map(item =>item.trim())//.replace(/\s{2,}/g," "))
     //$notify("","",Olist)
@@ -1306,8 +1309,8 @@ function TagCheck_QX(content) {
         var item = Olist[i] ? Olist[i] : ""
         typefix["shadowsocks"]=item.indexOf("ssr-protocol")!=-1? typefix["shadowsocksr"] : typefix["shadowsocks"]
         if (item.replace(/ /gm, "").indexOf("tag=") != -1) {
-            var hy2Tag = HY2LineKind(item) == "quanx"
-            var tagAt = hy2Tag ? item.search(/,\s*tag=/) : -1
+            var extendedTag = HY2LineKind(item) == "quanx" || MieruLineKind(item) == "quanx"
+            var tagAt = extendedTag ? item.search(/,\s*tag=/) : -1
             var nl = tagAt < 0 ? item.slice(item.indexOf("tag")) : item.slice(tagAt + 1).trim()
             var nm = nl.slice(nl.indexOf("=") + 1)
             if (nm == "") { //空名
@@ -1430,7 +1433,7 @@ function type_prefix(item) {
   if(item.trim()!="") {
     typefix = {"shadowsocks":"「𝐬𝐬」","vmess":"「𝐯𝐦𝐞𝐬𝐬」","trojan":"「𝐭𝐫𝐨𝐣𝐚𝐧」","http":"「𝐡𝐭𝐭𝐩」","socks5":"「𝐬𝐨𝗰𝗸𝐬」","vless":"「𝐯𝐥𝐞𝐬𝐬」","anytls":"「𝐚𝐧𝐲𝐭𝐥𝐬」"}
     typefix["shadowsocks"]=item.indexOf("ssr-protocol")!=-1? "「𝐬𝐬𝐫」" : "「𝐬𝐬」"
-    tp = HY2LineKind(item) == "quanx" ? "「𝐡𝐲𝟐」" : typefix[item.split("=")[0].trim()]
+    tp = HY2LineKind(item) == "quanx" ? "「𝐡𝐲𝟐」" : MieruLineKind(item) == "quanx" ? "「𝐦𝐢𝐞𝐫𝐮」" : typefix[item.split("=")[0].trim()]
     return [[item.split("tag=")[0]+
       "tag=", tp, item.split("tag=")[1]].join(" ")].join(" ")
   }
@@ -1439,14 +1442,15 @@ function type_suffix(item) {
   if(item.trim()!=""){
     typefix={"shadowsocks":"「𝐬𝐬」","vmess":"「𝐯𝐦𝐞𝐬𝐬」","trojan":"「𝐭𝐫𝐨𝐣𝐚𝐧」","http":"「𝐡𝐭𝐭𝐩」","vless":"「𝐯𝐥𝐞𝐬𝐬」","anytls":"「𝐚𝐧𝐲𝐭𝐥𝐬」"}
     typefix["shadowsocks"]=item.indexOf("ssr-protocol")!=-1? "「𝐬𝐬𝐫」" : "「𝐬𝐬」"
-    tp = HY2LineKind(item) == "quanx" ? "「𝐡𝐲𝟐」" : typefix[item.split("=")[0].trim()]
+    tp = HY2LineKind(item) == "quanx" ? "「𝐡𝐲𝟐」" : MieruLineKind(item) == "quanx" ? "「𝐦𝐢𝐞𝐫𝐮」" : typefix[item.split("=")[0].trim()]
     return [item, tp].join(" ")
   }
 }
 
 //获取类型
 function getnode_type(item,ind) {
-    if (HY2LineKind(item) == "quanx") return ["𝐡𝐲𝟐","𝐇𝐘𝟐","🅗🅨❷","🅷🆈2","ⓗⓨ②","🄷🅈2","𝕙𝕪𝟚","ʰʸ²","HY2"][ind]
+    if (MieruLineKind(item) == "quanx") return ["𝐦𝐢𝐞𝐫𝐮","𝐌𝐈𝐄𝐑𝐔","🅜🅘🅔🅡🅤","🅼🅸🅴🆁🆄","ⓜⓘⓔⓡⓤ","🄼🄸🄴🅁🅄","𝕞𝕚𝕖𝕣𝕦","ᴹⁱᵉʳᵘ","MIERU"][ind]
+  if (HY2LineKind(item) == "quanx") return ["𝐡𝐲𝟐","𝐇𝐘𝟐","🅗🅨❷","🅷🆈2","ⓗⓨ②","🄷🅈2","𝕙𝕪𝟚","ʰʸ²","HY2"][ind]
   if(item.trim()!="" && item.indexOf("tag=")!=-1) {
     ind = !/^(0|1|2|3|4|5|6|7)$/.test(ind) ? 8 : ind
     typefix = {"shadowsocks":["𝐬𝐬","𝐒𝐒","🅢🅢","🆂🆂","ⓢⓢ","🅂🅂","𝕊𝕊","ˢˢ","SS"],
@@ -2676,6 +2680,12 @@ function Subs2QX(subs, Pudp, Ptfo, Pcert0, PTls13) {
           if (node) QXlist.push(node)
           continue
         }
+        var mieruKind = MieruLineKind(list0[i])
+        if (mieruKind) {
+          node = MieruConvert(mieruKind, list0[i])
+          if (node) QXlist.push(node)
+          continue
+        }
         //if (Pdbg) {$notify(i, "node", list0[i])}
         if (list0[i].trim().length > 3 && !/\;|\/|\#/.test(list0[i][0]) && list0[i].indexOf(" url ")==-1) {
             var type = list0[i].split("://")[0].trim()
@@ -3240,33 +3250,47 @@ function HY2LineKind(row) {
   return /^hysteria2\s*=/i.test(line) ? "quanx" : ""
 }
 
-function HY2DecodeSubscription(content) {
+function MieruLineKind(row) {
+  var line = row.trim()
+  if (/^mierus?:\/\//i.test(line)) return "uri"
+  return /^mieru\s*=/i.test(line) ? "quanx" : ""
+}
+
+function ExtendedNodeLine(row) {
+  return HY2LineKind(row) || MieruLineKind(row)
+}
+
+function ExtendedClashType(type) {
+  return HY2Type(type) || typeof type == "string" && /^mieru$/i.test(type)
+}
+
+function DecodeExtendedSubscription(content) {
   var compact = content.replace(/^\s*#[^\n]*\n/, "").replace(/\s/g, "")
   if (!/^[A-Za-z0-9+/_-]+={0,2}$/.test(compact)) return ""
   var rows = Base64.decode(compact, true).split("\n")
-  if (!rows.some(HY2LineKind)) return ""
-  return rows.map(row => HY2LineKind(row) ? row : row.replace(/&gt;/g, ">").replace(/&lt;/g, "<")).join("\n")
+  if (!rows.some(ExtendedNodeLine)) return ""
+  return rows.map(row => ExtendedNodeLine(row) ? row : row.replace(/&gt;/g, ">").replace(/&lt;/g, "<")).join("\n")
 }
 
-function HY2ClashSnippet(content) {
+function ExtendedClashSnippet(content) {
   var text = content.trim()
-  if (!/\b(?:hysteria2|hy2)\b/i.test(text)) return ""
+  if (!/\b(?:hysteria2|hy2|mieru)\b/i.test(text)) return ""
   if (/^[{\[]/.test(text)) {
     try {
       var input = JSON.parse(text)
       var nodes = Array.isArray(input) ? input : [input]
-      if (nodes.some(node => node && HY2Type(node.type)) &&
+      if (nodes.some(node => node && ExtendedClashType(node.type)) &&
           nodes.every(node => node && typeof node.type == "string")) {
         return JSON.stringify({proxies: nodes})
       }
     } catch (err) {}
   }
-  return /^-\s*\{/.test(text) && /(?:[{,]\s*["']?type["']?\s*:\s*["']?(?:hysteria2|hy2)\b)/i.test(text)
+  return /^-\s*\{/.test(text) && /(?:[{,]\s*["']?type["']?\s*:\s*["']?(?:hysteria2|hy2|mieru)\b)/i.test(text)
     ? "proxies:\n" + text : ""
 }
 
-function HY2ClashOriginal(content) {
-  if (!/\b(?:hysteria2|hy2)\b/i.test(content)) return null
+function ExtendedClashOriginal(content) {
+  if (!/\b(?:hysteria2|hy2|mieru)\b/i.test(content)) return null
   try {
     var input = content.trim()
     if (/^{/.test(input)) return JSON.parse(input).proxies || null
@@ -3288,6 +3312,7 @@ function HY2ClashOriginal(content) {
 
 function UnsupportedNodeDetails(types) {
   var details = Object.keys(HY2Skipped).map(reason => "Hysteria2：" + reason + "（" + HY2Skipped[reason] + " 条）")
+  details = details.concat(Object.keys(MieruSkipped).map(reason => "mieru：" + reason + "（" + MieruSkipped[reason] + " 条）"))
   return "⚠️ 此版本暂不支持 " + (HY2Supported ? "" : "Hysteria2/") + types +
     " 等类型, 以及 http-upgrade/xhttp/grpc/mkcp/h2” 等类型 vless\n\n" + NSList.concat(details).join("\n")
 }
@@ -3298,43 +3323,43 @@ function HY2Skip(reason) {
   return ""
 }
 
-function HY2Invalid(reason) {
+function NodeInvalid(reason) {
   // 原始行和错误消息可能含密码，通知只使用本函数的固定说明。
-  throw {hy2Reason: reason}
+  throw {nodeReason: reason}
 }
 
-function HY2Bool(value, fallback) {
+function NodeBool(value, fallback) {
   if (value === undefined) return fallback
   if (value === true || value === 1 || typeof value == "string" && /^(?:1|true)$/i.test(value)) return true
   if (value === false || value === 0 || typeof value == "string" && /^(?:0|false)$/i.test(value)) return false
-  HY2Invalid("布尔参数无效")
+  NodeInvalid("布尔参数无效")
 }
 
-function HY2VerifyName(value) {
+function NodeVerifyName(value) {
   if (value === undefined || value === "") return ""
   if (typeof value != "string" || !value.includes(".") || TLSCertDomainValue(value) != value) {
-    HY2Invalid("TLS 校验域名无效")
+    NodeInvalid("TLS 校验域名无效")
   }
   return value
 }
 
-function HY2Pin(value) {
+function NodePin(value) {
   if (value === undefined || value === "") return ""
   if (typeof value != "string" || !/^(?:[0-9a-f]{64}|(?:[0-9a-f]{2}:){31}[0-9a-f]{2})$/i.test(value)) {
-    HY2Invalid("SHA-256 指纹格式无效")
+    NodeInvalid("SHA-256 指纹格式无效")
   }
   return value.replace(/:/g, "").toLowerCase()
 }
 
-function HY2Fields(text, quoted) {
+function NodeFields(text, quoted) {
   var fields = Object.create(null)
   if (!text.trim()) return fields
   text.split(/,[ \t]*(?=[a-z][\w-]*[ \t]*=)/i).forEach(function (part) {
     var m = part.trim().match(/^([a-z][\w-]*)[ \t]*=([\s\S]*)$/i)
-    if (!m || m[1].toLowerCase() in fields) HY2Invalid("节点字段无效或重复")
+    if (!m || m[1].toLowerCase() in fields) NodeInvalid("节点字段无效或重复")
     var value = m[2].trim()
     if (quoted && /^["']/.test(value)) {
-      if (value.length < 2 || value.slice(-1) != value[0]) HY2Invalid("字段引号不完整")
+      if (value.length < 2 || value.slice(-1) != value[0]) NodeInvalid("字段引号不完整")
       value = value.slice(1, -1)
     }
     fields[m[1].toLowerCase()] = value
@@ -3342,31 +3367,44 @@ function HY2Fields(text, quoted) {
   return fields
 }
 
-function HY2URI(line) {
-  var match = line.match(/^(?:hysteria2|hy2):\/\/([^/?#\s]+)\/?(?:\?([^#]*))?(?:#(.*))?$/i)
-  if (!match) HY2Invalid("URI 格式无效")
-  var at = match[1].lastIndexOf("@")
-  var address = match[1].slice(at + 1).match(/^(\[[0-9a-f:.]+\]|[^:\s]+)(?::(.+))?$/i)
-  if (at < 1 || !address) HY2Invalid("缺少服务器或认证密码")
+function NodeQuery(text) {
   var params = Object.create(null)
-  var query = (match[2] || "").split("&").filter(Boolean)
+  var query = (text || "").split("&").filter(Boolean)
   query.forEach(function (pair) {
     var pos = pair.indexOf("=")
     var key = decodeURIComponent((pos < 0 ? pair : pair.slice(0, pos)).replace(/\+/g, " ")).toLowerCase()
     var value = pos < 0 ? "" : decodeURIComponent(pair.slice(pos + 1).replace(/\+/g, " "))
-    if (key in params) HY2Invalid("URI 参数重复")
+    if (key in params) NodeInvalid("URI 参数重复")
     params[key] = value
   })
-  if (params.ech || params.alpn && params.alpn != "h3") HY2Invalid("当前目标格式无法等价保留 URI 连接参数")
+  return params
+}
+
+function HY2URI(line) {
+  var match = line.match(/^(?:hysteria2|hy2):\/\/([^/?#\s]+)\/?(?:\?([^#]*))?(?:#(.*))?$/i)
+  if (!match) NodeInvalid("URI 格式无效")
+  var at = match[1].lastIndexOf("@")
+  var address = match[1].slice(at + 1).match(/^(\[[0-9a-f:.]+\]|[^:\s]+)(?::(.+))?$/i)
+  if (at < 1 || !address) NodeInvalid("缺少服务器或认证密码")
+  var params = NodeQuery(match[2])
+  if (params.ech || params.alpn && params.alpn != "h3") NodeInvalid("当前目标格式无法等价保留 URI 连接参数")
   if (params.insecure !== undefined && params.allowinsecure !== undefined &&
-      HY2Bool(params.insecure) != HY2Bool(params.allowinsecure)) HY2Invalid("URI 证书校验开关冲突")
+      NodeBool(params.insecure) != NodeBool(params.allowinsecure)) NodeInvalid("URI 证书校验开关冲突")
   var ports = address[2] || "443"
+  var gecko = /^gecko$/i.test(params.obfs || "")
+  var geckoKey = params["gecko-password"]
+  if ((gecko && params["salamander-password"] !== undefined) || (!gecko && geckoKey !== undefined) ||
+      (geckoKey !== undefined && params["obfs-password"] !== undefined && geckoKey !== params["obfs-password"])) {
+    NodeInvalid("混淆模式与密钥字段冲突")
+  }
   return {
     host: address[1], port: ports.split(/[,-]/)[0], auth: decodeURIComponent(match[1].slice(0, at)),
     name: params.tag || decodeURIComponent(match[3] || ""), sni: params.sni || params.peer,
-    verification: HY2Bool(params.insecure, HY2Bool(params.allowinsecure, false)) ? "false" : "true",
+    verification: NodeBool(params.insecure, NodeBool(params.allowinsecure, false)) ? "false" : "true",
     certPin: params.pinsha256, udp: params.udp, obfs: params.obfs,
-    key: params.obfs ? params["obfs-password"] || params["salamander-password"] : params["salamander-password"],
+    key: params.obfs ? params["obfs-password"] || params[gecko ? "gecko-password" : "salamander-password"] : params["salamander-password"],
+    geckoSizing: ["obfs-min-packet-size", "obfs-max-packet-size", "minpacketsize", "maxpacketsize"]
+      .some(key => params[key] !== undefined),
     ports: params["port-hopping"] || params.mport || (/[,-]/.test(ports) ? ports : undefined),
     interval: params["port-hopping-interval"] || params["hop-interval"],
     down: params["download-bandwidth"] || params.down
@@ -3375,19 +3413,21 @@ function HY2URI(line) {
 
 function HY2Surge(line) {
   var m = line.match(/^([^=]+)=\s*hysteria2\s*,\s*([^,]+),\s*(\d+)\s*,\s*(.+)$/i)
-  if (!m) HY2Invalid("Surge 节点字段无效")
-  var p = HY2Fields(m[4], true)
+  if (!m) NodeInvalid("Surge 节点字段无效")
+  var p = NodeFields(m[4], true)
+  var gecko = p["gecko-password"] !== undefined
+  if (gecko && p["salamander-password"] !== undefined) NodeInvalid("Gecko 和 Salamander 密钥不能同时设置")
   if (p["client-cert"] || p["ech-config"] || p["underlying-proxy"] || p.sni == "off" ||
-      (p.alpn && p.alpn != "h3")) HY2Invalid("当前目标格式无法等价保留 Surge 连接参数")
+      (p.alpn && p.alpn != "h3")) NodeInvalid("当前目标格式无法等价保留 Surge 连接参数")
   var pin = p["server-cert-fingerprint-sha256"]
-  var verifyName = HY2VerifyName(p["server-cert-verify-name"])
-  var skipVerify = HY2Bool(p["skip-cert-verify"], false)
-  if (skipVerify && verifyName) HY2Invalid("Surge 证书校验开关与校验域名冲突")
+  var verifyName = NodeVerifyName(p["server-cert-verify-name"])
+  var skipVerify = NodeBool(p["skip-cert-verify"], false)
+  if (skipVerify && verifyName) NodeInvalid("Surge 证书校验开关与校验域名冲突")
   return {
     host: m[2].trim(), port: m[3], auth: p.password, name: m[1].trim(), sni: p.sni,
     verification: skipVerify ? "false" : verifyName || "true",
-    certPin: pin, pinOnly: !!pin, udp: p["udp-relay"], key: p["salamander-password"],
-    obfs: p["gecko-password"] ? "gecko" : undefined, ports: p["port-hopping"],
+    certPin: pin, pinOnly: !!pin, udp: p["udp-relay"], key: p[gecko ? "gecko-password" : "salamander-password"],
+    obfs: gecko ? "gecko" : undefined, ports: p["port-hopping"],
     interval: p["port-hopping-interval"], down: p["download-bandwidth"], check: p["test-url"]
   }
 }
@@ -3396,112 +3436,124 @@ function HY2Clash(node) {
   if ((node["realm-opts"] && node["realm-opts"].enable) ||
       (node["ech-opts"] && node["ech-opts"].enable) || node["private-key"] ||
       node.certificate || node.ca || node["ca-str"] ||
-      (node.alpn && String(node.alpn) != "h3")) HY2Invalid("当前目标格式无法等价保留 Clash 连接参数")
-  var skipVerify = HY2Bool(node["skip-cert-verify"], false)
+      (node.alpn && String(node.alpn) != "h3")) NodeInvalid("当前目标格式无法等价保留 Clash 连接参数")
+  var skipVerify = NodeBool(node["skip-cert-verify"], false)
   return {
     host: node.server, port: node.port, auth: node.password, name: node.name, sni: node.sni,
-    verification: HY2VerifyName(node["name-cert-verify"]) || (skipVerify ? "false" : "true"),
+    verification: NodeVerifyName(node["name-cert-verify"]) || (skipVerify ? "false" : "true"),
     certPin: node.fingerprint, pinOnly: !!node.fingerprint, udp: node.udp, obfs: node.obfs,
     key: node.obfs ? node["obfs-password"] : undefined,
+    geckoSizing: node["obfs-min-packet-size"] !== undefined || node["obfs-max-packet-size"] !== undefined,
     ports: node.ports, interval: node["hop-interval"], down: node.down
   }
 }
 
 function HY2QuanX(line) {
   var m = line.match(/^hysteria2\s*=\s*(\[[0-9a-f:.]+\]|[^:,\s]+):(\d+)\s*,\s*(.*)$/i)
-  if (!m) HY2Invalid("原生 QuanX 地址或字段无效")
-  var p = HY2Fields(m[3], false)
+  if (!m) NodeInvalid("原生 QuanX 地址或字段无效")
+  var p = NodeFields(m[3], false)
+  var gecko = p["gecko-password"] !== undefined
+  if (gecko && p["salamander-password"] !== undefined) NodeInvalid("Gecko 和 Salamander 密钥不能同时设置")
   return {
     host: m[1], port: m[2], auth: p.password, name: p.tag, sni: p["tls-host"],
     verification: p["tls-verification"], certPin: p["tls-cert-sha256"], keyPin: p["tls-pubkey-sha256"],
-    udp: p["udp-relay"], key: p["salamander-password"], ports: p["port-hopping"],
+    udp: p["udp-relay"], key: p[gecko ? "gecko-password" : "salamander-password"], obfs: gecko ? "gecko" : undefined, ports: p["port-hopping"],
     interval: p["port-hopping-interval"], down: p["download-bandwidth"], native: p
   }
 }
 
-function HY2Serialize(node) {
-  function safeValue(value) {
-    return typeof value == "string" && value.length > 0 && value.trim() == value &&
-      !/[,;"'\\\x00-\x1f\x7f\u0085\u2028\u2029]|tag\s*=|node_(?:type|emoji|tag|index)_prefix/i.test(value)
-  }
-  function portNumber(value) {
-    if (!/^\d{1,5}$/.test(value) || Number(value) < 1 || Number(value) > 65535) HY2Invalid("端口超出有效范围")
-    return Number(value)
-  }
-  function hostname(value) {
-    return typeof value == "string" && /^(?=.{1,253}$)[a-z0-9]+(?:[.-][a-z0-9]+)*\.?$/i.test(value)
-  }
-  var host = node.host
-  if (!hostname(host)) {
+function NodeSafeValue(value) {
+  return typeof value == "string" && value.length > 0 && value.trim() == value &&
+    !/[,;"'\\\x00-\x1f\x7f\u0085\u2028\u2029]|tag\s*=|node_(?:type|emoji|tag|index)_prefix/i.test(value)
+}
+function NodePort(value) {
+  if (!/^\d{1,5}$/.test(value) || Number(value) < 1 || Number(value) > 65535) NodeInvalid("端口超出有效范围")
+  return Number(value)
+}
+function NodeHostname(value) {
+  return typeof value == "string" && /^(?=.{1,253}$)[a-z0-9]+(?:[.-][a-z0-9]+)*\.?$/i.test(value)
+}
+
+function NodeHost(host) {
+  if (!NodeHostname(host)) {
     if (typeof host != "string" || !/^(?:\[[0-9a-f:.]+\]|[0-9a-f:.]+)$/i.test(host) || host.indexOf(":") < 0) {
-      HY2Invalid("服务器地址无效")
+      NodeInvalid("服务器地址无效")
     }
     host = "[" + host.replace(/^\[|\]$/g, "") + "]"
   }
-  if (!safeValue(node.auth)) HY2Invalid("认证密码缺失或含 QuanX 无法安全表示的字符")
-  if (node.sni !== undefined && !hostname(node.sni)) HY2Invalid("SNI 无效")
+  return host
+}
+
+function HY2Serialize(node) {
+  var host = NodeHost(node.host)
+  if (!NodeSafeValue(node.auth)) NodeInvalid("认证密码缺失或含 QuanX 无法安全表示的字符")
+  if (node.sni !== undefined && !NodeHostname(node.sni)) NodeInvalid("SNI 无效")
   var hopping = node.ports === undefined || node.ports === "" ? "" : String(node.ports).trim().split(/[,;/]/).map(function (item) {
-    var range = item.trim().split("-").map(portNumber)
-    if (range.length > 2 || range.length == 2 && range[0] > range[1]) HY2Invalid("端口跳跃范围无效")
+    var range = item.trim().split("-").map(NodePort)
+    if (range.length > 2 || range.length == 2 && range[0] > range[1]) NodeInvalid("端口跳跃范围无效")
     return range.join("-")
   }).join(",")
-  var port = portNumber(node.port === undefined && hopping ? hopping.split(/[,-]/)[0] : node.port)
+  var port = NodePort(node.port === undefined && hopping ? hopping.split(/[,-]/)[0] : node.port)
   var interval = node.interval
   if (interval !== undefined && (!hopping || !/^\d+$/.test(interval) || interval < 5 || interval > 3600)) {
-    HY2Invalid("QuanX 端口跳跃仅支持 5–3600 秒的固定间隔")
+    NodeInvalid("QuanX 端口跳跃仅支持 5–3600 秒的固定间隔")
   }
   // ⟦2026-11-20 12:11 UTC+8⟧ obfs=none/plain 表示无混淆，输出时省略 Salamander 密钥。
   var plainObfs = typeof node.obfs == "string" && /^(?:none|plain)$/i.test(node.obfs)
-  if (plainObfs && node.key !== undefined && node.key !== "") HY2Invalid("无混淆设置与混淆密钥冲突")
-  if (node.obfs && !plainObfs && node.obfs != "salamander") HY2Invalid("当前 Quantumult X 仅支持 Salamander 混淆")
-  if (!plainObfs && (node.key !== undefined || node.obfs == "salamander")) {
-    if (!safeValue(node.key) || encodeURIComponent(node.key).replace(/%[A-F0-9]{2}/g, "x").length < 4) {
-      HY2Invalid("Salamander 密钥缺失、少于 4 字节或无法安全表示")
+  if (plainObfs && node.key !== undefined && node.key !== "") NodeInvalid("无混淆设置与混淆密钥冲突")
+  var gecko = typeof node.obfs == "string" && /^gecko$/i.test(node.obfs)
+  if (node.obfs && !plainObfs && !gecko && node.obfs != "salamander") NodeInvalid("不支持此 Hysteria2 混淆类型")
+  if (gecko && version < 969) NodeInvalid("当前版本仅支持 Salamander 混淆；Gecko 需要 Quantumult X 1.9.0 build 969 或更新版本")
+  if (gecko && node.geckoSizing) NodeInvalid("当前目标格式不能保留 Gecko 自定义报文大小")
+  if (!plainObfs && (node.key !== undefined || node.obfs == "salamander" || gecko)) {
+    if (!NodeSafeValue(node.key) || encodeURIComponent(node.key).replace(/%[A-F0-9]{2}/g, "x").length < 4) {
+      NodeInvalid((gecko ? "Gecko" : "Salamander") + " 密钥缺失、少于 4 字节或无法安全表示")
     }
   }
   var verification = node.verification
-  if (verification !== undefined && !/^(?:true|false)$/i.test(verification)) verification = HY2VerifyName(verification)
+  if (verification !== undefined && !/^(?:true|false)$/i.test(verification)) verification = NodeVerifyName(verification)
   else if (verification !== undefined) verification = verification.toLowerCase()
-  var certPin = HY2Pin(node.certPin)
-  var keyPin = HY2Pin(node.keyPin)
+  var certPin = NodePin(node.certPin)
+  var keyPin = NodePin(node.keyPin)
   // QuanX 忽略关闭验证时的指纹；Surge/Mihomo 另有替代常规验证的指纹模式。
   if (node.pinOnly || (verification == "false" && (certPin || keyPin))) {
-    HY2Invalid("当前目标格式无法等价保留仅凭指纹验证的设置")
+    NodeInvalid("当前目标格式无法等价保留仅凭指纹验证的设置")
   }
   verification = (Pcert0 === 0 ? "" : TLSCertDomainValue(Pcert0)) || verification
-  var certOverride = Pcsha256 && HY2Pin(decodeURIComponent(Pcsha256))
-  var keyOverride = Ppsha256 && HY2Pin(decodeURIComponent(Ppsha256))
+  var certOverride = Pcsha256 && NodePin(decodeURIComponent(Pcsha256))
+  var keyOverride = Ppsha256 && NodePin(decodeURIComponent(Ppsha256))
   if ((certPin && certOverride && certPin != certOverride) ||
       (keyPin && keyOverride && keyPin != keyOverride) ||
-      (certPin && !keyPin && keyOverride)) HY2Invalid("资源参数与来源指纹冲突")
+      (certPin && !keyPin && keyOverride)) NodeInvalid("资源参数与来源指纹冲突")
   certPin = certPin || certOverride
   keyPin = keyPin || keyOverride
   if (certPin || keyPin) {
-    if (verification == "false") HY2Invalid("关闭证书验证会使 SHA-256 指纹失效")
+    if (verification == "false") NodeInvalid("关闭证书验证会使 SHA-256 指纹失效")
     verification = verification || "true"
   }
-  var udp = HY2Bool(node.udp, node.native ? undefined : true)
+  var udp = NodeBool(node.udp, node.native ? undefined : true)
   if (Pudp0 == 1 || Pudp0 == -1) udp = Pudp0 == 1
   var mbps
   if (node.down !== undefined) {
     var rate = String(node.down).trim().match(/^(\d+(?:\.\d+)?)(?:\s*([KMGT]?)([bB])ps)?$/i)
-    if (!rate) HY2Invalid("下载带宽格式无效")
+    if (!rate) NodeInvalid("下载带宽格式无效")
     mbps = Number(rate[1]) * (rate[3] ? Math.pow(1000, " KMGT".indexOf(rate[2].toUpperCase() || " ") - 2) * (rate[3] == "B" ? 8 : 1) : 1)
-    if (!Number.isFinite(mbps) || /e/i.test(String(mbps))) HY2Invalid("下载带宽超出可表示范围")
+    if (!Number.isFinite(mbps) || /e/i.test(String(mbps))) NodeInvalid("下载带宽超出可表示范围")
   }
   var fields = {
     password: node.auth, "tls-host": node.sni, "tls-verification": verification,
     "tls-cert-sha256": certPin, "tls-pubkey-sha256": keyPin, "udp-relay": udp,
-    "salamander-password": plainObfs ? undefined : node.key, "download-bandwidth": mbps || undefined,
+    "salamander-password": plainObfs || gecko ? undefined : node.key, "download-bandwidth": mbps || undefined,
     "port-hopping": hopping, "port-hopping-interval": interval === undefined ? undefined : Number(interval),
     server_check_url: node.check
   }
+  if (gecko) fields["gecko-password"] = node.key
   Object.keys(node.native || {}).forEach(function (key) {
     if (key == "tag" || Object.prototype.hasOwnProperty.call(fields, key) && key != "server_check_url") return
-    if (!safeValue(node.native[key])) HY2Invalid("原生 QuanX 字段无法安全表示")
+    if (!NodeSafeValue(node.native[key])) NodeInvalid("原生 QuanX 字段无法安全表示")
     Object.defineProperty(fields, key, {value: node.native[key], enumerable: true})
   })
-  if (node.check !== undefined && !safeValue(node.check)) HY2Invalid("测试 URL 无法安全表示")
+  if (node.check !== undefined && !NodeSafeValue(node.check)) NodeInvalid("测试 URL 无法安全表示")
   var name = ClashNameFix(node.name).replace(/[\x00-\x1f\x7f\u0085\u2028\u2029]/g, " ").replace(/=/g, "＝").trim()
   fields.tag = name || "[hysteria2] " + host + ":" + port
   var entries = Object.keys(fields).filter(key => fields[key] !== undefined && fields[key] !== "")
@@ -3515,7 +3567,132 @@ function HY2Convert(kind, input) {
     return HY2Serialize(kind == "uri" ? HY2URI(line) : kind == "surge" ? HY2Surge(line) :
       kind == "quanx" ? HY2QuanX(line) : HY2Clash(input))
   } catch (err) {
-    return HY2Skip(err.hy2Reason || "无法安全读取节点字段")
+    return HY2Skip(err.nodeReason || "无法安全读取节点字段")
+  }
+}
+
+// mieru: build 968+。原生连接字段按原意输出；外部格式仅转换可等价表示的 TCP 节点。
+function MieruSkip(reason) {
+  PNS++
+  MieruSkipped[reason] = (MieruSkipped[reason] || 0) + 1
+  return ""
+}
+
+function MieruURI(line) {
+  if (/^mieru:\/\//i.test(line)) NodeInvalid("mieru:// 是完整客户端配置，请使用可等价转换的 mierus:// 链接")
+  var match = line.match(/^mierus:\/\/([^/?#\s]+)\?([^#]+)(?:#(.*))?$/i)
+  if (!match) NodeInvalid("mierus 分享链接格式无效")
+  var at = match[1].lastIndexOf("@")
+  var colon = match[1].indexOf(":")
+  if (colon < 1 || at <= colon + 1 || at == match[1].length - 1) NodeInvalid("缺少服务器或用户名和密码")
+  var params = NodeQuery(match[2])
+  if (!params.profile || !/^\d+$/.test(params.port || "") || params.protocol !== "TCP") {
+    NodeInvalid("mierus 仅支持含 profile 的单端口 TCP 节点")
+  }
+  if (Object.keys(params).some(key => !/^(?:profile|port|protocol|handshake-mode)$/.test(key)) ||
+      params["handshake-mode"] !== undefined && params["handshake-mode"] !== "HANDSHAKE_STANDARD") {
+    NodeInvalid("当前目标格式不能保留分享链接中的连接参数")
+  }
+  return {
+    host: match[1].slice(at + 1), port: params.port,
+    username: decodeURIComponent(match[1].slice(0, colon)),
+    password: decodeURIComponent(match[1].slice(colon + 1, at)),
+    "udp-relay": true, tag: decodeURIComponent(match[3] || "") || params.profile
+  }
+}
+
+function MieruClash(node) {
+  if (node.transport !== "TCP" || node["port-range"] ||
+      node["handshake-mode"] && node["handshake-mode"] !== "HANDSHAKE_STANDARD" ||
+      node.multiplexing || node["traffic-pattern"] ||
+      Object.keys(node).some(key => !/^(?:type|name|server|port|port-range|transport|username|password|udp|handshake-mode|multiplexing|traffic-pattern|_subName)$/.test(key))) {
+    NodeInvalid("Clash mieru 仅支持单端口 TCP 和可等价表示的连接参数")
+  }
+  return {
+    host: node.server, port: node.port, username: node.username, password: node.password,
+    "udp-relay": NodeBool(node.udp, false), tag: node.name
+  }
+}
+
+function MieruQuanX(line) {
+  var match = line.match(/^mieru\s*=\s*(\[[0-9a-f:.]+\]|[^:,\s]+):(\d+)\s*,\s*(.*)$/i)
+  if (!match) NodeInvalid("原生 QuanX 地址或字段无效")
+  var fields = NodeFields(match[3], false)
+  if (Object.keys(fields).some(key => !/^(?:username|password|over-tls|tls-host|tls-verification|tls-cert-sha256|tls-pubkey-sha256|reality-base64-pubkey|reality-hex-shortid|fast-open|udp-relay|udp-over-tcp|tag|server_check_url)$/.test(key))) {
+    NodeInvalid("原生 QuanX mieru 包含未识别字段")
+  }
+  fields.host = match[1]
+  fields.port = match[2]
+  return fields
+}
+
+function MieruSerialize(fields) {
+  var host = NodeHost(fields.host)
+  var port = NodePort(fields.port)
+  if (!NodeSafeValue(fields.username) || !NodeSafeValue(fields.password)) {
+    NodeInvalid("用户名或密码缺失，或含 QuanX 无法安全表示的字符")
+  }
+  var tls = NodeBool(fields["over-tls"])
+  var sni = fields["tls-host"]
+  var verification = fields["tls-verification"]
+  var certPin = NodePin(fields["tls-cert-sha256"])
+  var keyPin = NodePin(fields["tls-pubkey-sha256"])
+  var realityKey = fields["reality-base64-pubkey"]
+  var shortId = fields["reality-hex-shortid"]
+  if (!tls && (sni !== undefined || verification !== undefined || certPin || keyPin ||
+      realityKey !== undefined || shortId !== undefined)) NodeInvalid("TLS 或 REALITY 字段需要 over-tls=true")
+  if (sni !== undefined && !NodeHostname(sni)) NodeInvalid("SNI 无效")
+  if (realityKey !== undefined && !/^(?:[A-Za-z0-9+/]{43}|[A-Za-z0-9_-]{43})=?$/.test(realityKey) ||
+      shortId !== undefined && (!realityKey || !/^(?:[a-f0-9]{2}){0,8}$/i.test(shortId))) {
+    NodeInvalid("REALITY 公钥或 Short ID 格式无效")
+  }
+  if (verification !== undefined) {
+    verification = /^(?:true|false)$/i.test(verification) ? verification.toLowerCase() : NodeVerifyName(verification)
+  }
+  if (realityKey && (certPin || keyPin)) NodeInvalid("REALITY 和 TLS 证书指纹不能同时设置")
+  if (tls && !realityKey) {
+    var certOverride = Pcsha256 && NodePin(decodeURIComponent(Pcsha256))
+    var keyOverride = Ppsha256 && NodePin(decodeURIComponent(Ppsha256))
+    if ((certPin && certOverride && certPin != certOverride) ||
+        (keyPin && keyOverride && keyPin != keyOverride)) NodeInvalid("资源参数与来源指纹冲突")
+    certPin = certPin || certOverride
+    keyPin = keyPin || keyOverride
+    var override = Pcert0 === 0 ? "" : TLSCertDomainValue(Pcert0)
+    if ((certPin || keyPin) && (verification == "false" || override == "false")) {
+      NodeInvalid("关闭证书验证会使 SHA-256 指纹失效")
+    }
+    verification = override || verification || "true"
+  }
+  var udp = NodeBool(fields["udp-relay"])
+  var udpOverTcp = NodeBool(fields["udp-over-tcp"])
+  if (udp && udpOverTcp === false) NodeInvalid("mieru 的 UDP 中继必须经 TCP")
+  if (Pudp0 == 1 || Pudp0 == -1) udp = Pudp0 == 1
+  if (udp) udpOverTcp = true
+  else if (udp === false && udpOverTcp !== undefined) udpOverTcp = false
+  var fastOpen = NodeBool(fields["fast-open"])
+  if (Ptfo0 == 1 || Ptfo0 == -1) fastOpen = Ptfo0 == 1
+  var check = fields.server_check_url
+  if (check !== undefined && !NodeSafeValue(check)) NodeInvalid("测试 URL 无法安全表示")
+  var name = ClashNameFix(fields.tag).replace(/[\x00-\x1f\x7f\u0085\u2028\u2029]/g, " ").replace(/=/g, "＝").trim()
+  var output = {
+    username: fields.username, password: fields.password, "over-tls": tls, "tls-host": sni,
+    "tls-verification": verification, "tls-cert-sha256": certPin, "tls-pubkey-sha256": keyPin,
+    "reality-base64-pubkey": realityKey, "reality-hex-shortid": shortId, "fast-open": fastOpen,
+    "udp-relay": udp, "udp-over-tcp": udpOverTcp, server_check_url: check,
+    tag: name || "[mieru] " + host + ":" + port
+  }
+  return "mieru=" + host + ":" + port + ", " + Object.keys(output)
+    .filter(key => output[key] !== undefined && (output[key] !== "" || key == "reality-hex-shortid"))
+    .map(key => key + "=" + output[key]).join(", ")
+}
+
+function MieruConvert(kind, input) {
+  if (!MieruSupported) return MieruSkip("需要 Quantumult X 1.9.0 build 968 或更新版本")
+  try {
+    return MieruSerialize(kind == "clash" ? MieruClash(input) :
+      kind == "uri" ? MieruURI(input.trim()) : MieruQuanX(input.trim()))
+  } catch (err) {
+    return MieruSkip(err.nodeReason || "无法安全读取节点字段")
   }
 }
 
@@ -3837,7 +4014,7 @@ function isQuanX(content) {
     var nlist = []
     for (var i = 0; i < cnts.length; i++) {
         var cnti = cnts[i];
-        if (HY2Supported && HY2LineKind(cnti) == "quanx") {
+        if ((HY2Supported && HY2LineKind(cnti) == "quanx") || (MieruSupported && MieruLineKind(cnti) == "quanx")) {
             nlist.push(cnti.trim())
             continue
         }
@@ -5030,11 +5207,11 @@ function JCheck(cnt) {
 // Clash parser
 function Clash2QX(cnt) {
   const yaml = new YAML()
-  var original = HY2ClashOriginal(cnt)
+  var original = ExtendedClashOriginal(cnt)
   var bb
   //if (Pdbg==1) { $notify(" Before YAML Parse", "content", cnt)}
   // 如果本身为json则无需解析
-  if (Array.isArray(original) && original.length && original.every(node => node && HY2Type(node.type))) {
+  if (Array.isArray(original) && original.length && original.every(node => node && ExtendedClashType(node.type))) {
     bb = original
   } else {
     try {
@@ -5044,11 +5221,11 @@ function Clash2QX(cnt) {
       }
       bb = JSON.parse(aa).proxies
     } catch (err) {
-      if (!Array.isArray(original) || !original.some(node => node && HY2Type(node.type))) throw err
+      if (!Array.isArray(original) || !original.some(node => node && ExtendedClashType(node.type))) throw err
       bb = original
     }
   }
-  if (!Array.isArray(bb) && Array.isArray(original) && original.some(node => node && HY2Type(node.type))) bb = original
+  if (!Array.isArray(bb) && Array.isArray(original) && original.some(node => node && ExtendedClashType(node.type))) bb = original
   var originalAligned = Array.isArray(original) && Array.isArray(bb) && original.length == bb.length &&
     original.every((node, index) => node && bb[index] && node.type == bb[index].type)
   if (Pdbg==1) { $notify("After YAML Parse", "content", JSON.stringify(bb))}
@@ -5060,6 +5237,13 @@ function Clash2QX(cnt) {
     try{
       node=bb[i]
       typecc = node.type
+      if (typeof typecc == "string" && /^mieru$/i.test(typecc)) {
+        node = originalAligned || !MieruSupported
+          ? MieruConvert("clash", originalAligned ? original[i] : node)
+          : MieruSkip("无法安全读取 Clash 原始字段")
+        if (node) nodelist.push(node)
+        continue
+      }
       if (HY2Type(typecc)) {
         node = originalAligned || !HY2Supported
           ? HY2Convert("clash", originalAligned ? original[i] : node)
