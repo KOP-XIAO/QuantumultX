@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-11-22 20:27⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-11-22 22:25⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -3586,18 +3586,25 @@ function MieruURI(line) {
   var colon = match[1].indexOf(":")
   if (colon < 1 || at <= colon + 1 || at == match[1].length - 1) NodeInvalid("缺少服务器或用户名和密码")
   var params = NodeQuery(match[2])
-  if (!params.profile || !/^\d+$/.test(params.port || "") || params.protocol !== "TCP") {
+  var protocol = params.protocol === undefined ? undefined : params.protocol.toUpperCase()
+  var transport = params.transport === undefined ? undefined : params.transport.toUpperCase()
+  if (protocol !== undefined && transport !== undefined && protocol !== transport) {
+    NodeInvalid("mierus 的 protocol 与 transport 冲突")
+  }
+  if (!params.profile || !/^\d+$/.test(params.port || "") || (protocol === undefined ? transport : protocol) !== "TCP") {
     NodeInvalid("mierus 仅支持含 profile 的单端口 TCP 节点")
   }
-  if (Object.keys(params).some(key => !/^(?:profile|port|protocol|handshake-mode)$/.test(key)) ||
+  if (Object.keys(params).some(key => !/^(?:profile|port|protocol|transport|udp|user-hint-is-mandatory|handshake-mode)$/.test(key)) ||
       params["handshake-mode"] !== undefined && params["handshake-mode"] !== "HANDSHAKE_STANDARD") {
     NodeInvalid("当前目标格式不能保留分享链接中的连接参数")
   }
+  // 服务端握手标记只校验格式，QuanX 节点没有对应字段。
+  NodeBool(params["user-hint-is-mandatory"])
   return {
     host: match[1].slice(at + 1), port: params.port,
     username: decodeURIComponent(match[1].slice(0, colon)),
     password: decodeURIComponent(match[1].slice(colon + 1, at)),
-    "udp-relay": true, tag: decodeURIComponent(match[3] || "") || params.profile
+    "udp-relay": NodeBool(params.udp, true), tag: decodeURIComponent(match[3] || "") || params.profile
   }
 }
 
