@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-11-22 22:25⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-11-24 07:06⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -3448,9 +3448,29 @@ function HY2Clash(node) {
   }
 }
 
+function IsBareIPv6(host) {
+  var tail = host.slice(host.lastIndexOf(":") + 1)
+  if (tail.includes(".")) {
+    var octets = tail.split(".")
+    if (octets.length != 4 || octets.some(octet => !/^(?:0|[1-9]\d{0,2})$/.test(octet) || Number(octet) > 255)) {
+      return false
+    }
+    host = host.slice(0, -tail.length) + "0:0"
+  }
+  var halves = host.split("::")
+  if (halves.length > 2) return false
+  var groups = halves.filter(Boolean).flatMap(half => half.split(":"))
+  return groups.every(group => /^[0-9a-f]{1,4}$/i.test(group)) &&
+    (halves.length == 2 ? groups.length < 8 : groups.length == 8)
+}
+
 function HY2QuanX(line) {
-  var m = line.match(/^hysteria2\s*=\s*(\[[0-9a-f:.]+\]|[^:,\s]+):(\d+)\s*,\s*(.*)$/i)
+  // 原生节点允许不加方括号的 IPv6，最后一个冒号后的数字为端口。
+  var m = line.match(/^hysteria2\s*=\s*([^,\s]+):(\d+)\s*,\s*(.*)$/i)
   if (!m) NodeInvalid("原生 QuanX 地址或字段无效")
+  if (m[1].includes(":") && !m[1].startsWith("[") && !IsBareIPv6(m[1])) {
+    NodeInvalid("原生 QuanX IPv6 地址无效")
+  }
   var p = NodeFields(m[3], false)
   var gecko = p["gecko-password"] !== undefined
   if (gecko && p["salamander-password"] !== undefined) NodeInvalid("Gecko 和 Salamander 密钥不能同时设置")
@@ -3486,6 +3506,7 @@ function NodeHost(host) {
 
 function HY2Serialize(node) {
   var host = NodeHost(node.host)
+  if (node.native) host = node.host // 保留原生地址的方括号写法或无括号写法。
   if (!NodeSafeValue(node.auth)) NodeInvalid("认证密码缺失或含 QuanX 无法安全表示的字符")
   if (node.sni !== undefined && !NodeHostname(node.sni)) NodeInvalid("SNI 无效")
   var hopping = node.ports === undefined || node.ports === "" ? "" : String(node.ports).trim().split(/[,;/]/).map(function (item) {
