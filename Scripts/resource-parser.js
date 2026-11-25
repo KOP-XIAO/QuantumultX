@@ -1,5 +1,5 @@
 /** 
-☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-11-24 20:25⟧
+☑️ 资源解析器 ©𝐒𝐡𝐚𝐰𝐧  ⟦2026-11-25 08:43⟧
 ----------------------------------------------------------
 🛠 发现 𝐁𝐔𝐆 请反馈: https://t.me/ShawnKOP_Parser_Bot
 ⛳️ 关注 🆃🅶 相关频道: https://t.me/QuanX_API
@@ -119,290 +119,236 @@ var $parser = $parser || {};
 // schema：作者声明的全部参数（不带 value）
 $parser.hashSchema = function () {
   // helper 必须定义在函数体内部 —— 协议要求三个函数自包含
+  function _overrideOptions() {
+    return [
+      { label: "沿用来源", value: "" },
+      { label: "强制开启", value: "1" },
+      { label: "强制关闭", value: "-1" }
+    ];
+  }
   function _emojiOptions() {
     return [
-      { label: "添加",     value: "1"  },
-      { label: "国行设备", value: "2"  },
-      { label: "删除",     value: "-1" }
+      { label: "沿用原有旗帜", value: "" },
+      { label: "🇭🇰 添加旗帜", value: "1" },
+      { label: "添加旗帜（国行设备）", value: "2" },
+      { label: "移除旗帜", value: "-1" }
     ];
   }
   function _ptnOptions() {
     return [
-      { label: "原样",         value: ""  },
-      { label: "🅰 字母方块",   value: "1" },
-      { label: "🄰 字母方块（实）", value: "2" },
-      { label: "𝐀 加粗",        value: "3" },
-      { label: "𝗮 加粗小写",    value: "4" },
-      { label: "𝔸 双线",        value: "5" },
-      { label: "𝕒 双线小写",    value: "6" },
-      { label: "ᵃ 上标",        value: "7" },
-      { label: "ᴬ 大写上标",    value: "8" }
+      { label: "原样", value: "" },
+      { label: "🅰🅱 实心方块", value: "1" },
+      { label: "🄰🄱 描边方块", value: "2" },
+      { label: "𝐀𝐁 加粗", value: "3" },
+      { label: "𝗮𝗯 加粗小写", value: "4" },
+      { label: "𝔸𝔹 双线", value: "5" },
+      { label: "𝕒𝕓 双线小写", value: "6" },
+      { label: "ᵃᵇ 小写上标", value: "7" },
+      { label: "ᴬᴮ 大写上标", value: "8" }
     ];
   }
   function _nptOptions() {
     return [
-      { label: "原样",         value: ""  },
-      { label: "①",            value: "1" },
-      { label: "❶",            value: "2" },
-      { label: "⓵",            value: "3" },
-      { label: "𝟙",            value: "4" },
-      { label: "¹",            value: "5" },
-      { label: "₁",            value: "6" },
-      { label: "𝟏",            value: "7" },
-      { label: "𝟷",            value: "8" }
+      { label: "原样", value: "" },
+      { label: "①②③ 圈号", value: "1" },
+      { label: "❶❷❸ 实心圈号", value: "2" },
+      { label: "⓵⓶⓷ 双圈", value: "3" },
+      { label: "𝟙𝟚𝟛 双线", value: "4" },
+      { label: "¹²³ 上标", value: "5" },
+      { label: "₁₂₃ 下标", value: "6" },
+      { label: "𝟏𝟐𝟑 粗体", value: "7" },
+      { label: "𝟷𝟸𝟹 等宽", value: "8" }
     ];
   }
 
-  if ($resource.type == "server") { // server content
+  function _form(schema) {
+    for (var group of schema.sections) {
+      for (var item of group.items) {
+        if (item.description) item.description = item.label + "｜" + item.description;
+      }
+    }
+    return schema;
+  }
+
+  function _notificationItems(node) {
+    return [
+      { type: "select", key: "ntf", label: "解析通知",
+        options: [
+          { label: "有问题时提醒（默认）", value: "" },
+          { label: "仅关键提醒", value: "0" },
+          { label: "显示结果汇总", value: "1" }
+        ] },
+      { type: "switch", key: "cnt", label: node ? "显示保留节点明细" : "显示规则预览",
+        description: node ? "显示保留节点的完整配置。此项优先于解析通知设置。" : "在通知中附最多 10 条脱敏规则预览。",
+        onValue: "1", offValue: "" }
+    ];
+  }
+
+  function _ruleFilterGroup(rewrite) {
+    var regexScope = rewrite ? "匹配规则正文和主机名。" : "匹配规则正文。";
+    var keywords = "匹配规则正文，多个标签命中任一项即可。";
     return {
-    version: 1,
-    sections: [
-      { type: "group",
-        title: "✈️ 订阅获取",
+      type: "group",
+      title: "🔎 规则筛选",
+      items: [
+        { type: "tags", key: "in", label: "保留规则（in）", description: keywords, placeholder: "weibo" },
+        { type: "tags", key: "out", label: "排除规则（out）", description: keywords, placeholder: "ad.example.com" },
+        { type: "select", key: "hide", label: "关键词筛除后的处理",
+          description: "正则筛除会直接移除条目。",
+          options: [
+            { label: "移除筛除项（默认）", value: "1" },
+            { label: "保留为禁用", value: "0" }
+          ] },
+        { type: "text", key: "regex", label: "正则保留（regex）", description: regexScope, placeholder: "weibo|bilibili" },
+        { type: "text", key: "regout", label: "正则排除（regout）", description: regexScope, placeholder: "ad|tracking" }
+      ]
+    };
+  }
+
+  var resourceType = typeof $resource === "undefined" || !$resource ? "" : String($resource.type || "").toLowerCase();
+  if (resourceType === "server" || resourceType === "uri") {
+    var nodeKeywords = "按节点名匹配。多个标签命中其一。同一标签内以 . 连接时须同时命中，字面点写作 \\.";
+    return _form({
+      version: 1,
+      sections: [
+        { type: "group", title: "🔎 节点筛选",
+          items: [
+            { type: "tags", key: "in", label: "保留节点（in）", description: nodeKeywords, placeholder: "香港.IPLC" },
+            { type: "tags", key: "out", label: "排除节点（out）", description: nodeKeywords, placeholder: "BGP.试用" },
+            { type: "text", key: "regex", label: "正则保留（regex）",
+              description: "匹配完整节点配置。", placeholder: "香港|IPLC" },
+            { type: "text", key: "regout", label: "正则排除（regout）",
+              description: "匹配完整节点配置。", placeholder: "试用|到期" }
+          ] },
+        { type: "group", title: "🏷️ 命名与排序",
+          items: [
+            { type: "text", key: "rename", label: "节点重命名（rename）",
+              description: "填写旧名@新名、前缀@ 或 @后缀。多项用 + 连接，删除字段在末尾加 ☠️。",
+              placeholder: "香港@HK+@[1X]" },
+            { type: "text", key: "rrname", label: "前置重命名（rrname）",
+              description: "用法同 rename，在常规重命名和旗帜处理前执行。", placeholder: "香港@HK" },
+            { type: "select", key: "emoji", label: "地区旗帜",
+              options: _emojiOptions() },
+            { type: "select", key: "ptn", label: "节点名字母样式（ptn）", options: _ptnOptions() },
+            { type: "select", key: "npt", label: "节点名数字样式（npt）", options: _nptOptions() },
+            { type: "text", key: "sort", label: "节点排序（sort）",
+              description: "1 为正序，-1 为逆序，x 为随机。可用 > 或 < 指定关键词或正则排序。",
+              placeholder: "🇭🇰>🇯🇵>🇺🇸" }
+          ] },
+        { type: "group", title: "🔐 连接与 TLS",
+          items: [
+            { type: "select", key: "udp", label: "UDP 转发", options: _overrideOptions() },
+            { type: "select", key: "tfo", label: "TCP Fast Open", options: _overrideOptions() },
+            { type: "switch", key: "uot", label: "UDP over TCP（SS/SSR）", onValue: "1", offValue: "" },
+            { type: "select", key: "aead", label: "VMess AEAD", options: _overrideOptions() },
+            { type: "text", key: "cert", label: "TLS 证书验证",
+              description: "留空沿用来源，1 开启，-1 关闭。build 938+ 可填证书校验域名，此域名独立于握手 SNI。",
+              placeholder: "1 / -1 / cert.example.com" },
+            { type: "text", key: "host", label: "TLS 或混淆主机名（host）",
+              description: "替换已有主机名。适用时可在末尾加 ☠️ 新增该字段。", placeholder: "cdn.example.com" },
+            { type: "text", key: "alpn", label: "TLS ALPN", description: "用于适用的 TLS 传输。", placeholder: "h2" },
+            { type: "text", key: "checkurl", label: "节点测速地址（checkurl）",
+              description: "直接粘贴完整 URL，可包含查询参数。", placeholder: "https://example.com/ping", keyboard: "url" }
+          ] },
+        { type: "group", title: "🔔 通知与流量",
+          items: _notificationItems(true).concat([
+            { type: "switch", key: "info", label: "显示订阅流量",
+              description: "来源提供有效流量时显示，有解析通知时合并到同一条。", onValue: "1", offValue: "" },
+            { type: "text", key: "flow", label: "手动设置流量及到期时间",
+              description: "到期日:总流量GB:已用GB。",
+              placeholder: "2027-06-30:1000:54" }
+          ]) },
+        { type: "group", title: "⚙️ 高级",
+          items: [
+            { type: "switch", key: "UA", label: "用 Shadowrocket UA 重试",
+              description: "build 921+。适用于订阅按客户端返回不同内容的情况。", onValue: "1", offValue: "" },
+            { type: "select", key: "type", label: "来源格式（type）",
+              options: [
+                { label: "自动识别", value: "" },
+                { label: "节点订阅", value: "nodes" },
+                { label: "节点列表", value: "list" },
+                { label: "Clash", value: "clash" }
+              ] },
+            { type: "text", key: "replace", label: "正则替换节点配置（replace）",
+              description: "作用于完整节点配置。填写 正则@替换内容，多项用 + 连接。",
+              placeholder: "Example@Sample" }
+          ] }
+      ]
+    });
+  }
+
+  var isFilter = resourceType === "filter";
+  var sections = [_ruleFilterGroup(!isFilter)];
+  if (isFilter) {
+    sections.push(
+      { type: "group", title: "🧭 策略",
         items: [
-          { type: "switch", key: "UA", label: "User-Agent 替换",
-            onValue: "1", offValue: "" ,
-            description: "开启该选项后，将会尝试使用 Shadowrocket 的 User-Agent 重新获取订阅内容"}
-          ]
-      },
-      {
-        type: "group",
-        title: "🎲 筛选&排序",
+          { type: "text", key: "policy", label: "指定策略（policy）",
+            description: "留空时沿用规则已有策略，缺少策略时使用 Shawn。", placeholder: "如 Proxy" },
+          { type: "text", key: "pset", label: "按正则分配策略（pset）",
+            description: "填写 正则@策略，多项用 + 连接。", placeholder: "如 weibo@Proxy" }
+        ] },
+      { type: "group", title: "🔗 网络接口与代理链",
         items: [
-          { type: "tags",   key: "in",     label: "保留（in）",
-            description: "按节点名关键字保留。每行一个关键字表示\"或\"；同行用 . 分隔表示\"与\"。例：另起一行填 香港、台湾 表示含其一即可；同一行填 香港.IPLC 表示同时含香港和 IPLC。",
-            placeholder: "如：香港 / 香港.IPLC" },
-          { type: "tags",   key: "out",    label: "删除（out）",
-            description: "按节点名关键字删除。每行一个关键字表示\"或\"；同行用 . 分隔表示\"与\"。",
-            placeholder: "如：BGP / BGP.试用" },
-          { type: "text",   key: "regex",  label: "正则保留（regex）",
-            description: "对节点完整信息正则匹配以保留节点", placeholder: "iplc" },
-          { type: "text",   key: "regout", label: "正则删除（regout）",
-            description: "对节点完整信息正则匹配以删除节点", placeholder: "" },
-          { type: "text",   key: "sort", label: "节点排序（sort）",
-            description: "对节点进行排序，参数是1(正序)/-1（逆序）/x（随机排序）/自定义规则（用>或者<连接）", placeholder: "🇭🇰>🇯🇵>🇺🇸" }
-        ]
-      },
-      {
-        type: "group",
-        title: "⛰️ 参数调整",
-        items: [
-          { type: "select", key: "emoji", label: "Emoji 旗帜（🇨🇳🇭🇰🇺🇸...）",
-            description: "添加/删除节点名地区旗帜", options: _emojiOptions() },
-          { type: "text",   key: "replace", label: "正则替换节点信息（replace）",
-            description: "替换节点信息（⚠️ 可匹配所有内容 ⚠️），regex1@str1+regex2@str2", placeholder: "" },
-          { type: "switch", key: "udp",   label: "UDP Relay",
-            onValue: "1", offValue: "-1" },
-          { type: "switch", key: "tfo",   label: "Fast Open",
-            onValue: "1", offValue: "-1" },
-          { type: "text", key: "cert", label: "TLS 证书验证",
-            description: "留空沿用来源，可填写 1（开启）、-1（关闭）或校验域名（build 938+）" },
-          { type: "switch", key: "uot",   label: "UDP over TCP（仅 SS/SSR）",
-            onValue: "1", offValue: "" },
-          { type: "switch", key: "aead",  label: "VMess AEAD",
-            description: "关闭 VMess AEAD", onValue: "", offValue: "-1" },
-          { type: "text",   key: "alpn",  label: "ALPN",
-            description: "over-tls 节点的 ALPN", placeholder: "h2" },
-          { type: "text",   key: "host",  label: "Host",
-            description: "修改已有 host；增加 host 请加 ☠️ 结尾",
-            placeholder: "" },
-          { type: "text",   key: "checkurl", label: "Check URL",
-            description: "server_check_url 参数",
-            placeholder: "http://...", keyboard: "url" }
-        ]
-      },
-      {
-        type: "group",
-        title: "🎯 重命名",
-        items: [
-          { type: "text", key: "rename",  label: "节点重命名（Rename）",
-            description: "格式：旧名@新名 / 前缀@ / @后缀；多组用 + 连接；删除字段用 ☠️ 结尾",
-            placeholder: "香港@HK+@[1X]" },
-          { type: "text", key: "rrname",  label: "节点重命名（emoji 保持在前）",
-            description: "在 emoji 之后再次重命名", placeholder: "" },
-          { type: "select", key: "ptn", label: "字母样式（ptn）",
-            description: "将节点名英文替换成花式样式 🅰/🄰/𝐀/𝗮/𝔸/𝕒/ᵃ/ᴬ ",
-            options: _ptnOptions() },
-          { type: "select", key: "npt", label: "数字样式（npt）",
-            description: "将节点名数字替换成花式样式 ①/❶/⓵/𝟙/¹/₁/𝟏/𝟷",
-            options: _nptOptions() }
-        ]
-      },
-      {
-        type: "group",
-        title: "🤖 其他参数",
-        items: [
-          { type: "select", key: "ntf",  label: "解析通知",
-            description: "默认提示跳过和异常，选择「显示汇总」可查看成功结果。",
+          { type: "select", key: "fcr", label: "网络接口模式（fcr）",
             options: [
               { label: "默认", value: "" },
-              { label: "仅关键提醒", value: "0" },
-              { label: "显示汇总", value: "1" }
+              { label: "强制蜂窝数据", value: "1" },
+              { label: "混合接口", value: "2" },
+              { label: "负载均衡", value: "3" }
             ] },
-          { type: "switch", key: "info", label: "流量信息",
-            onValue: "1", offValue: "", description: "将订阅提供的有效流量和到期时间并入节点通知"},
-          { type: "text",   key: "flow", label: "流量参数",
-            description: "格式：到期时间:总流量GB:已用GB（如 2026-12-31:1000:54）",
-            placeholder: "2026-12-31:1000:54" },
-          { type: "select", key: "type", label: "强制类型",
-            options: [
-              { label: "自动",         value: ""           },
-              { label: "Nodes",        value: "nodes"      },
-              { label: "Rule",         value: "rule"       },
-              { label: "Module",       value: "module"     },
-              { label: "List",         value: "list"       },
-              { label: "Domain Set",   value: "domain-set" }
-            ] }
-        ]
-      }
-    ]
-  };
-} else if ($resource.type == "filter") { // rule content
-  return {
-    version: 1,
-    sections: [
-      {
-        type: "group",
-        title: "🔀 Filter 「分流」",
-        description: "仅对 rewrite_remote / filter_remote 生效",
+          { type: "text", key: "via", label: "指定分流规则的接口（via）",
+            description: "填写接口名，0 表示 %TUN%。和 relay 分开设置。", placeholder: "0" },
+          { type: "text", key: "relay", label: "生成代理链规则（relay）",
+            description: "将节点订阅转成规则，填中转策略或节点名。以分流资源添加，关闭该引用的「策略偏好」。",
+            placeholder: "中转策略组或节点名" }
+        ] }
+    );
+  } else {
+    sections.push(
+      { type: "group", title: "🌐 主机名",
         items: [
-          { type: "tags", key: "in",  label: "保留分流规则「in」",
-            description: "按关键字保留 filter。每行一个关键字（多行之间为\"或\"关系）。",
-            placeholder: "如：weibo" },
-          { type: "tags", key: "out",  label: "禁用分流/重写「out」",
-            description: "按关键字保留 filter。每行一个关键字（多行之间为\"或\"关系）。",
-            placeholder: "如：weibo" },
-          { type: "text", key: "policy", label: "单策略组指定「policy」",
-            description: "rule-set 生成策略组的名字（默认 Shawn）",
-            placeholder: "Shawn" },
-          { type: "text", key: "pset",   label: "多策略组指定「pset」",
-            description: "regex1@policy1+regex2@policy2" },
-          { type: "text", key: "regex",   label: "正则保留「regex」",
-            description: "正则匹配保留指定内容" },
-          { type: "text", key: "regout",   label: "正则删除「regout」",
-            description: "正则匹配删除指定内容" },
-          { type: "text", key: "replace",   label: "正则替换「replace」",
-            description: "regex@new_regex 正则替换指定内容" }
-        ]
-      },
-      {
-        type : "group",
-        title: "🔗 代理链相关设置「Relay」",
-        items : [
-          { type: "text", key: "via",    label: "via-interface「规则订阅」",
-             description: "0 : via-interface=%TUN%, 设置代理链时，规则分流需使用此参数，请在策略偏好将策略组指定为 落地策略组/节点\n" ,
-             placeholder: "填写 0 即可" 
-          },
-          { type: "text",   key: "relay", label: "代理链 Relay「节点订阅」",
-            description: "将（落地）节点的订阅转换为 ip/host 规则，指向 中转策略组/节点。\n ⚠️ 设置 代理链条Relay 时，请确保关闭改订阅首页的「策略偏好」设置 \n\n ⚠️ 以上两项不应该在同一条引用中同时设置 ⚠️" ,
-            placeholder: "⚠️ 此处请填写你的 中转策略组/节点名" },
-           
-        ]
-      },
-      {
-        type: "group",
-        title: "🤖 其他参数",
+          { type: "tags", key: "inhn", label: "保留主机名（inhn）", description: "只筛选 hostname 列表。", placeholder: "api.example.com" },
+          { type: "tags", key: "outhn", label: "排除主机名（outhn）", description: "只筛选 hostname 列表。", placeholder: "ad.example.com" }
+        ] },
+      { type: "group", title: "✏️ 替换与脚本链接",
         items: [
-          { type: "select", key: "ntf",  label: "解析通知",
-            options: [
-              { label: "默认", value: "" },
-              { label: "仅关键提醒", value: "0" },
-              { label: "显示汇总", value: "1" }
-            ] },
-          { type: "select", key: "type", label: "强制类型",
-            options: [
-              { label: "自动",         value: ""           },
-              { label: "Nodes",        value: "nodes"      },
-              { label: "Rule",         value: "rule"       },
-              { label: "Module",       value: "module"     },
-              { label: "List",         value: "list"       },
-              { label: "Domain Set",   value: "domain-set" }
-            ] },
-          { type: "switch", key: "cdn",  label: "GitHub CDN 加速",
-            onValue: "1", offValue: "" },
-          { type: "select", key: "dst", label: "转换目标「dst」",
-            options: [
-              { label: "默认（不转换）", value: ""        },
-              { label: "Rewrite",        value: "rewrite" },
-              { label: "Filter",         value: "filter"  }
-            ] },
-          { type: "select", key: "fcr",  label: "网络接口指定「fcr」",
-            options: [
-              { label: "默认",            value: ""  },
-              { label: "强制蜂窝数据",    value: "1" },
-              { label: "混合接口",        value: "2" },
-              { label: "负载均衡",        value: "3" }
-            ] , description:"强制指定 “强制蜂窝数据/混合接口/负载均衡 等”" }
-        ]
-      }
-    ]
-  };
-} else { // rewrite type 
-  return {
-    version: 1,
-    sections: [
-      {
-        type: "group",
-        title: "🫆 Rewrite 「重写」",
-        description: "仅对 rewrite_remote / filter_remote 生效",
-        items: [
-          { type: "tags", key: "in",  label: "保留分流/重写「in」",
-            description: "按关键字保留 rewrite/filter。每行一个关键字（多行之间为\"或\"关系）。",
-            placeholder: "如：weibo" },
-          { type: "tags", key: "out",  label: "禁用分流/重写「out」",
-            description: "按关键字保留 rewrite/filter。每行一个关键字（多行之间为\"或\"关系）。",
-            placeholder: "如：weibo" },
-          { type: "tags", key: "inhn",  label: "保留主机名「inhn」",
-            description: "按关键字保留相关主机名hostname。每行一个关键字（多行之间为\"或\"关系）。",
-            placeholder: "如：weibo" },
-          { type: "tags", key: "outhn", label: "删除主机名「outhn」",
-            description: "按关键字删除相关主机名hostname。每行一个关键字（多行之间为\"或\"关系）。",
-            placeholder: "如：tb_price" },
-          { type: "text", key: "regex",   label: "正则保留「regex」",
-            description: "正则匹配保留指定内容" },
-          { type: "text", key: "regout",   label: "正则删除「regout」",
-            description: "正则匹配删除指定内容" },
-          { type: "text", key: "replace",   label: "正则替换「replace」",
-            description: "regex@new_regex 正则替换指定内容" }
-        ]
-      },
-      {
-        type: "group",
-        title: "🤖 其他参数",
-        items: [
-          { type: "select", key: "ntf",  label: "解析通知",
-            options: [
-              { label: "默认", value: "" },
-              { label: "仅关键提醒", value: "0" },
-              { label: "显示汇总", value: "1" }
-            ] },
-          { type: "select", key: "type", label: "强制类型",
-            options: [
-              { label: "自动",         value: ""           },
-              { label: "Nodes",        value: "nodes"      },
-              { label: "Rule",         value: "rule"       },
-              { label: "Module",       value: "module"     },
-              { label: "List",         value: "list"       },
-              { label: "Domain Set",   value: "domain-set" }
-            ] },
-          { type: "switch", key: "cdn",  label: "GitHub CDN 加速",
-            onValue: "1", offValue: "" },
-          { type: "select", key: "dst", label: "转换目标「dst」",
-            options: [
-              { label: "默认（不转换）", value: ""        },
-              { label: "Rewrite",        value: "rewrite" },
-              { label: "Filter",         value: "filter"  }
-            ] }
-        ]
-      }
-    ]
-  };
-}
+          { type: "text", key: "replace", label: "正则替换（replace）",
+            description: "填写 正则@替换内容，多项用 + 连接。", placeholder: "如 example@sample" },
+          { type: "switch", key: "cdn", label: "改写 GitHub 脚本链接",
+            description: "把 raw.githubusercontent.com 链接改写为 jsDelivr CDN 链接。", onValue: "1", offValue: "" }
+        ] }
+    );
+  }
+
+  sections.push({ type: "group", title: "🔔 通知", items: _notificationItems(false) });
+  var typeOptions = [{ label: "自动识别", value: "" }];
+  if (isFilter) {
+    typeOptions.push({ label: "分流规则", value: "rule" }, { label: "域名集合", value: "domain-set" });
+  } else {
+    typeOptions.push({ label: "Surge 模块", value: "module" });
+  }
+  var conversion = [
+    { type: "select", key: "type", label: "来源格式（type）", options: typeOptions },
+    { type: "select", key: "dst", label: "转换目标（dst）",
+      description: "将转换结果放入对应的资源类型。",
+      options: [
+        { label: "按来源自动转换", value: "" },
+        { label: "重写", value: "rewrite" },
+        { label: "分流", value: "filter" }
+      ] }
+  ];
+  if (isFilter) {
+    conversion.push({ type: "text", key: "replace", label: "正则替换规则（replace）",
+      description: "填写 正则@替换内容，多项用 + 连接。", placeholder: "如 example@sample" });
+  }
+  sections.push({ type: "group", title: "⚙️ 高级转换", items: conversion });
+  return _form({version: 1, sections: sections});
 };
 
-// hashToUI：支持动态参数
+// hashToUI：回填已声明的字段，保留未识别参数的原文。
 $parser.hashToUI = function (hash) {
-  if (!hash) return { version: 1, sections: [] };
+  if (!hash) return { version: 1, sections: [], unknown: "" };
 
   var schema = $parser.hashSchema();
   var allItems = Object.create(null);
@@ -412,25 +358,44 @@ $parser.hashToUI = function (hash) {
 
   var pairs = hash.split("&");
   var values = Object.create(null);
-  var dynamicItems = [];
+  var unknown = [];
+  var decodedTextKeys = ["checkurl", "regex", "regout", "policy", "relay"];
 
   pairs.forEach(function (p) {
     if (!p) return;
     var eq = p.indexOf("=");
-    var k = eq === -1 ? p : p.substring(0, eq);
-    var v = eq === -1 ? "" : p.substring(eq + 1);
-
-    if (allItems.cert && (k === "cert" || k === "tls-verification")) {
-      if (!("cert" in values)) values.cert = v;
-    } else if (allItems[k]) {
-      if (!(k in values)) values[k] = v;
-    } else {
-      dynamicItems.push({
-        type: "text",
-        key: k,
-        label: k,
-        value: v
-      });
+    var k = eq < 1 ? "" : p.substring(0, eq).trim();
+    if (k === "tls-verification" && allItems.cert) k = "cert";
+    var meta = allItems[k];
+    if (!meta) {
+      unknown.push(p);
+      return;
+    }
+    if (k in values) return;
+    var raw = p.substring(eq + 1);
+    if ((k === "type" && raw === "X") || (k === "flow" && Number(raw) === 1)) {
+      // 预置诊断值只在原始链接里保留。dbg 未声明，已由同一透传机制处理。
+      values[k] = undefined;
+      unknown.push(p);
+      return;
+    }
+    if (meta.type === "switch") {
+      // CDN 以非空值开启。其他开关兼容手写的 0。
+      if (raw === meta.onValue || raw === meta.offValue || (raw === "0" && k !== "cdn")) {
+        values[k] = raw === meta.onValue;
+      } else {
+        values[k] = undefined;
+        unknown.push(p);
+      }
+      return;
+    }
+    try {
+      values[k] = meta.type === "tags" ? raw.split("+").filter(Boolean).map(decodeURIComponent) :
+        decodedTextKeys.includes(k) ? decodeURIComponent(raw) : raw;
+    } catch (err) {
+      // 保存时原样交还无法解码的值，避免改变旧链接的含义。
+      values[k] = undefined;
+      unknown.push(p);
     }
   });
 
@@ -439,17 +404,20 @@ $parser.hashToUI = function (hash) {
   schema.sections.forEach(function (g) {
     var items = [];
     g.items.forEach(function (it) {
-      if (!(it.key in values)) return;
+      if (values[it.key] === undefined) return;
 
       var clone = JSON.parse(JSON.stringify(it));
-      var raw = values[it.key];
-
-      if (it.type === "switch") {
-        clone.value = (raw === it.onValue);
-      } else if (it.type === "tags") {
-        clone.value = raw.split("+").filter(Boolean);
-      } else {
-        clone.value = raw;
+      clone.value = values[it.key];
+      if (it.type === "select") {
+        if (it.key === "udp" || it.key === "tfo") {
+          var number = Number(clone.value);
+          if (number === 0 || number === 1 || number === -1) clone.value = number === 0 ? "" : String(number);
+        } else if (it.key === "aead" && clone.value !== "") {
+          clone.value = clone.value == -1 ? "-1" : "1";
+        }
+        if (!clone.options.some(function (option) { return option.value === clone.value; })) {
+          clone.options.push({ label: "保留现有值（" + clone.value + "）", value: clone.value });
+        }
       }
 
       items.push(clone);
@@ -459,27 +427,21 @@ $parser.hashToUI = function (hash) {
       sections.push({
         type: "group",
         title: g.title,
+        description: g.description,
         items: items
       });
     }
   });
 
-  if (dynamicItems.length) {
-    sections.push({
-      type: "group",
-      title: "自定义参数",
-      items: dynamicItems
-    });
-  }
-
   return {
     version: 1,
-    sections: sections
+    sections: sections,
+    unknown: unknown.join("&")
   };
 };
 
 
-// uiToHash：支持动态字段回写
+// uiToHash：按字段语法写入 fragment，透传未识别参数。
 $parser.uiToHash = function (values) {
   var schema = $parser.hashSchema();
   var allItems = Object.create(null);
@@ -488,28 +450,32 @@ $parser.uiToHash = function (values) {
   });
 
   var parts = [];
+  var decodedTextKeys = ["checkurl", "regex", "regout", "policy", "relay"];
 
   Object.keys(values).forEach(function (k) {
+    if (k === "__unknown") return;
     var v = values[k];
+    if (v == null) return;
     var meta = allItems[k];
     var serialized;
 
-    if (meta) {
-      if (meta.type === "switch") {
-        serialized = v ? meta.onValue : meta.offValue;
-      } else if (meta.type === "tags") {
-        serialized = (v || []).join("+");
-      } else {
-        serialized = String(v);
-      }
+    if (meta && meta.type === "switch") {
+      serialized = v ? meta.onValue : meta.offValue;
+    } else if (meta && meta.type === "tags") {
+      serialized = v.filter(Boolean).map(encodeURIComponent).join("+");
+      if (!serialized) return;
     } else {
-      // 动态字段默认 text
       serialized = String(v);
+      if (k === "policy" && !serialized.trim()) return;
+      if (serialized === "" && (k === "udp" || k === "tfo" || k === "aead")) return;
+      if (decodedTextKeys.includes(k)) serialized = encodeURIComponent(serialized);
     }
 
-    parts.push(k + "=" + serialized);
+    // 复合字段按原语法处理，保留 + 和 @ 等分隔符。
+    parts.push(k + "=" + serialized.replace(/&/g, "%26"));
   });
 
+  if (typeof values.__unknown === "string" && values.__unknown) parts.push(values.__unknown);
   return parts.join("&");
 };
 
@@ -570,7 +536,8 @@ const Base64 = new Base64Code()
 const escapeRegExp = str => str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
 
 function KeywordParameter(key) {
-  return resourceParams.has(key) ? resourceParams.get(key).split("+").map(DecodeParameter) : null
+  var terms = (resourceParams.get(key) ?? "").split("+").filter(Boolean)
+  return terms.length ? terms.map(DecodeParameter) : null
 }
 function RegexParameter(key) {
   return resourceParams.has(key) ? DecodeParameter(resourceParams.get(key)).replace(/，/g, ",") : null
@@ -595,7 +562,7 @@ var Prname = resourceParams.has("rename") ? resourceParams.get("rename").split("
 var Psrename = useLinkParameters && resourceParams.get("srename") ? Base64.decode(resourceParams.get("srename"), true) : ""
 var Prrname = resourceParams.has("rrname") ? resourceParams.get("rrname").split("+") : null
 var Psuffix = resourceParams.get("suffix") ?? 0
-var Ppolicy = DecodeParameter(resourceParams.get("policy") ?? "Shawn")
+var Ppolicy = DecodeParameter(resourceParams.get("policy") ?? "") || "Shawn"
 var Ppolicyset = DecodeParameter(resourceParams.get("pset") ?? "")
 var certKey = [...resourceParams.keys()].find(key => key === "cert" || key === "tls-verification")
 var Pcert0 = resourceParams.get(certKey)
